@@ -7,6 +7,7 @@ import 'package:dark_hours/models/inventory/equipment.dart';
 import 'package:dark_hours/models/combat/combat.dart';
 import 'package:dark_hours/models/conditions/condition.dart';
 import 'package:dark_hours/models/conditions/active_condition.dart';
+import 'package:dark_hours/models/progress/chapter_summary.dart';
 import 'package:dark_hours/services/save/save_manager.dart';
 import 'package:dark_hours/services/items/item_loader.dart';
 import 'package:dark_hours/services/conditions/condition_manager.dart';
@@ -19,8 +20,9 @@ import 'package:dark_hours/widgets/panels/conditions_panel.dart';
 import 'package:dark_hours/widgets/effects/fade_in_text.dart';
 import 'package:dark_hours/widgets/effects/floating_effect.dart';
 import 'package:dark_hours/widgets/indicators/animated_stat_bar.dart';
-import '../gameplay/combat_screen.dart';
-import '../gameplay/map_screen.dart';
+import 'package:dark_hours/screens/gameplay/combat_screen.dart';
+import 'package:dark_hours/screens/gameplay/map_screen.dart';
+import 'package:dark_hours/screens/gameplay/chapter_end_screen.dart';
 
 class StoryScreen extends StatefulWidget {
   final String characterId;
@@ -65,7 +67,7 @@ class _StoryScreenState extends State<StoryScreen> {
   // Флаги
   final Set<String> _flags = {};
 
-  // Трекер текущего забега
+  // Трекер забега
   final RunTracker tracker = RunTracker();
 
   @override
@@ -325,12 +327,10 @@ class _StoryScreenState extends State<StoryScreen> {
     );
     await SaveManager.save(save);
 
-    // Применяем статистику забега
     final stats = await AchievementManager.loadStats();
     tracker.applyToStats(stats);
     await AchievementManager.saveStats(stats);
 
-    // Проверяем достижения
     if (mounted) {
       await AchievementChecker.check(
         context: context,
@@ -354,6 +354,51 @@ class _StoryScreenState extends State<StoryScreen> {
     );
   }
 
+  /// Показать титры главы
+  void _showChapterEnd() {
+    if (_currentNode == null) return;
+
+    final save = SaveData(
+      characterId: widget.characterId,
+      characterName: widget.characterName,
+      currentNodeId: _currentNode!.id,
+      currentLocationId: _getStartLocationForCharacter(),
+      onMap: false,
+      hunger: hunger,
+      thirst: thirst,
+      health: health,
+      sanity: sanity,
+      stamina: stamina,
+      fatigue: fatigue,
+      timeMinutes: timeMinutes,
+      chapter: chapter,
+      history: [..._history, ..._flags],
+      inventoryItems: inventory.toJson(),
+      equipmentItems: equipment.toJson(),
+      activeConditions: activeConditions
+          .map((ac) => ({
+                'id': ac.condition.id,
+                'daysRemaining': ac.daysRemaining,
+              }))
+          .toList(),
+      savedAt: DateTime.now(),
+    );
+
+    final summary = ChapterSummary.fromSaveAndTracker(
+      save,
+      tracker,
+      daysSurvived: chapter,
+      finalNode: _currentNode!.id,
+    );
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ChapterEndScreen(summary: summary),
+      ),
+    );
+  }
+
   void _selectChoice(StoryChoice choice) {
     _applyEffects(choice.effects);
     _applyConditionsTick();
@@ -361,7 +406,6 @@ class _StoryScreenState extends State<StoryScreen> {
     fatigue = (fatigue + 2).clamp(0, 100);
     _history.add(_currentNode!.id);
 
-    // Отмечаем бой
     if (choice.effects != null && choice.effects!['combat_start'] != null) {
       tracker.hadCombat = true;
       final combat = choice.effects!['combat_start'] as Map<String, dynamic>;
@@ -471,7 +515,6 @@ class _StoryScreenState extends State<StoryScreen> {
     });
   }
 
-  // ====== ФИЛЬТРАЦИЯ ВЫБОРОВ ======
   List<StoryChoice> get _availableChoices {
     if (_currentNode == null) return [];
     return _currentNode!.choices.where((c) {
@@ -545,7 +588,6 @@ class _StoryScreenState extends State<StoryScreen> {
     health = (health + item.healthRestore).clamp(0, 100);
     sanity = (sanity + item.sanityRestore).clamp(0, 100);
 
-    // Всплывающие эффекты
     if (item.hungerRestore > 0) {
       FloatingEffectOverlay.show(
         context,
@@ -830,10 +872,10 @@ class _StoryScreenState extends State<StoryScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: _goToMap,
+                          onPressed: _showChapterEnd,
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
-                                const Color.fromARGB(255, 100, 200, 100),
+                                const Color.fromARGB(255, 200, 180, 100),
                             foregroundColor: Colors.black,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
@@ -841,7 +883,7 @@ class _StoryScreenState extends State<StoryScreen> {
                             ),
                           ),
                           child: const Text(
-                            '🗺️  ВЫЙТИ НА КАРТУ',
+                            '🎬  ЗАВЕРШИТЬ ГЛАВУ',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -854,11 +896,12 @@ class _StoryScreenState extends State<StoryScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: OutlinedButton(
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: _goToMap,
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.grey[400],
-                            side: BorderSide(
-                              color: Colors.grey[700]!,
+                            foregroundColor:
+                                const Color.fromARGB(255, 100, 200, 100),
+                            side: const BorderSide(
+                              color: Color.fromARGB(255, 100, 200, 100),
                               width: 1,
                             ),
                             padding: const EdgeInsets.symmetric(vertical: 12),
@@ -867,9 +910,25 @@ class _StoryScreenState extends State<StoryScreen> {
                             ),
                           ),
                           child: const Text(
-                            'ВЕРНУТЬСЯ В МЕНЮ',
+                            '🗺️  ВЫЙТИ НА КАРТУ (без титров)',
                             style: TextStyle(
                               fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 2.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        width: double.infinity,
+                        child: TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Text(
+                            'ВЕРНУТЬСЯ В МЕНЮ',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 11,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 2.0,
                             ),
@@ -1021,14 +1080,18 @@ class _StoryScreenState extends State<StoryScreen> {
               if (fatigue > 0) ...[
                 Icon(
                   Icons.bedtime,
-                  color: fatigue > 60 ? Colors.red : Colors.orange,
+                  color: fatigue > 80
+                      ? Colors.red
+                      : (fatigue > 60 ? Colors.orange : Colors.grey),
                   size: 14,
                 ),
                 const SizedBox(width: 4),
                 Text(
                   'Устал $fatigue%',
                   style: TextStyle(
-                    color: fatigue > 60 ? Colors.red : Colors.orange,
+                    color: fatigue > 80
+                        ? Colors.red
+                        : (fatigue > 60 ? Colors.orange : Colors.grey[500]),
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
                   ),
