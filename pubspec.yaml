@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:
@@ -24,3 +25,10 @@ flutter:
     - assets/data/armor.json
     - assets/data/resources.json
     - assets/data/recipes.json
+    - assets/data/conditions.json
+    - assets/data/locations.json          # ← новое
+    - assets/data/story_boris.json
+    - assets/data/story_alina.json
+    - assets/data/story_ivan.json
+    - assets/data/story_andrey.json
+    - assets/data/story_darya.json

@@ -1,0 +1,89 @@
+class SaveData {
+  final String characterId;
+  final String characterName;
+  final String currentNodeId;
+  final String currentLocationId; // ← новое
+  final bool onMap; // ← новое
+  final int hunger;
+  final int thirst;
+  final int health;
+  final int sanity;
+  final int stamina;
+  final int timeMinutes;
+  final int chapter;
+  final List<String> history;
+  final List<Map<String, dynamic>> inventoryItems;
+  final Map<String, dynamic> equipmentItems;
+  final List<Map<String, dynamic>> activeConditions;
+  final DateTime savedAt;
+
+  SaveData({
+    required this.characterId,
+    required this.characterName,
+    required this.currentNodeId,
+    required this.currentLocationId,
+    required this.onMap,
+    required this.hunger,
+    required this.thirst,
+    required this.health,
+    required this.sanity,
+    required this.stamina,
+    required this.timeMinutes,
+    required this.chapter,
+    required this.history,
+    required this.inventoryItems,
+    required this.equipmentItems,
+    required this.activeConditions,
+    required this.savedAt,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'characterId': characterId,
+      'characterName': characterName,
+      'currentNodeId': currentNodeId,
+      'currentLocationId': currentLocationId,
+      'onMap': onMap,
+      'hunger': hunger,
+      'thirst': thirst,
+      'health': health,
+      'sanity': sanity,
+      'stamina': stamina,
+      'timeMinutes': timeMinutes,
+      'chapter': chapter,
+      'history': history,
+      'inventoryItems': inventoryItems,
+      'equipmentItems': equipmentItems,
+      'activeConditions': activeConditions,
+      'savedAt': savedAt.toIso8601String(),
+    };
+  }
+
+  factory SaveData.fromJson(Map<String, dynamic> json) {
+    return SaveData(
+      characterId: json['characterId'],
+      characterName: json['characterName'],
+      currentNodeId: json['currentNodeId'],
+      currentLocationId: json['currentLocationId'] ?? 'home_boris',
+      onMap: json['onMap'] ?? false,
+      hunger: json['hunger'],
+      thirst: json['thirst'],
+      health: json['health'],
+      sanity: json['sanity'],
+      stamina: json['stamina'],
+      timeMinutes: json['timeMinutes'],
+      chapter: json['chapter'],
+      history: List<String>.from(json['history']),
+      inventoryItems: List<Map<String, dynamic>>.from(
+        (json['inventoryItems'] as List?) ?? [],
+      ),
+      equipmentItems: Map<String, dynamic>.from(
+        (json['equipmentItems'] as Map?) ?? {},
+      ),
+      activeConditions: List<Map<String, dynamic>>.from(
+        (json['activeConditions'] as List?) ?? [],
+      ),
+      savedAt: DateTime.parse(json['savedAt']),
+    );
+  }
+}
