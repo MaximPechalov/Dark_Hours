@@ -53,8 +53,10 @@ class AchievementManager {
     required int currentMedicineUsed,
     required int currentSanityDays,
     required int currentNights,
+    required int currentDefeats,
     required bool noCombat,
     required bool noDamage,
+    required bool noDefeats,
     required String characterId,
     required bool alchemistCrafted,
   }) async {
@@ -135,6 +137,17 @@ class AchievementManager {
           break;
         case 'generous':
           shouldUnlock = stats.totalItemsGivenToSurvivors >= 5;
+          break;
+
+        // ===== НОВЫЕ ДОСТИЖЕНИЯ (после этапа B) =====
+        case 'phoenix':
+          shouldUnlock = currentDefeats >= 5;
+          break;
+        case 'scarred':
+          shouldUnlock = stats.totalDefeats >= 10;
+          break;
+        case 'no_defeats':
+          shouldUnlock = noDefeats;
           break;
       }
 

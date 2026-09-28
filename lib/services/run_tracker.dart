@@ -8,6 +8,7 @@ class RunTracker {
   int sanityDaysLow = 0;
   int nightsSurvived = 0;
   int nightsPassed = 0;
+  int defeats = 0;
 
   bool hadCombat = false;
   bool hadDamage = false;
@@ -15,6 +16,9 @@ class RunTracker {
   int lastCheckedDay = 0;
   int maxInventorySize = 0;
   bool alchemistCrafted = false;
+
+  // Коллапсы
+  int collapsesCount = 0;
 
   RunTracker();
 
@@ -28,14 +32,15 @@ class RunTracker {
     sanityDaysLow = 0;
     nightsSurvived = 0;
     nightsPassed = 0;
+    defeats = 0;
     hadCombat = false;
     hadDamage = false;
     lastCheckedDay = 0;
     maxInventorySize = 0;
     alchemistCrafted = false;
+    collapsesCount = 0;
   }
 
-  /// Применить изменения к глобальной статистике
   void applyToStats(dynamic stats) {
     stats.totalKills += kills;
     stats.totalItemsCrafted += craftedCount;
@@ -44,5 +49,6 @@ class RunTracker {
     stats.totalItemsGivenToSurvivors += itemsGiven;
     stats.totalInfections += infections;
     stats.totalNights += nightsSurvived;
+    stats.totalDefeats += defeats;
   }
 }

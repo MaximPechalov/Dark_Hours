@@ -7,16 +7,19 @@ class InventoryItem {
   final int count;
   final String sourceType;
 
-  // Бонусные характеристики (для брони)
+  // Броня
   final int protection;
   final int warmth;
   final int extraSlots;
+  final Map<String, int> resistances;
+  final String? armorSlot;
 
-  // Характеристики оружия
+  // Оружие
   final int damage;
   final int requiredStrength;
+  final String damageType;
 
-  // Характеристики расходников
+  // Расходники
   final int hungerRestore;
   final int thirstRestore;
   final int healthRestore;
@@ -33,8 +36,11 @@ class InventoryItem {
     this.protection = 0,
     this.warmth = 0,
     this.extraSlots = 0,
+    this.resistances = const {},
+    this.armorSlot,
     this.damage = 0,
     this.requiredStrength = 0,
+    this.damageType = 'blunt',
     this.hungerRestore = 0,
     this.thirstRestore = 0,
     this.healthRestore = 0,
@@ -53,8 +59,11 @@ class InventoryItem {
       protection: protection,
       warmth: warmth,
       extraSlots: extraSlots,
+      resistances: resistances,
+      armorSlot: armorSlot,
       damage: damage,
       requiredStrength: requiredStrength,
+      damageType: damageType,
       hungerRestore: hungerRestore,
       thirstRestore: thirstRestore,
       healthRestore: healthRestore,
@@ -64,30 +73,15 @@ class InventoryItem {
 
   double get totalWeight => weight * count;
 
-  /// Определить, в какой слот надевается предмет
+  /// Слот для экипировки
   String? get equippableSlot {
     if (sourceType == 'weapon') return 'weapon';
-    if (sourceType == 'armor') {
-      // Слот уточняется при загрузке (см. item_loader)
-      return _armorSlot;
-    }
+    if (sourceType == 'armor') return armorSlot;
     return null;
   }
 
-  String? _armorSlot;
-
-  /// Проверка, можно ли использовать предмет (расходник)
   bool get isConsumable => sourceType == 'consumable';
-
-  /// Проверка, можно ли надеть
-  bool get isEquippable =>
-      sourceType == 'weapon' || sourceType == 'armor';
-
-  void setArmorSlot(String slot) {
-    _armorSlot = slot;
-  }
-
-  String? get armorSlot => _armorSlot;
+  bool get isEquippable => sourceType == 'weapon' || sourceType == 'armor';
 
   Map<String, dynamic> toJson() {
     return {
@@ -101,18 +95,20 @@ class InventoryItem {
       'protection': protection,
       'warmth': warmth,
       'extraSlots': extraSlots,
+      'resistances': resistances,
+      'armorSlot': armorSlot,
       'damage': damage,
       'requiredStrength': requiredStrength,
+      'damageType': damageType,
       'hungerRestore': hungerRestore,
       'thirstRestore': thirstRestore,
       'healthRestore': healthRestore,
       'sanityRestore': sanityRestore,
-      'armorSlot': _armorSlot,
     };
   }
 
   factory InventoryItem.fromJson(Map<String, dynamic> json) {
-    final item = InventoryItem(
+    return InventoryItem(
       id: json['id'],
       name: json['name'],
       icon: json['icon'],
@@ -123,16 +119,17 @@ class InventoryItem {
       protection: json['protection'] ?? 0,
       warmth: json['warmth'] ?? 0,
       extraSlots: json['extraSlots'] ?? 0,
+      resistances: json['resistances'] != null
+          ? Map<String, int>.from(json['resistances'])
+          : const {},
+      armorSlot: json['armorSlot'],
       damage: json['damage'] ?? 0,
       requiredStrength: json['requiredStrength'] ?? 0,
+      damageType: json['damageType'] ?? 'blunt',
       hungerRestore: json['hungerRestore'] ?? 0,
       thirstRestore: json['thirstRestore'] ?? 0,
       healthRestore: json['healthRestore'] ?? 0,
       sanityRestore: json['sanityRestore'] ?? 0,
     );
-    if (json['armorSlot'] != null) {
-      item.setArmorSlot(json['armorSlot']);
-    }
-    return item;
   }
 }

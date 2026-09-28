@@ -197,6 +197,33 @@
       "category": "story",
       "secret": true,
       "points": 35
+    },
+    {
+      "id": "phoenix",
+      "name": "Феникс",
+      "description": "Выживи после 5 поражений в бою за один забег",
+      "icon": "🔥",
+      "category": "combat",
+      "secret": true,
+      "points": 60
+    },
+    {
+      "id": "scarred",
+      "name": "Шрамы украшают",
+      "description": "Переживи 10 поражений за всё время",
+      "icon": "🩹",
+      "category": "combat",
+      "secret": false,
+      "points": 40
+    },
+    {
+      "id": "no_defeats",
+      "name": "Непобедимый",
+      "description": "Пройди главу 1 без единого поражения",
+      "icon": "🛡️",
+      "category": "combat",
+      "secret": true,
+      "points": 80
     }
   ]
 }

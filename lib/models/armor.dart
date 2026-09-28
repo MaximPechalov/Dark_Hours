@@ -6,7 +6,7 @@ class Armor {
   final String id;
   final String name;
   final String description;
-  final String slot; // head, body, hands, feet, backpack
+  final String slot;
   final int protection;
   final int warmth;
   final double weight;
@@ -14,6 +14,7 @@ class Armor {
   final String icon;
   final String rarity;
   final int? extraSlots;
+  final Map<String, int> resistances;
 
   const Armor({
     required this.id,
@@ -27,9 +28,14 @@ class Armor {
     required this.icon,
     required this.rarity,
     this.extraSlots,
+    this.resistances = const {},
   });
 
   factory Armor.fromJson(Map<String, dynamic> json) {
+    Map<String, int> res = {};
+    if (json['resistances'] != null) {
+      res = Map<String, int>.from(json['resistances']);
+    }
     return Armor(
       id: json['id'],
       name: json['name'],
@@ -37,11 +43,12 @@ class Armor {
       slot: json['slot'],
       protection: json['protection'],
       warmth: json['warmth'],
-      weight: json['weight'].toDouble(),
+      weight: (json['weight'] as num).toDouble(),
       durability: json['durability'],
       icon: json['icon'],
       rarity: json['rarity'],
       extraSlots: json['extra_slots'],
+      resistances: res,
     );
   }
 

@@ -24,7 +24,7 @@ class ItemLoader {
   }
 
   static InventoryItem? findById(String id) {
-    // Оружие
+    // === ОРУЖИЕ ===
     for (final w in _weapons) {
       if (w.id == id) {
         return InventoryItem(
@@ -37,11 +37,12 @@ class ItemLoader {
           sourceType: 'weapon',
           damage: w.damage,
           requiredStrength: w.requiredStrength,
+          damageType: w.damageType,
         );
       }
     }
 
-    // Инструменты
+    // === ИНСТРУМЕНТЫ ===
     for (final t in _tools) {
       if (t.id == id) {
         return InventoryItem(
@@ -56,7 +57,7 @@ class ItemLoader {
       }
     }
 
-    // Расходники
+    // === РАСХОДНИКИ ===
     for (final c in _consumables) {
       if (c.id == id) {
         return InventoryItem(
@@ -75,10 +76,10 @@ class ItemLoader {
       }
     }
 
-    // Броня
+    // === БРОНЯ ===
     for (final a in _armor) {
       if (a.id == id) {
-        final item = InventoryItem(
+        return InventoryItem(
           id: a.id,
           name: a.name,
           icon: a.icon,
@@ -89,13 +90,13 @@ class ItemLoader {
           protection: a.protection,
           warmth: a.warmth,
           extraSlots: a.extraSlots ?? 0,
+          resistances: a.resistances,
+          armorSlot: a.slot,
         );
-        item.setArmorSlot(a.slot);
-        return item;
       }
     }
 
-    // Ресурсы
+    // === РЕСУРСЫ ===
     for (final r in _resources) {
       if (r.id == id) {
         return InventoryItem(
@@ -112,4 +113,19 @@ class ItemLoader {
 
     return null;
   }
+
+  /// Получить все оружия (для теста)
+  static List<Weapon> get allWeapons => _weapons;
+
+  /// Получить все инструменты (для теста)
+  static List<Tool> get allTools => _tools;
+
+  /// Получить все расходники (для теста)
+  static List<Consumable> get allConsumables => _consumables;
+
+  /// Получить всю броню (для теста)
+  static List<Armor> get allArmor => _armor;
+
+  /// Получить все ресурсы (для теста)
+  static List<GameResource> get allResources => _resources;
 }

@@ -16,6 +16,7 @@ class AchievementChecker {
     int sanityDays = 0,
     bool? noCombat,
     bool? noDamage,
+    bool? noDefeats,
   }) async {
     final stats = await AchievementManager.loadStats();
 
@@ -28,8 +29,10 @@ class AchievementChecker {
       currentMedicineUsed: tracker.medicineUsed,
       currentSanityDays: sanityDays,
       currentNights: tracker.nightsSurvived,
+      currentDefeats: tracker.defeats,
       noCombat: noCombat ?? !tracker.hadCombat,
       noDamage: noDamage ?? !tracker.hadDamage,
+      noDefeats: noDefeats ?? (tracker.defeats == 0),
       characterId: characterId,
       alchemistCrafted: tracker.alchemistCrafted,
     );

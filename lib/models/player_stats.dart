@@ -2,6 +2,7 @@ class PlayerStats {
   // Общая статистика
   int totalGamesPlayed;
   int totalDeaths;
+  int totalDefeats; // ← новое: поражения в бою
   int totalDaysSurvived;
   int bestRunDays;
   String bestRunCharacter;
@@ -22,6 +23,7 @@ class PlayerStats {
   PlayerStats({
     this.totalGamesPlayed = 0,
     this.totalDeaths = 0,
+    this.totalDefeats = 0,
     this.totalDaysSurvived = 0,
     this.bestRunDays = 0,
     this.bestRunCharacter = '',
@@ -41,6 +43,7 @@ class PlayerStats {
     return {
       'totalGamesPlayed': totalGamesPlayed,
       'totalDeaths': totalDeaths,
+      'totalDefeats': totalDefeats,
       'totalDaysSurvived': totalDaysSurvived,
       'bestRunDays': bestRunDays,
       'bestRunCharacter': bestRunCharacter,
@@ -60,6 +63,7 @@ class PlayerStats {
     return PlayerStats(
       totalGamesPlayed: json['totalGamesPlayed'] ?? 0,
       totalDeaths: json['totalDeaths'] ?? 0,
+      totalDefeats: json['totalDefeats'] ?? 0,
       totalDaysSurvived: json['totalDaysSurvived'] ?? 0,
       bestRunDays: json['bestRunDays'] ?? 0,
       bestRunCharacter: json['bestRunCharacter'] ?? '',

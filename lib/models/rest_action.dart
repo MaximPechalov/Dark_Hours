@@ -10,7 +10,7 @@ class RestAction {
   final int fatigueReduce;
   final int hungerCost;
   final int thirstCost;
-  final String riskLevel; // safe, low, medium, high
+  final String riskLevel;
 
   const RestAction({
     required this.id,
@@ -38,8 +38,8 @@ class RestAction {
       healthRestore: 0,
       sanityRestore: 5,
       fatigueReduce: 15,
-      hungerCost: 5,
-      thirstCost: 5,
+      hungerCost: 2,
+      thirstCost: 2,
       riskLevel: 'low',
     ),
     RestAction(
@@ -51,9 +51,9 @@ class RestAction {
       staminaRestore: 50,
       healthRestore: 10,
       sanityRestore: 15,
-      fatigueReduce: 45,
-      hungerCost: 10,
-      thirstCost: 10,
+      fatigueReduce: 30,
+      hungerCost: 4,
+      thirstCost: 4,
       riskLevel: 'medium',
     ),
     RestAction(
@@ -65,9 +65,9 @@ class RestAction {
       staminaRestore: 80,
       healthRestore: 25,
       sanityRestore: 30,
-      fatigueReduce: 80,
-      hungerCost: 15,
-      thirstCost: 15,
+      fatigueReduce: 60,
+      hungerCost: 8,
+      thirstCost: 8,
       riskLevel: 'high',
     ),
     RestAction(
@@ -80,8 +80,8 @@ class RestAction {
       healthRestore: 40,
       sanityRestore: 50,
       fatigueReduce: 100,
-      hungerCost: 20,
-      thirstCost: 20,
+      hungerCost: 12,
+      thirstCost: 12,
       riskLevel: 'high',
     ),
   ];

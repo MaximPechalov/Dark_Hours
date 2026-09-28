@@ -16,6 +16,7 @@ class Weapon {
   final String rarity;
   final String? ammoType;
   final int? ammoMax;
+  final String damageType;
 
   const Weapon({
     required this.id,
@@ -31,6 +32,7 @@ class Weapon {
     required this.rarity,
     this.ammoType,
     this.ammoMax,
+    this.damageType = 'blunt',
   });
 
   factory Weapon.fromJson(Map<String, dynamic> json) {
@@ -41,13 +43,14 @@ class Weapon {
       type: json['type'],
       damage: json['damage'],
       requiredStrength: json['required_strength'],
-      weight: json['weight'].toDouble(),
+      weight: (json['weight'] as num).toDouble(),
       durability: json['durability'],
       specialAbility: json['special_ability'],
       icon: json['icon'],
       rarity: json['rarity'],
       ammoType: json['ammo_type'],
       ammoMax: json['ammo_max'],
+      damageType: json['damage_type'] ?? 'blunt',
     );
   }
 
@@ -95,6 +98,21 @@ class Weapon {
         return 'Специальное';
       default:
         return type;
+    }
+  }
+
+  String get damageTypeName {
+    switch (damageType) {
+      case 'cutting':
+        return 'Режущий';
+      case 'blunt':
+        return 'Дробящий';
+      case 'piercing':
+        return 'Колющий';
+      case 'firearm':
+        return 'Огнестрельный';
+      default:
+        return damageType;
     }
   }
 

@@ -111,6 +111,59 @@ class Equipment {
     return 0;
   }
 
+  /// Тип урона текущего оружия
+  String get weaponDamageType {
+    if (weapon == null) return 'blunt'; // кулаки
+
+    // Маппинг оружия → тип урона
+    const cutting = [
+      'kitchen_knife',
+      'hunting_knife',
+      'machete',
+      'cleaver',
+    ];
+    const piercing = [
+      'spear',
+      'bow',
+      'crossbow',
+    ];
+    const firearm = [
+      'pipe_gun',
+      'pistol',
+      'revolver',
+      'shotgun',
+      'rifle',
+      'flare_gun',
+      'molotov',
+    ];
+
+    final id = weapon!.id;
+    if (cutting.contains(id)) return 'cutting';
+    if (piercing.contains(id)) return 'piercing';
+    if (firearm.contains(id)) return 'firearm';
+    return 'blunt';
+  }
+
+  /// Суммарные сопротивления по типам урона
+  Map<String, int> get totalResistances {
+    final result = <String, int>{
+      'cutting': 0,
+      'blunt': 0,
+      'piercing': 0,
+      'firearm': 0,
+    };
+
+    final slots = [head, body, hands, feet];
+    for (final slot in slots) {
+      if (slot == null) continue;
+      slot.resistances.forEach((key, value) {
+        result[key] = (result[key] ?? 0) + value;
+      });
+    }
+
+    return result;
+  }
+
   /// Сериализация
   Map<String, dynamic> toJson() {
     return {
@@ -127,22 +180,34 @@ class Equipment {
   static Equipment fromJson(Map<String, dynamic> json) {
     final eq = Equipment();
     if (json['weapon'] != null) {
-      eq.weapon = InventoryItem.fromJson(Map<String, dynamic>.from(json['weapon']));
+      eq.weapon = InventoryItem.fromJson(
+        Map<String, dynamic>.from(json['weapon']),
+      );
     }
     if (json['head'] != null) {
-      eq.head = InventoryItem.fromJson(Map<String, dynamic>.from(json['head']));
+      eq.head = InventoryItem.fromJson(
+        Map<String, dynamic>.from(json['head']),
+      );
     }
     if (json['body'] != null) {
-      eq.body = InventoryItem.fromJson(Map<String, dynamic>.from(json['body']));
+      eq.body = InventoryItem.fromJson(
+        Map<String, dynamic>.from(json['body']),
+      );
     }
     if (json['hands'] != null) {
-      eq.hands = InventoryItem.fromJson(Map<String, dynamic>.from(json['hands']));
+      eq.hands = InventoryItem.fromJson(
+        Map<String, dynamic>.from(json['hands']),
+      );
     }
     if (json['feet'] != null) {
-      eq.feet = InventoryItem.fromJson(Map<String, dynamic>.from(json['feet']));
+      eq.feet = InventoryItem.fromJson(
+        Map<String, dynamic>.from(json['feet']),
+      );
     }
     if (json['backpack'] != null) {
-      eq.backpack = InventoryItem.fromJson(Map<String, dynamic>.from(json['backpack']));
+      eq.backpack = InventoryItem.fromJson(
+        Map<String, dynamic>.from(json['backpack']),
+      );
     }
     return eq;
   }

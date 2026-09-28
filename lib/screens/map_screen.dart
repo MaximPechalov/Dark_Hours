@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 import '../models/world_map.dart';
 import '../models/location.dart';
 import '../models/save_data.dart';
@@ -83,8 +84,10 @@ class _MapScreenState extends State<MapScreen> {
   bool _isDead = false;
   String _deathReason = '';
 
-  // Трекер текущего забега
   final RunTracker tracker = RunTracker();
+
+  DateTime? _lastCollapseTime;
+  bool _autoSleepTriggered = false;
 
   @override
   void initState() {
@@ -225,7 +228,6 @@ class _MapScreenState extends State<MapScreen> {
 
     _applyConditionsTick();
 
-    // Смена дня
     if (gameTime.day > oldDay) {
       tracker.nightsPassed += 1;
       if (phaseBefore == TimePhase.night) {
@@ -238,7 +240,6 @@ class _MapScreenState extends State<MapScreen> {
         tracker.sanityDaysLow = 0;
       }
 
-      // Проверка достижений на новый день
       if (mounted) {
         await AchievementChecker.check(
           context: context,
@@ -252,6 +253,7 @@ class _MapScreenState extends State<MapScreen> {
     }
 
     _checkDeath();
+    _checkFatigue();
 
     if (phaseBefore != phaseAfter && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -277,8 +279,6 @@ class _MapScreenState extends State<MapScreen> {
       reason = 'Ты умер от обезвоживания.';
     } else if (health <= 0) {
       reason = 'Твои раны оказались смертельными.';
-    } else if (fatigue >= 100) {
-      reason = 'Ты умер от истощения. Сердце остановилось.';
     } else if (gameTime.isWinter) {
       reason = 'Пришла зима. Ты не успел добраться до станции.';
     }
@@ -289,6 +289,173 @@ class _MapScreenState extends State<MapScreen> {
       _applyStatsOnDeath();
       _showDeathScreen();
     }
+  }
+
+  // ====== УСТАЛОСТЬ: 3 СТАДИИ ======
+  void _checkFatigue() {
+    if (_isDead || fatigue < 80) return;
+
+    // СТАДИЯ 1: 80-94 — предупреждение (обрабатывается через PenaltiesPanel)
+    if (fatigue >= 80 && fatigue < 95) {
+      return;
+    }
+
+    // СТАДИЯ 2: 95-99 — автосон на 1 час
+    if (fatigue >= 95 && fatigue < 100) {
+      if (!_autoSleepTriggered) {
+        _autoSleepTriggered = true;
+        _forceAutoSleep();
+      }
+      return;
+    }
+
+    // СТАДИЯ 3: 100 — коллапс
+    if (fatigue >= 100) {
+      if (_lastCollapseTime != null &&
+          DateTime.now().difference(_lastCollapseTime!).inHours < 24) {
+        _isDead = true;
+        _deathReason =
+            'Твоё тело не выдержало повторного истощения. Сердце остановилось.';
+        _applyStatsOnDeath();
+        _showDeathScreen();
+        return;
+      }
+
+      _collapse();
+    }
+  }
+
+  /// Автосон на 1 час при усталости 95-99
+  Future<void> _forceAutoSleep() async {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          '😴 Ты засыпаешь прямо на месте... (1 час)',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        duration: Duration(seconds: 3),
+        backgroundColor: Color.fromARGB(255, 100, 100, 200),
+      ),
+    );
+
+    await _advanceTime(60, isSleeping: true);
+
+    fatigue = (fatigue - 15).clamp(0, 100);
+    stamina = (stamina - 15).clamp(0, 100);
+    sanity = (sanity - 5).clamp(0, 100);
+
+    _autoSleepTriggered = false;
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            '😵 Ты проснулся. Разбитость: -15 выносливости.',
+          ),
+          duration: Duration(seconds: 3),
+          backgroundColor: Color.fromARGB(255, 150, 100, 100),
+        ),
+      );
+      setState(() {});
+    }
+
+    await _autoSave();
+  }
+
+  Future<void> _collapse() async {
+    _lastCollapseTime = DateTime.now();
+    tracker.collapsesCount += 1;
+
+    if (!mounted) return;
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color.fromARGB(255, 20, 10, 10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: Colors.red, width: 2),
+        ),
+        title: const Text(
+          '💀 КОЛЛАПС',
+          style: TextStyle(
+            color: Colors.red,
+            fontSize: 20,
+            letterSpacing: 4,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: const Text(
+          'Ты теряешь сознание от истощения. Проходит 4 часа...\n\n'
+          '⚠️ Если это повторится в течение 24 часов — твоё сердце остановится.',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 13,
+            height: 1.5,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'ОЧНУТЬСЯ',
+              style: TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    await _advanceTime(240, isSleeping: true);
+    fatigue = 60;
+    health = (health - 20).clamp(0, 100);
+    sanity = (sanity - 15).clamp(0, 100);
+
+    if (Random().nextInt(100) < 30 && inventory.items.isNotEmpty) {
+      _loseRandomItems(2);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('💀 Пока ты был без сознания, тебя ограбили!'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+
+    if (Random().nextInt(100) < 40) {
+      final coldCond = allConditions.firstWhere(
+        (c) => c.id == 'cold',
+        orElse: () => allConditions.first,
+      );
+      if (!ConditionManager.hasCondition(activeConditions, 'cold')) {
+        activeConditions.add(ActiveCondition(
+          condition: coldCond,
+          daysRemaining: coldCond.durationDays,
+        ));
+        tracker.infections += 1;
+      }
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('😵 Ты очнулся. -20 HP, -15 психики.'),
+          duration: Duration(seconds: 3),
+          backgroundColor: Color.fromARGB(255, 100, 50, 50),
+        ),
+      );
+    }
+
+    await _autoSave();
+    if (mounted) setState(() {});
   }
 
   Future<void> _applyStatsOnDeath() async {
@@ -427,7 +594,6 @@ class _MapScreenState extends State<MapScreen> {
       inventory.addItem(resultItem);
     }
 
-    // Трекер крафта
     tracker.craftedCount += 1;
     if (recipe.id == 'molotov_craft') {
       tracker.alchemistCrafted = true;
@@ -449,9 +615,7 @@ class _MapScreenState extends State<MapScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            '${recipe.resultIcon} Создано: ${recipe.resultName}',
-          ),
+          content: Text('${recipe.resultIcon} Создано: ${recipe.resultName}'),
           backgroundColor: const Color.fromARGB(255, 100, 180, 100),
           duration: const Duration(seconds: 2),
         ),
@@ -652,9 +816,9 @@ class _MapScreenState extends State<MapScreen> {
     }
 
     if (!isSafe) {
-      final riskRoll = DateTime.now().millisecond % 100;
+      final riskRoll = Random().nextInt(100);
       final warmth = equipment.totalWarmth;
-      final coldChance = warmth >= 20 ? 10 : 30;
+      final coldChance = warmth >= 40 ? 10 : 30;
       final phaseMultiplier = gameTime.phase.dangerMultiplier.toInt();
 
       if (riskRoll < coldChance) {
@@ -676,10 +840,10 @@ class _MapScreenState extends State<MapScreen> {
       }
 
       if (action.timeMinutes >= 240) {
-        final theftRoll = DateTime.now().millisecond % 100;
+        final theftRoll = Random().nextInt(100);
         if (theftRoll < 25 && inventory.items.isNotEmpty) {
           final stolen = inventory.items[
-              DateTime.now().millisecond % inventory.items.length];
+              Random().nextInt(inventory.items.length)];
           inventory.removeAll(stolen.id);
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -694,7 +858,7 @@ class _MapScreenState extends State<MapScreen> {
       }
 
       if (action.timeMinutes >= 480) {
-        final attackRoll = DateTime.now().millisecond % 100;
+        final attackRoll = Random().nextInt(100);
         if (attackRoll < 20 * phaseMultiplier) {
           _startCombat('looter_common');
           return;
@@ -785,8 +949,7 @@ class _MapScreenState extends State<MapScreen> {
 
     String? foundItemId;
     if (loc.lootPool.isNotEmpty) {
-      foundItemId =
-          loc.lootPool[DateTime.now().millisecond % loc.lootPool.length];
+      foundItemId = loc.lootPool[Random().nextInt(loc.lootPool.length)];
       final item = ItemLoader.findById(foundItemId);
       if (item != null && inventory.addItem(item)) {
         tracker.lootedCount += 1;
@@ -822,7 +985,7 @@ class _MapScreenState extends State<MapScreen> {
     await _advanceTime(loc.searchTime);
 
     if (loc.enemies.isNotEmpty && !loc.isFinal) {
-      final enemyRoll = DateTime.now().millisecond % 3;
+      final enemyRoll = Random().nextInt(3);
       if (enemyRoll == 0) {
         _startCombat(loc.enemies[0]);
         return;
@@ -833,7 +996,6 @@ class _MapScreenState extends State<MapScreen> {
 
     if (mounted) {
       setState(() {});
-
       await AchievementChecker.check(
         context: context,
         characterId: widget.characterId,
@@ -858,6 +1020,8 @@ class _MapScreenState extends State<MapScreen> {
       damage: equipment.totalDamage > 0 ? equipment.totalDamage : 3,
       protection: equipment.totalProtection,
       strength: strength,
+      damageType: equipment.weaponDamageType,
+      resistances: equipment.totalResistances,
     );
 
     final enemy = Combatant(
@@ -867,9 +1031,11 @@ class _MapScreenState extends State<MapScreen> {
       damage: enemyData['damage']!,
       protection: enemyData['protection']!,
       strength: enemyData['strength']!,
+      damageType: enemyData['damageType'] ?? 'blunt',
+      abilities: enemyData['abilities'] ?? [],
     );
 
-    final result = await Navigator.push<String>(
+    final rawResult = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => CombatScreen(player: player, enemy: enemy),
@@ -878,35 +1044,64 @@ class _MapScreenState extends State<MapScreen> {
 
     if (!mounted) return;
 
-    final oldHealth = health;
-    health = player.health.clamp(0, 100);
+    String result = 'defeat';
 
-    if (health < oldHealth) {
-      tracker.hadDamage = true;
+    if (rawResult is Map) {
+      result = rawResult['result'] ?? 'defeat';
+      final newHealth = rawResult['playerHealth'] ?? player.health;
+      final oldHealth = health;
+      health = (newHealth as int).clamp(0, 100);
+
+      if (health < oldHealth) tracker.hadDamage = true;
+
+      if (rawResult['wasBleeding'] == true) {
+        final bleedCond = allConditions.firstWhere(
+          (c) => c.id == 'bleeding',
+          orElse: () => allConditions.first,
+        );
+        if (!ConditionManager.hasCondition(activeConditions, 'bleeding')) {
+          activeConditions.add(ActiveCondition(
+            condition: bleedCond,
+            daysRemaining: 1,
+          ));
+        }
+      }
+      if (rawResult['wasPoisoned'] == true) {
+        final poisonCond = allConditions.firstWhere(
+          (c) => c.id == 'food_poisoning',
+          orElse: () => allConditions.first,
+        );
+        if (!ConditionManager.hasCondition(
+            activeConditions, 'food_poisoning')) {
+          activeConditions.add(ActiveCondition(
+            condition: poisonCond,
+            daysRemaining: poisonCond.durationDays,
+          ));
+          tracker.infections += 1;
+        }
+      }
+      if (rawResult['wasInfected'] == true) {
+        final infectCond = allConditions.firstWhere(
+          (c) => c.id == 'infection',
+          orElse: () => allConditions.first,
+        );
+        if (!ConditionManager.hasCondition(activeConditions, 'infection')) {
+          activeConditions.add(ActiveCondition(
+            condition: infectCond,
+            daysRemaining: infectCond.durationDays,
+          ));
+          tracker.infections += 1;
+        }
+      }
+    } else if (rawResult is String) {
+      result = rawResult;
+      health = player.health.clamp(0, 100);
     }
 
     await _advanceTime(10);
 
     if (result == 'victory') {
       tracker.kills += 1;
-
-      if (health < 70) {
-        final infect = ConditionManager.tryInfect(
-          allConditions,
-          'combat_wound',
-          0.4,
-        );
-        if (infect != null &&
-            !ConditionManager.hasCondition(activeConditions, infect.id)) {
-          activeConditions.add(
-            ActiveCondition(
-              condition: infect,
-              daysRemaining: infect.durationDays,
-            ),
-          );
-          tracker.infections += 1;
-        }
-      }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -916,22 +1111,13 @@ class _MapScreenState extends State<MapScreen> {
         );
       }
     } else if (result == 'defeat') {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('💀 Поражение. Ты едва выжил.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-      health = 10;
+      _handleDefeat(enemyId);
     }
 
     await _autoSave();
 
     if (mounted) {
       setState(() {});
-
       await AchievementChecker.check(
         context: context,
         characterId: widget.characterId,
@@ -939,6 +1125,148 @@ class _MapScreenState extends State<MapScreen> {
         inventorySize: inventory.items.length,
         tracker: tracker,
       );
+    }
+  }
+
+  // ====== ПОРАЖЕНИЕ — 3 УРОВНЯ ======
+  void _handleDefeat(String enemyId) {
+    final isStoryBoss = ['vaska', 'serega'].contains(enemyId);
+
+    if (isStoryBoss) {
+      _checkDeath();
+      return;
+    }
+
+    final isDangerous = ['looter_armed', 'bandit', 'infected'].contains(enemyId);
+
+    tracker.defeats += 1;
+
+    if (isDangerous) {
+      health = 5;
+
+      final bleedCond = allConditions.firstWhere(
+        (c) => c.id == 'bleeding',
+        orElse: () => allConditions.first,
+      );
+      if (!ConditionManager.hasCondition(activeConditions, 'bleeding')) {
+        activeConditions.add(ActiveCondition(
+          condition: bleedCond,
+          daysRemaining: 1,
+        ));
+      }
+
+      _loseRandomItems(3);
+      sanity = (sanity - 25).clamp(0, 100);
+      fatigue = (fatigue + 40).clamp(0, 100);
+      _moveToSafeLocation();
+
+      if (mounted) {
+        _showDefeatDialog(
+          title: '💀 ТЯЖЁЛОЕ ПОРАЖЕНИЕ',
+          message: 'Ты едва выжил. Раны кровоточат, в глазах темнеет. '
+              'Тебя ограбили и бросили на произвол судьбы.\n\n'
+              'Ты очнулся в безопасном месте. Потеряно 3 предмета.',
+          color: Colors.red[900]!,
+        );
+      }
+    } else {
+      health = 15;
+
+      _loseRandomItems(2);
+      sanity = (sanity - 10).clamp(0, 100);
+      fatigue = (fatigue + 30).clamp(0, 100);
+      _moveToNeighborLocation();
+
+      if (mounted) {
+        _showDefeatDialog(
+          title: '🤕 ПОРАЖЕНИЕ',
+          message: 'Тебя избили и ограбили. Ты отделался синяками, '
+              'но потерял 2 предмета.\n\n'
+              'Ты очнулся в соседнем районе.',
+          color: Colors.orange[900]!,
+        );
+      }
+    }
+  }
+
+  Future<void> _showDefeatDialog({
+    required String title,
+    required String message,
+    required Color color,
+  }) async {
+    if (!mounted) return;
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color.fromARGB(255, 20, 10, 10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: color, width: 2),
+        ),
+        title: Text(
+          title,
+          style: TextStyle(
+            color: color,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 2.0,
+          ),
+        ),
+        content: Text(
+          '$message\n\n📊 Всего поражений в этом забеге: ${tracker.defeats}',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 13,
+            height: 1.5,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'ПРОДОЛЖИТЬ',
+              style: TextStyle(
+                color: Color.fromARGB(255, 200, 180, 100),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _moveToSafeLocation() {
+    if (_map == null) return;
+
+    final safeLocations = _map!.locations
+        .where((l) => l.dangerLevel <= 2 && l.id != _map!.currentLocationId)
+        .toList();
+
+    if (safeLocations.isEmpty) return;
+
+    final target = safeLocations[Random().nextInt(safeLocations.length)];
+    _map!.moveTo(target.id);
+  }
+
+  void _moveToNeighborLocation() {
+    if (_map == null) return;
+
+    final neighbors = _map!.availableConnections;
+    if (neighbors.isEmpty) return;
+
+    final target = neighbors[Random().nextInt(neighbors.length)];
+    _map!.moveTo(target.id);
+  }
+
+  void _loseRandomItems(int count) {
+    final rng = Random();
+    for (int i = 0; i < count && inventory.items.isNotEmpty; i++) {
+      final index = rng.nextInt(inventory.items.length);
+      final lost = inventory.items[index];
+      inventory.removeAll(lost.id);
     }
   }
 
@@ -951,6 +1279,8 @@ class _MapScreenState extends State<MapScreen> {
           'damage': 8,
           'protection': 1,
           'strength': 5,
+          'damageType': 'blunt',
+          'abilities': <CombatAbility>[],
         };
       case 'looter_armed':
         return {
@@ -959,6 +1289,16 @@ class _MapScreenState extends State<MapScreen> {
           'damage': 14,
           'protection': 4,
           'strength': 7,
+          'damageType': 'cutting',
+          'abilities': <CombatAbility>[
+            const CombatAbility(
+              id: 'poison',
+              name: 'Отравленный клинок',
+              description: 'Клинок смазан ядом',
+              chance: 0.3,
+              effect: 'poison',
+            ),
+          ],
         };
       case 'bandit':
         return {
@@ -967,6 +1307,23 @@ class _MapScreenState extends State<MapScreen> {
           'damage': 18,
           'protection': 6,
           'strength': 8,
+          'damageType': 'blunt',
+          'abilities': <CombatAbility>[
+            const CombatAbility(
+              id: 'stun',
+              name: 'Оглушающий удар',
+              description: 'Удар в голову',
+              chance: 0.25,
+              effect: 'skip_turn',
+            ),
+            const CombatAbility(
+              id: 'bleed',
+              name: 'Рваная рана',
+              description: 'Глубокий порез',
+              chance: 0.2,
+              effect: 'bleeding',
+            ),
+          ],
         };
       case 'infected':
         return {
@@ -975,6 +1332,16 @@ class _MapScreenState extends State<MapScreen> {
           'damage': 15,
           'protection': 2,
           'strength': 6,
+          'damageType': 'cutting',
+          'abilities': <CombatAbility>[
+            const CombatAbility(
+              id: 'infection',
+              name: 'Инфекционный укус',
+              description: 'Укус с заражением',
+              chance: 0.5,
+              effect: 'infection',
+            ),
+          ],
         };
       default:
         return null;
@@ -988,7 +1355,6 @@ class _MapScreenState extends State<MapScreen> {
     health = (health + item.healthRestore).clamp(0, 100);
     sanity = (sanity + item.sanityRestore).clamp(0, 100);
 
-    // Считаем медицинские предметы
     if (item.id.contains('pill') ||
         item.id.contains('bandage') ||
         item.id == 'first_aid_kit' ||
@@ -997,7 +1363,6 @@ class _MapScreenState extends State<MapScreen> {
       tracker.medicineUsed += 1;
     }
 
-    // Всплывающие эффекты
     if (item.hungerRestore > 0) {
       FloatingEffectOverlay.show(
         context,
@@ -1330,7 +1695,6 @@ class _MapScreenState extends State<MapScreen> {
                   ),
                   const SizedBox(height: 12),
 
-                  // Анимированные карточки локаций
                   ..._map!.availableConnections.asMap().entries.map((entry) {
                     return AnimatedLocationCard(
                       index: entry.key,
@@ -1539,14 +1903,35 @@ class _MapScreenState extends State<MapScreen> {
               if (fatigue > 0) ...[
                 Icon(
                   Icons.bedtime,
-                  color: fatigue > 60 ? Colors.red : Colors.orange,
+                  color: fatigue > 80
+                      ? Colors.red
+                      : (fatigue > 60 ? Colors.orange : Colors.grey),
                   size: 14,
                 ),
                 const SizedBox(width: 4),
                 Text(
                   'Устал $fatigue%',
                   style: TextStyle(
-                    color: fatigue > 60 ? Colors.red : Colors.orange,
+                    color: fatigue > 80
+                        ? Colors.red
+                        : (fatigue > 60 ? Colors.orange : Colors.grey[500]),
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 12),
+              ],
+              if (tracker.defeats > 0) ...[
+                Icon(
+                  Icons.healing,
+                  color: Colors.orange[300],
+                  size: 14,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  '${tracker.defeats}',
+                  style: TextStyle(
+                    color: Colors.orange[300],
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
                   ),
