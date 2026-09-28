@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/start_screen.dart';
+import 'package:dark_hours/screens/main/start_screen.dart';
 
 void main() {
   runApp(const DarkHoursApp());
