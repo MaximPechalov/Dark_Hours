@@ -2,52 +2,46 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class Weapon {
+class Tool {
   final String id;
   final String name;
   final String description;
   final String type;
-  final int damage;
-  final int requiredStrength;
   final double weight;
   final int durability;
   final String specialAbility;
   final String icon;
   final String rarity;
-  final String? ammoType;
-  final int? ammoMax;
+  final int uses;
+  final bool? fuelRequired;
 
-  const Weapon({
+  const Tool({
     required this.id,
     required this.name,
     required this.description,
     required this.type,
-    required this.damage,
-    required this.requiredStrength,
     required this.weight,
     required this.durability,
     required this.specialAbility,
     required this.icon,
     required this.rarity,
-    this.ammoType,
-    this.ammoMax,
+    required this.uses,
+    this.fuelRequired,
   });
 
-  factory Weapon.fromJson(Map<String, dynamic> json) {
-    return Weapon(
+  factory Tool.fromJson(Map<String, dynamic> json) {
+    return Tool(
       id: json['id'],
       name: json['name'],
       description: json['description'],
       type: json['type'],
-      damage: json['damage'],
-      requiredStrength: json['required_strength'],
       weight: json['weight'].toDouble(),
       durability: json['durability'],
       specialAbility: json['special_ability'],
       icon: json['icon'],
       rarity: json['rarity'],
-      ammoType: json['ammo_type'],
-      ammoMax: json['ammo_max'],
+      uses: json['uses'],
+      fuelRequired: json['fuel_required'],
     );
   }
 
@@ -71,15 +65,15 @@ class Weapon {
   String get rarityName {
     switch (rarity) {
       case 'common':
-        return 'Обычное';
+        return 'Обычный';
       case 'uncommon':
-        return 'Необычное';
+        return 'Необычный';
       case 'rare':
-        return 'Редкое';
+        return 'Редкий';
       case 'epic':
-        return 'Эпическое';
+        return 'Эпический';
       case 'legendary':
-        return 'Легендарное';
+        return 'Легендарный';
       default:
         return rarity;
     }
@@ -87,10 +81,12 @@ class Weapon {
 
   String get typeName {
     switch (type) {
-      case 'melee':
-        return 'Ближний бой';
-      case 'ranged':
-        return 'Дальний бой';
+      case 'survival':
+        return 'Выживание';
+      case 'repair':
+        return 'Ремонт';
+      case 'medical':
+        return 'Медицина';
       case 'special':
         return 'Специальное';
       default:
@@ -98,13 +94,13 @@ class Weapon {
     }
   }
 
-  static Future<List<Weapon>> loadAll() async {
+  static Future<List<Tool>> loadAll() async {
     try {
       final String jsonString =
-          await rootBundle.loadString('assets/data/weapons.json');
+          await rootBundle.loadString('assets/data/tools.json');
       final Map<String, dynamic> jsonMap = json.decode(jsonString);
-      final List<dynamic> weaponsJson = jsonMap['weapons'];
-      return weaponsJson.map((json) => Weapon.fromJson(json)).toList();
+      final List<dynamic> toolsJson = jsonMap['tools'];
+      return toolsJson.map((json) => Tool.fromJson(json)).toList();
     } catch (e) {
       return [];
     }

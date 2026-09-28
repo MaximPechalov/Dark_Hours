@@ -2,52 +2,52 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class Weapon {
+class Consumable {
   final String id;
   final String name;
   final String description;
-  final String type;
-  final int damage;
-  final int requiredStrength;
+  final String category; // food, water, medicine, other
+  final int hungerRestore;
+  final int thirstRestore;
+  final int healthRestore;
+  final int sanityRestore;
   final double weight;
-  final int durability;
-  final String specialAbility;
+  final int uses;
+  final int spoilDays;
   final String icon;
   final String rarity;
-  final String? ammoType;
-  final int? ammoMax;
 
-  const Weapon({
+  const Consumable({
     required this.id,
     required this.name,
     required this.description,
-    required this.type,
-    required this.damage,
-    required this.requiredStrength,
+    required this.category,
+    required this.hungerRestore,
+    required this.thirstRestore,
+    required this.healthRestore,
+    required this.sanityRestore,
     required this.weight,
-    required this.durability,
-    required this.specialAbility,
+    required this.uses,
+    required this.spoilDays,
     required this.icon,
     required this.rarity,
-    this.ammoType,
-    this.ammoMax,
   });
 
-  factory Weapon.fromJson(Map<String, dynamic> json) {
-    return Weapon(
+  factory Consumable.fromJson(Map<String, dynamic> json) {
+    return Consumable(
       id: json['id'],
       name: json['name'],
       description: json['description'],
-      type: json['type'],
-      damage: json['damage'],
-      requiredStrength: json['required_strength'],
+      category: json['category'],
+      hungerRestore: json['hunger_restore'],
+      thirstRestore: json['thirst_restore'],
+      healthRestore: json['health_restore'],
+      sanityRestore: json['sanity_restore'],
       weight: json['weight'].toDouble(),
-      durability: json['durability'],
-      specialAbility: json['special_ability'],
+      uses: json['uses'],
+      spoilDays: json['spoil_days'],
       icon: json['icon'],
       rarity: json['rarity'],
-      ammoType: json['ammo_type'],
-      ammoMax: json['ammo_max'],
     );
   }
 
@@ -85,26 +85,30 @@ class Weapon {
     }
   }
 
-  String get typeName {
-    switch (type) {
-      case 'melee':
-        return 'Ближний бой';
-      case 'ranged':
-        return 'Дальний бой';
-      case 'special':
-        return 'Специальное';
+  String get categoryName {
+    switch (category) {
+      case 'food':
+        return 'Еда';
+      case 'water':
+        return 'Вода';
+      case 'medicine':
+        return 'Медицина';
+      case 'other':
+        return 'Прочее';
       default:
-        return type;
+        return category;
     }
   }
 
-  static Future<List<Weapon>> loadAll() async {
+  static Future<List<Consumable>> loadAll() async {
     try {
       final String jsonString =
-          await rootBundle.loadString('assets/data/weapons.json');
+          await rootBundle.loadString('assets/data/consumables.json');
       final Map<String, dynamic> jsonMap = json.decode(jsonString);
-      final List<dynamic> weaponsJson = jsonMap['weapons'];
-      return weaponsJson.map((json) => Weapon.fromJson(json)).toList();
+      final List<dynamic> consumablesJson = jsonMap['consumables'];
+      return consumablesJson
+          .map((json) => Consumable.fromJson(json))
+          .toList();
     } catch (e) {
       return [];
     }

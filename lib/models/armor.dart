@@ -2,52 +2,46 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class Weapon {
+class Armor {
   final String id;
   final String name;
   final String description;
-  final String type;
-  final int damage;
-  final int requiredStrength;
+  final String slot; // head, body, hands, feet, backpack
+  final int protection;
+  final int warmth;
   final double weight;
   final int durability;
-  final String specialAbility;
   final String icon;
   final String rarity;
-  final String? ammoType;
-  final int? ammoMax;
+  final int? extraSlots;
 
-  const Weapon({
+  const Armor({
     required this.id,
     required this.name,
     required this.description,
-    required this.type,
-    required this.damage,
-    required this.requiredStrength,
+    required this.slot,
+    required this.protection,
+    required this.warmth,
     required this.weight,
     required this.durability,
-    required this.specialAbility,
     required this.icon,
     required this.rarity,
-    this.ammoType,
-    this.ammoMax,
+    this.extraSlots,
   });
 
-  factory Weapon.fromJson(Map<String, dynamic> json) {
-    return Weapon(
+  factory Armor.fromJson(Map<String, dynamic> json) {
+    return Armor(
       id: json['id'],
       name: json['name'],
       description: json['description'],
-      type: json['type'],
-      damage: json['damage'],
-      requiredStrength: json['required_strength'],
+      slot: json['slot'],
+      protection: json['protection'],
+      warmth: json['warmth'],
       weight: json['weight'].toDouble(),
       durability: json['durability'],
-      specialAbility: json['special_ability'],
       icon: json['icon'],
       rarity: json['rarity'],
-      ammoType: json['ammo_type'],
-      ammoMax: json['ammo_max'],
+      extraSlots: json['extra_slots'],
     );
   }
 
@@ -85,26 +79,30 @@ class Weapon {
     }
   }
 
-  String get typeName {
-    switch (type) {
-      case 'melee':
-        return 'Ближний бой';
-      case 'ranged':
-        return 'Дальний бой';
-      case 'special':
-        return 'Специальное';
+  String get slotName {
+    switch (slot) {
+      case 'head':
+        return 'Голова';
+      case 'body':
+        return 'Тело';
+      case 'hands':
+        return 'Руки';
+      case 'feet':
+        return 'Ноги';
+      case 'backpack':
+        return 'Рюкзак';
       default:
-        return type;
+        return slot;
     }
   }
 
-  static Future<List<Weapon>> loadAll() async {
+  static Future<List<Armor>> loadAll() async {
     try {
       final String jsonString =
-          await rootBundle.loadString('assets/data/weapons.json');
+          await rootBundle.loadString('assets/data/armor.json');
       final Map<String, dynamic> jsonMap = json.decode(jsonString);
-      final List<dynamic> weaponsJson = jsonMap['weapons'];
-      return weaponsJson.map((json) => Weapon.fromJson(json)).toList();
+      final List<dynamic> armorJson = jsonMap['armor'];
+      return armorJson.map((json) => Armor.fromJson(json)).toList();
     } catch (e) {
       return [];
     }

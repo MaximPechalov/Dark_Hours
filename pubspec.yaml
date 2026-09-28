@@ -17,12 +17,10 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  fonts:
-    - family: Orbitron
-      fonts:
-        - asset: assets/fonts/Orbitron-Regular.ttf
-    - family: RobotoMono
-      fonts:
-        - asset: assets/fonts/RobotoMono-Regular.ttf
   assets:
     - assets/data/weapons.json
+    - assets/data/tools.json
+    - assets/data/consumables.json
+    - assets/data/armor.json
+    - assets/data/resources.json
+    - assets/data/recipes.json

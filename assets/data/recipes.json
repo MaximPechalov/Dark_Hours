@@ -1,0 +1,216 @@
+{
+  "recipes": [
+    {
+      "id": "molotov_craft",
+      "name": "Коктейль Молотова",
+      "result_id": "molotov",
+      "result_icon": "🔥",
+      "result_name": "Коктейль Молотова",
+      "description": "Бутылка с горючей смесью. Эффективна против групп.",
+      "ingredients": [
+        { "id": "vodka", "count": 1 },
+        { "id": "cloth", "count": 2 },
+        { "id": "lighter", "count": 1 }
+      ],
+      "time_minutes": 5,
+      "required_intelligence": 3,
+      "required_strength": 1,
+      "category": "weapon",
+      "rarity": "uncommon"
+    },
+    {
+      "id": "bandage_craft",
+      "name": "Бинт из ткани",
+      "result_id": "bandage",
+      "result_icon": "🩹",
+      "result_name": "Бинт",
+      "description": "Стерильная повязка из чистой ткани.",
+      "ingredients": [
+        { "id": "cloth", "count": 3 }
+      ],
+      "time_minutes": 2,
+      "required_intelligence": 2,
+      "required_strength": 1,
+      "category": "medicine",
+      "rarity": "common"
+    },
+    {
+      "id": "torch_craft",
+      "name": "Факел",
+      "result_id": "torch",
+      "result_icon": "🔥",
+      "result_name": "Факел",
+      "description": "Палка с тканью. Источник света.",
+      "ingredients": [
+        { "id": "wood", "count": 1 },
+        { "id": "cloth", "count": 2 },
+        { "id": "flint", "count": 1 }
+      ],
+      "time_minutes": 3,
+      "required_intelligence": 1,
+      "required_strength": 1,
+      "category": "tool",
+      "rarity": "common"
+    },
+    {
+      "id": "spear_craft",
+      "name": "Копьё",
+      "result_id": "spear",
+      "result_icon": "🗡️",
+      "result_name": "Копьё",
+      "description": "Нож, примотанный к длинной палке.",
+      "ingredients": [
+        { "id": "kitchen_knife", "count": 1 },
+        { "id": "wood", "count": 2 },
+        { "id": "duct_tape", "count": 1 }
+      ],
+      "time_minutes": 15,
+      "required_intelligence": 4,
+      "required_strength": 2,
+      "category": "weapon",
+      "rarity": "uncommon"
+    },
+    {
+      "id": "makeshift_armor_craft",
+      "name": "Самодельная броня",
+      "result_id": "makeshift_armor",
+      "result_icon": "🦺",
+      "result_name": "Кустарная броня",
+      "description": "Металл, примотанный к кожаной куртке.",
+      "ingredients": [
+        { "id": "leather_jacket", "count": 1 },
+        { "id": "metal_scrap", "count": 5 },
+        { "id": "wire", "count": 2 }
+      ],
+      "time_minutes": 30,
+      "required_intelligence": 5,
+      "required_strength": 4,
+      "category": "armor",
+      "rarity": "uncommon"
+    },
+    {
+      "id": "water_filter_craft",
+      "name": "Самодельный фильтр",
+      "result_id": "water_filter",
+      "result_icon": "💧",
+      "result_name": "Фильтр для воды",
+      "description": "Пластик, ткань и уголь. Очищает воду.",
+      "ingredients": [
+        { "id": "plastic", "count": 2 },
+        { "id": "cloth", "count": 3 },
+        { "id": "wood", "count": 1 }
+      ],
+      "time_minutes": 20,
+      "required_intelligence": 5,
+      "required_strength": 2,
+      "category": "tool",
+      "rarity": "uncommon"
+    },
+    {
+      "id": "fishing_rod_craft",
+      "name": "Удочка",
+      "result_id": "fishing_rod",
+      "result_icon": "🎣",
+      "result_name": "Удочка",
+      "description": "Палка, леска и крючок. Ловля рыбы.",
+      "ingredients": [
+        { "id": "wood", "count": 2 },
+        { "id": "wire", "count": 2 },
+        { "id": "nails", "count": 1 }
+      ],
+      "time_minutes": 25,
+      "required_intelligence": 3,
+      "required_strength": 2,
+      "category": "tool",
+      "rarity": "uncommon"
+    },
+    {
+      "id": "trap_snare_craft",
+      "name": "Ловушка (силок)",
+      "result_id": "trap_snare",
+      "result_icon": "🪤",
+      "result_name": "Силок",
+      "description": "Простая ловушка на мелкую дичь.",
+      "ingredients": [
+        { "id": "wire", "count": 1 },
+        { "id": "rope_scrap", "count": 1 }
+      ],
+      "time_minutes": 10,
+      "required_intelligence": 4,
+      "required_strength": 1,
+      "category": "tool",
+      "rarity": "common"
+    },
+    {
+      "id": "arrow_craft",
+      "name": "Стрелы (5 шт.)",
+      "result_id": "arrow",
+      "result_icon": "🏹",
+      "result_name": "Стрелы",
+      "description": "Палки, перья и гвозди. Для лука.",
+      "ingredients": [
+        { "id": "wood", "count": 1 },
+        { "id": "feathers", "count": 5 },
+        { "id": "nails", "count": 5 }
+      ],
+      "time_minutes": 15,
+      "required_intelligence": 3,
+      "required_strength": 2,
+      "category": "ammo",
+      "rarity": "common"
+    },
+    {
+      "id": "signal_flare_craft",
+      "name": "Сигнальный факел",
+      "result_id": "signal_flare",
+      "result_icon": "🚨",
+      "result_name": "Сигнальный факел",
+      "description": "Яркий сигнал для привлечения помощи.",
+      "ingredients": [
+        { "id": "cloth", "count": 2 },
+        { "id": "gunpowder", "count": 2 },
+        { "id": "wood", "count": 1 }
+      ],
+      "time_minutes": 10,
+      "required_intelligence": 4,
+      "required_strength": 2,
+      "category": "other",
+      "rarity": "uncommon"
+    },
+    {
+      "id": "lock_pick_craft",
+      "name": "Отмычки (самодельные)",
+      "result_id": "lock_pick_crafted",
+      "result_icon": "🔓",
+      "result_name": "Отмычки (самодельные)",
+      "description": "Из гвоздей и проволоки. Работают недолго.",
+      "ingredients": [
+        { "id": "nails", "count": 3 },
+        { "id": "wire", "count": 1 }
+      ],
+      "time_minutes": 20,
+      "required_intelligence": 6,
+      "required_strength": 1,
+      "category": "tool",
+      "rarity": "uncommon"
+    },
+    {
+      "id": "first_aid_kit_craft",
+      "name": "Расширенная аптечка",
+      "result_id": "first_aid_kit",
+      "result_icon": "💊",
+      "result_name": "Аптечка",
+      "description": "Собираем всё лучшее в одну сумку.",
+      "ingredients": [
+        { "id": "bandage", "count": 3 },
+        { "id": "painkiller_pill", "count": 2 },
+        { "id": "cloth", "count": 5 }
+      ],
+      "time_minutes": 15,
+      "required_intelligence": 5,
+      "required_strength": 1,
+      "category": "medicine",
+      "rarity": "uncommon"
+    }
+  ]
+}

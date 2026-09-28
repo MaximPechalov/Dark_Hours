@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'character_select_screen.dart';
-import 'weapon_test_screen.dart';
+import 'equipment_test_screen.dart';
 
 class StartScreen extends StatelessWidget {
   const StartScreen({super.key});
@@ -101,7 +101,7 @@ class StartScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const WeaponTestScreen(),
+                        builder: (_) => const EquipmentTestScreen(),
                       ),
                     );
                   },
@@ -117,7 +117,7 @@ class StartScreen extends StatelessWidget {
                     ),
                   ),
                   child: const Text(
-                    '🗡️  ТЕСТ ОРУЖИЯ',
+                    '🎒  ТЕСТ СНАРЯЖЕНИЯ',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
