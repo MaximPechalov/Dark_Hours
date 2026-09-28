@@ -30,7 +30,7 @@ class Recipe {
   final int timeMinutes;
   final int requiredIntelligence;
   final int requiredStrength;
-  final String category; // weapon, tool, armor, medicine, ammo, other
+  final String category;
   final String rarity;
 
   const Recipe({
@@ -118,6 +118,48 @@ class Recipe {
       default:
         return category;
     }
+  }
+
+  /// Проверка: можно ли создать рецепт при текущих ресурсах и статах
+  bool canCraft({
+    required Map<String, int> inventoryCounts,
+    required int intelligence,
+    required int strength,
+  }) {
+    // Проверка статов
+    if (intelligence < requiredIntelligence) return false;
+    if (strength < requiredStrength) return false;
+
+    // Проверка ингредиентов
+    for (final ing in ingredients) {
+      final have = inventoryCounts[ing.id] ?? 0;
+      if (have < ing.count) return false;
+    }
+
+    return true;
+  }
+
+  /// Получить причину, почему нельзя создать
+  String? getCraftBlockReason({
+    required Map<String, int> inventoryCounts,
+    required int intelligence,
+    required int strength,
+  }) {
+    if (intelligence < requiredIntelligence) {
+      return 'Требуется интеллект $requiredIntelligence';
+    }
+    if (strength < requiredStrength) {
+      return 'Требуется сила $requiredStrength';
+    }
+
+    for (final ing in ingredients) {
+      final have = inventoryCounts[ing.id] ?? 0;
+      if (have < ing.count) {
+        return 'Не хватает: ${ing.id} × ${ing.count - have}';
+      }
+    }
+
+    return null;
   }
 
   static Future<List<Recipe>> loadAll() async {

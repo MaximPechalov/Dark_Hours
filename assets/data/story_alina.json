@@ -1,5 +1,6 @@
 {
   "character": "alina",
+  "chapter": 1,
   "start_node": "intro",
   "nodes": [
     {
@@ -52,6 +53,18 @@
           "text": "Крикнуть, что внутри пожар — расчистить путь",
           "effects": { "sanity": -10, "time": -2 },
           "next": "magnit_trick"
+        },
+        {
+          "text": "Перепрыгнуть через машины — ты же бегунья",
+          "requires": {
+            "stats": { "stamina": { "min": 70 } }
+          },
+          "effects": {
+            "time": -3,
+            "stamina": -15,
+            "sanity": 5
+          },
+          "next": "magnit_inside"
         }
       ]
     },
@@ -75,8 +88,19 @@
         },
         {
           "text": "Помочь женщине с ребёнком — её толкают",
-          "effects": { "sanity": 10, "health": -10, "time": -5 },
+          "effects": { "sanity": 10, "health": -10, "time": -5, "flag_set": "helped_woman" },
           "next": "help_woman"
+        },
+        {
+          "text": "Свистнуть в свисток — отвлечь толпу",
+          "requires": {
+            "has_item": "whistle"
+          },
+          "effects": {
+            "time": -2,
+            "sanity": -5
+          },
+          "next": "storage_room"
         }
       ]
     },
@@ -104,6 +128,18 @@
         {
           "text": "Попробовать договориться — предложить поделить",
           "effects": { "sanity": 5 },
+          "next": "deal_storage"
+        },
+        {
+          "text": "Показать белый халат (если есть) — сказать, что ты врач",
+          "requires": {
+            "has_item": "first_aid_kit"
+          },
+          "effects": {
+            "sanity": 10,
+            "time": -3,
+            "flag_set": "pretended_doctor"
+          },
           "next": "deal_storage"
         },
         {
@@ -159,7 +195,8 @@
           "text": "Согласиться — взять три, оставить две",
           "effects": {
             "inventory_add": ["water_bottle", "water_bottle", "water_bottle"],
-            "sanity": 10
+            "sanity": 10,
+            "flag_set": "honest_with_kladowshchik"
           },
           "next": "escape_magnit"
         },
@@ -168,6 +205,19 @@
           "effects": {
             "inventory_add": ["water_bottle", "water_bottle", "water_bottle", "water_bottle"],
             "sanity": -20
+          },
+          "next": "escape_magnit"
+        },
+        {
+          "text": "Спросить про его жену — может, ей нужна помощь?",
+          "requires": {
+            "stats": { "sanity": { "min": 60 } }
+          },
+          "effects": {
+            "inventory_add": ["water_bottle", "water_bottle", "water_bottle", "water_bottle", "bandage"],
+            "sanity": 15,
+            "time": -15,
+            "flag_set": "friend_kladowshchik"
           },
           "next": "escape_magnit"
         }
@@ -188,6 +238,17 @@
           "effects": {
             "inventory_add": ["canned_stew", "water_bottle"],
             "time": -5
+          },
+          "next": "escape_magnit"
+        },
+        {
+          "text": "Включить фонарик и осмотреть всё",
+          "requires": {
+            "has_item": "flashlight"
+          },
+          "effects": {
+            "inventory_add": ["canned_stew", "water_bottle", "chocolate", "bandage"],
+            "time": -8
           },
           "next": "escape_magnit"
         }
@@ -224,7 +285,8 @@
           "effects": {
             "sanity": 15,
             "inventory_add": ["first_aid_kit"],
-            "time": -10
+            "time": -10,
+            "flag_set": "with_lena"
           },
           "next": "with_lena"
         },
@@ -270,7 +332,8 @@
           "text": "Остаться с ней — она старая, одна",
           "effects": {
             "sanity": 15,
-            "time": -60
+            "time": -60,
+            "flag_set": "stayed_with_zina"
           },
           "next": "stay_zina"
         },
@@ -279,7 +342,21 @@
           "effects": {
             "inventory_add": ["water_bottle", "water_bottle"],
             "time": -15,
-            "sanity": 5
+            "sanity": 5,
+            "flag_set": "with_zina"
+          },
+          "next": "escape_zina"
+        },
+        {
+          "text": "Спросить про её внука — где он?",
+          "requires": {
+            "stats": { "sanity": { "min": 60 } }
+          },
+          "effects": {
+            "inventory_add": ["water_bottle", "water_bottle", "painkiller_pill"],
+            "sanity": 10,
+            "time": -12,
+            "flag_set": "knows_about_grandson"
           },
           "next": "escape_zina"
         }
@@ -321,6 +398,18 @@
           "text": "Не рисковать, спуститься к магазину обычным путём",
           "effects": { "time": -5 },
           "next": "magnit_run"
+        },
+        {
+          "text": "Использовать верёвку — спуститься безопаснее",
+          "requires": {
+            "has_item": "rope"
+          },
+          "effects": {
+            "time": -12,
+            "stamina": -10,
+            "sanity": 5
+          },
+          "next": "roof_path"
         }
       ]
     },
@@ -372,6 +461,17 @@
           "text": "Идти на север — к выезду из города",
           "effects": { "time": -120, "stamina": -30 },
           "next": "END_north"
+        },
+        {
+          "text": "Проверить бабу Зину — что с ней?",
+          "requires": {
+            "flag": "stayed_with_zina"
+          },
+          "effects": {
+            "time": -20,
+            "sanity": 10
+          },
+          "next": "END_zina"
         }
       ]
     },

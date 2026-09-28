@@ -8,12 +8,21 @@ import '../models/equipment.dart';
 import '../models/condition.dart';
 import '../models/active_condition.dart';
 import '../models/combat.dart';
+import '../models/rest_action.dart';
+import '../models/recipe.dart';
+import '../models/game_time.dart';
 import '../services/save_manager.dart';
 import '../services/item_loader.dart';
 import '../services/condition_manager.dart';
+import '../services/time_manager.dart';
 import '../widgets/inventory_panel.dart';
 import '../widgets/equipment_panel.dart';
 import '../widgets/conditions_panel.dart';
+import '../widgets/rest_panel.dart';
+import '../widgets/craft_panel.dart';
+import '../widgets/time_indicator.dart';
+import '../widgets/penalties_panel.dart';
+import '../widgets/death_screen.dart';
 import 'combat_screen.dart';
 import 'story_screen.dart';
 
@@ -43,8 +52,16 @@ class _MapScreenState extends State<MapScreen> {
   int health = 100;
   int sanity = 100;
   int stamina = 100;
-  int timeMinutes = 120;
+  int fatigue = 0;
+
+  // Игровое время
+  late GameTime gameTime;
+
   int chapter = 1;
+
+  // Характеристики персонажа
+  int intelligence = 5;
+  int strength = 5;
 
   final Inventory inventory = Inventory(maxWeight: 30.0);
   final Equipment equipment = Equipment();
@@ -52,10 +69,45 @@ class _MapScreenState extends State<MapScreen> {
   List<Condition> allConditions = [];
   final List<ActiveCondition> activeConditions = [];
 
+  List<Recipe> allRecipes = [];
+
+  final Set<String> _triggeredStoryNodes = {};
+
+  bool _isDead = false;
+  String _deathReason = '';
+
   @override
   void initState() {
     super.initState();
     _loadMap();
+  }
+
+  void _loadCharacterStats() {
+    switch (widget.characterId) {
+      case 'boris':
+        intelligence = 5;
+        strength = 7;
+        break;
+      case 'alina':
+        intelligence = 4;
+        strength = 3;
+        break;
+      case 'ivan':
+        intelligence = 8;
+        strength = 4;
+        break;
+      case 'andrey':
+        intelligence = 9;
+        strength = 2;
+        break;
+      case 'darya':
+        intelligence = 7;
+        strength = 4;
+        break;
+      default:
+        intelligence = 5;
+        strength = 5;
+    }
   }
 
   Future<void> _loadMap() async {
@@ -63,6 +115,8 @@ class _MapScreenState extends State<MapScreen> {
 
     await ItemLoader.init();
     allConditions = await Condition.loadAll();
+    allRecipes = await Recipe.loadAll();
+    _loadCharacterStats();
 
     final locations = await Location.loadAll();
     if (locations.isEmpty) {
@@ -70,7 +124,6 @@ class _MapScreenState extends State<MapScreen> {
       return;
     }
 
-    // Восстановление из сохранения
     if (widget.resumeFrom != null) {
       final s = widget.resumeFrom!;
       hunger = s.hunger;
@@ -78,15 +131,16 @@ class _MapScreenState extends State<MapScreen> {
       health = s.health;
       sanity = s.sanity;
       stamina = s.stamina;
-      timeMinutes = s.timeMinutes;
+      fatigue = s.fatigue;
+      gameTime = GameTime.fromSave(s.timeMinutes);
       chapter = s.chapter;
 
-      // Инвентарь
+      _triggeredStoryNodes.addAll(s.history);
+
       for (final itemJson in s.inventoryItems) {
         inventory.items.add(InventoryItem.fromJson(itemJson));
       }
 
-      // Экипировка
       final restored = Equipment.fromJson(s.equipmentItems);
       equipment.weapon = restored.weapon;
       equipment.head = restored.head;
@@ -95,7 +149,6 @@ class _MapScreenState extends State<MapScreen> {
       equipment.feet = restored.feet;
       equipment.backpack = restored.backpack;
 
-      // Болезни
       for (final cJson in s.activeConditions) {
         final condId = cJson['id'] as String;
         final days = cJson['daysRemaining'] as int;
@@ -130,6 +183,7 @@ class _MapScreenState extends State<MapScreen> {
       );
 
       setState(() {
+        gameTime = GameTime(totalMinutes: 8 * 60); // 08:00 первого дня
         _map = WorldMap(
           locations: locations,
           currentLocationId: startLoc.id,
@@ -138,6 +192,90 @@ class _MapScreenState extends State<MapScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  /// Продвинуть время и применить расход
+  Future<void> _advanceTime(int minutes, {bool isSleeping = false}) async {
+    final phaseBefore = gameTime.phase;
+    gameTime.advance(minutes);
+    final phaseAfter = gameTime.phase;
+
+    // Расход голода/жажды
+    final consumption = TimeManager.calculateConsumption(
+      minutes: minutes,
+      phase: phaseBefore,
+      isSleeping: isSleeping,
+    );
+
+    hunger = (hunger + (consumption['hunger'] ?? 0)).clamp(0, 100);
+    thirst = (thirst + (consumption['thirst'] ?? 0)).clamp(0, 100);
+    if (!isSleeping) {
+      fatigue = (fatigue + (consumption['fatigue'] ?? 0)).clamp(0, 100);
+    }
+
+    // Тик болезней
+    _applyConditionsTick();
+
+    // Проверка на смерть
+    _checkDeath();
+
+    // Уведомление о смене фазы
+    if (phaseBefore != phaseAfter && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${phaseAfter.icon} ${phaseAfter.name} — ${gameTime.formatted}',
+          ),
+          duration: const Duration(seconds: 2),
+          backgroundColor: phaseAfter.color.withOpacity(0.8),
+        ),
+      );
+    }
+  }
+
+  /// Проверить смерть
+  void _checkDeath() {
+    if (_isDead) return;
+
+    String? reason;
+
+    if (hunger <= 0) {
+      reason = 'Ты умер от голода. Тело не выдержало.';
+    } else if (thirst <= 0) {
+      reason = 'Ты умер от обезвоживания.';
+    } else if (health <= 0) {
+      reason = 'Твои раны оказались смертельными.';
+    } else if (fatigue >= 100) {
+      reason = 'Ты умер от истощения. Сердце остановилось.';
+    } else if (gameTime.isWinter) {
+      reason = 'Пришла зима. Ты не успел добраться до станции.';
+    }
+
+    if (reason != null) {
+      _isDead = true;
+      _deathReason = reason;
+      _showDeathScreen();
+    }
+  }
+
+  void _showDeathScreen() {
+    Future.microtask(() async {
+      if (!mounted) return;
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => DeathScreen(
+            reason: _deathReason,
+            characterName: widget.characterName,
+            dayReached: gameTime.day,
+          ),
+        ),
+      );
+      if (mounted) {
+        await SaveManager.delete();
+        Navigator.pop(context);
+      }
+    });
   }
 
   Future<void> _autoSave() async {
@@ -154,9 +292,10 @@ class _MapScreenState extends State<MapScreen> {
       health: health,
       sanity: sanity,
       stamina: stamina,
-      timeMinutes: timeMinutes,
+      fatigue: fatigue,
+      timeMinutes: gameTime.totalMinutes,
       chapter: chapter,
-      history: const [],
+      history: _triggeredStoryNodes.toList(),
       inventoryItems: inventory.toJson(),
       equipmentItems: equipment.toJson(),
       activeConditions: activeConditions
@@ -192,18 +331,331 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  /// Перемещение в другую локацию
+  // ====== КРАФТ ======
+  void _showCraftPanel() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (bottomSheetContext) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return CraftPanel(
+              inventory: inventory,
+              intelligence: intelligence,
+              strength: strength,
+              stamina: stamina,
+              recipes: allRecipes,
+              onCraft: (recipe) {
+                _craftItem(recipe);
+                setSheetState(() {});
+                setState(() {});
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _craftItem(Recipe recipe) async {
+    if (stamina < 5) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('❌ Слишком устал для крафта'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    for (final ing in recipe.ingredients) {
+      for (int i = 0; i < ing.count; i++) {
+        inventory.removeItem(ing.id);
+      }
+    }
+
+    final resultItem = ItemLoader.findById(recipe.resultId);
+    if (resultItem != null) {
+      inventory.addItem(resultItem);
+    }
+
+    stamina = (stamina - 5).clamp(0, 100);
+    fatigue = (fatigue + 5).clamp(0, 100);
+
+    await _advanceTime(recipe.timeMinutes);
+    await _autoSave();
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${recipe.resultIcon} Создано: ${recipe.resultName}',
+          ),
+          backgroundColor: const Color.fromARGB(255, 100, 180, 100),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  // ====== СЮЖЕТНЫЕ ТРИГГЕРЫ ======
+  Future<void> _checkStoryTrigger() async {
+    final loc = _map!.current;
+
+    if (loc.storyNode == null) return;
+    if (!loc.canTriggerStory(
+      currentChapter: chapter,
+      currentCharacter: widget.characterId,
+      triggeredNodes: _triggeredStoryNodes,
+    )) {
+      return;
+    }
+
+    final story = await Story.loadFor(widget.characterId);
+    if (story == null) return;
+
+    final node = story.getNode(loc.storyNode!);
+    if (node == null) return;
+
+    _triggeredStoryNodes.add(loc.storyNode!);
+    await _autoSave();
+
+    if (!mounted) return;
+
+    final proceed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color.fromARGB(255, 20, 20, 20),
+        title: const Text(
+          '📖 СЮЖЕТНОЕ СОБЫТИЕ',
+          style: TextStyle(
+            color: Color.fromARGB(255, 200, 180, 100),
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 2.0,
+          ),
+        ),
+        content: Text(
+          '${loc.name} — здесь тебя ждёт важная встреча.',
+          style: TextStyle(color: Colors.grey[300], fontSize: 13),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'ПРОДОЛЖИТЬ',
+              style: TextStyle(
+                color: Color.fromARGB(255, 200, 180, 100),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (proceed != true || !mounted) return;
+
+    final saveForStory = SaveData(
+      characterId: widget.characterId,
+      characterName: widget.characterName,
+      currentNodeId: loc.storyNode!,
+      currentLocationId: _map!.currentLocationId,
+      onMap: false,
+      hunger: hunger,
+      thirst: thirst,
+      health: health,
+      sanity: sanity,
+      stamina: stamina,
+      fatigue: fatigue,
+      timeMinutes: gameTime.totalMinutes,
+      chapter: chapter,
+      history: _triggeredStoryNodes.toList(),
+      inventoryItems: inventory.toJson(),
+      equipmentItems: equipment.toJson(),
+      activeConditions: activeConditions
+          .map((ac) => ({
+                'id': ac.condition.id,
+                'daysRemaining': ac.daysRemaining,
+              }))
+          .toList(),
+      savedAt: DateTime.now(),
+    );
+
+    await SaveManager.save(saveForStory);
+
+    if (!mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => StoryScreen(
+          characterId: widget.characterId,
+          characterName: widget.characterName,
+          resumeFrom: saveForStory,
+        ),
+      ),
+    ).then((_) {
+      _reloadFromSave();
+    });
+  }
+
+  Future<void> _reloadFromSave() async {
+    final save = await SaveManager.load();
+    if (save == null || !mounted) return;
+
+    setState(() {
+      hunger = save.hunger;
+      thirst = save.thirst;
+      health = save.health;
+      sanity = save.sanity;
+      stamina = save.stamina;
+      fatigue = save.fatigue;
+      gameTime = GameTime.fromSave(save.timeMinutes);
+      chapter = save.chapter;
+
+      inventory.items.clear();
+      for (final itemJson in save.inventoryItems) {
+        inventory.items.add(InventoryItem.fromJson(itemJson));
+      }
+
+      final restored = Equipment.fromJson(save.equipmentItems);
+      equipment.weapon = restored.weapon;
+      equipment.head = restored.head;
+      equipment.body = restored.body;
+      equipment.hands = restored.hands;
+      equipment.feet = restored.feet;
+      equipment.backpack = restored.backpack;
+
+      activeConditions.clear();
+      for (final cJson in save.activeConditions) {
+        final condId = cJson['id'] as String;
+        final days = cJson['daysRemaining'] as int;
+        try {
+          final cond = allConditions.firstWhere((c) => c.id == condId);
+          activeConditions.add(
+            ActiveCondition(condition: cond, daysRemaining: days),
+          );
+        } catch (_) {}
+      }
+
+      _triggeredStoryNodes.clear();
+      _triggeredStoryNodes.addAll(save.history);
+    });
+
+    _checkDeath();
+  }
+
+  // ====== ОТДЫХ ======
+  void _showRestPanel() {
+    final loc = _map!.current;
+    final isSafe = loc.dangerLevel <= 3;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (bottomSheetContext) {
+        return RestPanel(
+          isSafeLocation: isSafe,
+          onRest: (action) {
+            Navigator.pop(bottomSheetContext);
+            _rest(action);
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _rest(RestAction action) async {
+    final loc = _map!.current;
+    final isSafe = loc.dangerLevel <= 3;
+
+    stamina = (stamina + action.staminaRestore).clamp(0, 100);
+    health = (health + action.healthRestore).clamp(0, 100);
+    sanity = (sanity + action.sanityRestore).clamp(0, 100);
+    fatigue = (fatigue - action.fatigueReduce).clamp(0, 100);
+
+    final hasSleepingBag = inventory.hasItem('sleeping_bag');
+    if (hasSleepingBag) {
+      stamina = (stamina + 10).clamp(0, 100);
+      sanity = (sanity + 10).clamp(0, 100);
+    }
+
+    if (!isSafe) {
+      final riskRoll = DateTime.now().millisecond % 100;
+      final warmth = equipment.totalWarmth;
+      final coldChance = warmth >= 20 ? 10 : 30;
+      final phaseMultiplier = gameTime.phase.dangerMultiplier.toInt();
+
+      if (riskRoll < coldChance) {
+        final newCond = ConditionManager.tryInfect(
+          allConditions,
+          'cold_weather',
+          1.0,
+        );
+        if (newCond != null &&
+            !ConditionManager.hasCondition(activeConditions, newCond.id)) {
+          activeConditions.add(
+            ActiveCondition(
+              condition: newCond,
+              daysRemaining: newCond.durationDays,
+            ),
+          );
+        }
+      }
+
+      if (action.timeMinutes >= 240) {
+        final theftRoll = DateTime.now().millisecond % 100;
+        if (theftRoll < 25 && inventory.items.isNotEmpty) {
+          final stolen = inventory.items[
+              DateTime.now().millisecond % inventory.items.length];
+          inventory.removeAll(stolen.id);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('💀 Тебя ограбили! Украдено: ${stolen.name}'),
+                backgroundColor: Colors.red[700],
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          }
+        }
+      }
+
+      if (action.timeMinutes >= 480) {
+        final attackRoll = DateTime.now().millisecond % 100;
+        if (attackRoll < 20 * phaseMultiplier) {
+          _startCombat('looter_common');
+          return;
+        }
+      }
+    }
+
+    await _advanceTime(action.timeMinutes, isSleeping: true);
+    await _autoSave();
+
+    if (mounted) {
+      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${action.icon} Отдых: ${action.name}'),
+          backgroundColor: const Color.fromARGB(255, 100, 180, 100),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  // ====== ПЕРЕМЕЩЕНИЕ ======
   Future<void> _moveTo(String locationId) async {
     final target = _map!.getById(locationId);
     if (target == null) return;
 
-    // Тратим время
-    timeMinutes += 20;
     stamina = (stamina - 5).clamp(0, 100);
-    hunger = (hunger - 3).clamp(0, 100);
-    thirst = (thirst - 3).clamp(0, 100);
 
-    _applyConditionsTick();
+    await _advanceTime(20);
 
     setState(() {
       _map!.moveTo(locationId);
@@ -219,9 +671,11 @@ class _MapScreenState extends State<MapScreen> {
         backgroundColor: const Color.fromARGB(255, 200, 180, 100),
       ),
     );
+
+    await _checkStoryTrigger();
   }
 
-  /// Обыскать локацию
+  // ====== ОБЫСК ======
   Future<void> _searchLocation() async {
     final loc = _map!.current;
 
@@ -235,13 +689,9 @@ class _MapScreenState extends State<MapScreen> {
       return;
     }
 
-    // Тратим время и стамину
-    timeMinutes += loc.searchTime;
     stamina = (stamina - 10).clamp(0, 100);
-    hunger = (hunger - 5).clamp(0, 100);
-    thirst = (thirst - 5).clamp(0, 100);
+    fatigue = (fatigue + 8).clamp(0, 100);
 
-    // Риск заражения
     if (loc.risk != null) {
       final newCond = ConditionManager.tryInfect(allConditions, loc.risk!, 0.4);
       if (newCond != null &&
@@ -263,11 +713,10 @@ class _MapScreenState extends State<MapScreen> {
       }
     }
 
-    // Поиск лута
     String? foundItemId;
     if (loc.lootPool.isNotEmpty) {
-      foundItemId = loc.lootPool[
-          DateTime.now().millisecond % loc.lootPool.length];
+      foundItemId =
+          loc.lootPool[DateTime.now().millisecond % loc.lootPool.length];
       final item = ItemLoader.findById(foundItemId);
       if (item != null && inventory.addItem(item)) {
         if (mounted) {
@@ -290,23 +739,21 @@ class _MapScreenState extends State<MapScreen> {
       }
     }
 
-    // Враг
-    if (loc.enemies.isNotEmpty && !_isFinalLoc(loc)) {
+    await _advanceTime(loc.searchTime);
+
+    if (loc.enemies.isNotEmpty && !loc.isFinal) {
       final enemyRoll = DateTime.now().millisecond % 3;
       if (enemyRoll == 0) {
-        // 33% шанс встретить врага
         _startCombat(loc.enemies[0]);
+        return;
       }
     }
 
-    _applyConditionsTick();
     await _autoSave();
     if (mounted) setState(() {});
   }
 
-  bool _isFinalLoc(Location loc) => loc.isFinal;
-
-  /// Начать бой
+  // ====== БОЙ ======
   Future<void> _startCombat(String enemyId) async {
     final enemyData = _getEnemyData(enemyId);
     if (enemyData == null) return;
@@ -317,7 +764,7 @@ class _MapScreenState extends State<MapScreen> {
       maxHealth: 100,
       damage: equipment.totalDamage > 0 ? equipment.totalDamage : 3,
       protection: equipment.totalProtection,
-      strength: 5,
+      strength: strength,
     );
 
     final enemy = Combatant(
@@ -339,8 +786,9 @@ class _MapScreenState extends State<MapScreen> {
     if (!mounted) return;
     health = player.health.clamp(0, 100);
 
+    await _advanceTime(10);
+
     if (result == 'victory') {
-      // Заражение от раны
       if (health < 70) {
         final infect = ConditionManager.tryInfect(
           allConditions,
@@ -420,7 +868,7 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  /// Использование предмета
+  // ====== ПРЕДМЕТЫ ======
   void _useItem(InventoryItem item) {
     hunger = (hunger + item.hungerRestore).clamp(0, 100);
     thirst = (thirst + item.thirstRestore).clamp(0, 100);
@@ -521,12 +969,6 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  String _formatTime(int minutes) {
-    final h = minutes ~/ 60;
-    final m = minutes % 60;
-    return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}';
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -554,6 +996,13 @@ class _MapScreenState extends State<MapScreen> {
     }
 
     final current = _map!.current;
+    final penalties = TimeManager.getPenalties(
+      hunger: hunger,
+      thirst: thirst,
+      stamina: stamina,
+      sanity: sanity,
+      fatigue: fatigue,
+    );
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 10, 10, 10),
@@ -572,7 +1021,18 @@ class _MapScreenState extends State<MapScreen> {
         centerTitle: true,
         actions: [
           IconButton(
+            icon: const Icon(Icons.build_circle_outlined),
+            tooltip: 'Крафт',
+            onPressed: _showCraftPanel,
+          ),
+          IconButton(
+            icon: const Icon(Icons.hotel),
+            tooltip: 'Отдохнуть',
+            onPressed: _showRestPanel,
+          ),
+          IconButton(
             icon: const Icon(Icons.shield_outlined),
+            tooltip: 'Экипировка',
             onPressed: _showEquipment,
           ),
           Stack(
@@ -580,6 +1040,7 @@ class _MapScreenState extends State<MapScreen> {
             children: [
               IconButton(
                 icon: const Icon(Icons.backpack_outlined),
+                tooltip: 'Инвентарь',
                 onPressed: _showInventory,
               ),
               if (inventory.items.isNotEmpty)
@@ -609,6 +1070,7 @@ class _MapScreenState extends State<MapScreen> {
       body: Column(
         children: [
           _buildStatusBar(),
+          PenaltiesPanel(penalties: penalties),
           ConditionsPanel(conditions: activeConditions),
           Expanded(
             child: SingleChildScrollView(
@@ -619,7 +1081,6 @@ class _MapScreenState extends State<MapScreen> {
                   _buildCurrentLocation(current),
                   const SizedBox(height: 20),
 
-                  // Кнопка "Обыскать локацию"
                   if (current.lootPool.isNotEmpty ||
                       current.enemies.isNotEmpty ||
                       current.risk != null)
@@ -648,38 +1109,75 @@ class _MapScreenState extends State<MapScreen> {
                       ),
                     ),
 
-                  // Финальная локация
-                  if (current.isFinal)
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                '🏭 Ты добрался до станции. Конец пути. (Глава 2 в разработке)',
-                              ),
-                              duration: Duration(seconds: 4),
-                              backgroundColor: Color.fromARGB(255, 200, 180, 100),
+                  if (current.storyNode != null &&
+                      current.canTriggerStory(
+                        currentChapter: chapter,
+                        currentCharacter: widget.characterId,
+                        triggeredNodes: _triggeredStoryNodes,
+                      ))
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: _checkStoryTrigger,
+                          icon: const Icon(Icons.menu_book, size: 18),
+                          label: const Text(
+                            '📖  СЮЖЕТНОЕ СОБЫТИЕ',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.5,
                             ),
-                          );
-                        },
-                        icon: const Icon(Icons.flag, size: 18),
-                        label: const Text(
-                          '🏭  ВОЙТИ НА СТАНЦИЮ',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.5,
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(255, 200, 120, 100),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                         ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color.fromARGB(255, 200, 180, 100),
-                          foregroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+
+                  if (current.isFinal)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  '🏭 Ты добрался до станции. Конец пути.',
+                                ),
+                                duration: Duration(seconds: 4),
+                                backgroundColor:
+                                    Color.fromARGB(255, 200, 180, 100),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.flag, size: 18),
+                          label: const Text(
+                            '🏭  ВОЙТИ НА СТАНЦИЮ',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.5,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(255, 200, 180, 100),
+                            foregroundColor: Colors.black,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                         ),
                       ),
@@ -729,9 +1227,9 @@ class _MapScreenState extends State<MapScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'ТЫ ЗДЕСЬ',
+                      'ТЫ ЗДЕСЬ · ${gameTime.phase.name.toUpperCase()}',
                       style: TextStyle(
-                        color: Colors.grey[500],
+                        color: gameTime.phase.color,
                         fontSize: 10,
                         letterSpacing: 2.0,
                       ),
@@ -801,13 +1299,42 @@ class _MapScreenState extends State<MapScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    loc.name,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          loc.name,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (loc.storyNode != null &&
+                          loc.canTriggerStory(
+                            currentChapter: chapter,
+                            currentCharacter: widget.characterId,
+                            triggeredNodes: _triggeredStoryNodes,
+                          )) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 1,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 200, 120, 100),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Text(
+                            '📖',
+                            style: TextStyle(fontSize: 10),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -865,21 +1392,25 @@ class _MapScreenState extends State<MapScreen> {
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.access_time,
-                color: Color.fromARGB(255, 200, 180, 100),
-                size: 16,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                _formatTime(timeMinutes),
-                style: const TextStyle(
-                  color: Color.fromARGB(255, 200, 180, 100),
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              TimeIndicator(time: gameTime),
               const Spacer(),
+              if (fatigue > 0) ...[
+                Icon(
+                  Icons.bedtime,
+                  color: fatigue > 60 ? Colors.red : Colors.orange,
+                  size: 14,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'Устал $fatigue%',
+                  style: TextStyle(
+                    color: fatigue > 60 ? Colors.red : Colors.orange,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 12),
+              ],
               Text(
                 'Глава $chapter',
                 style: TextStyle(color: Colors.grey[500], fontSize: 12),
@@ -916,7 +1447,7 @@ class _MapScreenState extends State<MapScreen> {
             Text(
               '$value',
               style: TextStyle(
-                color: color,
+                color: value < 20 ? Colors.red : color,
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
               ),
@@ -929,7 +1460,9 @@ class _MapScreenState extends State<MapScreen> {
           child: LinearProgressIndicator(
             value: value / 100,
             backgroundColor: Colors.grey[900],
-            valueColor: AlwaysStoppedAnimation<Color>(color),
+            valueColor: AlwaysStoppedAnimation<Color>(
+              value < 20 ? Colors.red : color,
+            ),
             minHeight: 3,
           ),
         ),

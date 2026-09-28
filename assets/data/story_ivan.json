@@ -1,5 +1,6 @@
 {
   "character": "ivan",
+  "chapter": 1,
   "start_node": "intro",
   "nodes": [
     {
@@ -58,6 +59,18 @@
             "infect": { "source": "cold_weather", "chance": 0.4 }
           },
           "next": "meet_guest"
+        },
+        {
+          "text": "Найти в подвале старые карты — может, пригодятся",
+          "requires": {
+            "stats": { "sanity": { "min": 60 } }
+          },
+          "effects": {
+            "inventory_add": ["map", "flint"],
+            "time": -12,
+            "flag_set": "found_maps"
+          },
+          "next": "leave_back"
         }
       ]
     },
@@ -87,7 +100,8 @@
           "effects": {
             "sanity": -10,
             "inventory_remove": ["canned_stew", "canned_stew", "canned_stew"],
-            "time": -10
+            "time": -10,
+            "flag_set": "gave_to_serega"
           },
           "next": "serega_gone"
         },
@@ -98,7 +112,7 @@
         },
         {
           "text": "Предложить ему объединиться — вместе безопаснее",
-          "effects": { "sanity": 5 },
+          "effects": { "sanity": 5, "flag_set": "allied_serega" },
           "next": "alliance_serega"
         }
       ]
@@ -128,6 +142,19 @@
           "next": "forest_hut"
         },
         {
+          "text": "Забрать ружьё Сергея — может пригодиться",
+          "requires": {
+            "stats": { "health": { "min": 50 } }
+          },
+          "effects": {
+            "inventory_add": ["pipe_gun", "bandage"],
+            "health": -10,
+            "time": -35,
+            "flag_set": "took_serega_gun"
+          },
+          "next": "forest_hut"
+        },
+        {
           "text": "Остаться в доме и отстреливаться",
           "effects": { "health": -30, "stamina": -20, "time": -120 },
           "next": "siege"
@@ -150,6 +177,18 @@
             "time": -120,
             "stamina": -10,
             "infect": { "source": "cold_weather", "chance": 0.35 }
+          },
+          "next": "fortify_house"
+        },
+        {
+          "text": "Спрятать оставшиеся запасы в тайник",
+          "requires": {
+            "stats": { "intelligence": { "min": 6 } }
+          },
+          "effects": {
+            "sanity": 10,
+            "time": -30,
+            "flag_set": "hidden_stash"
           },
           "next": "fortify_house"
         }
@@ -214,6 +253,18 @@
           "text": "Вернуться домой — слишком опасно",
           "effects": { "time": -30 },
           "next": "intro_return"
+        },
+        {
+          "text": "Достать бинокль — разглядеть их",
+          "requires": {
+            "has_item": "binoculars"
+          },
+          "effects": {
+            "time": -3,
+            "sanity": 5,
+            "flag_set": "scouted_group"
+          },
+          "next": "meet_group"
         }
       ]
     },
@@ -236,7 +287,20 @@
           "effects": {
             "inventory_add": ["first_aid_kit"],
             "sanity": 10,
-            "time": -5
+            "time": -5,
+            "flag_set": "warned_zinaida"
+          },
+          "next": "shop_leave"
+        },
+        {
+          "text": "Попросить у Зинаиды тёплые вещи",
+          "requires": {
+            "stats": { "sanity": { "min": 50 } }
+          },
+          "effects": {
+            "inventory_add": ["first_aid_kit", "winter_coat"],
+            "sanity": 5,
+            "time": -15
           },
           "next": "shop_leave"
         }
@@ -262,7 +326,19 @@
         },
         {
           "text": "Сказать, что у магазина банда — они разбегутся",
-          "effects": { "sanity": -5 },
+          "effects": { "sanity": -5, "flag_set": "lied_to_group" },
+          "next": "scare_group"
+        },
+        {
+          "text": "Показать удостоверение майора — может, испугаются",
+          "requires": {
+            "flag": "found_maps"
+          },
+          "effects": {
+            "sanity": 10,
+            "time": -5,
+            "flag_set": "showed_rank"
+          },
           "next": "scare_group"
         }
       ]
@@ -399,6 +475,18 @@
             "infect": { "source": "cold_weather", "chance": 0.5 }
           },
           "next": "END_shelter_ivan"
+        },
+        {
+          "text": "Использовать тайник с запасами — переждать",
+          "requires": {
+            "flag": "hidden_stash"
+          },
+          "effects": {
+            "time": -90,
+            "stamina": 20,
+            "sanity": 5
+          },
+          "next": "END_shelter_ivan"
         }
       ]
     },
@@ -416,6 +504,19 @@
           "text": "Обустроиться и вернуться в город за припасами",
           "effects": { "time": -240, "stamina": -20 },
           "next": "return_home"
+        },
+        {
+          "text": "Развести костёр с помощью кремня",
+          "requires": {
+            "has_item": "flint"
+          },
+          "effects": {
+            "time": -30,
+            "health": 15,
+            "sanity": 15,
+            "stamina": 10
+          },
+          "next": "END_hut"
         }
       ]
     },

@@ -1,5 +1,6 @@
 {
   "character": "andrey",
+  "chapter": 1,
   "start_node": "intro",
   "nodes": [
     {
@@ -45,6 +46,18 @@
           "next": "neighbor_hack"
         },
         {
+          "text": "Использовать отмычки — у тебя же есть",
+          "requires": {
+            "has_item": "lock_pick"
+          },
+          "effects": {
+            "time": -3,
+            "sanity": 5,
+            "flag_set": "used_lockpick_neighbor"
+          },
+          "next": "neighbor_inside"
+        },
+        {
           "text": "Бросить эту идею — слишком сложно",
           "effects": { "time": -5 },
           "next": "pharmacy_run"
@@ -70,6 +83,18 @@
             "inventory_add": ["battery", "electronics", "duct_tape", "flashlight"],
             "time": -15,
             "sanity": -5
+          },
+          "next": "leave_neighbor"
+        },
+        {
+          "text": "Скопировать записку в блокнот — код генератора",
+          "requires": {
+            "stats": { "intelligence": { "min": 7 } }
+          },
+          "effects": {
+            "inventory_add": ["battery", "electronics", "duct_tape"],
+            "time": -10,
+            "flag_set": "knows_generator_code"
           },
           "next": "leave_neighbor"
         },
@@ -103,6 +128,18 @@
             "inventory_add": ["battery", "electronics", "battery"],
             "time": -15,
             "sanity": -5
+          },
+          "next": "leave_neighbor"
+        },
+        {
+          "text": "Скопировать данные замка себе — на будущее",
+          "requires": {
+            "stats": { "intelligence": { "min": 8 } }
+          },
+          "effects": {
+            "inventory_add": ["battery", "electronics", "lock_pick"],
+            "time": -15,
+            "flag_set": "hacked_neighbor_system"
           },
           "next": "leave_neighbor"
         }
@@ -141,8 +178,21 @@
         },
         {
           "text": "Предложить объединиться",
-          "effects": { "time": -5, "sanity": 5 },
+          "effects": { "time": -5, "sanity": 5, "flag_set": "allied_thieves" },
           "next": "thieves_alliance"
+        },
+        {
+          "text": "Использовать фонарик как приманку — бросить его",
+          "requires": {
+            "has_item": "flashlight"
+          },
+          "effects": {
+            "inventory_remove": ["flashlight"],
+            "time": -3,
+            "stamina": -15,
+            "flag_set": "used_flashlight_distraction"
+          },
+          "next": "escape_thieves"
         }
       ]
     },
@@ -219,7 +269,7 @@
         },
         {
           "text": "Предложить объединиться — вместе безопаснее",
-          "effects": { "time": -5, "sanity": 5 },
+          "effects": { "time": -5, "sanity": 5, "flag_set": "allied_thieves" },
           "next": "thieves_alliance"
         }
       ]
@@ -276,6 +326,18 @@
           "text": "Попытаться войти через чёрный ход",
           "effects": { "time": -5, "stamina": -5 },
           "next": "pharmacy_backdoor"
+        },
+        {
+          "text": "Показать ключ-карту от офиса — сказать, что ты инспектор",
+          "requires": {
+            "has_item": "keycard"
+          },
+          "effects": {
+            "time": -10,
+            "sanity": 10,
+            "flag_set": "used_keycard_pharmacy"
+          },
+          "next": "pharmacy_queue"
         },
         {
           "text": "Уйти — очередь слишком долгая",
@@ -341,6 +403,19 @@
           "next": "leave_pharmacy"
         },
         {
+          "text": "Взломать холодильник с дорогими лекарствами",
+          "requires": {
+            "has_item": "lock_pick"
+          },
+          "effects": {
+            "inventory_add": ["antibiotic_pill", "antibiotic_pill", "antibiotic_pill", "first_aid_kit"],
+            "time": -15,
+            "sanity": -5,
+            "flag_set": "opened_pharmacy_fridge"
+          },
+          "next": "leave_pharmacy"
+        },
+        {
           "text": "Найти фармацевта и попросить по-хорошему",
           "effects": { "time": -10, "sanity": 5 },
           "next": "meet_pharmacist"
@@ -357,7 +432,8 @@
           "effects": {
             "inventory_add": ["antibiotic_pill", "bandage", "painkiller_pill"],
             "sanity": 15,
-            "time": -15
+            "time": -15,
+            "flag_set": "helped_pharmacist"
           },
           "next": "leave_pharmacy"
         },
@@ -384,7 +460,7 @@
         },
         {
           "text": "Остаться и помочь фармацевту",
-          "effects": { "health": -15, "sanity": 10 },
+          "effects": { "health": -15, "sanity": 10, "flag_set": "saved_pharmacist" },
           "next": "help_pharmacist"
         },
         {
@@ -409,7 +485,7 @@
         },
         {
           "text": "Остаться с фармацевтом — она одна",
-          "effects": { "sanity": 15, "time": -60 },
+          "effects": { "sanity": 15, "time": -60, "flag_set": "stayed_with_pharmacist" },
           "next": "stay_pharmacist"
         }
       ]
@@ -478,6 +554,21 @@
           "text": "Выйти ночью — пока все спят",
           "effects": { "time": -30, "sanity": -10 },
           "next": "office"
+        },
+        {
+          "text": "Найти старый обогреватель и подключить к аккумулятору",
+          "requires": {
+            "has_item": "battery",
+            "stats": { "intelligence": { "min": 8 } }
+          },
+          "effects": {
+            "time": -60,
+            "health": 15,
+            "sanity": 10,
+            "stamina": 20,
+            "flag_set": "heated_apartment"
+          },
+          "next": "END_home_andrey"
         }
       ]
     },
@@ -537,6 +628,19 @@
             "inventory_add": ["battery", "battery", "battery"],
             "time": -15,
             "sanity": -5
+          },
+          "next": "office_leave"
+        },
+        {
+          "text": "Взломать базу данных — найти выживших",
+          "requires": {
+            "stats": { "intelligence": { "min": 9 } }
+          },
+          "effects": {
+            "inventory_add": ["map", "radio"],
+            "time": -40,
+            "sanity": 15,
+            "flag_set": "found_survivors_data"
           },
           "next": "office_leave"
         }
@@ -599,6 +703,20 @@
             "infect": { "source": "stress", "chance": 0.45 }
           },
           "next": "hide_apartment"
+        },
+        {
+          "text": "Взломать соседскую сеть — получить доступ к их камерам",
+          "requires": {
+            "has_item": "electronics",
+            "stats": { "intelligence": { "min": 8 } }
+          },
+          "effects": {
+            "inventory_add": ["map", "electronics"],
+            "time": -45,
+            "sanity": 10,
+            "flag_set": "hacked_neighbor_network"
+          },
+          "next": "hide_apartment"
         }
       ]
     },
@@ -618,7 +736,7 @@
         },
         {
           "text": "Попытаться связаться с кем-то через радио",
-          "effects": { "time": -120, "stamina": 10 },
+          "effects": { "time": -120, "stamina": 10, "flag_set": "used_radio" },
           "next": "END_radio"
         }
       ]
@@ -661,6 +779,18 @@
             "time": -30
           },
           "next": "END_north_andrey"
+        },
+        {
+          "text": "Изучить записку — может, есть координаты?",
+          "requires": {
+            "stats": { "intelligence": { "min": 7 } }
+          },
+          "effects": {
+            "inventory_add": ["canned_stew", "water_bottle", "radio"],
+            "time": -40,
+            "flag_set": "found_basement_note"
+          },
+          "next": "END_basement"
         }
       ]
     },

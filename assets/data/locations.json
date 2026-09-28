@@ -13,7 +13,8 @@
       "connections": ["street_south", "tunnel_entrance"],
       "icon": "🏠",
       "repeatable": true,
-      "is_start": true
+      "is_start": true,
+      "story_node": null
     },
     {
       "id": "street_south",
@@ -27,7 +28,8 @@
       "enemies": ["looter_common"],
       "connections": ["home_boris", "supermarket", "pharmacy", "gas_station"],
       "icon": "🛣️",
-      "repeatable": true
+      "repeatable": true,
+      "story_node": null
     },
     {
       "id": "supermarket",
@@ -41,7 +43,13 @@
       "enemies": ["looter_common", "looter_armed"],
       "connections": ["street_south", "parking"],
       "icon": "🏪",
-      "repeatable": true
+      "repeatable": true,
+      "story_node": "boris_ch2_supermarket",
+      "story_condition": {
+        "chapter": 2,
+        "character": "boris",
+        "once": true
+      }
     },
     {
       "id": "pharmacy",
@@ -55,7 +63,13 @@
       "enemies": ["looter_armed"],
       "connections": ["street_south", "hospital"],
       "icon": "💊",
-      "repeatable": true
+      "repeatable": true,
+      "story_node": "darya_ch2_pharmacy",
+      "story_condition": {
+        "chapter": 2,
+        "character": "darya",
+        "once": true
+      }
     },
     {
       "id": "gas_station",
@@ -69,7 +83,13 @@
       "enemies": [],
       "connections": ["street_south", "highway_entrance"],
       "icon": "⛽",
-      "repeatable": true
+      "repeatable": true,
+      "story_node": "andrey_ch2_gas_station",
+      "story_condition": {
+        "chapter": 2,
+        "character": "andrey",
+        "once": true
+      }
     },
     {
       "id": "parking",
@@ -83,7 +103,8 @@
       "enemies": ["looter_common"],
       "connections": ["supermarket"],
       "icon": "🅿️",
-      "repeatable": true
+      "repeatable": true,
+      "story_node": null
     },
     {
       "id": "tunnel_entrance",
@@ -98,7 +119,8 @@
       "connections": ["home_boris", "warehouse"],
       "icon": "🕳️",
       "repeatable": true,
-      "risk": "dirty_water"
+      "risk": "dirty_water",
+      "story_node": null
     },
     {
       "id": "warehouse",
@@ -112,7 +134,8 @@
       "enemies": ["looter_common", "looter_armed"],
       "connections": ["tunnel_entrance", "street_south"],
       "icon": "📦",
-      "repeatable": true
+      "repeatable": true,
+      "story_node": null
     },
     {
       "id": "hospital",
@@ -127,7 +150,13 @@
       "connections": ["pharmacy", "street_center"],
       "icon": "🏥",
       "repeatable": true,
-      "risk": "hospital_basement"
+      "risk": "hospital_basement",
+      "story_node": "ivan_ch2_hospital",
+      "story_condition": {
+        "chapter": 2,
+        "character": "ivan",
+        "once": true
+      }
     },
     {
       "id": "street_center",
@@ -141,7 +170,8 @@
       "enemies": ["looter_armed", "bandit"],
       "connections": ["hospital", "police_station", "office_tower"],
       "icon": "🛣️",
-      "repeatable": true
+      "repeatable": true,
+      "story_node": null
     },
     {
       "id": "police_station",
@@ -155,7 +185,13 @@
       "enemies": ["bandit", "looter_armed"],
       "connections": ["street_center"],
       "icon": "🚔",
-      "repeatable": true
+      "repeatable": true,
+      "story_node": "alina_ch2_police",
+      "story_condition": {
+        "chapter": 2,
+        "character": "alina",
+        "once": true
+      }
     },
     {
       "id": "office_tower",
@@ -169,7 +205,8 @@
       "enemies": ["looter_common"],
       "connections": ["street_center", "rooftop"],
       "icon": "🏢",
-      "repeatable": true
+      "repeatable": true,
+      "story_node": null
     },
     {
       "id": "rooftop",
@@ -184,7 +221,8 @@
       "connections": ["office_tower"],
       "icon": "🌃",
       "repeatable": true,
-      "risk": "fall"
+      "risk": "fall",
+      "story_node": null
     },
     {
       "id": "forest_hut",
@@ -198,7 +236,8 @@
       "enemies": [],
       "connections": ["forest_path", "gas_station"],
       "icon": "🏚️",
-      "repeatable": true
+      "repeatable": true,
+      "story_node": null
     },
     {
       "id": "forest_path",
@@ -212,7 +251,8 @@
       "enemies": [],
       "connections": ["forest_hut", "highway_entrance"],
       "icon": "🌲",
-      "repeatable": true
+      "repeatable": true,
+      "story_node": null
     },
     {
       "id": "highway_entrance",
@@ -226,7 +266,8 @@
       "enemies": ["bandit"],
       "connections": ["gas_station", "forest_path", "checkpoint"],
       "icon": "🛤️",
-      "repeatable": true
+      "repeatable": true,
+      "story_node": null
     },
     {
       "id": "checkpoint",
@@ -240,7 +281,8 @@
       "enemies": ["bandit"],
       "connections": ["highway_entrance", "north_station"],
       "icon": "🛑",
-      "repeatable": true
+      "repeatable": true,
+      "story_node": null
     },
     {
       "id": "north_station",
@@ -255,7 +297,8 @@
       "connections": ["checkpoint"],
       "icon": "🏭",
       "repeatable": false,
-      "is_final": true
+      "is_final": true,
+      "story_node": null
     }
   ]
 }

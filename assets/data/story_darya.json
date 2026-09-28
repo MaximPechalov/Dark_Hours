@@ -1,5 +1,6 @@
 {
   "character": "darya",
+  "chapter": 1,
   "start_node": "intro",
   "nodes": [
     {
@@ -9,7 +10,7 @@
       "choices": [
         {
           "text": "Открыть и помочь ребёнку",
-          "effects": { "time": -5, "sanity": 5 },
+          "effects": { "time": -5, "sanity": 5, "flag_set": "opened_to_sergey" },
           "next": "child_emergency"
         },
         {
@@ -39,7 +40,8 @@
           "effects": {
             "inventory_remove": ["first_aid_kit"],
             "sanity": 20,
-            "time": -5
+            "time": -5,
+            "flag_set": "saved_child"
           },
           "next": "child_saved"
         },
@@ -52,6 +54,19 @@
           "text": "Взять ребёнка с собой — вдруг найдёшь ингалятор по пути",
           "effects": { "time": -10, "stamina": -15 },
           "next": "take_child_along"
+        },
+        {
+          "text": "Проверить пульс и зрачки — оценить состояние точно",
+          "requires": {
+            "stats": { "intelligence": { "min": 7 } }
+          },
+          "effects": {
+            "inventory_add": ["bandage"],
+            "sanity": 15,
+            "time": -3,
+            "flag_set": "professional_diagnosis"
+          },
+          "next": "child_saved"
         }
       ]
     },
@@ -62,7 +77,7 @@
       "choices": [
         {
           "text": "Взять их с собой — врач + мужчина с руками = сила",
-          "effects": { "sanity": 10, "time": -10 },
+          "effects": { "sanity": 10, "time": -10, "flag_set": "with_sergey" },
           "next": "with_sergey"
         },
         {
@@ -143,13 +158,25 @@
         },
         {
           "text": "Крикнуть: «Я врач! Тут больной ребёнок!»",
-          "effects": { "sanity": 5, "time": -5 },
+          "effects": { "sanity": 5, "time": -5, "flag_set": "used_doctor_authority" },
           "next": "pharmacy_break_in"
         },
         {
           "text": "Убежать в чёрный ход",
           "effects": { "stamina": -10, "time": -10 },
           "next": "pharmacy_backdoor"
+        },
+        {
+          "text": "Показать медицинский халат и диплом — внушить доверие",
+          "requires": {
+            "flag": "opened_to_sergey"
+          },
+          "effects": {
+            "sanity": 10,
+            "time": -5,
+            "flag_set": "showed_medical_credentials"
+          },
+          "next": "pharmacy_break_in"
         }
       ]
     },
@@ -185,7 +212,8 @@
             "inventory_add": ["antibiotic_pill", "bandage"],
             "sanity": 10,
             "time": -15,
-            "infect": { "source": "combat_wound", "chance": 0.4 }
+            "infect": { "source": "combat_wound", "chance": 0.4 },
+            "flag_set": "with_katya"
           },
           "next": "pharmacist_ally"
         }
@@ -209,9 +237,23 @@
           "effects": {
             "inventory_add": ["antibiotic_pill", "bandage"],
             "sanity": 10,
-            "time": -5
+            "time": -5,
+            "flag_set": "with_katya"
           },
           "next": "pharmacist_ally"
+        },
+        {
+          "text": "Составить список приоритетных лекарств — как медик",
+          "requires": {
+            "stats": { "intelligence": { "min": 7 } }
+          },
+          "effects": {
+            "inventory_add": ["antibiotic_pill", "antibiotic_pill", "painkiller_pill", "first_aid_kit"],
+            "time": -15,
+            "sanity": 5,
+            "flag_set": "made_medicine_list"
+          },
+          "next": "pharmacy_leave"
         }
       ]
     },
@@ -233,6 +275,18 @@
           "text": "Окликнуть — может, это фармацевт",
           "effects": { "time": -3 },
           "next": "pharmacist_ally"
+        },
+        {
+          "text": "Осмотреть полки с фонариком — найти редкие препараты",
+          "requires": {
+            "has_item": "flashlight"
+          },
+          "effects": {
+            "inventory_add": ["antibiotic_pill", "antibiotic_pill", "first_aid_kit"],
+            "time": -10,
+            "flag_set": "found_rare_medicines"
+          },
+          "next": "pharmacy_leave"
         }
       ]
     },
@@ -246,7 +300,8 @@
           "effects": {
             "sanity": 15,
             "inventory_add": ["antibiotic_pill", "bandage"],
-            "time": -15
+            "time": -15,
+            "flag_set": "helped_pharmacist_mom"
           },
           "next": "pharmacist_help"
         },
@@ -261,7 +316,7 @@
         },
         {
           "text": "Предложить ей идти с тобой — в больнице есть всё",
-          "effects": { "sanity": 5, "time": -5 },
+          "effects": { "sanity": 5, "time": -5, "flag_set": "with_katya" },
           "next": "pharmacy_leave"
         }
       ]
@@ -276,7 +331,8 @@
           "effects": {
             "sanity": 15,
             "inventory_add": ["antibiotic_pill", "antibiotic_pill", "painkiller_pill"],
-            "time": -10
+            "time": -10,
+            "flag_set": "with_katya"
           },
           "next": "hospital_with_katya"
         },
@@ -306,6 +362,17 @@
           "text": "Идти на север — к выезду из города",
           "effects": { "time": -180, "stamina": -40 },
           "next": "END_north_darya"
+        },
+        {
+          "text": "Зайти в больницу через главный вход — с Катей",
+          "requires": {
+            "flag": "with_katya"
+          },
+          "effects": {
+            "time": -15,
+            "sanity": 10
+          },
+          "next": "hospital_with_katya"
         }
       ]
     },
@@ -333,6 +400,18 @@
           "text": "Найти хирургическое отделение — там может быть всё",
           "effects": { "time": -20, "stamina": -10 },
           "next": "hospital_surgery"
+        },
+        {
+          "text": "Надеть противогаз и спуститься в подвал без риска",
+          "requires": {
+            "has_item": "gas_mask_tool"
+          },
+          "effects": {
+            "time": -20,
+            "sanity": -5,
+            "flag_set": "used_gas_mask_basement"
+          },
+          "next": "hospital_basement"
         }
       ]
     },
@@ -348,13 +427,26 @@
         },
         {
           "text": "Остаться и помочь эвакуировать пациентов",
-          "effects": { "time": -60, "stamina": -20, "sanity": 15 },
+          "effects": { "time": -60, "stamina": -20, "sanity": 15, "flag_set": "helped_evacuation" },
           "next": "hospital_help"
         },
         {
           "text": "Сказать, что тебе нужно бежать — у тебя свои задачи",
           "effects": { "sanity": -20, "time": -3 },
           "next": "hospital_pharmacy"
+        },
+        {
+          "text": "Взять руководство на себя — ты знаешь, что делать",
+          "requires": {
+            "stats": { "intelligence": { "min": 7 }, "sanity": { "min": 60 } }
+          },
+          "effects": {
+            "time": -90,
+            "stamina": -30,
+            "sanity": 20,
+            "flag_set": "led_evacuation"
+          },
+          "next": "hospital_help"
         }
       ]
     },
@@ -407,6 +499,20 @@
           "next": "hospital_leave"
         },
         {
+          "text": "Использовать стерилизатор — обработать инструменты",
+          "requires": {
+            "stats": { "intelligence": { "min": 8 } }
+          },
+          "effects": {
+            "inventory_add": ["antibiotic_pill", "antibiotic_pill", "first_aid_kit", "splint", "bandage"],
+            "health": -5,
+            "time": -20,
+            "flag_set": "used_sterilizer",
+            "infect": { "source": "hospital_basement", "chance": 0.15 }
+          },
+          "next": "hospital_leave"
+        },
+        {
           "text": "Не рисковать — подняться обратно",
           "effects": { "time": -10 },
           "next": "hospital_pharmacy"
@@ -435,6 +541,18 @@
           "text": "Встретить того, кто идёт",
           "effects": { "time": -3 },
           "next": "hospital_meet"
+        },
+        {
+          "text": "Забрать весь запас — ты знаешь, где что лежит",
+          "requires": {
+            "flag": "helped_evacuation"
+          },
+          "effects": {
+            "inventory_add": ["antibiotic_pill", "antibiotic_pill", "painkiller_pill", "first_aid_kit", "bandage"],
+            "time": -20,
+            "flag_set": "took_all_medicine"
+          },
+          "next": "hospital_leave"
         }
       ]
     },
@@ -458,6 +576,19 @@
             "inventory_add": ["first_aid_kit"],
             "time": -10,
             "infect": { "source": "combat_wound", "chance": 0.25 }
+          },
+          "next": "hospital_leave"
+        },
+        {
+          "text": "Найти и забрать хирургический набор — бесценная вещь",
+          "requires": {
+            "stats": { "intelligence": { "min": 8 } }
+          },
+          "effects": {
+            "inventory_add": ["first_aid_kit", "splint", "bandage", "bandage"],
+            "time": -20,
+            "sanity": 10,
+            "flag_set": "found_surgery_kit"
           },
           "next": "hospital_leave"
         }
@@ -492,7 +623,8 @@
           "text": "Присоединиться к ним",
           "effects": {
             "sanity": 15,
-            "time": -10
+            "time": -10,
+            "flag_set": "with_group_darya"
           },
           "next": "END_group_darya"
         },
@@ -548,6 +680,28 @@
       ]
     },
     {
+      "id": "hospital_with_katya",
+      "title": "С Катей",
+      "text": "Вы идёте вместе — ты и Катя. Она знает все лекарства, все дозы. Она — твоя тень, твоя помощница.\n\nВы входите в больницу. Главврач видит вас двоих и улыбается впервые за день.\n\n«Две медсестры — это уже команда.»",
+      "choices": [
+        {
+          "text": "Идти к главврачу и помогать",
+          "effects": {
+            "time": -60,
+            "stamina": -20,
+            "sanity": 15,
+            "flag_set": "helped_evacuation"
+          },
+          "next": "hospital_help"
+        },
+        {
+          "text": "Идти в аптеку больницы за лекарствами",
+          "effects": { "time": -15 },
+          "next": "hospital_pharmacy"
+        }
+      ]
+    },
+    {
       "id": "END_hospital_stay",
       "title": "В больнице",
       "text": "Ты осталась. Ты работала до утра. Спасала тех, кого можно спасти. Тех, кого нельзя — держала за руку.\n\nК утру больница опустела. Ты сидишь на полу в коридоре. Ты сделала всё, что могла.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
@@ -575,12 +729,6 @@
       "id": "END_home_darya",
       "title": "Дома",
       "text": "Ты дома. Дверь закрыта. Лекарства рассортированы.\n\nТы засыпаешь на полу. Тебе снится больница. Свет. Люди. Жизнь.\n\nТы выжила первый день. Завтра — второй. Ты справишься.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "hospital_with_katya",
-      "title": "С Катей",
-      "text": "Ты идёшь с Катей — молодым фармацевтом. Она знает все лекарства, все дозы. Она — твоя тень, твоя помощница.\n\nВы идёте в больницу вместе. Вместе — вы сила.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
       "choices": []
     },
     {

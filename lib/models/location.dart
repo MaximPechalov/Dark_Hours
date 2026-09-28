@@ -2,6 +2,34 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+class StoryCondition {
+  final int? chapter;
+  final String? character;
+  final bool once;
+
+  const StoryCondition({
+    this.chapter,
+    this.character,
+    this.once = true,
+  });
+
+  factory StoryCondition.fromJson(Map<String, dynamic> json) {
+    return StoryCondition(
+      chapter: json['chapter'],
+      character: json['character'],
+      once: json['once'] ?? true,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'chapter': chapter,
+      'character': character,
+      'once': once,
+    };
+  }
+}
+
 class Location {
   final String id;
   final String name;
@@ -19,6 +47,10 @@ class Location {
   final bool isFinal;
   final String? risk;
 
+  // Сюжетные триггеры
+  final String? storyNode;
+  final StoryCondition? storyCondition;
+
   const Location({
     required this.id,
     required this.name,
@@ -35,6 +67,8 @@ class Location {
     this.isStart = false,
     this.isFinal = false,
     this.risk,
+    this.storyNode,
+    this.storyCondition,
   });
 
   factory Location.fromJson(Map<String, dynamic> json) {
@@ -54,6 +88,12 @@ class Location {
       isStart: json['is_start'] ?? false,
       isFinal: json['is_final'] ?? false,
       risk: json['risk'],
+      storyNode: json['story_node'],
+      storyCondition: json['story_condition'] != null
+          ? StoryCondition.fromJson(
+              Map<String, dynamic>.from(json['story_condition']),
+            )
+          : null,
     );
   }
 
@@ -71,6 +111,34 @@ class Location {
     if (dangerLevel <= 6) return 'Средняя угроза';
     if (dangerLevel <= 8) return 'Опасно';
     return 'Смертельно';
+  }
+
+  /// Проверка: сработает ли сюжетный триггер в этой локации
+  bool canTriggerStory({
+    required int currentChapter,
+    required String currentCharacter,
+    required Set<String> triggeredNodes,
+  }) {
+    if (storyNode == null || storyCondition == null) return false;
+
+    final cond = storyCondition!;
+
+    // Проверка по главе
+    if (cond.chapter != null && currentChapter < cond.chapter!) {
+      return false;
+    }
+
+    // Проверка по персонажу
+    if (cond.character != null && cond.character != currentCharacter) {
+      return false;
+    }
+
+    // Проверка "только один раз"
+    if (cond.once && triggeredNodes.contains(storyNode)) {
+      return false;
+    }
+
+    return true;
   }
 
   static Future<List<Location>> loadAll() async {

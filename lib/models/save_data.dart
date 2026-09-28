@@ -2,13 +2,14 @@ class SaveData {
   final String characterId;
   final String characterName;
   final String currentNodeId;
-  final String currentLocationId; // ← новое
-  final bool onMap; // ← новое
+  final String currentLocationId;
+  final bool onMap;
   final int hunger;
   final int thirst;
   final int health;
   final int sanity;
   final int stamina;
+  final int fatigue; // ← новое
   final int timeMinutes;
   final int chapter;
   final List<String> history;
@@ -28,6 +29,7 @@ class SaveData {
     required this.health,
     required this.sanity,
     required this.stamina,
+    required this.fatigue,
     required this.timeMinutes,
     required this.chapter,
     required this.history,
@@ -49,6 +51,7 @@ class SaveData {
       'health': health,
       'sanity': sanity,
       'stamina': stamina,
+      'fatigue': fatigue,
       'timeMinutes': timeMinutes,
       'chapter': chapter,
       'history': history,
@@ -71,6 +74,7 @@ class SaveData {
       health: json['health'],
       sanity: json['sanity'],
       stamina: json['stamina'],
+      fatigue: json['fatigue'] ?? 0,
       timeMinutes: json['timeMinutes'],
       chapter: json['chapter'],
       history: List<String>.from(json['history']),

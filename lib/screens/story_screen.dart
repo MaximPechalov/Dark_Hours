@@ -44,6 +44,7 @@ class _StoryScreenState extends State<StoryScreen> {
   int health = 100;
   int sanity = 100;
   int stamina = 100;
+  int fatigue = 0;
   int timeMinutes = 120;
   int chapter = 1;
 
@@ -54,6 +55,9 @@ class _StoryScreenState extends State<StoryScreen> {
   // Условия / болезни
   List<Condition> allConditions = [];
   final List<ActiveCondition> activeConditions = [];
+
+  // Квестовые флаги
+  final Set<String> _flags = {};
 
   @override
   void initState() {
@@ -81,16 +85,18 @@ class _StoryScreenState extends State<StoryScreen> {
       health = s.health;
       sanity = s.sanity;
       stamina = s.stamina;
+      fatigue = s.fatigue;
       timeMinutes = s.timeMinutes;
       chapter = s.chapter;
       _history.addAll(s.history);
 
-      // Восстанавливаем инвентарь
+      // Флаги восстанавливаются из history
+      _flags.addAll(s.history);
+
       for (final itemJson in s.inventoryItems) {
         inventory.items.add(InventoryItem.fromJson(itemJson));
       }
 
-      // Восстанавливаем экипировку
       final restoredEquipment = Equipment.fromJson(s.equipmentItems);
       equipment.weapon = restoredEquipment.weapon;
       equipment.head = restoredEquipment.head;
@@ -99,7 +105,6 @@ class _StoryScreenState extends State<StoryScreen> {
       equipment.feet = restoredEquipment.feet;
       equipment.backpack = restoredEquipment.backpack;
 
-      // Восстанавливаем болезни
       for (final cJson in s.activeConditions) {
         final condId = cJson['id'] as String;
         final days = cJson['daysRemaining'] as int;
@@ -109,24 +114,28 @@ class _StoryScreenState extends State<StoryScreen> {
             condition: cond,
             daysRemaining: days,
           ));
-        } catch (e) {
-          // Болезнь не найдена — пропускаем
-        }
+        } catch (e) {}
       }
+
+      final node = story.getNode(s.currentNodeId) ?? story.getNode(story.startNode);
 
       setState(() {
         _story = story;
-        _currentNode =
-            story.getNode(s.currentNodeId) ?? story.getNode(story.startNode);
-        _isEnd = _currentNode?.choices.isEmpty ?? false;
+        _currentNode = node;
+        _isEnd = node?.choices.isEmpty ?? false;
         _isLoading = false;
       });
+
+      // Применяем on_enter
+      if (node?.onEnter != null) _applyEffects(node!.onEnter);
     } else {
       setState(() {
         _story = story;
         _currentNode = story.getNode(story.startNode);
         _isLoading = false;
       });
+
+      if (_currentNode?.onEnter != null) _applyEffects(_currentNode!.onEnter);
     }
   }
 
@@ -171,6 +180,12 @@ class _StoryScreenState extends State<StoryScreen> {
       }
     }
 
+    // Установка флага
+    if (effects['flag_set'] != null) {
+      final flag = effects['flag_set'] as String;
+      _flags.add(flag);
+    }
+
     // Заражение болезнью
     if (effects['infect'] != null) {
       final infectData = effects['infect'] as Map<String, dynamic>;
@@ -201,7 +216,6 @@ class _StoryScreenState extends State<StoryScreen> {
     }
   }
 
-  /// Применить эффекты всех активных болезней за 1 ход
   void _applyConditionsTick() {
     if (activeConditions.isEmpty) return;
 
@@ -223,7 +237,6 @@ class _StoryScreenState extends State<StoryScreen> {
     }
   }
 
-  /// Определить стартовую локацию для персонажа
   String _getStartLocationForCharacter() {
     switch (widget.characterId) {
       case 'boris':
@@ -255,9 +268,10 @@ class _StoryScreenState extends State<StoryScreen> {
       health: health,
       sanity: sanity,
       stamina: stamina,
+      fatigue: fatigue,
       timeMinutes: timeMinutes,
       chapter: chapter,
-      history: _history,
+      history: [..._history, ..._flags],
       inventoryItems: inventory.toJson(),
       equipmentItems: equipment.toJson(),
       activeConditions: activeConditions
@@ -272,9 +286,7 @@ class _StoryScreenState extends State<StoryScreen> {
     await SaveManager.save(data);
   }
 
-  /// Перейти на карту мира
   Future<void> _goToMap() async {
-    // Сохраняем всё текущее состояние для передачи на карту
     final save = SaveData(
       characterId: widget.characterId,
       characterName: widget.characterName,
@@ -286,9 +298,10 @@ class _StoryScreenState extends State<StoryScreen> {
       health: health,
       sanity: sanity,
       stamina: stamina,
+      fatigue: fatigue,
       timeMinutes: timeMinutes,
       chapter: chapter + 1,
-      history: _history,
+      history: [..._history, ..._flags],
       inventoryItems: inventory.toJson(),
       equipmentItems: equipment.toJson(),
       activeConditions: activeConditions
@@ -316,13 +329,11 @@ class _StoryScreenState extends State<StoryScreen> {
 
   void _selectChoice(StoryChoice choice) {
     _applyEffects(choice.effects);
-
-    // Применяем тик болезней
     _applyConditionsTick();
 
+    fatigue = (fatigue + 2).clamp(0, 100);
     _history.add(_currentNode!.id);
 
-    // Проверка на бой
     if (choice.effects != null && choice.effects!['combat_start'] != null) {
       final combat = choice.effects!['combat_start'] as Map<String, dynamic>;
       _startCombat(
@@ -343,6 +354,19 @@ class _StoryScreenState extends State<StoryScreen> {
       setState(() => _isEnd = true);
       _autoSave();
       return;
+    }
+
+    // Применяем on_enter новой ноды
+    if (nextNode.onEnter != null) _applyEffects(nextNode.onEnter);
+
+    // Применяем flags_set
+    if (nextNode.flagsSet != null) {
+      final flags = nextNode.flagsSet!['add'];
+      if (flags != null) {
+        for (final f in flags) {
+          _flags.add(f as String);
+        }
+      }
     }
 
     if (nextNode.choices.isEmpty) {
@@ -411,10 +435,49 @@ class _StoryScreenState extends State<StoryScreen> {
     final nextNode = _story!.getNode(nodeId);
     if (nextNode == null) return;
 
+    if (nextNode.onEnter != null) _applyEffects(nextNode.onEnter);
+
     setState(() {
       _currentNode = nextNode;
       _isEnd = nextNode.choices.isEmpty;
     });
+  }
+
+  // ====== ФИЛЬТРАЦИЯ ВЫБОРОВ ======
+  List<StoryChoice> get _availableChoices {
+    if (_currentNode == null) return [];
+    return _currentNode!.choices.where((c) {
+      return c.isAvailable(
+        stats: {
+          'hunger': hunger,
+          'thirst': thirst,
+          'health': health,
+          'sanity': sanity,
+          'stamina': stamina,
+          'fatigue': fatigue,
+        },
+        inventoryIds: inventory.items.map((i) => i.id).toSet(),
+        flags: _flags,
+      );
+    }).toList();
+  }
+
+  List<StoryChoice> get _lockedChoices {
+    if (_currentNode == null) return [];
+    return _currentNode!.choices.where((c) {
+      return !c.isAvailable(
+        stats: {
+          'hunger': hunger,
+          'thirst': thirst,
+          'health': health,
+          'sanity': sanity,
+          'stamina': stamina,
+          'fatigue': fatigue,
+        },
+        inventoryIds: inventory.items.map((i) => i.id).toSet(),
+        flags: _flags,
+      );
+    }).toList();
   }
 
   // ====== ИНВЕНТАРЬ ======
@@ -454,7 +517,6 @@ class _StoryScreenState extends State<StoryScreen> {
     health = (health + item.healthRestore).clamp(0, 100);
     sanity = (sanity + item.sanityRestore).clamp(0, 100);
 
-    // Попытка вылечить болезни
     final curable = <ActiveCondition>[];
     for (final ac in activeConditions) {
       if (ConditionManager.tryCure(ac, item.id)) {
@@ -525,7 +587,6 @@ class _StoryScreenState extends State<StoryScreen> {
     );
   }
 
-  // ====== ЭКИПИРОВКА ======
   void _showEquipment() {
     showModalBottomSheet(
       context: context,
@@ -755,8 +816,9 @@ class _StoryScreenState extends State<StoryScreen> {
                       ),
                     ),
                   ],
+                  // Доступные выборы
                   if (!_isEnd)
-                    ..._currentNode!.choices.map((choice) {
+                    ..._availableChoices.map((choice) {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 10.0),
                         child: SizedBox(
@@ -787,6 +849,75 @@ class _StoryScreenState extends State<StoryScreen> {
                         ),
                       );
                     }).toList(),
+
+                  // Заблокированные выборы (серые)
+                  if (!_isEnd && _lockedChoices.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    ..._lockedChoices.map((choice) {
+                      final reason = choice.getUnavailableReason(
+                        stats: {
+                          'hunger': hunger,
+                          'thirst': thirst,
+                          'health': health,
+                          'sanity': sanity,
+                          'stamina': stamina,
+                          'fatigue': fatigue,
+                        },
+                        inventoryIds:
+                            inventory.items.map((i) => i.id).toSet(),
+                        flags: _flags,
+                      );
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 10.0),
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 15, 15, 15),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: Colors.grey[800]!,
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.lock,
+                                color: Colors.grey,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      choice.text,
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 14,
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                    ),
+                                    if (reason != null) ...[
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        '🔒 $reason',
+                                        style: TextStyle(
+                                          color: Colors.grey[700],
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ],
                 ],
               ),
             ),
@@ -826,6 +957,23 @@ class _StoryScreenState extends State<StoryScreen> {
                 ),
               ),
               const Spacer(),
+              if (fatigue > 0) ...[
+                Icon(
+                  Icons.bedtime,
+                  color: fatigue > 60 ? Colors.red : Colors.orange,
+                  size: 14,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'Устал $fatigue%',
+                  style: TextStyle(
+                    color: fatigue > 60 ? Colors.red : Colors.orange,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 12),
+              ],
               Text(
                 'Глава $chapter · Шаг ${_history.length + 1}',
                 style: TextStyle(

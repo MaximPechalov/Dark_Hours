@@ -1,5 +1,6 @@
 {
   "character": "boris",
+  "chapter": 1,
   "start_node": "intro",
   "nodes": [
     {
@@ -50,6 +51,17 @@
           "next": "tunnel_boiler"
         },
         {
+          "text": "Проверить: есть ли на ногах сапоги? (резиновые сапоги)",
+          "requires": {
+            "has_item": "rubber_boots"
+          },
+          "effects": {
+            "time": -10,
+            "sanity": 5
+          },
+          "next": "tunnel_boiler"
+        },
+        {
           "text": "Повернуть назад — слишком опасно",
           "effects": { "time": -15 },
           "next": "back_to_start"
@@ -71,12 +83,25 @@
           "next": "warehouse"
         },
         {
-          "text": "Обыскать труп — может, есть что-то ценное (но можно заразиться)",
+          "text": "Обыскать труп — может, есть что-то ценное",
           "effects": {
             "inventory_add": ["cigarette", "lighter"],
             "sanity": -10,
             "time": -5,
             "infect": { "source": "combat_wound", "chance": 0.35 }
+          },
+          "next": "warehouse"
+        },
+        {
+          "text": "Проверить труп на документы — может, знаешь его?",
+          "requires": {
+            "stats": { "sanity": { "min": 70 } }
+          },
+          "effects": {
+            "inventory_add": ["map"],
+            "flag_set": "found_documents",
+            "sanity": -15,
+            "time": -8
           },
           "next": "warehouse"
         },
@@ -108,6 +133,18 @@
           "effects": {
             "inventory_add": ["first_aid_kit", "water_bottle"],
             "time": -5
+          },
+          "next": "escape_warehouse"
+        },
+        {
+          "text": "Взломать дверь в подсобку ломиком",
+          "requires": {
+            "has_item": "crowbar"
+          },
+          "effects": {
+            "inventory_add": ["canned_stew", "water_bottle", "bandage", "antibiotic_pill"],
+            "sanity": 5,
+            "time": -8
           },
           "next": "escape_warehouse"
         },
@@ -177,6 +214,17 @@
             "time": -5
           },
           "next": "store_escape"
+        },
+        {
+          "text": "Включить фонарик и осмотреть всё",
+          "requires": {
+            "has_item": "flashlight"
+          },
+          "effects": {
+            "inventory_add": ["crackers", "water_bottle", "canned_stew", "chocolate"],
+            "time": -8
+          },
+          "next": "store_escape"
         }
       ]
     },
@@ -187,7 +235,7 @@
       "choices": [
         {
           "text": "Сказать, что ты свой, и предложить объединиться",
-          "effects": { "sanity": 5 },
+          "effects": { "sanity": 5, "flag_set": "met_family" },
           "next": "store_ally"
         },
         {
@@ -204,7 +252,21 @@
           "effects": {
             "health": -10,
             "sanity": -25,
-            "inventory_add": ["canned_stew", "canned_stew", "water_bottle", "first_aid_kit"]
+            "inventory_add": ["canned_stew", "canned_stew", "water_bottle", "first_aid_kit"],
+            "flag_set": "robbed_family"
+          },
+          "next": "store_escape"
+        },
+        {
+          "text": "Показать сигареты — предложить обмен",
+          "requires": {
+            "has_item": "cigarette"
+          },
+          "effects": {
+            "inventory_remove": ["cigarette"],
+            "inventory_add": ["water_bottle", "crackers"],
+            "sanity": 10,
+            "flag_set": "traded_with_family"
           },
           "next": "store_escape"
         }
@@ -234,7 +296,7 @@
       "choices": [
         {
           "text": "Выйти и поговорить с ним",
-          "effects": { "time": -2 },
+          "effects": { "time": -2, "flag_set": "known_vaska" },
           "next": "talk_vaska"
         },
         {
@@ -256,7 +318,7 @@
       "choices": [
         {
           "text": "Согласиться и пойти с ними",
-          "effects": { "sanity": -5, "time": -20 },
+          "effects": { "sanity": -5, "time": -20, "flag_set": "joined_vaska" },
           "next": "END_vaska"
         },
         {
@@ -268,6 +330,18 @@
           "text": "Соврать, что ломик в другом месте",
           "effects": { "sanity": -10 },
           "next": "store_start"
+        },
+        {
+          "text": "Пригрозить ломиком",
+          "requires": {
+            "has_item": "crowbar"
+          },
+          "effects": {
+            "sanity": 5,
+            "time": -5,
+            "flag_set": "threatened_vaska"
+          },
+          "next": "back_to_start"
         }
       ]
     },
@@ -292,9 +366,34 @@
       "id": "pack_up",
       "title": "Сборы",
       "text": "Ты быстро собираешь инструменты и фонарик. Сверху стук — дверь подвала пытаются открыть.\n\nТы слышишь голос Васьки:\n\n«Боря, выходи! Мы знаем, что ты там! Нам нужен твой ломик!»\n\nДверь ломается. В подвал спускаются двое. Один — Васька. Второй — незнакомый, с арматурой.",
+      "flags_set": {
+        "add": ["vaska_attacked"]
+      },
       "choices": [
         {
-          "text": "Драться — у тебя есть ломик",
+          "text": "Драться ломом — он у тебя теперь есть",
+          "requires": {
+            "has_item": "crowbar"
+          },
+          "effects": {
+            "combat_start": {
+              "enemy_name": "Васька и его друг",
+              "enemy_health": 40,
+              "enemy_damage": 8,
+              "enemy_protection": 1,
+              "enemy_strength": 5
+            },
+            "combat_victory": "fight_won",
+            "combat_defeat": "END_died",
+            "combat_flee": "store_start"
+          },
+          "next": "fight_won"
+        },
+        {
+          "text": "Драться голыми руками — без лома",
+          "requires": {
+            "not_item": "crowbar"
+          },
           "effects": {
             "combat_start": {
               "enemy_name": "Васька и его друг",
@@ -311,7 +410,7 @@
         },
         {
           "text": "Попытаться договориться",
-          "effects": { "time": -5 },
+          "effects": { "time": -5, "flag_set": "known_vaska" },
           "next": "talk_vaska"
         },
         {
@@ -376,7 +475,8 @@
           "effects": {
             "inventory_add": ["canned_stew", "water_bottle"],
             "sanity": 15,
-            "time": -60
+            "time": -60,
+            "flag_set": "with_family"
           },
           "next": "END_ally"
         },
@@ -403,7 +503,7 @@
         },
         {
           "text": "Идти к Ваське — может, у него есть план",
-          "effects": { "time": -45, "stamina": -10 },
+          "effects": { "time": -45, "stamina": -10, "flag_set": "known_vaska" },
           "next": "END_vaska"
         }
       ]
@@ -428,7 +528,8 @@
           "effects": {
             "sanity": -10,
             "health": 5,
-            "time": -15
+            "time": -15,
+            "flag_set": "saved_vaska"
           },
           "next": "save_vaska"
         },
