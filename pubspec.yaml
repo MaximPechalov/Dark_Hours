@@ -27,6 +27,7 @@ flutter:
     - assets/data/recipes.json
     - assets/data/conditions.json
     - assets/data/locations.json
+    - assets/data/achievements.json
     - assets/data/story_boris.json
     - assets/data/story_alina.json
     - assets/data/story_ivan.json

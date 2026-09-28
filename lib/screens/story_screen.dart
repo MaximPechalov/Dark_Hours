@@ -10,9 +10,15 @@ import '../models/active_condition.dart';
 import '../services/save_manager.dart';
 import '../services/item_loader.dart';
 import '../services/condition_manager.dart';
+import '../services/run_tracker.dart';
+import '../services/achievement_checker.dart';
+import '../services/achievement_manager.dart';
 import '../widgets/inventory_panel.dart';
 import '../widgets/equipment_panel.dart';
 import '../widgets/conditions_panel.dart';
+import '../widgets/fade_in_text.dart';
+import '../widgets/floating_effect.dart';
+import '../widgets/animated_stat_bar.dart';
 import 'combat_screen.dart';
 import 'map_screen.dart';
 
@@ -52,12 +58,15 @@ class _StoryScreenState extends State<StoryScreen> {
   final Inventory inventory = Inventory(maxWeight: 30.0);
   final Equipment equipment = Equipment();
 
-  // Условия / болезни
+  // Болезни
   List<Condition> allConditions = [];
   final List<ActiveCondition> activeConditions = [];
 
-  // Квестовые флаги
+  // Флаги
   final Set<String> _flags = {};
+
+  // Трекер текущего забега
+  final RunTracker tracker = RunTracker();
 
   @override
   void initState() {
@@ -89,8 +98,6 @@ class _StoryScreenState extends State<StoryScreen> {
       timeMinutes = s.timeMinutes;
       chapter = s.chapter;
       _history.addAll(s.history);
-
-      // Флаги восстанавливаются из history
       _flags.addAll(s.history);
 
       for (final itemJson in s.inventoryItems) {
@@ -117,7 +124,8 @@ class _StoryScreenState extends State<StoryScreen> {
         } catch (e) {}
       }
 
-      final node = story.getNode(s.currentNodeId) ?? story.getNode(story.startNode);
+      final node =
+          story.getNode(s.currentNodeId) ?? story.getNode(story.startNode);
 
       setState(() {
         _story = story;
@@ -126,9 +134,14 @@ class _StoryScreenState extends State<StoryScreen> {
         _isLoading = false;
       });
 
-      // Применяем on_enter
       if (node?.onEnter != null) _applyEffects(node!.onEnter);
     } else {
+      // Отмечаем персонажа как игранного
+      final stats = await AchievementManager.loadStats();
+      stats.playedCharacters.add(widget.characterId);
+      stats.totalGamesPlayed += 1;
+      await AchievementManager.saveStats(stats);
+
       setState(() {
         _story = story;
         _currentNode = story.getNode(story.startNode);
@@ -161,18 +174,17 @@ class _StoryScreenState extends State<StoryScreen> {
       timeMinutes = (timeMinutes + (effects['time'] as int)).clamp(0, 99999);
     }
 
-    // Добавление предметов
     if (effects['inventory_add'] != null) {
       final List<dynamic> addIds = effects['inventory_add'];
       for (final id in addIds) {
         final item = ItemLoader.findById(id as String);
         if (item != null) {
           inventory.addItem(item);
+          tracker.lootedCount += 1;
         }
       }
     }
 
-    // Удаление предметов
     if (effects['inventory_remove'] != null) {
       final List<dynamic> removeIds = effects['inventory_remove'];
       for (final id in removeIds) {
@@ -180,13 +192,11 @@ class _StoryScreenState extends State<StoryScreen> {
       }
     }
 
-    // Установка флага
     if (effects['flag_set'] != null) {
       final flag = effects['flag_set'] as String;
       _flags.add(flag);
     }
 
-    // Заражение болезнью
     if (effects['infect'] != null) {
       final infectData = effects['infect'] as Map<String, dynamic>;
       final source = infectData['source'] as String;
@@ -201,6 +211,7 @@ class _StoryScreenState extends State<StoryScreen> {
           condition: newCondition,
           daysRemaining: newCondition.durationDays,
         ));
+        tracker.infections += 1;
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -314,6 +325,22 @@ class _StoryScreenState extends State<StoryScreen> {
     );
     await SaveManager.save(save);
 
+    // Применяем статистику забега
+    final stats = await AchievementManager.loadStats();
+    tracker.applyToStats(stats);
+    await AchievementManager.saveStats(stats);
+
+    // Проверяем достижения
+    if (mounted) {
+      await AchievementChecker.check(
+        context: context,
+        characterId: widget.characterId,
+        day: chapter,
+        inventorySize: inventory.items.length,
+        tracker: tracker,
+      );
+    }
+
     if (!mounted) return;
     Navigator.pushReplacement(
       context,
@@ -334,7 +361,9 @@ class _StoryScreenState extends State<StoryScreen> {
     fatigue = (fatigue + 2).clamp(0, 100);
     _history.add(_currentNode!.id);
 
+    // Отмечаем бой
     if (choice.effects != null && choice.effects!['combat_start'] != null) {
+      tracker.hadCombat = true;
       final combat = choice.effects!['combat_start'] as Map<String, dynamic>;
       _startCombat(
         enemyName: combat['enemy_name'] ?? 'Враг',
@@ -356,10 +385,8 @@ class _StoryScreenState extends State<StoryScreen> {
       return;
     }
 
-    // Применяем on_enter новой ноды
     if (nextNode.onEnter != null) _applyEffects(nextNode.onEnter);
 
-    // Применяем flags_set
     if (nextNode.flagsSet != null) {
       final flags = nextNode.flagsSet!['add'];
       if (flags != null) {
@@ -421,6 +448,7 @@ class _StoryScreenState extends State<StoryScreen> {
     health = player.health.clamp(0, 100);
 
     if (result == 'victory') {
+      tracker.kills += 1;
       _navigateToNode(victoryNode);
     } else if (result == 'defeat') {
       _navigateToNode(defeatNode);
@@ -517,6 +545,32 @@ class _StoryScreenState extends State<StoryScreen> {
     health = (health + item.healthRestore).clamp(0, 100);
     sanity = (sanity + item.sanityRestore).clamp(0, 100);
 
+    // Всплывающие эффекты
+    if (item.hungerRestore > 0) {
+      FloatingEffectOverlay.show(
+        context,
+        '+${item.hungerRestore} 🍞',
+        color: Colors.orange,
+        icon: Icons.restaurant,
+      );
+    }
+    if (item.healthRestore > 0) {
+      FloatingEffectOverlay.show(
+        context,
+        '+${item.healthRestore} ❤️',
+        color: Colors.red,
+        icon: Icons.favorite,
+      );
+    }
+    if (item.sanityRestore > 0) {
+      FloatingEffectOverlay.show(
+        context,
+        '+${item.sanityRestore} 🧠',
+        color: Colors.purple,
+        icon: Icons.psychology,
+      );
+    }
+
     final curable = <ActiveCondition>[];
     for (final ac in activeConditions) {
       if (ConditionManager.tryCure(ac, item.id)) {
@@ -536,14 +590,6 @@ class _StoryScreenState extends State<StoryScreen> {
 
     inventory.removeItem(item.id);
     _autoSave();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Использовано: ${item.name}'),
-        duration: const Duration(seconds: 1),
-        backgroundColor: const Color.fromARGB(255, 100, 180, 100),
-      ),
-    );
   }
 
   void _equipItem(InventoryItem item) {
@@ -723,202 +769,217 @@ class _StoryScreenState extends State<StoryScreen> {
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _currentNode!.title.toUpperCase(),
-                    style: const TextStyle(
-                      color: Color.fromARGB(255, 200, 180, 100),
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 2.0,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 500),
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0, 0.05),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    _currentNode!.text,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 15,
-                      height: 1.6,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  if (_isEnd) ...[
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: const Color.fromARGB(255, 200, 180, 100),
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Text(
-                        '🎬 КОНЕЦ ГЛАВЫ',
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 200, 180, 100),
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2.0,
-                        ),
-                        textAlign: TextAlign.center,
+                  );
+                },
+                child: Column(
+                  key: ValueKey(_currentNode!.id),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _currentNode!.title.toUpperCase(),
+                      style: const TextStyle(
+                        color: Color.fromARGB(255, 200, 180, 100),
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2.0,
                       ),
                     ),
                     const SizedBox(height: 16),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _goToMap,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color.fromARGB(255, 100, 200, 100),
-                          foregroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                    FadeInText(
+                      text: _currentNode!.text,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        height: 1.6,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    if (_isEnd) ...[
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: const Color.fromARGB(255, 200, 180, 100),
                           ),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Text(
-                          '🗺️  ВЫЙТИ НА КАРТУ',
+                          '🎬 КОНЕЦ ГЛАВЫ',
                           style: TextStyle(
+                            color: Color.fromARGB(255, 200, 180, 100),
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 2.0,
                           ),
+                          textAlign: TextAlign.center,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.grey[400],
-                          side: BorderSide(
-                            color: Colors.grey[700]!,
-                            width: 1,
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text(
-                          'ВЕРНУТЬСЯ В МЕНЮ',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 2.0,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                  // Доступные выборы
-                  if (!_isEnd)
-                    ..._availableChoices.map((choice) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 10.0),
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton(
-                            onPressed: () => _selectChoice(choice),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              side: BorderSide(
-                                color: const Color.fromARGB(255, 200, 180, 100)
-                                    .withOpacity(0.4),
-                              ),
-                              padding: const EdgeInsets.all(16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              alignment: Alignment.centerLeft,
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _goToMap,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(255, 100, 200, 100),
+                            foregroundColor: Colors.black,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text(
-                              '▶  ${choice.text}',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                height: 1.4,
-                              ),
-                              textAlign: TextAlign.left,
+                          ),
+                          child: const Text(
+                            '🗺️  ВЫЙТИ НА КАРТУ',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 2.0,
                             ),
                           ),
                         ),
-                      );
-                    }).toList(),
-
-                  // Заблокированные выборы (серые)
-                  if (!_isEnd && _lockedChoices.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    ..._lockedChoices.map((choice) {
-                      final reason = choice.getUnavailableReason(
-                        stats: {
-                          'hunger': hunger,
-                          'thirst': thirst,
-                          'health': health,
-                          'sanity': sanity,
-                          'stamina': stamina,
-                          'fatigue': fatigue,
-                        },
-                        inventoryIds:
-                            inventory.items.map((i) => i.id).toSet(),
-                        flags: _flags,
-                      );
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 10.0),
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 15, 15, 15),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: Colors.grey[800]!,
+                      ),
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.grey[400],
+                            side: BorderSide(
+                              color: Colors.grey[700]!,
                               width: 1,
                             ),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.lock,
-                                color: Colors.grey,
-                                size: 16,
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      choice.text,
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 14,
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                    ),
-                                    if (reason != null) ...[
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        '🔒 $reason',
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontSize: 11,
-                                        ),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                              ),
-                            ],
+                          child: const Text(
+                            'ВЕРНУТЬСЯ В МЕНЮ',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 2.0,
+                            ),
                           ),
                         ),
-                      );
-                    }).toList(),
+                      ),
+                    ],
+                    if (!_isEnd)
+                      ..._availableChoices.map((choice) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 10.0),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton(
+                              onPressed: () => _selectChoice(choice),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                side: BorderSide(
+                                  color: const Color.fromARGB(
+                                          255, 200, 180, 100)
+                                      .withOpacity(0.4),
+                                ),
+                                padding: const EdgeInsets.all(16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                alignment: Alignment.centerLeft,
+                              ),
+                              child: Text(
+                                '▶  ${choice.text}',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  height: 1.4,
+                                ),
+                                textAlign: TextAlign.left,
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    if (!_isEnd && _lockedChoices.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      ..._lockedChoices.map((choice) {
+                        final reason = choice.getUnavailableReason(
+                          stats: {
+                            'hunger': hunger,
+                            'thirst': thirst,
+                            'health': health,
+                            'sanity': sanity,
+                            'stamina': stamina,
+                            'fatigue': fatigue,
+                          },
+                          inventoryIds:
+                              inventory.items.map((i) => i.id).toSet(),
+                          flags: _flags,
+                        );
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 10.0),
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: const Color.fromARGB(255, 15, 15, 15),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: Colors.grey[800]!,
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.lock,
+                                  color: Colors.grey,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        choice.text,
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 14,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                      ),
+                                      if (reason != null) ...[
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          '🔒 $reason',
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ),
@@ -986,51 +1047,49 @@ class _StoryScreenState extends State<StoryScreen> {
           const SizedBox(height: 8),
           Row(
             children: [
-              Expanded(child: _buildStat('🍞', hunger, Colors.orange)),
+              Expanded(
+                child: AnimatedStatBar(
+                  icon: '🍞',
+                  value: hunger,
+                  color: Colors.orange,
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _buildStat('💧', thirst, Colors.blue)),
+              Expanded(
+                child: AnimatedStatBar(
+                  icon: '💧',
+                  value: thirst,
+                  color: Colors.blue,
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _buildStat('❤️', health, Colors.red)),
+              Expanded(
+                child: AnimatedStatBar(
+                  icon: '❤️',
+                  value: health,
+                  color: Colors.red,
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _buildStat('🧠', sanity, Colors.purple)),
+              Expanded(
+                child: AnimatedStatBar(
+                  icon: '🧠',
+                  value: sanity,
+                  color: Colors.purple,
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _buildStat('⚡', stamina, Colors.green)),
+              Expanded(
+                child: AnimatedStatBar(
+                  icon: '⚡',
+                  value: stamina,
+                  color: Colors.green,
+                ),
+              ),
             ],
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildStat(String icon, int value, Color color) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(icon, style: const TextStyle(fontSize: 10)),
-            const SizedBox(width: 2),
-            Text(
-              '$value',
-              style: TextStyle(
-                color: color,
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 2),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(2),
-          child: LinearProgressIndicator(
-            value: value / 100,
-            backgroundColor: Colors.grey[900],
-            valueColor: AlwaysStoppedAnimation<Color>(color),
-            minHeight: 3,
-          ),
-        ),
-      ],
     );
   }
 }

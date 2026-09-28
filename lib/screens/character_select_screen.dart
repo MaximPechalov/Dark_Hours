@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/character.dart';
 import '../widgets/character_card.dart';
+import '../services/achievement_manager.dart';
 import 'story_screen.dart';
 
 class CharacterSelectScreen extends StatefulWidget {
@@ -36,10 +37,7 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
       children: [
         Text(
           label,
-          style: TextStyle(
-            color: Colors.grey[500],
-            fontSize: 9,
-          ),
+          style: TextStyle(color: Colors.grey[500], fontSize: 9),
         ),
         const SizedBox(height: 2),
         Container(
@@ -61,10 +59,7 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
         const SizedBox(height: 2),
         Text(
           value.toString(),
-          style: TextStyle(
-            color: Colors.grey[500],
-            fontSize: 9,
-          ),
+          style: TextStyle(color: Colors.grey[500], fontSize: 9),
         ),
       ],
     );
@@ -118,29 +113,17 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
           const SizedBox(height: 6),
           Text(
             character.profession,
-            style: TextStyle(
-              color: Colors.grey[400],
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.grey[400], fontSize: 14),
           ),
-          const Divider(
-            color: Color.fromARGB(255, 60, 60, 60),
-            height: 20,
-          ),
+          const Divider(color: Color.fromARGB(255, 60, 60, 60), height: 20),
           Text(
             '📌 Старт: ${character.startLocation}',
-            style: TextStyle(
-              color: Colors.grey[300],
-              fontSize: 13,
-            ),
+            style: TextStyle(color: Colors.grey[300], fontSize: 13),
           ),
           const SizedBox(height: 4),
           Text(
             '🎒 ${character.inventory}',
-            style: TextStyle(
-              color: Colors.grey[400],
-              fontSize: 12,
-            ),
+            style: TextStyle(color: Colors.grey[400], fontSize: 12),
           ),
           const SizedBox(height: 8),
           Container(
@@ -182,7 +165,14 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
+                // Отмечаем персонажа как игранного
+                final stats = await AchievementManager.loadStats();
+                stats.playedCharacters.add(character.id);
+                stats.totalGamesPlayed += 1;
+                await AchievementManager.saveStats(stats);
+
+                if (!mounted) return;
                 Navigator.push(
                   context,
                   MaterialPageRoute(

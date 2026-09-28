@@ -3,8 +3,12 @@ import 'character_select_screen.dart';
 import 'equipment_test_screen.dart';
 import 'map_screen.dart';
 import 'story_screen.dart';
+import 'achievements_screen.dart';
 import '../services/save_manager.dart';
+import '../services/achievement_manager.dart';
 import '../models/save_data.dart';
+import '../models/player_stats.dart';
+import '../widgets/shimmer_button.dart';
 
 class StartScreen extends StatefulWidget {
   const StartScreen({super.key});
@@ -15,19 +19,22 @@ class StartScreen extends StatefulWidget {
 
 class _StartScreenState extends State<StartScreen> {
   SaveData? _save;
+  PlayerStats? _stats;
   bool _checkingSave = true;
 
   @override
   void initState() {
     super.initState();
-    _checkForSave();
+    _loadData();
   }
 
-  Future<void> _checkForSave() async {
+  Future<void> _loadData() async {
     final save = await SaveManager.load();
+    final stats = await AchievementManager.loadStats();
     if (mounted) {
       setState(() {
         _save = save;
+        _stats = stats;
         _checkingSave = false;
       });
     }
@@ -39,7 +46,6 @@ class _StartScreenState extends State<StartScreen> {
       context,
       MaterialPageRoute(
         builder: (_) {
-          // Если игрок был на карте — открываем карту
           if (_save!.onMap) {
             return MapScreen(
               characterId: _save!.characterId,
@@ -47,7 +53,6 @@ class _StartScreenState extends State<StartScreen> {
               resumeFrom: _save,
             );
           }
-          // Иначе — продолжаем сюжет
           return StoryScreen(
             characterId: _save!.characterId,
             characterName: _save!.characterName,
@@ -55,7 +60,7 @@ class _StartScreenState extends State<StartScreen> {
           );
         },
       ),
-    ).then((_) => _checkForSave());
+    ).then((_) => _loadData());
   }
 
   Future<void> _deleteSave() async {
@@ -93,6 +98,16 @@ class _StartScreenState extends State<StartScreen> {
         setState(() => _save = null);
       }
     }
+  }
+
+  Future<void> _openAchievements() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const AchievementsScreen(),
+      ),
+    );
+    _loadData();
   }
 
   @override
@@ -169,9 +184,47 @@ class _StartScreenState extends State<StartScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 20),
 
-                  // ===== КНОПКА "ПРОДОЛЖИТЬ" (если есть сохранение) =====
+                  // Счётчик достижений
+                  if (_stats != null && _stats!.unlockedAchievements.isNotEmpty)
+                    GestureDetector(
+                      onTap: _openAchievements,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 200, 180, 100)
+                              .withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: const Color.fromARGB(255, 200, 180, 100)
+                                .withOpacity(0.4),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text('🏆', style: TextStyle(fontSize: 14)),
+                            const SizedBox(width: 6),
+                            Text(
+                              '${_stats!.unlockedAchievements.length} достижений',
+                              style: const TextStyle(
+                                color: Color.fromARGB(255, 200, 180, 100),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 30),
+
+                  // ===== КНОПКА "ПРОДОЛЖИТЬ" =====
                   if (!_checkingSave && _save != null) ...[
                     SizedBox(
                       width: double.infinity,
@@ -222,35 +275,20 @@ class _StartScreenState extends State<StartScreen> {
                     const SizedBox(height: 12),
                   ],
 
-                  // ===== КНОПКА "НАЧАТЬ ИГРУ" =====
+                  // ===== КНОПКА "НАЧАТЬ ИГРУ" (Shimmer) =====
                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
+                    child: ShimmerButton(
+                      text: _save != null ? '▶  НОВАЯ ИГРА' : '▶  НАЧАТЬ ИГРУ',
+                      icon: Icons.play_arrow,
                       onPressed: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (_) => const CharacterSelectScreen(),
                           ),
-                        ).then((_) => _checkForSave());
+                        ).then((_) => _loadData());
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color.fromARGB(255, 200, 180, 100),
-                        foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                      ),
-                      child: Text(
-                        _save != null ? '▶  НОВАЯ ИГРА' : '▶  НАЧАТЬ ИГРУ',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2.0,
-                        ),
-                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -295,6 +333,36 @@ class _StartScreenState extends State<StartScreen> {
                   ),
                   const SizedBox(height: 12),
 
+                  // ===== КНОПКА "ДОСТИЖЕНИЯ" =====
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _openAchievements,
+                      icon: const Icon(Icons.emoji_events_outlined, size: 18),
+                      label: const Text(
+                        '🏆  ДОСТИЖЕНИЯ',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2.0,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor:
+                            const Color.fromARGB(255, 200, 180, 100),
+                        side: const BorderSide(
+                          color: Color.fromARGB(255, 200, 180, 100),
+                          width: 1.0,
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
                   // ===== КНОПКА "ТЕСТ СНАРЯЖЕНИЯ" =====
                   SizedBox(
                     width: double.infinity,
@@ -308,10 +376,9 @@ class _StartScreenState extends State<StartScreen> {
                         );
                       },
                       style: OutlinedButton.styleFrom(
-                        foregroundColor:
-                            const Color.fromARGB(255, 200, 180, 100),
-                        side: const BorderSide(
-                          color: Color.fromARGB(255, 200, 180, 100),
+                        foregroundColor: Colors.grey[500],
+                        side: BorderSide(
+                          color: Colors.grey[700]!,
                           width: 1.0,
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -322,7 +389,7 @@ class _StartScreenState extends State<StartScreen> {
                       child: const Text(
                         '🎒  ТЕСТ СНАРЯЖЕНИЯ',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 13,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 2.0,
                         ),
@@ -333,7 +400,7 @@ class _StartScreenState extends State<StartScreen> {
 
                   // Версия
                   Text(
-                    'v 0.3.0',
+                    'v 0.5.0',
                     style: TextStyle(
                       color: Colors.grey[700],
                       fontSize: 12,

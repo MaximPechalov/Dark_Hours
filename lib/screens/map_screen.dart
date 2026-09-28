@@ -15,6 +15,9 @@ import '../services/save_manager.dart';
 import '../services/item_loader.dart';
 import '../services/condition_manager.dart';
 import '../services/time_manager.dart';
+import '../services/run_tracker.dart';
+import '../services/achievement_checker.dart';
+import '../services/achievement_manager.dart';
 import '../widgets/inventory_panel.dart';
 import '../widgets/equipment_panel.dart';
 import '../widgets/conditions_panel.dart';
@@ -23,6 +26,10 @@ import '../widgets/craft_panel.dart';
 import '../widgets/time_indicator.dart';
 import '../widgets/penalties_panel.dart';
 import '../widgets/death_screen.dart';
+import '../widgets/animated_stat_bar.dart';
+import '../widgets/floating_effect.dart';
+import '../widgets/animated_location_card.dart';
+import '../widgets/shimmer_button.dart';
 import 'combat_screen.dart';
 import 'story_screen.dart';
 
@@ -75,6 +82,9 @@ class _MapScreenState extends State<MapScreen> {
 
   bool _isDead = false;
   String _deathReason = '';
+
+  // Трекер текущего забега
+  final RunTracker tracker = RunTracker();
 
   @override
   void initState() {
@@ -183,7 +193,7 @@ class _MapScreenState extends State<MapScreen> {
       );
 
       setState(() {
-        gameTime = GameTime(totalMinutes: 8 * 60); // 08:00 первого дня
+        gameTime = GameTime(totalMinutes: 8 * 60);
         _map = WorldMap(
           locations: locations,
           currentLocationId: startLoc.id,
@@ -194,13 +204,13 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  /// Продвинуть время и применить расход
   Future<void> _advanceTime(int minutes, {bool isSleeping = false}) async {
+    final oldDay = gameTime.day;
     final phaseBefore = gameTime.phase;
+
     gameTime.advance(minutes);
     final phaseAfter = gameTime.phase;
 
-    // Расход голода/жажды
     final consumption = TimeManager.calculateConsumption(
       minutes: minutes,
       phase: phaseBefore,
@@ -213,13 +223,36 @@ class _MapScreenState extends State<MapScreen> {
       fatigue = (fatigue + (consumption['fatigue'] ?? 0)).clamp(0, 100);
     }
 
-    // Тик болезней
     _applyConditionsTick();
 
-    // Проверка на смерть
+    // Смена дня
+    if (gameTime.day > oldDay) {
+      tracker.nightsPassed += 1;
+      if (phaseBefore == TimePhase.night) {
+        tracker.nightsSurvived += 1;
+      }
+
+      if (sanity < 20) {
+        tracker.sanityDaysLow += 1;
+      } else {
+        tracker.sanityDaysLow = 0;
+      }
+
+      // Проверка достижений на новый день
+      if (mounted) {
+        await AchievementChecker.check(
+          context: context,
+          characterId: widget.characterId,
+          day: gameTime.day,
+          inventorySize: inventory.items.length,
+          tracker: tracker,
+          sanityDays: tracker.sanityDaysLow,
+        );
+      }
+    }
+
     _checkDeath();
 
-    // Уведомление о смене фазы
     if (phaseBefore != phaseAfter && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -233,7 +266,6 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  /// Проверить смерть
   void _checkDeath() {
     if (_isDead) return;
 
@@ -254,8 +286,23 @@ class _MapScreenState extends State<MapScreen> {
     if (reason != null) {
       _isDead = true;
       _deathReason = reason;
+      _applyStatsOnDeath();
       _showDeathScreen();
     }
+  }
+
+  Future<void> _applyStatsOnDeath() async {
+    final stats = await AchievementManager.loadStats();
+    stats.totalDeaths += 1;
+    stats.totalDaysSurvived += gameTime.day;
+
+    if (gameTime.day > stats.bestRunDays) {
+      stats.bestRunDays = gameTime.day;
+      stats.bestRunCharacter = widget.characterName;
+    }
+
+    tracker.applyToStats(stats);
+    await AchievementManager.saveStats(stats);
   }
 
   void _showDeathScreen() {
@@ -380,6 +427,12 @@ class _MapScreenState extends State<MapScreen> {
       inventory.addItem(resultItem);
     }
 
+    // Трекер крафта
+    tracker.craftedCount += 1;
+    if (recipe.id == 'molotov_craft') {
+      tracker.alchemistCrafted = true;
+    }
+
     stamina = (stamina - 5).clamp(0, 100);
     fatigue = (fatigue + 5).clamp(0, 100);
 
@@ -387,6 +440,13 @@ class _MapScreenState extends State<MapScreen> {
     await _autoSave();
 
     if (mounted) {
+      FloatingEffectOverlay.show(
+        context,
+        'Создано: ${recipe.resultName}',
+        color: const Color.fromARGB(255, 100, 180, 100),
+        icon: Icons.build,
+      );
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -395,6 +455,14 @@ class _MapScreenState extends State<MapScreen> {
           backgroundColor: const Color.fromARGB(255, 100, 180, 100),
           duration: const Duration(seconds: 2),
         ),
+      );
+
+      await AchievementChecker.check(
+        context: context,
+        characterId: widget.characterId,
+        day: gameTime.day,
+        inventorySize: inventory.items.length,
+        tracker: tracker,
       );
     }
   }
@@ -603,6 +671,7 @@ class _MapScreenState extends State<MapScreen> {
               daysRemaining: newCond.durationDays,
             ),
           );
+          tracker.infections += 1;
         }
       }
 
@@ -702,6 +771,7 @@ class _MapScreenState extends State<MapScreen> {
             daysRemaining: newCond.durationDays,
           ),
         );
+        tracker.infections += 1;
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -719,7 +789,17 @@ class _MapScreenState extends State<MapScreen> {
           loc.lootPool[DateTime.now().millisecond % loc.lootPool.length];
       final item = ItemLoader.findById(foundItemId);
       if (item != null && inventory.addItem(item)) {
+        tracker.lootedCount += 1;
+        if (inventory.items.length > tracker.maxInventorySize) {
+          tracker.maxInventorySize = inventory.items.length;
+        }
         if (mounted) {
+          FloatingEffectOverlay.show(
+            context,
+            'Найдено: ${item.name}',
+            color: const Color.fromARGB(255, 100, 180, 100),
+            icon: Icons.search,
+          );
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Найдено: ${item.icon} ${item.name}'),
@@ -750,13 +830,26 @@ class _MapScreenState extends State<MapScreen> {
     }
 
     await _autoSave();
-    if (mounted) setState(() {});
+
+    if (mounted) {
+      setState(() {});
+
+      await AchievementChecker.check(
+        context: context,
+        characterId: widget.characterId,
+        day: gameTime.day,
+        inventorySize: inventory.items.length,
+        tracker: tracker,
+      );
+    }
   }
 
   // ====== БОЙ ======
   Future<void> _startCombat(String enemyId) async {
     final enemyData = _getEnemyData(enemyId);
     if (enemyData == null) return;
+
+    tracker.hadCombat = true;
 
     final player = Combatant(
       name: widget.characterName,
@@ -784,11 +877,19 @@ class _MapScreenState extends State<MapScreen> {
     );
 
     if (!mounted) return;
+
+    final oldHealth = health;
     health = player.health.clamp(0, 100);
+
+    if (health < oldHealth) {
+      tracker.hadDamage = true;
+    }
 
     await _advanceTime(10);
 
     if (result == 'victory') {
+      tracker.kills += 1;
+
       if (health < 70) {
         final infect = ConditionManager.tryInfect(
           allConditions,
@@ -803,6 +904,7 @@ class _MapScreenState extends State<MapScreen> {
               daysRemaining: infect.durationDays,
             ),
           );
+          tracker.infections += 1;
         }
       }
       if (mounted) {
@@ -826,7 +928,18 @@ class _MapScreenState extends State<MapScreen> {
     }
 
     await _autoSave();
-    if (mounted) setState(() {});
+
+    if (mounted) {
+      setState(() {});
+
+      await AchievementChecker.check(
+        context: context,
+        characterId: widget.characterId,
+        day: gameTime.day,
+        inventorySize: inventory.items.length,
+        tracker: tracker,
+      );
+    }
   }
 
   Map<String, dynamic>? _getEnemyData(String id) {
@@ -874,6 +987,41 @@ class _MapScreenState extends State<MapScreen> {
     thirst = (thirst + item.thirstRestore).clamp(0, 100);
     health = (health + item.healthRestore).clamp(0, 100);
     sanity = (sanity + item.sanityRestore).clamp(0, 100);
+
+    // Считаем медицинские предметы
+    if (item.id.contains('pill') ||
+        item.id.contains('bandage') ||
+        item.id == 'first_aid_kit' ||
+        item.id == 'herb_medkit' ||
+        item.id == 'splint') {
+      tracker.medicineUsed += 1;
+    }
+
+    // Всплывающие эффекты
+    if (item.hungerRestore > 0) {
+      FloatingEffectOverlay.show(
+        context,
+        '+${item.hungerRestore} 🍞',
+        color: Colors.orange,
+        icon: Icons.restaurant,
+      );
+    }
+    if (item.thirstRestore > 0) {
+      FloatingEffectOverlay.show(
+        context,
+        '+${item.thirstRestore} 💧',
+        color: Colors.blue,
+        icon: Icons.water_drop,
+      );
+    }
+    if (item.healthRestore > 0) {
+      FloatingEffectOverlay.show(
+        context,
+        '+${item.healthRestore} ❤️',
+        color: Colors.red,
+        icon: Icons.favorite,
+      );
+    }
 
     final curable = <ActiveCondition>[];
     for (final ac in activeConditions) {
@@ -1148,37 +1296,24 @@ class _MapScreenState extends State<MapScreen> {
                       padding: const EdgeInsets.only(top: 10),
                       child: SizedBox(
                         width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  '🏭 Ты добрался до станции. Конец пути.',
+                        child: ShimmerButton(
+                          text: '🏭  ВОЙТИ НА СТАНЦИЮ',
+                          icon: Icons.flag,
+                          onPressed: () async {
+                            await AchievementManager.unlock('reached_station');
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    '🏭 Ты добрался до станции. Конец пути.',
+                                  ),
+                                  duration: Duration(seconds: 4),
+                                  backgroundColor:
+                                      Color.fromARGB(255, 200, 180, 100),
                                 ),
-                                duration: Duration(seconds: 4),
-                                backgroundColor:
-                                    Color.fromARGB(255, 200, 180, 100),
-                              ),
-                            );
+                              );
+                            }
                           },
-                          icon: const Icon(Icons.flag, size: 18),
-                          label: const Text(
-                            '🏭  ВОЙТИ НА СТАНЦИЮ',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.5,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromARGB(255, 200, 180, 100),
-                            foregroundColor: Colors.black,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
                         ),
                       ),
                     ),
@@ -1194,7 +1329,14 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  ..._map!.availableConnections.map(_buildLocationCard),
+
+                  // Анимированные карточки локаций
+                  ..._map!.availableConnections.asMap().entries.map((entry) {
+                    return AnimatedLocationCard(
+                      index: entry.key,
+                      child: _buildLocationCard(entry.value),
+                    );
+                  }).toList(),
                 ],
               ),
             ),
@@ -1420,53 +1562,49 @@ class _MapScreenState extends State<MapScreen> {
           const SizedBox(height: 8),
           Row(
             children: [
-              Expanded(child: _buildStat('🍞', hunger, Colors.orange)),
+              Expanded(
+                child: AnimatedStatBar(
+                  icon: '🍞',
+                  value: hunger,
+                  color: Colors.orange,
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _buildStat('💧', thirst, Colors.blue)),
+              Expanded(
+                child: AnimatedStatBar(
+                  icon: '💧',
+                  value: thirst,
+                  color: Colors.blue,
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _buildStat('❤️', health, Colors.red)),
+              Expanded(
+                child: AnimatedStatBar(
+                  icon: '❤️',
+                  value: health,
+                  color: Colors.red,
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _buildStat('🧠', sanity, Colors.purple)),
+              Expanded(
+                child: AnimatedStatBar(
+                  icon: '🧠',
+                  value: sanity,
+                  color: Colors.purple,
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _buildStat('⚡', stamina, Colors.green)),
+              Expanded(
+                child: AnimatedStatBar(
+                  icon: '⚡',
+                  value: stamina,
+                  color: Colors.green,
+                ),
+              ),
             ],
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildStat(String icon, int value, Color color) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(icon, style: const TextStyle(fontSize: 10)),
-            const SizedBox(width: 2),
-            Text(
-              '$value',
-              style: TextStyle(
-                color: value < 20 ? Colors.red : color,
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 2),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(2),
-          child: LinearProgressIndicator(
-            value: value / 100,
-            backgroundColor: Colors.grey[900],
-            valueColor: AlwaysStoppedAnimation<Color>(
-              value < 20 ? Colors.red : color,
-            ),
-            minHeight: 3,
-          ),
-        ),
-      ],
     );
   }
 
