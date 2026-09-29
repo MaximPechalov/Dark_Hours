@@ -1,0 +1,164 @@
+{
+  "resources": [
+    {
+      "id": "wood",
+      "name": "Дрова",
+      "description": "Куски дерева. Для костра, крафта и ремонта.",
+      "category": "material",
+      "weight": 1.5,
+      "stack_max": 20,
+      "icon": "🪵",
+      "rarity": "common"
+    },
+    {
+      "id": "cloth",
+      "name": "Ткань",
+      "description": "Кусок ткани. Для бинтов, факелов, крафта.",
+      "category": "material",
+      "weight": 0.1,
+      "stack_max": 50,
+      "icon": "🧵",
+      "rarity": "common"
+    },
+    {
+      "id": "metal_scrap",
+      "name": "Металлолом",
+      "description": "Куски металла. Для ремонта оружия и крафта.",
+      "category": "material",
+      "weight": 0.5,
+      "stack_max": 30,
+      "icon": "🔩",
+      "rarity": "common"
+    },
+    {
+      "id": "wire",
+      "name": "Провод",
+      "description": "Медный провод. Электрика.",
+      "category": "material",
+      "weight": 0.2,
+      "stack_max": 20,
+      "icon": "🔌",
+      "rarity": "common"
+    },
+    {
+      "id": "glue",
+      "name": "Клей",
+      "description": "Строительный клей. Для крафта.",
+      "category": "material",
+      "weight": 0.1,
+      "stack_max": 10,
+      "icon": "🧴",
+      "rarity": "common"
+    },
+    {
+      "id": "nails",
+      "name": "Гвозди",
+      "description": "Стальные гвозди. Стройматериал.",
+      "category": "material",
+      "weight": 0.05,
+      "stack_max": 100,
+      "icon": "📌",
+      "rarity": "common"
+    },
+    {
+      "id": "rubber",
+      "name": "Резина",
+      "description": "Кусок резины. Для обуви и ремонта.",
+      "category": "material",
+      "weight": 0.3,
+      "stack_max": 20,
+      "icon": "⬛",
+      "rarity": "common"
+    },
+    {
+      "id": "gunpowder",
+      "name": "Порох",
+      "description": "Оружейный порох. Для патронов.",
+      "category": "material",
+      "weight": 0.05,
+      "stack_max": 50,
+      "icon": "💥",
+      "rarity": "uncommon"
+    },
+    {
+      "id": "leather",
+      "name": "Кожа",
+      "description": "Кусок кожи. Для брони и ремонта.",
+      "category": "material",
+      "weight": 0.3,
+      "stack_max": 30,
+      "icon": "🟫",
+      "rarity": "common"
+    },
+    {
+      "id": "plastic",
+      "name": "Пластик",
+      "description": "Кусок пластика. Лёгкий материал.",
+      "category": "material",
+      "weight": 0.1,
+      "stack_max": 50,
+      "icon": "⬜",
+      "rarity": "common"
+    },
+    {
+      "id": "glass",
+      "name": "Стекло",
+      "description": "Осколки стекла. Для ловушек и крафта.",
+      "category": "material",
+      "weight": 0.2,
+      "stack_max": 30,
+      "icon": "🔷",
+      "rarity": "common"
+    },
+    {
+      "id": "feathers",
+      "name": "Перья",
+      "description": "Птичьи перья. Для стрел и подушек.",
+      "category": "material",
+      "weight": 0.02,
+      "stack_max": 100,
+      "icon": "🪶",
+      "rarity": "common"
+    },
+    {
+      "id": "flint",
+      "name": "Кремень",
+      "description": "Огниво. Для разведения огня.",
+      "category": "material",
+      "weight": 0.1,
+      "stack_max": 20,
+      "icon": "🔥",
+      "rarity": "common"
+    },
+    {
+      "id": "rope_scrap",
+      "name": "Кусок верёвки",
+      "description": "Обрывок верёвки. Для мелких дел.",
+      "category": "material",
+      "weight": 0.3,
+      "stack_max": 20,
+      "icon": "🪢",
+      "rarity": "common"
+    },
+    {
+      "id": "electronics",
+      "name": "Электроника",
+      "description": "Микросхемы и платы. Для устройств.",
+      "category": "special",
+      "weight": 0.2,
+      "stack_max": 15,
+      "icon": "💾",
+      "rarity": "uncommon"
+    },
+    {
+      "id": "car_battery",
+      "name": "Автомобильный аккумулятор",
+      "description": "Тяжёлый, но мощный. Для техники.",
+      "category": "special",
+      "weight": 15.0,
+      "stack_max": 1,
+      "icon": "🔋",
+      "rarity": "rare"
+    }
+  ]
+}

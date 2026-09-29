@@ -1,0 +1,128 @@
+{
+  "conditions": [
+    {
+      "id": "infection",
+      "name": "Инфекция",
+      "description": "Рана заражена. Каждый ход теряешь здоровье.",
+      "icon": "🦠",
+      "severity": "medium",
+      "effects_per_turn": {
+        "health": -3,
+        "stamina": -1
+      },
+      "cure_items": ["antibiotic_pill", "herb_medkit"],
+      "cure_chance": 0.9,
+      "duration_days": 5,
+      "source": ["combat_wound", "dirty_water", "hospital_basement"]
+    },
+    {
+      "id": "radiation",
+      "name": "Радиация",
+      "description": "Облучение. Слабость и тошнота. Постепенно убивает.",
+      "icon": "☢️",
+      "severity": "high",
+      "effects_per_turn": {
+        "health": -2,
+        "strength": -2,
+        "stamina": -2
+      },
+      "cure_items": ["anti_rad"],
+      "cure_chance": 1.0,
+      "duration_days": 10,
+      "source": ["radioactive_zone", "nuclear_site"]
+    },
+    {
+      "id": "food_poisoning",
+      "name": "Пищевое отравление",
+      "description": "Съел что-то плохое. Тошнота и слабость.",
+      "icon": "🤢",
+      "severity": "low",
+      "effects_per_turn": {
+        "health": -2,
+        "hunger": -5,
+        "thirst": -5
+      },
+      "cure_items": ["herb_medkit", "antibiotic_pill"],
+      "cure_chance": 0.7,
+      "duration_days": 3,
+      "source": ["dirty_water", "raw_meat", "dog_food"]
+    },
+    {
+      "id": "cold",
+      "name": "Простуда",
+      "description": "Промок и замёрз. Насморк и слабость.",
+      "icon": "🤧",
+      "severity": "low",
+      "effects_per_turn": {
+        "health": -1,
+        "stamina": -2
+      },
+      "cure_items": ["herb_medkit"],
+      "cure_chance": 0.8,
+      "duration_days": 4,
+      "source": ["cold_weather", "wet_clothes", "rain"]
+    },
+    {
+      "id": "pneumonia",
+      "name": "Пневмония",
+      "description": "Воспаление лёгких. Тяжёлое состояние. Без лекарств — смерть.",
+      "icon": "🫁",
+      "severity": "critical",
+      "effects_per_turn": {
+        "health": -5,
+        "stamina": -5,
+        "sanity": -2
+      },
+      "cure_items": ["antibiotic_pill", "first_aid_kit"],
+      "cure_chance": 0.6,
+      "duration_days": 7,
+      "source": ["cold_ignored", "cold_weather_extended"]
+    },
+    {
+      "id": "insomnia",
+      "name": "Бессонница",
+      "description": "Не можешь спать. Мысли путаются. Растёт паранойя.",
+      "icon": "😵",
+      "severity": "medium",
+      "effects_per_turn": {
+        "sanity": -5,
+        "stamina": -3,
+        "intelligence": -1
+      },
+      "cure_items": ["painkiller_pill", "vodka"],
+      "cure_chance": 0.7,
+      "duration_days": 3,
+      "source": ["low_sanity", "stress", "night_attack"]
+    },
+    {
+      "id": "fracture",
+      "name": "Перелом",
+      "description": "Сломана рука или нога. Нельзя бегать. Требует иммобилизации.",
+      "icon": "🦴",
+      "severity": "high",
+      "effects_per_turn": {
+        "health": -1,
+        "stamina": -10
+      },
+      "cure_items": ["splint"],
+      "cure_chance": 1.0,
+      "duration_days": 14,
+      "source": ["fall", "combat_critical", "explosion"]
+    },
+    {
+      "id": "bleeding",
+      "name": "Кровотечение",
+      "description": "Сильная рана. Теряешь кровь. Срочно нужен бинт.",
+      "icon": "🩸",
+      "severity": "critical",
+      "effects_per_turn": {
+        "health": -8,
+        "stamina": -3
+      },
+      "cure_items": ["bandage", "first_aid_kit"],
+      "cure_chance": 1.0,
+      "duration_days": 1,
+      "source": ["combat_wound", "stab", "gunshot"]
+    }
+  ]
+}

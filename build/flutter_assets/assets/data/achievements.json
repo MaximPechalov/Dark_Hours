@@ -1,0 +1,229 @@
+{
+  "achievements": [
+    {
+      "id": "first_blood",
+      "name": "Первая кровь",
+      "description": "Победи в первом бою",
+      "icon": "⚔️",
+      "category": "combat",
+      "secret": false,
+      "points": 10
+    },
+    {
+      "id": "pacifist",
+      "name": "Миролюб",
+      "description": "Пройди главу 1 без единого боя",
+      "icon": "🕊️",
+      "category": "combat",
+      "secret": true,
+      "points": 50
+    },
+    {
+      "id": "survived_1_day",
+      "name": "Первый день",
+      "description": "Проживи 1 игровой день",
+      "icon": "🌅",
+      "category": "survival",
+      "secret": false,
+      "points": 5
+    },
+    {
+      "id": "survived_7_days",
+      "name": "Неделя в аду",
+      "description": "Проживи 7 игровых дней",
+      "icon": "📅",
+      "category": "survival",
+      "secret": false,
+      "points": 25
+    },
+    {
+      "id": "survived_30_days",
+      "name": "Месяц без света",
+      "description": "Проживи 30 игровых дней",
+      "icon": "🌑",
+      "category": "survival",
+      "secret": false,
+      "points": 100
+    },
+    {
+      "id": "reached_station",
+      "name": "Спасение",
+      "description": "Доберись до северной станции",
+      "icon": "🏭",
+      "category": "story",
+      "secret": false,
+      "points": 200
+    },
+    {
+      "id": "master_crafter",
+      "name": "Мастер-крафтер",
+      "description": "Создай 10 предметов",
+      "icon": "🔨",
+      "category": "crafting",
+      "secret": false,
+      "points": 30
+    },
+    {
+      "id": "alchemist",
+      "name": "Алхимик",
+      "description": "Создай коктейль Молотова",
+      "icon": "🔥",
+      "category": "crafting",
+      "secret": true,
+      "points": 25
+    },
+    {
+      "id": "hoarder",
+      "name": "Плюшкин",
+      "description": "Собери 20 предметов в инвентаре",
+      "icon": "🎒",
+      "category": "loot",
+      "secret": false,
+      "points": 20
+    },
+    {
+      "id": "sharp_shooter",
+      "name": "Снайпер",
+      "description": "Победи 5 врагов",
+      "icon": "🎯",
+      "category": "combat",
+      "secret": false,
+      "points": 40
+    },
+    {
+      "id": "iron_will",
+      "name": "Железная воля",
+      "description": "Проживи с психикой ниже 20 три дня",
+      "icon": "🧠",
+      "category": "survival",
+      "secret": true,
+      "points": 50
+    },
+    {
+      "id": "doctor",
+      "name": "Врач",
+      "description": "Используй 10 медицинских предметов",
+      "icon": "💊",
+      "category": "medicine",
+      "secret": false,
+      "points": 30
+    },
+    {
+      "id": "survived_infection",
+      "name": "Победитель инфекций",
+      "description": "Вылечи 3 болезни за один забег",
+      "icon": "🦠",
+      "category": "medicine",
+      "secret": true,
+      "points": 60
+    },
+    {
+      "id": "all_characters",
+      "name": "Все пути",
+      "description": "Сыграй за всех 5 персонажей",
+      "icon": "👥",
+      "category": "story",
+      "secret": false,
+      "points": 100
+    },
+    {
+      "id": "boris_master",
+      "name": "Подземный король",
+      "description": "Пройди главу 1 за Бориса",
+      "icon": "🔧",
+      "category": "story",
+      "secret": false,
+      "points": 30
+    },
+    {
+      "id": "alina_master",
+      "name": "Скорость света",
+      "description": "Пройди главу 1 за Алину",
+      "icon": "🏃",
+      "category": "story",
+      "secret": false,
+      "points": 30
+    },
+    {
+      "id": "ivan_master",
+      "name": "Старая гвардия",
+      "description": "Пройди главу 1 за Ивана Ильича",
+      "icon": "🎖️",
+      "category": "story",
+      "secret": false,
+      "points": 30
+    },
+    {
+      "id": "andrey_master",
+      "name": "Хакер",
+      "description": "Пройди главу 1 за Андрея",
+      "icon": "💻",
+      "category": "story",
+      "secret": false,
+      "points": 30
+    },
+    {
+      "id": "darya_master",
+      "name": "Ангел-хранитель",
+      "description": "Пройди главу 1 за Дарью",
+      "icon": "💉",
+      "category": "story",
+      "secret": false,
+      "points": 30
+    },
+    {
+      "id": "no_damage",
+      "name": "Неуязвимый",
+      "description": "Пройди главу 1 без потери здоровья",
+      "icon": "🛡️",
+      "category": "combat",
+      "secret": true,
+      "points": 75
+    },
+    {
+      "id": "night_owl",
+      "name": "Полуночник",
+      "description": "Проведи 10 ночей в пути",
+      "icon": "🌙",
+      "category": "survival",
+      "secret": true,
+      "points": 40
+    },
+    {
+      "id": "generous",
+      "name": "Великодушный",
+      "description": "Отдай 5 предметов выжившим",
+      "icon": "🤝",
+      "category": "story",
+      "secret": true,
+      "points": 35
+    },
+    {
+      "id": "phoenix",
+      "name": "Феникс",
+      "description": "Выживи после 5 поражений в бою за один забег",
+      "icon": "🔥",
+      "category": "combat",
+      "secret": true,
+      "points": 60
+    },
+    {
+      "id": "scarred",
+      "name": "Шрамы украшают",
+      "description": "Переживи 10 поражений за всё время",
+      "icon": "🩹",
+      "category": "combat",
+      "secret": false,
+      "points": 40
+    },
+    {
+      "id": "no_defeats",
+      "name": "Непобедимый",
+      "description": "Пройди главу 1 без единого поражения",
+      "icon": "🛡️",
+      "category": "combat",
+      "secret": true,
+      "points": 80
+    }
+  ]
+}

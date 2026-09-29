@@ -1,8 +1,8 @@
-import 'location.dart';
+import 'package:dark_hours/models/world/location.dart';
 
 class WorldMap {
   final List<Location> locations;
-  final String currentLocationId;
+  String currentLocationId; // ← убрали final
   final Set<String> visitedLocations;
 
   WorldMap({
