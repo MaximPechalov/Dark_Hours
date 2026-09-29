@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:dark_hours/models/world/world_map.dart';
 import 'package:dark_hours/models/world/location.dart';
+import 'package:dark_hours/models/world/search_event.dart';
 import 'package:dark_hours/models/save/save_data.dart';
 import 'package:dark_hours/models/inventory/inventory.dart';
 import 'package:dark_hours/models/inventory/inventory_item.dart';
@@ -17,6 +18,7 @@ import 'package:dark_hours/models/story/story_node.dart';
 
 import 'package:dark_hours/services/save/save_manager.dart';
 import 'package:dark_hours/services/items/item_loader.dart';
+import 'package:dark_hours/services/items/search_event_loader.dart';
 import 'package:dark_hours/services/conditions/condition_manager.dart';
 import 'package:dark_hours/services/time/time_manager.dart';
 import 'package:dark_hours/services/progress/run_tracker.dart';
@@ -86,6 +88,10 @@ class _MapScreenState extends State<MapScreen> {
 
   final Set<String> _triggeredStoryNodes = {};
 
+  // ===== НОВЫЕ ПОЛЯ: счётчики обысков и открытые скрытые локации =====
+  final Map<String, int> _searchedCounts = {};
+  final Set<String> _unlockedLocations = {};
+
   bool _isDead = false;
   String _deathReason = '';
 
@@ -132,6 +138,7 @@ class _MapScreenState extends State<MapScreen> {
     setState(() => _isLoading = true);
 
     await ItemLoader.init();
+    await SearchEventLoader.init();
     allConditions = await Condition.loadAll();
     allRecipes = await Recipe.loadAll();
     _loadCharacterStats();
@@ -154,6 +161,14 @@ class _MapScreenState extends State<MapScreen> {
       chapter = s.chapter;
 
       _triggeredStoryNodes.addAll(s.history);
+
+      // Восстанавливаем счётчики обысков
+      _searchedCounts.clear();
+      _searchedCounts.addAll(s.searchedCounts);
+
+      // Восстанавливаем открытые скрытые локации
+      _unlockedLocations.clear();
+      _unlockedLocations.addAll(s.unlockedLocations);
 
       for (final itemJson in s.inventoryItems) {
         inventory.items.add(InventoryItem.fromJson(itemJson));
@@ -518,6 +533,8 @@ class _MapScreenState extends State<MapScreen> {
                 'daysRemaining': ac.daysRemaining,
               })
           .toList(),
+      searchedCounts: _searchedCounts,
+      unlockedLocations: _unlockedLocations.toList(),
       savedAt: DateTime.now(),
     );
 
@@ -644,7 +661,6 @@ class _MapScreenState extends State<MapScreen> {
       return;
     }
 
-    // Загружаем главу через универсальный метод
     final story = await Story.load(widget.characterId, chapter: chapter);
     if (story == null) return;
 
@@ -714,6 +730,8 @@ class _MapScreenState extends State<MapScreen> {
                 'daysRemaining': ac.daysRemaining,
               }))
           .toList(),
+      searchedCounts: _searchedCounts,
+      unlockedLocations: _unlockedLocations.toList(),
       savedAt: DateTime.now(),
     );
 
@@ -775,6 +793,12 @@ class _MapScreenState extends State<MapScreen> {
 
       _triggeredStoryNodes.clear();
       _triggeredStoryNodes.addAll(save.history);
+
+      _searchedCounts.clear();
+      _searchedCounts.addAll(save.searchedCounts);
+
+      _unlockedLocations.clear();
+      _unlockedLocations.addAll(save.unlockedLocations);
     });
 
     _checkDeath();
@@ -887,6 +911,11 @@ class _MapScreenState extends State<MapScreen> {
     final target = _map!.getById(locationId);
     if (target == null) return;
 
+    // Проверка: если локация скрытая и не открыта — не пускаем
+    if (target.hidden && !_unlockedLocations.contains(target.id)) {
+      return;
+    }
+
     stamina = (stamina - 5).clamp(0, 100);
 
     await _advanceTime(20);
@@ -913,7 +942,11 @@ class _MapScreenState extends State<MapScreen> {
   Future<void> _searchLocation() async {
     final loc = _map!.current;
 
-    if (loc.lootPool.isEmpty && loc.enemies.isEmpty && loc.risk == null) {
+    // Проверка: если обыскивать нечего в принципе
+    if (loc.maxSearches == 0 &&
+        loc.lootPool.isEmpty &&
+        loc.enemies.isEmpty &&
+        loc.risk == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Здесь нечего искать'),
@@ -926,6 +959,7 @@ class _MapScreenState extends State<MapScreen> {
     stamina = (stamina - 10).clamp(0, 100);
     fatigue = (fatigue + 8).clamp(0, 100);
 
+    // Проверка риска локации
     if (loc.risk != null) {
       final newCond = ConditionManager.tryInfect(allConditions, loc.risk!, 0.4);
       if (newCond != null &&
@@ -947,6 +981,50 @@ class _MapScreenState extends State<MapScreen> {
         }
       }
     }
+
+    // Текущее число обысков локации
+    final searched = _searchedCounts[loc.id] ?? 0;
+    final hasRemainingLoot = searched < loc.maxSearches;
+
+    if (hasRemainingLoot) {
+      // ===== СТАНДАРТНЫЙ ОБЫСК =====
+      await _standardSearch(loc);
+    } else {
+      // ===== СОБЫТИЯ (лут исчерпан) =====
+      await _eventSearch(loc);
+    }
+
+    await _advanceTime(loc.searchTime);
+
+    // Шанс встретить врага (только при стандартном обыске и не в финале)
+    if (hasRemainingLoot && loc.enemies.isNotEmpty && !loc.isFinal) {
+      final enemyRoll = Random().nextInt(3);
+      if (enemyRoll == 0) {
+        _startCombat(loc.enemies[0]);
+        return;
+      }
+    }
+
+    await _autoSave();
+
+    if (mounted) {
+      setState(() {});
+      await AchievementChecker.check(
+        context: context,
+        characterId: widget.characterId,
+        day: gameTime.day,
+        inventorySize: inventory.items.length,
+        tracker: tracker,
+      );
+    }
+  }
+
+  /// Стандартный обыск — находим лут из loot_pool
+  Future<void> _standardSearch(Location loc) async {
+    final searched = _searchedCounts[loc.id] ?? 0;
+
+    // Увеличиваем счётчик
+    _searchedCounts[loc.id] = searched + 1;
 
     String? foundItemId;
     if (loc.lootPool.isNotEmpty) {
@@ -982,29 +1060,254 @@ class _MapScreenState extends State<MapScreen> {
         );
       }
     }
+  }
 
-    await _advanceTime(loc.searchTime);
+  /// Обыск после исчерпания лута — система событий
+  Future<void> _eventSearch(Location loc) async {
+    // Собираем пул: общие + уникальные события локации
+    final pool = SearchEventLoader.getPoolFor(
+      locationEvents: loc.searchEvents,
+    );
 
-    if (loc.enemies.isNotEmpty && !loc.isFinal) {
-      final enemyRoll = Random().nextInt(3);
-      if (enemyRoll == 0) {
-        _startCombat(loc.enemies[0]);
-        return;
+    // Карта скрытых локаций
+    final hiddenMap = SearchEventLoader.buildHiddenMap(_map!.locations);
+
+    // Бросаем событие
+    final event = _rollSearchEvent(
+      pool: pool,
+      currentLocationId: loc.id,
+      hiddenMap: hiddenMap,
+    );
+
+    if (event == null) {
+      // Fallback: ничего не произошло
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Ты обходишь ещё раз. Ничего нового.'),
+            backgroundColor: Colors.grey,
+          ),
+        );
+      }
+      return;
+    }
+
+    // Применяем событие
+    await _applySearchEvent(event, loc);
+  }
+
+  /// Применить событие поиска
+  Future<void> _applySearchEvent(SearchEvent event, Location loc) async {
+    // Показываем текст события
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(event.text),
+          duration: const Duration(seconds: 4),
+          backgroundColor: const Color.fromARGB(255, 40, 40, 60),
+        ),
+      );
+    }
+
+    final effect = event.effect;
+
+    // ===== БАЗОВЫЕ ЭФФЕКТЫ =====
+    if (effect['health'] != null) {
+      health = (health + (effect['health'] as int)).clamp(0, 100);
+      if (mounted) {
+        FloatingEffectOverlay.show(
+          context,
+          '${effect['health'] > 0 ? '+' : ''}${effect['health']} ❤️',
+          color: effect['health'] > 0 ? Colors.green : Colors.red,
+          icon: Icons.favorite,
+        );
+      }
+    }
+    if (effect['sanity'] != null) {
+      sanity = (sanity + (effect['sanity'] as int)).clamp(0, 100);
+      if (mounted) {
+        FloatingEffectOverlay.show(
+          context,
+          '${effect['sanity'] > 0 ? '+' : ''}${effect['sanity']} 🧠',
+          color: effect['sanity'] > 0 ? Colors.purple : Colors.red,
+          icon: Icons.psychology,
+        );
+      }
+    }
+    if (effect['hunger'] != null) {
+      hunger = (hunger + (effect['hunger'] as int)).clamp(0, 100);
+    }
+    if (effect['thirst'] != null) {
+      thirst = (thirst + (effect['thirst'] as int)).clamp(0, 100);
+    }
+    if (effect['stamina'] != null) {
+      stamina = (stamina + (effect['stamina'] as int)).clamp(0, 100);
+    }
+    if (effect['fatigue'] != null) {
+      fatigue = (fatigue + (effect['fatigue'] as int)).clamp(0, 100);
+    }
+
+    // ===== РАНДОМНЫЙ ЛУТ =====
+    if (effect['random_loot'] != null) {
+      final lootIds = List<String>.from(effect['random_loot']);
+      if (lootIds.isNotEmpty) {
+        final randomId = lootIds[Random().nextInt(lootIds.length)];
+        final item = ItemLoader.findById(randomId);
+        if (item != null && inventory.addItem(item)) {
+          tracker.lootedCount += 1;
+          if (mounted) {
+            FloatingEffectOverlay.show(
+              context,
+              'Найдено: ${item.name}',
+              color: const Color.fromARGB(255, 100, 180, 100),
+              icon: Icons.search,
+            );
+          }
+        }
       }
     }
 
-    await _autoSave();
+    // ===== ОТКРЫТИЕ СКРЫТОЙ ЛОКАЦИИ =====
+    if (effect['unlock_location'] != null) {
+      final unlockValue = effect['unlock_location'];
 
-    if (mounted) {
-      setState(() {});
-      await AchievementChecker.check(
-        context: context,
-        characterId: widget.characterId,
-        day: gameTime.day,
-        inventorySize: inventory.items.length,
-        tracker: tracker,
-      );
+      if (unlockValue == 'auto') {
+        // Ищем скрытую локацию для текущей локации
+        final hiddenMap = SearchEventLoader.buildHiddenMap(_map!.locations);
+        final hiddenId = hiddenMap[loc.id];
+
+        if (hiddenId != null && !_unlockedLocations.contains(hiddenId)) {
+          _unlockedLocations.add(hiddenId);
+          final hidden = _map!.getById(hiddenId);
+          if (hidden != null && mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  '🔓 Открыто новое место: ${hidden.name}',
+                ),
+                duration: const Duration(seconds: 4),
+                backgroundColor: const Color.fromARGB(255, 200, 180, 100),
+              ),
+            );
+          }
+        }
+      } else if (unlockValue is String && unlockValue != 'auto') {
+        // Явно указанная локация
+        if (!_unlockedLocations.contains(unlockValue)) {
+          _unlockedLocations.add(unlockValue);
+          final hidden = _map!.getById(unlockValue);
+          if (hidden != null && mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  '🔓 Открыто новое место: ${hidden.name}',
+                ),
+                duration: const Duration(seconds: 4),
+                backgroundColor: const Color.fromARGB(255, 200, 180, 100),
+              ),
+            );
+          }
+        }
+      }
     }
+
+    // ===== ФЛАГИ =====
+    if (effect['flag_set'] != null) {
+      final flag = effect['flag_set'] as String;
+      _triggeredStoryNodes.add(flag);
+    }
+
+    // ===== ЗАРАЖЕНИЕ =====
+    if (effect['infect'] != null) {
+      final infectData = effect['infect'] as Map<String, dynamic>;
+      final source = infectData['source'] as String;
+      final chance = (infectData['chance'] as num?)?.toDouble() ?? 0.5;
+
+      final newCondition =
+          ConditionManager.tryInfect(allConditions, source, chance);
+      if (newCondition != null &&
+          !ConditionManager.hasCondition(
+              activeConditions, newCondition.id)) {
+        activeConditions.add(ActiveCondition(
+          condition: newCondition,
+          daysRemaining: newCondition.durationDays,
+        ));
+        tracker.infections += 1;
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '${newCondition.icon} Ты подхватил: ${newCondition.name}',
+              ),
+              duration: const Duration(seconds: 3),
+              backgroundColor: Colors.red[700],
+            ),
+          );
+        }
+      }
+    }
+
+    // ===== БОЙ =====
+    if (effect['combat_start'] != null) {
+      final combat = effect['combat_start'] as Map<String, dynamic>;
+      final enemyName = combat['enemy_name'] as String? ?? 'Враг';
+      final enemyHealth = combat['enemy_health'] as int? ?? 30;
+      final enemyDamage = combat['enemy_damage'] as int? ?? 10;
+      final enemyProtection = combat['enemy_protection'] as int? ?? 0;
+      final enemyStrength = combat['enemy_strength'] as int? ?? 5;
+
+      await _startCombatWithParams(
+        enemyName: enemyName,
+        enemyHealth: enemyHealth,
+        enemyDamage: enemyDamage,
+        enemyProtection: enemyProtection,
+        enemyStrength: enemyStrength,
+      );
+      return;
+    }
+  }
+
+  /// Бросок случайного события по шансам
+  SearchEvent? _rollSearchEvent({
+    required List<SearchEvent> pool,
+    required String currentLocationId,
+    required Map<String, String> hiddenMap,
+  }) {
+    final rng = Random();
+
+    // Фильтруем применимые события
+    final applicable = pool.where((e) {
+      return e.isApplicableTo(
+        currentLocationId: currentLocationId,
+        hiddenLocations: hiddenMap,
+      );
+    }).toList();
+
+    // Считаем сумму шансов
+    double totalChance = 0.0;
+    for (final e in applicable) {
+      totalChance += e.chance;
+    }
+
+    // Нормализуем шансы (если сумма > 1.0)
+    if (totalChance > 1.0) {
+      // Просто бросаем кубик 0..totalChance и идём по накоплению
+    } else {
+      // Добавляем "пусто" до 1.0
+    }
+
+    // Бросок
+    final roll = rng.nextDouble() * (totalChance > 1.0 ? totalChance : 1.0);
+
+    double cumulative = 0.0;
+    for (final event in applicable) {
+      cumulative += event.chance;
+      if (roll < cumulative) {
+        return event;
+      }
+    }
+
+    return null; // Ничего не выпало
   }
 
   // ====== БОЙ ======
@@ -1012,6 +1315,26 @@ class _MapScreenState extends State<MapScreen> {
     final enemyData = _getEnemyData(enemyId);
     if (enemyData == null) return;
 
+    await _startCombatWithParams(
+      enemyName: enemyData['name']!,
+      enemyHealth: enemyData['health']!,
+      enemyDamage: enemyData['damage']!,
+      enemyProtection: enemyData['protection']!,
+      enemyStrength: enemyData['strength']!,
+      damageType: enemyData['damageType'] ?? 'blunt',
+      abilities: enemyData['abilities'] ?? [],
+    );
+  }
+
+  Future<void> _startCombatWithParams({
+    required String enemyName,
+    required int enemyHealth,
+    required int enemyDamage,
+    required int enemyProtection,
+    required int enemyStrength,
+    String damageType = 'blunt',
+    List<CombatAbility> abilities = const [],
+  }) async {
     tracker.hadCombat = true;
 
     final player = Combatant(
@@ -1026,14 +1349,14 @@ class _MapScreenState extends State<MapScreen> {
     );
 
     final enemy = Combatant(
-      name: enemyData['name']!,
-      health: enemyData['health']!,
-      maxHealth: enemyData['health']!,
-      damage: enemyData['damage']!,
-      protection: enemyData['protection']!,
-      strength: enemyData['strength']!,
-      damageType: enemyData['damageType'] ?? 'blunt',
-      abilities: enemyData['abilities'] ?? [],
+      name: enemyName,
+      health: enemyHealth,
+      maxHealth: enemyHealth,
+      damage: enemyDamage,
+      protection: enemyProtection,
+      strength: enemyStrength,
+      damageType: damageType,
+      abilities: abilities,
     );
 
     final rawResult = await Navigator.push(
@@ -1112,7 +1435,7 @@ class _MapScreenState extends State<MapScreen> {
         );
       }
     } else if (result == 'defeat') {
-      _handleDefeat(enemyId);
+      _handleDefeat(enemyName);
     }
 
     await _autoSave();
@@ -1129,15 +1452,17 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  void _handleDefeat(String enemyId) {
-    final isStoryBoss = ['vaska', 'serega'].contains(enemyId);
+  void _handleDefeat(String enemyName) {
+    final isStoryBoss = ['Васька', 'Сергей'].contains(enemyName);
 
     if (isStoryBoss) {
       _checkDeath();
       return;
     }
 
-    final isDangerous = ['looter_armed', 'bandit', 'infected'].contains(enemyId);
+    final isDangerous = enemyName.contains('Бандит') ||
+        enemyName.contains('Заражённый') ||
+        enemyName.contains('Вооружённый');
 
     tracker.defeats += 1;
 
@@ -1242,7 +1567,10 @@ class _MapScreenState extends State<MapScreen> {
     if (_map == null) return;
 
     final safeLocations = _map!.locations
-        .where((l) => l.dangerLevel <= 2 && l.id != _map!.currentLocationId)
+        .where((l) =>
+            l.dangerLevel <= 2 &&
+            l.id != _map!.currentLocationId &&
+            !l.hidden)
         .toList();
 
     if (safeLocations.isEmpty) return;
@@ -1254,7 +1582,10 @@ class _MapScreenState extends State<MapScreen> {
   void _moveToNeighborLocation() {
     if (_map == null) return;
 
-    final neighbors = _map!.availableConnections;
+    final neighbors = _map!.availableConnections
+        .where((l) => !l.hidden || _unlockedLocations.contains(l.id))
+        .toList();
+
     if (neighbors.isEmpty) return;
 
     final target = neighbors[Random().nextInt(neighbors.length)];
@@ -1482,6 +1813,7 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
+  // ====== UI ======
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -1594,7 +1926,8 @@ class _MapScreenState extends State<MapScreen> {
                   _buildCurrentLocation(current),
                   const SizedBox(height: 20),
 
-                  if (current.lootPool.isNotEmpty ||
+                  if (current.maxSearches > 0 ||
+                      current.lootPool.isNotEmpty ||
                       current.enemies.isNotEmpty ||
                       current.risk != null)
                     SizedBox(
@@ -1603,7 +1936,7 @@ class _MapScreenState extends State<MapScreen> {
                         onPressed: _searchLocation,
                         icon: const Icon(Icons.search, size: 18),
                         label: Text(
-                          '🔍  ОБЫСКАТЬ (${current.searchTime} мин)',
+                          '🔍  ${_searchButtonLabel(current)} (${current.searchTime} мин)',
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -1611,8 +1944,7 @@ class _MapScreenState extends State<MapScreen> {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color.fromARGB(255, 100, 150, 200),
+                          backgroundColor: _searchButtonColor(current),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
@@ -1695,12 +2027,7 @@ class _MapScreenState extends State<MapScreen> {
                   ),
                   const SizedBox(height: 12),
 
-                  ..._map!.availableConnections.asMap().entries.map((entry) {
-                    return AnimatedLocationCard(
-                      index: entry.key,
-                      child: _buildLocationCard(entry.value),
-                    );
-                  }).toList(),
+                  ..._buildAvailableConnections(),
                 ],
               ),
             ),
@@ -1710,14 +2037,64 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
+  String _searchButtonLabel(Location loc) {
+    if (loc.maxSearches == 0) {
+      return 'ОСМОТРЕТЬСЯ';
+    }
+
+    final searched = _searchedCounts[loc.id] ?? 0;
+    final remaining = loc.maxSearches - searched;
+
+    if (remaining > 0) {
+      return 'ОБЫСКАТЬ · осталось $remaining из ${loc.maxSearches}';
+    }
+
+    return 'ОСМОТРЕТЬСЯ (рискованно)';
+  }
+
+  Color _searchButtonColor(Location loc) {
+    if (loc.maxSearches == 0) {
+      return const Color.fromARGB(255, 100, 150, 200);
+    }
+
+    final searched = _searchedCounts[loc.id] ?? 0;
+    if (searched < loc.maxSearches) {
+      return const Color.fromARGB(255, 100, 150, 200);
+    }
+
+    return const Color.fromARGB(255, 150, 100, 100);
+  }
+
+  List<Widget> _buildAvailableConnections() {
+    // Фильтруем: скрытые локации показываем только если открыты
+    final connections = _map!.availableConnections.where((loc) {
+      if (loc.hidden && !_unlockedLocations.contains(loc.id)) {
+        return false;
+      }
+      return true;
+    }).toList();
+
+    return connections.asMap().entries.map((entry) {
+      return AnimatedLocationCard(
+        index: entry.key,
+        child: _buildLocationCard(entry.value),
+      );
+    }).toList();
+  }
+
   Widget _buildCurrentLocation(Location loc) {
+    final searched = _searchedCounts[loc.id] ?? 0;
+    final remaining = (loc.maxSearches - searched).clamp(0, loc.maxSearches);
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: const Color.fromARGB(255, 20, 20, 20),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color.fromARGB(255, 200, 180, 100),
+          color: loc.hidden
+              ? const Color.fromARGB(255, 100, 200, 100)
+              : const Color.fromARGB(255, 200, 180, 100),
           width: 2,
         ),
       ),
@@ -1732,13 +2109,44 @@ class _MapScreenState extends State<MapScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'ТЫ ЗДЕСЬ · ${gameTime.phase.name.toUpperCase()}',
-                      style: TextStyle(
-                        color: gameTime.phase.color,
-                        fontSize: 10,
-                        letterSpacing: 2.0,
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          'ТЫ ЗДЕСЬ · ${gameTime.phase.name.toUpperCase()}',
+                          style: TextStyle(
+                            color: gameTime.phase.color,
+                            fontSize: 10,
+                            letterSpacing: 2.0,
+                          ),
+                        ),
+                        if (loc.hidden) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color.fromARGB(255, 100, 200, 100)
+                                  .withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: const Color.fromARGB(
+                                    255, 100, 200, 100),
+                                width: 1,
+                              ),
+                            ),
+                            child: const Text(
+                              '🔓 СКРЫТОЕ',
+                              style: TextStyle(
+                                color: Color.fromARGB(255, 100, 200, 100),
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -1776,6 +2184,13 @@ class _MapScreenState extends State<MapScreen> {
                 _buildChip('🎁 ${loc.lootPool.length}', Colors.green[400]!),
               if (loc.risk != null)
                 _buildChip('☣️ Опасность', Colors.deepOrange[400]!),
+              if (loc.maxSearches > 0)
+                _buildChip(
+                  '🔍 $remaining / ${loc.maxSearches}',
+                  remaining > 0
+                      ? Colors.cyan[400]!
+                      : Colors.grey[600]!,
+                ),
             ],
           ),
         ],
@@ -1784,6 +2199,14 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Widget _buildLocationCard(Location loc) {
+    final isHidden = loc.hidden;
+    final searched = _searchedCounts[loc.id] ?? 0;
+    final remaining = (loc.maxSearches - searched).clamp(0, loc.maxSearches);
+
+    final borderColor = isHidden
+        ? const Color.fromARGB(255, 100, 200, 100).withOpacity(0.5)
+        : loc.dangerColor.withOpacity(0.4);
+
     return GestureDetector(
       onTap: () => _moveTo(loc.id),
       child: Container(
@@ -1793,7 +2216,7 @@ class _MapScreenState extends State<MapScreen> {
           color: const Color.fromARGB(255, 18, 18, 18),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: loc.dangerColor.withOpacity(0.4),
+            color: borderColor,
             width: 1,
           ),
         ),
@@ -1818,6 +2241,10 @@ class _MapScreenState extends State<MapScreen> {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      if (isHidden) ...[
+                        const SizedBox(width: 6),
+                        const Text('🔓', style: TextStyle(fontSize: 12)),
+                      ],
                       if (loc.storyNode != null &&
                           loc.canTriggerStory(
                             currentChapter: chapter,
@@ -1866,6 +2293,22 @@ class _MapScreenState extends State<MapScreen> {
                       if (loc.lootPool.isNotEmpty) ...[
                         const SizedBox(width: 6),
                         _buildChip('🎁', Colors.green[400]!, small: true),
+                      ],
+                      if (loc.maxSearches > 0 && remaining > 0) ...[
+                        const SizedBox(width: 6),
+                        _buildChip(
+                          '🔍 $remaining',
+                          Colors.cyan[400]!,
+                          small: true,
+                        ),
+                      ],
+                      if (loc.maxSearches > 0 && remaining == 0) ...[
+                        const SizedBox(width: 6),
+                        _buildChip(
+                          '🔍 пусто',
+                          Colors.grey[600]!,
+                          small: true,
+                        ),
                       ],
                     ],
                   ),

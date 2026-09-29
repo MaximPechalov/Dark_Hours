@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:dark_hours/models/world/search_event.dart';
 
 class StoryCondition {
   final int? chapter;
@@ -38,6 +39,7 @@ class Location {
   final String region;
   final int dangerLevel;
   final int searchTime;
+  final int maxSearches;
   final List<String> lootPool;
   final List<String> enemies;
   final List<String> connections;
@@ -45,11 +47,16 @@ class Location {
   final bool repeatable;
   final bool isStart;
   final bool isFinal;
+  final bool hidden;
+  final String? unlockedBy;
   final String? risk;
 
   // Сюжетные триггеры
   final String? storyNode;
   final StoryCondition? storyCondition;
+
+  // Уникальные события поиска
+  final List<SearchEvent> searchEvents;
 
   const Location({
     required this.id,
@@ -59,6 +66,7 @@ class Location {
     required this.region,
     required this.dangerLevel,
     required this.searchTime,
+    required this.maxSearches,
     required this.lootPool,
     required this.enemies,
     required this.connections,
@@ -66,9 +74,12 @@ class Location {
     required this.repeatable,
     this.isStart = false,
     this.isFinal = false,
+    this.hidden = false,
+    this.unlockedBy,
     this.risk,
     this.storyNode,
     this.storyCondition,
+    this.searchEvents = const [],
   });
 
   factory Location.fromJson(Map<String, dynamic> json) {
@@ -78,8 +89,9 @@ class Location {
       description: json['description'],
       type: json['type'],
       region: json['region'],
-      dangerLevel: json['danger_level'],
-      searchTime: json['search_time'],
+      dangerLevel: json['danger_level'] ?? 0,
+      searchTime: json['search_time'] ?? 30,
+      maxSearches: json['max_searches'] ?? 0,
       lootPool: List<String>.from(json['loot_pool'] ?? []),
       enemies: List<String>.from(json['enemies'] ?? []),
       connections: List<String>.from(json['connections'] ?? []),
@@ -87,6 +99,8 @@ class Location {
       repeatable: json['repeatable'] ?? true,
       isStart: json['is_start'] ?? false,
       isFinal: json['is_final'] ?? false,
+      hidden: json['hidden'] ?? false,
+      unlockedBy: json['unlocked_by'],
       risk: json['risk'],
       storyNode: json['story_node'],
       storyCondition: json['story_condition'] != null
@@ -94,6 +108,9 @@ class Location {
               Map<String, dynamic>.from(json['story_condition']),
             )
           : null,
+      searchEvents: (json['search_events'] as List? ?? [])
+          .map((e) => SearchEvent.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
     );
   }
 

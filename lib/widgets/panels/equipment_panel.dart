@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dark_hours/models/inventory/equipment.dart';
 import 'package:dark_hours/models/inventory/inventory_item.dart';
+import 'package:dark_hours/widgets/panels/inventory_panel.dart' show ItemDetailsSheet;
 
 class EquipmentPanel extends StatelessWidget {
   final Equipment equipment;
@@ -107,12 +108,12 @@ class EquipmentPanel extends StatelessWidget {
           const SizedBox(height: 16),
 
           // Слоты экипировки
-          _buildSlot('weapon', 'Оружие', Icons.gavel, equipment.weapon),
-          _buildSlot('head', 'Голова', Icons.face, equipment.head),
-          _buildSlot('body', 'Тело', Icons.checkroom, equipment.body),
-          _buildSlot('hands', 'Руки', Icons.back_hand, equipment.hands),
-          _buildSlot('feet', 'Ноги', Icons.directions_walk, equipment.feet),
-          _buildSlot('backpack', 'Рюкзак', Icons.backpack, equipment.backpack),
+          _buildSlot(context, 'weapon', 'Оружие', Icons.gavel, equipment.weapon),
+          _buildSlot(context, 'head', 'Голова', Icons.face, equipment.head),
+          _buildSlot(context, 'body', 'Тело', Icons.checkroom, equipment.body),
+          _buildSlot(context, 'hands', 'Руки', Icons.back_hand, equipment.hands),
+          _buildSlot(context, 'feet', 'Ноги', Icons.directions_walk, equipment.feet),
+          _buildSlot(context, 'backpack', 'Рюкзак', Icons.backpack, equipment.backpack),
 
           const SizedBox(height: 10),
         ],
@@ -145,6 +146,7 @@ class EquipmentPanel extends StatelessWidget {
   }
 
   Widget _buildSlot(
+    BuildContext context,
     String slotKey,
     String label,
     IconData icon,
@@ -155,7 +157,7 @@ class EquipmentPanel extends StatelessWidget {
         ? Colors.grey[700]!
         : _rarityColor(item.rarity);
 
-    return Container(
+    final content = Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -230,6 +232,30 @@ class EquipmentPanel extends StatelessWidget {
             ),
         ],
       ),
+    );
+
+    // Пустой слот — не кликабелен
+    if (isEmpty) return content;
+
+    // Надетый предмет — тап открывает детали
+    return GestureDetector(
+      onTap: () {
+        showModalBottomSheet(
+          context: context,
+          backgroundColor: Colors.transparent,
+          isScrollControlled: true,
+          isDismissible: true,
+          enableDrag: true,
+          builder: (_) => ItemDetailsSheet(
+            item: item,
+            rarityColor: rarityColor,
+            onUnequip: () {
+              onUnequip?.call(slotKey);
+            },
+          ),
+        );
+      },
+      child: content,
     );
   }
 }

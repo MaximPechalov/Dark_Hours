@@ -306,6 +306,8 @@ class _StoryScreenState extends State<StoryScreen> {
                 'daysRemaining': ac.daysRemaining,
               })
           .toList(),
+      searchedCounts: const {},
+      unlockedLocations: const [],
       savedAt: DateTime.now(),
     );
 
@@ -336,6 +338,8 @@ class _StoryScreenState extends State<StoryScreen> {
                 'daysRemaining': ac.daysRemaining,
               }))
           .toList(),
+      searchedCounts: const {},
+      unlockedLocations: const [],
       savedAt: DateTime.now(),
     );
     await SaveManager.save(save);
@@ -394,6 +398,8 @@ class _StoryScreenState extends State<StoryScreen> {
                 'daysRemaining': ac.daysRemaining,
               }))
           .toList(),
+      searchedCounts: const {},
+      unlockedLocations: const [],
       savedAt: DateTime.now(),
     );
 

@@ -30,6 +30,7 @@ class ItemLoader {
         return InventoryItem(
           id: w.id,
           name: w.name,
+          description: w.description,
           icon: w.icon,
           rarity: w.rarity,
           weight: w.weight,
@@ -48,6 +49,7 @@ class ItemLoader {
         return InventoryItem(
           id: t.id,
           name: t.name,
+          description: t.description,
           icon: t.icon,
           rarity: t.rarity,
           weight: t.weight,
@@ -63,6 +65,7 @@ class ItemLoader {
         return InventoryItem(
           id: c.id,
           name: c.name,
+          description: c.description,
           icon: c.icon,
           rarity: c.rarity,
           weight: c.weight,
@@ -82,6 +85,7 @@ class ItemLoader {
         return InventoryItem(
           id: a.id,
           name: a.name,
+          description: a.description,
           icon: a.icon,
           rarity: a.rarity,
           weight: a.weight,
@@ -102,6 +106,7 @@ class ItemLoader {
         return InventoryItem(
           id: r.id,
           name: r.name,
+          description: r.description,
           icon: r.icon,
           rarity: r.rarity,
           weight: r.weight,
@@ -114,18 +119,9 @@ class ItemLoader {
     return null;
   }
 
-  /// Получить все оружия (для теста)
   static List<Weapon> get allWeapons => _weapons;
-
-  /// Получить все инструменты (для теста)
   static List<Tool> get allTools => _tools;
-
-  /// Получить все расходники (для теста)
   static List<Consumable> get allConsumables => _consumables;
-
-  /// Получить всю броню (для теста)
   static List<Armor> get allArmor => _armor;
-
-  /// Получить все ресурсы (для теста)
   static List<GameResource> get allResources => _resources;
 }
