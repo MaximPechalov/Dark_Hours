@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:dark_hours/models/story/story_node.dart';
 import 'package:dark_hours/models/save/save_data.dart';
 import 'package:dark_hours/models/inventory/inventory.dart';
@@ -8,18 +9,21 @@ import 'package:dark_hours/models/combat/combat.dart';
 import 'package:dark_hours/models/conditions/condition.dart';
 import 'package:dark_hours/models/conditions/active_condition.dart';
 import 'package:dark_hours/models/progress/chapter_summary.dart';
+
 import 'package:dark_hours/services/save/save_manager.dart';
 import 'package:dark_hours/services/items/item_loader.dart';
 import 'package:dark_hours/services/conditions/condition_manager.dart';
 import 'package:dark_hours/services/progress/run_tracker.dart';
 import 'package:dark_hours/services/progress/achievement_checker.dart';
 import 'package:dark_hours/services/progress/achievement_manager.dart';
+
 import 'package:dark_hours/widgets/panels/inventory_panel.dart';
 import 'package:dark_hours/widgets/panels/equipment_panel.dart';
 import 'package:dark_hours/widgets/panels/conditions_panel.dart';
 import 'package:dark_hours/widgets/effects/fade_in_text.dart';
 import 'package:dark_hours/widgets/effects/floating_effect.dart';
 import 'package:dark_hours/widgets/indicators/animated_stat_bar.dart';
+
 import 'package:dark_hours/screens/gameplay/combat_screen.dart';
 import 'package:dark_hours/screens/gameplay/map_screen.dart';
 import 'package:dark_hours/screens/gameplay/chapter_end_screen.dart';
@@ -82,7 +86,13 @@ class _StoryScreenState extends State<StoryScreen> {
     await ItemLoader.init();
     allConditions = await Condition.loadAll();
 
-    final story = await Story.loadFor(widget.characterId);
+    // Если resumeFrom — берём chapter оттуда
+    if (widget.resumeFrom != null) {
+      chapter = widget.resumeFrom!.chapter;
+    }
+
+    // Загружаем главу через универсальный метод (новый формат + fallback)
+    final story = await Story.load(widget.characterId, chapter: chapter);
 
     if (story == null) {
       setState(() => _isLoading = false);
@@ -127,7 +137,7 @@ class _StoryScreenState extends State<StoryScreen> {
       }
 
       final node =
-          story.getNode(s.currentNodeId) ?? story.getNode(story.startNode);
+          story.getNode(s.currentNodeId) ?? story.getNode(story.startNodeId);
 
       setState(() {
         _story = story;
@@ -146,7 +156,7 @@ class _StoryScreenState extends State<StoryScreen> {
 
       setState(() {
         _story = story;
-        _currentNode = story.getNode(story.startNode);
+        _currentNode = story.getNode(story.startNodeId);
         _isLoading = false;
       });
 
@@ -171,6 +181,9 @@ class _StoryScreenState extends State<StoryScreen> {
     }
     if (effects['stamina'] != null) {
       stamina = (stamina + (effects['stamina'] as int)).clamp(0, 100);
+    }
+    if (effects['fatigue'] != null) {
+      fatigue = (fatigue + (effects['fatigue'] as int)).clamp(0, 100);
     }
     if (effects['time'] != null) {
       timeMinutes = (timeMinutes + (effects['time'] as int)).clamp(0, 99999);
@@ -416,7 +429,7 @@ class _StoryScreenState extends State<StoryScreen> {
         enemyProtection: combat['enemy_protection'] ?? 0,
         enemyStrength: combat['enemy_strength'] ?? 5,
         victoryNode: choice.effects!['combat_victory'] ?? choice.next,
-        defeatNode: choice.effects!['combat_defeat'] ?? 'END_defeat',
+        defeatNode: choice.effects!['combat_defeat'] ?? 'END_died',
         fleeNode: choice.effects!['combat_flee'] ?? choice.next,
       );
       return;
@@ -469,6 +482,8 @@ class _StoryScreenState extends State<StoryScreen> {
       damage: equipment.totalDamage > 0 ? equipment.totalDamage : 3,
       protection: equipment.totalProtection,
       strength: 5,
+      damageType: equipment.weaponDamageType,
+      resistances: equipment.totalResistances,
     );
 
     final enemy = Combatant(
@@ -480,7 +495,7 @@ class _StoryScreenState extends State<StoryScreen> {
       strength: enemyStrength,
     );
 
-    final result = await Navigator.push<String>(
+    final rawResult = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => CombatScreen(player: player, enemy: enemy),
@@ -489,7 +504,14 @@ class _StoryScreenState extends State<StoryScreen> {
 
     if (!mounted) return;
 
-    health = player.health.clamp(0, 100);
+    String result = 'defeat';
+    if (rawResult is Map) {
+      result = rawResult['result'] ?? 'defeat';
+      health = (rawResult['playerHealth'] as int? ?? player.health).clamp(0, 100);
+    } else if (rawResult is String) {
+      result = rawResult;
+      health = player.health.clamp(0, 100);
+    }
 
     if (result == 'victory') {
       tracker.kills += 1;
@@ -505,7 +527,10 @@ class _StoryScreenState extends State<StoryScreen> {
 
   void _navigateToNode(String nodeId) {
     final nextNode = _story!.getNode(nodeId);
-    if (nextNode == null) return;
+    if (nextNode == null) {
+      setState(() => _isEnd = true);
+      return;
+    }
 
     if (nextNode.onEnter != null) _applyEffects(nextNode.onEnter);
 

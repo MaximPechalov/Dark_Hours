@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+
 import 'package:dark_hours/models/world/world_map.dart';
 import 'package:dark_hours/models/world/location.dart';
 import 'package:dark_hours/models/save/save_data.dart';
@@ -12,6 +13,8 @@ import 'package:dark_hours/models/combat/combat.dart';
 import 'package:dark_hours/models/time/rest_action.dart';
 import 'package:dark_hours/models/items/recipe.dart';
 import 'package:dark_hours/models/time/game_time.dart';
+import 'package:dark_hours/models/story/story_node.dart';
+
 import 'package:dark_hours/services/save/save_manager.dart';
 import 'package:dark_hours/services/items/item_loader.dart';
 import 'package:dark_hours/services/conditions/condition_manager.dart';
@@ -19,20 +22,22 @@ import 'package:dark_hours/services/time/time_manager.dart';
 import 'package:dark_hours/services/progress/run_tracker.dart';
 import 'package:dark_hours/services/progress/achievement_checker.dart';
 import 'package:dark_hours/services/progress/achievement_manager.dart';
+
 import 'package:dark_hours/widgets/panels/inventory_panel.dart';
 import 'package:dark_hours/widgets/panels/equipment_panel.dart';
 import 'package:dark_hours/widgets/panels/conditions_panel.dart';
 import 'package:dark_hours/widgets/panels/rest_panel.dart';
 import 'package:dark_hours/widgets/panels/craft_panel.dart';
-import 'package:dark_hours/widgets/indicators/time_indicator.dart';
 import 'package:dark_hours/widgets/panels/penalties_panel.dart';
-import 'package:dark_hours/widgets/death_screen.dart';
+import 'package:dark_hours/widgets/indicators/time_indicator.dart';
 import 'package:dark_hours/widgets/indicators/animated_stat_bar.dart';
 import 'package:dark_hours/widgets/effects/floating_effect.dart';
 import 'package:dark_hours/widgets/cards/animated_location_card.dart';
 import 'package:dark_hours/widgets/effects/shimmer_button.dart';
-import '../gameplay/combat_screen.dart';
-import '../gameplay/story_screen.dart';
+
+import 'package:dark_hours/screens/main/death_screen.dart';
+import 'package:dark_hours/screens/gameplay/combat_screen.dart';
+import 'package:dark_hours/screens/gameplay/story_screen.dart';
 
 class MapScreen extends StatefulWidget {
   final String characterId;
@@ -291,16 +296,13 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  // ====== УСТАЛОСТЬ: 3 СТАДИИ ======
   void _checkFatigue() {
     if (_isDead || fatigue < 80) return;
 
-    // СТАДИЯ 1: 80-94 — предупреждение (обрабатывается через PenaltiesPanel)
     if (fatigue >= 80 && fatigue < 95) {
       return;
     }
 
-    // СТАДИЯ 2: 95-99 — автосон на 1 час
     if (fatigue >= 95 && fatigue < 100) {
       if (!_autoSleepTriggered) {
         _autoSleepTriggered = true;
@@ -309,7 +311,6 @@ class _MapScreenState extends State<MapScreen> {
       return;
     }
 
-    // СТАДИЯ 3: 100 — коллапс
     if (fatigue >= 100) {
       if (_lastCollapseTime != null &&
           DateTime.now().difference(_lastCollapseTime!).inHours < 24) {
@@ -325,7 +326,6 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  /// Автосон на 1 час при усталости 95-99
   Future<void> _forceAutoSleep() async {
     if (!mounted) return;
 
@@ -644,7 +644,8 @@ class _MapScreenState extends State<MapScreen> {
       return;
     }
 
-    final story = await Story.loadFor(widget.characterId);
+    // Загружаем главу через универсальный метод
+    final story = await Story.load(widget.characterId, chapter: chapter);
     if (story == null) return;
 
     final node = story.getNode(loc.storyNode!);
@@ -1128,7 +1129,6 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  // ====== ПОРАЖЕНИЕ — 3 УРОВНЯ ======
   void _handleDefeat(String enemyId) {
     final isStoryBoss = ['vaska', 'serega'].contains(enemyId);
 

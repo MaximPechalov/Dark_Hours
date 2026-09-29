@@ -1,11 +1,38 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
 
+/// Условия для выбора в ноде
+class ChoiceRequirements {
+  final Map<String, dynamic>? stats;
+  final String? hasItem;
+  final String? notItem;
+  final String? flag;
+  final String? notFlag;
+
+  const ChoiceRequirements({
+    this.stats,
+    this.hasItem,
+    this.notItem,
+    this.flag,
+    this.notFlag,
+  });
+
+  factory ChoiceRequirements.fromJson(Map<String, dynamic> json) {
+    return ChoiceRequirements(
+      stats: json['stats'],
+      hasItem: json['has_item'],
+      notItem: json['not_item'],
+      flag: json['flag'],
+      notFlag: json['not_flag'],
+    );
+  }
+}
+
 class StoryChoice {
   final String text;
   final Map<String, dynamic>? effects;
   final String next;
-  final Map<String, dynamic>? requires; // ← новое: условия показа
+  final ChoiceRequirements? requires;
 
   const StoryChoice({
     required this.text,
@@ -19,7 +46,11 @@ class StoryChoice {
       text: json['text'],
       effects: json['effects'],
       next: json['next'],
-      requires: json['requires'],
+      requires: json['requires'] != null
+          ? ChoiceRequirements.fromJson(
+              Map<String, dynamic>.from(json['requires']),
+            )
+          : null,
     );
   }
 
@@ -33,13 +64,11 @@ class StoryChoice {
 
     final req = requires!;
 
-    // Проверка ресурсов (hunger, thirst, health, sanity, stamina, fatigue)
-    if (req['stats'] != null) {
-      final statsReq = req['stats'] as Map<String, dynamic>;
-      for (final entry in statsReq.entries) {
+    // Проверка ресурсов
+    if (req.stats != null) {
+      for (final entry in req.stats!.entries) {
         final statName = entry.key;
         final condition = entry.value as Map<String, dynamic>;
-
         final currentValue = stats[statName] ?? 0;
 
         if (condition['min'] != null && currentValue < condition['min']) {
@@ -51,33 +80,26 @@ class StoryChoice {
       }
     }
 
-    // Проверка наличия предмета
-    if (req['has_item'] != null) {
-      final itemId = req['has_item'] as String;
-      if (!inventoryIds.contains(itemId)) return false;
+    // Проверка предметов
+    if (req.hasItem != null && !inventoryIds.contains(req.hasItem)) {
+      return false;
+    }
+    if (req.notItem != null && inventoryIds.contains(req.notItem)) {
+      return false;
     }
 
-    // Проверка отсутствия предмета
-    if (req['not_item'] != null) {
-      final itemId = req['not_item'] as String;
-      if (inventoryIds.contains(itemId)) return false;
+    // Проверка флагов
+    if (req.flag != null && !flags.contains(req.flag)) {
+      return false;
     }
-
-    // Проверка флагов (квестовых меток)
-    if (req['flag'] != null) {
-      final flag = req['flag'] as String;
-      if (!flags.contains(flag)) return false;
-    }
-
-    if (req['not_flag'] != null) {
-      final flag = req['not_flag'] as String;
-      if (flags.contains(flag)) return false;
+    if (req.notFlag != null && flags.contains(req.notFlag)) {
+      return false;
     }
 
     return true;
   }
 
-  /// Получить объяснение, почему выбор недоступен
+  /// Получить причину, почему выбор недоступен
   String? getUnavailableReason({
     required Map<String, int> stats,
     required Set<String> inventoryIds,
@@ -87,9 +109,8 @@ class StoryChoice {
 
     final req = requires!;
 
-    if (req['stats'] != null) {
-      final statsReq = req['stats'] as Map<String, dynamic>;
-      for (final entry in statsReq.entries) {
+    if (req.stats != null) {
+      for (final entry in req.stats!.entries) {
         final statName = entry.key;
         final condition = entry.value as Map<String, dynamic>;
         final currentValue = stats[statName] ?? 0;
@@ -103,18 +124,10 @@ class StoryChoice {
       }
     }
 
-    if (req['has_item'] != null) {
-      return 'Нужен предмет';
-    }
-    if (req['not_item'] != null) {
-      return 'Предмет мешает';
-    }
-    if (req['flag'] != null) {
-      return 'Нужна предыстория';
-    }
-    if (req['not_flag'] != null) {
-      return 'Предыстория мешает';
-    }
+    if (req.hasItem != null) return 'Нужен предмет';
+    if (req.notItem != null) return 'Предмет мешает';
+    if (req.flag != null) return 'Нужна предыстория';
+    if (req.notFlag != null) return 'Предыстория мешает';
 
     return null;
   }
@@ -125,8 +138,8 @@ class StoryNode {
   final String title;
   final String text;
   final List<StoryChoice> choices;
-  final Map<String, dynamic>? onEnter; // ← новое: эффекты при входе в ноду
-  final Map<String, dynamic>? flagsSet; // ← новое: какие флаги ставит нода
+  final Map<String, dynamic>? onEnter;
+  final Map<String, dynamic>? flagsSet;
 
   const StoryNode({
     required this.id,
@@ -140,9 +153,9 @@ class StoryNode {
   factory StoryNode.fromJson(Map<String, dynamic> json) {
     return StoryNode(
       id: json['id'],
-      title: json['title'],
-      text: json['text'],
-      choices: (json['choices'] as List)
+      title: json['title'] ?? '',
+      text: json['text'] ?? '',
+      choices: (json['choices'] as List? ?? [])
           .map((c) => StoryChoice.fromJson(c))
           .toList(),
       onEnter: json['on_enter'],
@@ -151,44 +164,216 @@ class StoryNode {
   }
 }
 
+/// Акт — часть главы
+class StoryAct {
+  final int number;
+  final String id;
+  final String title;
+  final String file;
+  final String? startNode;
+  final List<String> entryNodes;
+  final String? description;
+
+  const StoryAct({
+    required this.number,
+    required this.id,
+    required this.title,
+    required this.file,
+    this.startNode,
+    this.entryNodes = const [],
+    this.description,
+  });
+
+  factory StoryAct.fromJson(Map<String, dynamic> json) {
+    return StoryAct(
+      number: json['number'] ?? 0,
+      id: json['id'] ?? '',
+      title: json['title'] ?? '',
+      file: json['file'] ?? '',
+      startNode: json['start_node'],
+      entryNodes: json['entry_nodes'] != null
+          ? List<String>.from(json['entry_nodes'])
+          : [],
+      description: json['description'],
+    );
+  }
+}
+
+/// Концовка главы
+class StoryEnding {
+  final String id;
+  final String title;
+  final String description;
+
+  const StoryEnding({
+    required this.id,
+    required this.title,
+    required this.description,
+  });
+
+  factory StoryEnding.fromJson(Map<String, dynamic> json) {
+    return StoryEnding(
+      id: json['id'],
+      title: json['title'] ?? '',
+      description: json['description'] ?? '',
+    );
+  }
+}
+
+/// Вся глава целиком — собранная из meta + актов
 class Story {
   final String character;
-  final String startNode;
-  final int chapter; // ← новое
+  final String characterName;
+  final int chapter;
+  final String title;
+  final String subtitle;
+  final String description;
+  final List<StoryAct> acts;
+  final List<StoryEnding> endings;
+  final int totalNodes;
+  final int estimatedMinutes;
   final Map<String, StoryNode> nodes;
 
   const Story({
     required this.character,
-    required this.startNode,
+    required this.characterName,
     required this.chapter,
+    required this.title,
+    required this.subtitle,
+    required this.description,
+    required this.acts,
+    required this.endings,
+    required this.totalNodes,
+    required this.estimatedMinutes,
     required this.nodes,
   });
 
-  factory Story.fromJson(Map<String, dynamic> json) {
-    final Map<String, StoryNode> nodesMap = {};
-    for (final nodeJson in json['nodes']) {
-      final node = StoryNode.fromJson(nodeJson);
-      nodesMap[node.id] = node;
-    }
-    return Story(
-      character: json['character'],
-      startNode: json['start_node'],
-      chapter: json['chapter'] ?? 1,
-      nodes: nodesMap,
-    );
-  }
-
   StoryNode? getNode(String id) => nodes[id];
 
-  /// Загрузить главу по имени персонажа
-  static Future<Story?> loadFor(String characterId) async {
+  /// Первая нода главы
+  String get startNodeId {
+    if (acts.isNotEmpty && acts.first.startNode != null) {
+      return acts.first.startNode!;
+    }
+    return '';
+  }
+
+  /// Найти акт по ID ноды
+  int? getActForNode(String nodeId) {
+    for (final act in acts) {
+      // Если нода есть в entry_nodes акта — значит, она в этом акте
+      if (act.entryNodes.contains(nodeId)) return act.number;
+    }
+    return null;
+  }
+
+  /// Загрузить главу по персонажу и номеру главы
+  /// Формат: assets/data/story/{character}/chapter_{N}/meta.json
+  static Future<Story?> loadFor(
+    String characterId, {
+    int chapter = 1,
+  }) async {
+    try {
+      // 1. Загружаем meta.json
+      final String metaPath =
+          'assets/data/story/$characterId/chapter_$chapter/meta.json';
+      final String metaJsonString = await rootBundle.loadString(metaPath);
+      final Map<String, dynamic> metaMap = json.decode(metaJsonString);
+
+      // 2. Парсим акты и концовки
+      final List<StoryAct> acts = (metaMap['acts'] as List? ?? [])
+          .map((a) => StoryAct.fromJson(Map<String, dynamic>.from(a)))
+          .toList();
+
+      final List<StoryEnding> endings = (metaMap['endings'] as List? ?? [])
+          .map((e) => StoryEnding.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+
+      // 3. Загружаем все акты и сливаем ноды в один словарь
+      final Map<String, StoryNode> allNodes = {};
+
+      for (final act in acts) {
+        try {
+          final String actPath =
+              'assets/data/story/$characterId/chapter_$chapter/${act.file}';
+          final String actJsonString = await rootBundle.loadString(actPath);
+          final Map<String, dynamic> actMap = json.decode(actJsonString);
+
+          final List<dynamic> nodesJson = actMap['nodes'] ?? [];
+          for (final nodeJson in nodesJson) {
+            final node = StoryNode.fromJson(
+              Map<String, dynamic>.from(nodeJson),
+            );
+            allNodes[node.id] = node;
+          }
+        } catch (e) {
+          // Пропускаем акт, если он не найден
+        }
+      }
+
+      return Story(
+        character: metaMap['character'] ?? characterId,
+        characterName: metaMap['character_name'] ?? characterId,
+        chapter: metaMap['chapter'] ?? chapter,
+        title: metaMap['title'] ?? '',
+        subtitle: metaMap['subtitle'] ?? '',
+        description: metaMap['description'] ?? '',
+        acts: acts,
+        endings: endings,
+        totalNodes: metaMap['total_nodes'] ?? allNodes.length,
+        estimatedMinutes: metaMap['estimated_minutes'] ?? 0,
+        nodes: allNodes,
+      );
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Обратная совместимость со старым форматом
+  /// Если новый формат не найден — грузим старый файл story_{character}.json
+  static Future<Story?> loadLegacy(String characterId) async {
     try {
       final String jsonString = await rootBundle
           .loadString('assets/data/story_$characterId.json');
       final Map<String, dynamic> jsonMap = json.decode(jsonString);
-      return Story.fromJson(jsonMap);
+
+      final Map<String, StoryNode> nodesMap = {};
+      for (final nodeJson in jsonMap['nodes']) {
+        final node = StoryNode.fromJson(nodeJson);
+        nodesMap[node.id] = node;
+      }
+
+      return Story(
+        character: characterId,
+        characterName: characterId,
+        chapter: jsonMap['chapter'] ?? 1,
+        title: 'Тёмные часы',
+        subtitle: '',
+        description: '',
+        acts: [
+          StoryAct(
+            number: 1,
+            id: 'legacy',
+            title: 'Глава 1',
+            file: 'story_$characterId.json',
+            startNode: jsonMap['start_node'],
+          ),
+        ],
+        endings: [],
+        totalNodes: nodesMap.length,
+        estimatedMinutes: 0,
+        nodes: nodesMap,
+      );
     } catch (e) {
       return null;
     }
+  }
+
+  /// Универсальная загрузка: пробуем новый формат, откатываемся к старому
+  static Future<Story?> load(String characterId, {int chapter = 1}) async {
+    final newStory = await loadFor(characterId, chapter: chapter);
+    if (newStory != null) return newStory;
+
+    return await loadLegacy(characterId);
   }
 }

@@ -1,0 +1,63 @@
+{
+  "character": "alina",
+  "character_name": "Алина",
+  "chapter": 1,
+  "title": "Тёмные часы. Глава 1",
+  "subtitle": "Первый день",
+  "description": "Первые часы после блекаута. Ты — Алина, тренер по лёгкой атлетике. Ты быстрее всех. Но это не спасёт от голода и жажды.",
+  "acts": [
+    {
+      "number": 1,
+      "id": "act_1",
+      "title": "Побег",
+      "file": "act_1.json",
+      "start_node": "intro",
+      "description": "Первые минуты после блекаута"
+    },
+    {
+      "number": 2,
+      "id": "act_2",
+      "title": "Улицы",
+      "file": "act_2.json",
+      "entry_nodes": ["a2_street_start", "a2_magnit_approach", "a2_run_away"],
+      "description": "Скорость против толпы"
+    },
+    {
+      "number": 3,
+      "id": "act_3",
+      "title": "Крыша",
+      "file": "act_3.json",
+      "entry_nodes": ["a3_night_falls"],
+      "description": "Ночь. Где ты будешь спать?"
+    }
+  ],
+  "endings": [
+    {
+      "id": "END_shelter_alina",
+      "title": "Квартира",
+      "description": "Ты вернулась домой"
+    },
+    {
+      "id": "END_north",
+      "title": "На север",
+      "description": "Ты покинула город"
+    },
+    {
+      "id": "END_lena",
+      "title": "С Леной",
+      "description": "Ты идёшь с Леной и её сыном"
+    },
+    {
+      "id": "END_zina",
+      "title": "У бабы Зины",
+      "description": "Ты осталась со старушкой"
+    },
+    {
+      "id": "END_died_alina",
+      "title": "Смерть",
+      "description": "Ты погибла в первый день"
+    }
+  ],
+  "total_nodes": 74,
+  "estimated_minutes": 75
+}

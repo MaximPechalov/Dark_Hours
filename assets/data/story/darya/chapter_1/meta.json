@@ -1,0 +1,68 @@
+{
+  "character": "darya",
+  "character_name": "Дарья",
+  "chapter": 1,
+  "title": "Тёмные часы. Глава 1",
+  "subtitle": "Первый день",
+  "description": "Первые часы после блекаута. Ты — Дарья, медсестра. Ты спасаешь жизни. Но в этом мире придётся выбирать, кого спасать.",
+  "acts": [
+    {
+      "number": 1,
+      "id": "act_1",
+      "title": "Больница",
+      "file": "act_1.json",
+      "start_node": "intro",
+      "description": "Пробуждение. Первый выбор — чья жизнь важнее?"
+    },
+    {
+      "number": 2,
+      "id": "act_2",
+      "title": "Медицина",
+      "file": "act_2.json",
+      "entry_nodes": ["a2_street_start", "a2_hospital_route", "a2_pharmacy_route"],
+      "description": "Путь через больницу и город. Помощь другим."
+    },
+    {
+      "number": 3,
+      "id": "act_3",
+      "title": "Спасение",
+      "file": "act_3.json",
+      "entry_nodes": ["a3_night_falls"],
+      "description": "Ночь. Выбор: себя или других?"
+    }
+  ],
+  "endings": [
+    {
+      "id": "END_hospital_stay",
+      "title": "В больнице",
+      "description": "Ты осталась с пациентами"
+    },
+    {
+      "id": "END_group_darya",
+      "title": "С группой",
+      "description": "Ты идёшь с медиками"
+    },
+    {
+      "id": "END_north_darya",
+      "title": "На север",
+      "description": "Ты пошла одна"
+    },
+    {
+      "id": "END_looking",
+      "title": "Поиск",
+      "description": "Ты ищешь тех, кому нужна помощь"
+    },
+    {
+      "id": "END_home_darya",
+      "title": "Дома",
+      "description": "Ты вернулась домой"
+    },
+    {
+      "id": "END_died_darya",
+      "title": "Смерть",
+      "description": "Ты погибла в первый день"
+    }
+  ],
+  "total_nodes": 74,
+  "estimated_minutes": 75
+}
