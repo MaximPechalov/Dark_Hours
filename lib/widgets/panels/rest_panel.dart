@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dark_hours/models/time/rest_action.dart';
+import 'package:dark_hours/services/audio/audio_service.dart';
 
 class RestPanel extends StatelessWidget {
   final Function(RestAction) onRest;
@@ -129,7 +130,10 @@ class RestPanel extends StatelessWidget {
     final riskColor = _riskColor(effectiveRisk);
 
     return GestureDetector(
-      onTap: () => onRest(action),
+      onTap: () {
+        AudioService.playTap();
+        onRest(action);
+      },
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(14),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:dark_hours/models/combat/combat.dart';
+import 'package:dark_hours/services/audio/audio_service.dart';
 import 'package:dark_hours/widgets/effects/floating_effect.dart';
 import 'package:dark_hours/widgets/effects/shake_widget.dart';
 
@@ -38,10 +39,23 @@ class _CombatScreenState extends State<CombatScreen> {
   @override
   void initState() {
     super.initState();
+    _playCombatMusic();
     _addLog('⚔️ Бой начался: ${widget.enemy.name}');
     _addLog(
       '⚔️ Ты: ${widget.player.damage} урона (${_damageTypeName(widget.player.damageType)})',
     );
+  }
+
+  Future<void> _playCombatMusic() async {
+    await AudioService.playMusic('audio/music/combat_theme.ogg');
+  }
+
+  @override
+  void dispose() {
+    // Возвращаем музыку сюжета — но если игрок из MapScreen,
+    // MapScreen перезапишет её своим вызовом playMusic в initState
+    AudioService.playMusic('audio/music/story_theme.ogg');
+    super.dispose();
   }
 
   String _damageTypeName(String type) {
@@ -387,6 +401,7 @@ class _CombatScreenState extends State<CombatScreen> {
     });
 
     if (result == 'victory') {
+      AudioService.playSuccess();
       FloatingEffectOverlay.show(
         context,
         'ПОБЕДА!',
@@ -394,6 +409,7 @@ class _CombatScreenState extends State<CombatScreen> {
         icon: Icons.emoji_events,
       );
     } else if (result == 'defeat') {
+      AudioService.playError();
       FloatingEffectOverlay.show(
         context,
         'ПОРАЖЕНИЕ',
@@ -401,6 +417,7 @@ class _CombatScreenState extends State<CombatScreen> {
         icon: Icons.dangerous,
       );
     } else {
+      AudioService.playNotification();
       FloatingEffectOverlay.show(
         context,
         'ПОБЕГ',
@@ -431,6 +448,7 @@ class _CombatScreenState extends State<CombatScreen> {
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
         elevation: 0,
+        automaticallyImplyLeading: false,
         title: const Text(
           'БОЙ',
           style: TextStyle(
@@ -538,7 +556,10 @@ class _CombatScreenState extends State<CombatScreen> {
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: _playerAttack,
+                          onPressed: () {
+                            AudioService.playClick();
+                            _playerAttack();
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red[700],
                             foregroundColor: Colors.white,
@@ -557,7 +578,10 @@ class _CombatScreenState extends State<CombatScreen> {
                       const SizedBox(width: 6),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: _playerStun,
+                          onPressed: () {
+                            AudioService.playClick();
+                            _playerStun();
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.yellow[800],
                             foregroundColor: Colors.white,
@@ -576,7 +600,10 @@ class _CombatScreenState extends State<CombatScreen> {
                       const SizedBox(width: 6),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: _playerAim,
+                          onPressed: () {
+                            AudioService.playClick();
+                            _playerAim();
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.orange[800],
                             foregroundColor: Colors.white,
@@ -599,7 +626,10 @@ class _CombatScreenState extends State<CombatScreen> {
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: _playerDefend,
+                          onPressed: () {
+                            AudioService.playClick();
+                            _playerDefend();
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue[700],
                             foregroundColor: Colors.white,
@@ -618,7 +648,10 @@ class _CombatScreenState extends State<CombatScreen> {
                       const SizedBox(width: 6),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: _playerFlee,
+                          onPressed: () {
+                            AudioService.playClick();
+                            _playerFlee();
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.grey[800],
                             foregroundColor: Colors.white,

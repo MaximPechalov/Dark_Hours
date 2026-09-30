@@ -5,6 +5,7 @@ import 'package:dark_hours/models/items/consumable.dart';
 import 'package:dark_hours/models/items/armor.dart';
 import 'package:dark_hours/models/items/resource.dart';
 import 'package:dark_hours/models/items/recipe.dart';
+import 'package:dark_hours/services/audio/audio_service.dart';
 
 class EquipmentTestScreen extends StatefulWidget {
   const EquipmentTestScreen({super.key});
@@ -25,6 +26,8 @@ class _EquipmentTestScreenState extends State<EquipmentTestScreen> {
   @override
   void initState() {
     super.initState();
+    // Если пришли из меню — menu_theme уже играет
+    AudioService.playMusic('audio/music/menu_theme.mp3');
     _loadData();
   }
 
@@ -57,6 +60,13 @@ class _EquipmentTestScreenState extends State<EquipmentTestScreen> {
           backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
           elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              AudioService.playClick();
+              Navigator.pop(context);
+            },
+          ),
           title: const Text(
             'СНАРЯЖЕНИЕ',
             style: TextStyle(
@@ -102,7 +112,10 @@ class _EquipmentTestScreenState extends State<EquipmentTestScreen> {
                 ],
               ),
         floatingActionButton: FloatingActionButton(
-          onPressed: _loadData,
+          onPressed: () {
+            AudioService.playClick();
+            _loadData();
+          },
           backgroundColor: const Color.fromARGB(255, 200, 180, 100),
           foregroundColor: Colors.black,
           child: const Icon(Icons.refresh),

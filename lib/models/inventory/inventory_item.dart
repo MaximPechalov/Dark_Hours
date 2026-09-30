@@ -1,6 +1,7 @@
 class InventoryItem {
   final String id;
   final String name;
+  final String description;  // ← НОВОЕ ПОЛЕ
   final String icon;
   final String rarity;
   final double weight;
@@ -28,6 +29,7 @@ class InventoryItem {
   const InventoryItem({
     required this.id,
     required this.name,
+    this.description = '',
     required this.icon,
     required this.rarity,
     required this.weight,
@@ -51,6 +53,7 @@ class InventoryItem {
     return InventoryItem(
       id: id,
       name: name,
+      description: description,
       icon: icon,
       rarity: rarity,
       weight: weight,
@@ -73,7 +76,6 @@ class InventoryItem {
 
   double get totalWeight => weight * count;
 
-  /// Слот для экипировки
   String? get equippableSlot {
     if (sourceType == 'weapon') return 'weapon';
     if (sourceType == 'armor') return armorSlot;
@@ -87,6 +89,7 @@ class InventoryItem {
     return {
       'id': id,
       'name': name,
+      'description': description,
       'icon': icon,
       'rarity': rarity,
       'weight': weight,
@@ -111,6 +114,7 @@ class InventoryItem {
     return InventoryItem(
       id: json['id'],
       name: json['name'],
+      description: json['description'] ?? '',
       icon: json['icon'],
       rarity: json['rarity'],
       weight: (json['weight'] as num).toDouble(),

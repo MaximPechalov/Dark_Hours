@@ -29,7 +29,7 @@
     },
     {
       "id": "survived_7_days",
-      "name": "Неделя в аду",
+      "name": "Неделя в темноте",
       "description": "Проживи 7 игровых дней",
       "icon": "📅",
       "category": "survival",
@@ -47,7 +47,7 @@
     },
     {
       "id": "reached_station",
-      "name": "Спасение",
+      "name": "Долгожданный свет",
       "description": "Доберись до северной станции",
       "icon": "🏭",
       "category": "story",

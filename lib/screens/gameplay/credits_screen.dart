@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dark_hours/models/progress/chapter_summary.dart';
 import 'package:dark_hours/models/progress/player_stats.dart';
 import 'package:dark_hours/services/progress/achievement_manager.dart';
+import 'package:dark_hours/services/audio/audio_service.dart';
 
 class CreditsScreen extends StatefulWidget {
   final ChapterSummary summary;
@@ -96,6 +97,7 @@ class _CreditsScreenState extends State<CreditsScreen>
         actions: [
           TextButton(
             onPressed: () {
+              AudioService.playClick();
               Navigator.of(context).pop();
               Navigator.of(context).pop();
               Navigator.of(context).pop();
@@ -145,6 +147,7 @@ class _CreditsScreenState extends State<CreditsScreen>
               right: 20,
               child: TextButton(
                 onPressed: () {
+                  AudioService.playClick();
                   _controller.stop();
                   _showEndDialog();
                 },

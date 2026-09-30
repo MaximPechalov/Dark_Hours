@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:dark_hours/services/audio/audio_service.dart';
 
-class DeathScreen extends StatelessWidget {
+class DeathScreen extends StatefulWidget {
   final String reason;
   final String characterName;
   final int dayReached;
@@ -11,6 +12,22 @@ class DeathScreen extends StatelessWidget {
     required this.characterName,
     required this.dayReached,
   });
+
+  @override
+  State<DeathScreen> createState() => _DeathScreenState();
+}
+
+class _DeathScreenState extends State<DeathScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _playDeathSound();
+  }
+
+  Future<void> _playDeathSound() async {
+    await AudioService.stopAll();
+    await AudioService.playError();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +63,7 @@ class DeathScreen extends StatelessWidget {
 
               // Имя
               Text(
-                characterName,
+                widget.characterName,
                 style: TextStyle(
                   color: Colors.grey[400],
                   fontSize: 16,
@@ -57,7 +74,7 @@ class DeathScreen extends StatelessWidget {
 
               // День
               Text(
-                'Продержался: $dayReached ${_daysWord(dayReached)}',
+                'Продержался: ${widget.dayReached} ${_daysWord(widget.dayReached)}',
                 style: TextStyle(
                   color: Colors.grey[600],
                   fontSize: 13,
@@ -89,7 +106,7 @@ class DeathScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      reason,
+                      widget.reason,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
@@ -109,6 +126,7 @@ class DeathScreen extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
+                    AudioService.playClick();
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(

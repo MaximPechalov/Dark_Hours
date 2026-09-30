@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:dark_hours/models/story/story_node.dart';
 import 'package:dark_hours/models/save/save_data.dart';
 import 'package:dark_hours/models/inventory/inventory.dart';
@@ -8,18 +9,22 @@ import 'package:dark_hours/models/combat/combat.dart';
 import 'package:dark_hours/models/conditions/condition.dart';
 import 'package:dark_hours/models/conditions/active_condition.dart';
 import 'package:dark_hours/models/progress/chapter_summary.dart';
+
 import 'package:dark_hours/services/save/save_manager.dart';
 import 'package:dark_hours/services/items/item_loader.dart';
 import 'package:dark_hours/services/conditions/condition_manager.dart';
 import 'package:dark_hours/services/progress/run_tracker.dart';
 import 'package:dark_hours/services/progress/achievement_checker.dart';
 import 'package:dark_hours/services/progress/achievement_manager.dart';
+import 'package:dark_hours/services/audio/audio_service.dart';
+
 import 'package:dark_hours/widgets/panels/inventory_panel.dart';
 import 'package:dark_hours/widgets/panels/equipment_panel.dart';
 import 'package:dark_hours/widgets/panels/conditions_panel.dart';
 import 'package:dark_hours/widgets/effects/fade_in_text.dart';
 import 'package:dark_hours/widgets/effects/floating_effect.dart';
 import 'package:dark_hours/widgets/indicators/animated_stat_bar.dart';
+
 import 'package:dark_hours/screens/gameplay/combat_screen.dart';
 import 'package:dark_hours/screens/gameplay/map_screen.dart';
 import 'package:dark_hours/screens/gameplay/chapter_end_screen.dart';
@@ -73,7 +78,12 @@ class _StoryScreenState extends State<StoryScreen> {
   @override
   void initState() {
     super.initState();
+    _playStoryMusic();
     _loadStory();
+  }
+
+  Future<void> _playStoryMusic() async {
+    await AudioService.playMusic('audio/music/story_theme.ogg');
   }
 
   Future<void> _loadStory() async {
@@ -82,7 +92,11 @@ class _StoryScreenState extends State<StoryScreen> {
     await ItemLoader.init();
     allConditions = await Condition.loadAll();
 
-    final story = await Story.loadFor(widget.characterId);
+    if (widget.resumeFrom != null) {
+      chapter = widget.resumeFrom!.chapter;
+    }
+
+    final story = await Story.load(widget.characterId, chapter: chapter);
 
     if (story == null) {
       setState(() => _isLoading = false);
@@ -123,11 +137,13 @@ class _StoryScreenState extends State<StoryScreen> {
             condition: cond,
             daysRemaining: days,
           ));
-        } catch (e) {}
+        } catch (e) {
+          // Игнорируем невалидную болезнь
+        }
       }
 
       final node =
-          story.getNode(s.currentNodeId) ?? story.getNode(story.startNode);
+          story.getNode(s.currentNodeId) ?? story.getNode(story.startNodeId);
 
       setState(() {
         _story = story;
@@ -138,7 +154,6 @@ class _StoryScreenState extends State<StoryScreen> {
 
       if (node?.onEnter != null) _applyEffects(node!.onEnter);
     } else {
-      // Отмечаем персонажа как игранного
       final stats = await AchievementManager.loadStats();
       stats.playedCharacters.add(widget.characterId);
       stats.totalGamesPlayed += 1;
@@ -146,7 +161,7 @@ class _StoryScreenState extends State<StoryScreen> {
 
       setState(() {
         _story = story;
-        _currentNode = story.getNode(story.startNode);
+        _currentNode = story.getNode(story.startNodeId);
         _isLoading = false;
       });
 
@@ -171,6 +186,9 @@ class _StoryScreenState extends State<StoryScreen> {
     }
     if (effects['stamina'] != null) {
       stamina = (stamina + (effects['stamina'] as int)).clamp(0, 100);
+    }
+    if (effects['fatigue'] != null) {
+      fatigue = (fatigue + (effects['fatigue'] as int)).clamp(0, 100);
     }
     if (effects['time'] != null) {
       timeMinutes = (timeMinutes + (effects['time'] as int)).clamp(0, 99999);
@@ -293,6 +311,8 @@ class _StoryScreenState extends State<StoryScreen> {
                 'daysRemaining': ac.daysRemaining,
               })
           .toList(),
+      searchedCounts: const {},
+      unlockedLocations: const [],
       savedAt: DateTime.now(),
     );
 
@@ -323,6 +343,8 @@ class _StoryScreenState extends State<StoryScreen> {
                 'daysRemaining': ac.daysRemaining,
               }))
           .toList(),
+      searchedCounts: const {},
+      unlockedLocations: const [],
       savedAt: DateTime.now(),
     );
     await SaveManager.save(save);
@@ -354,7 +376,6 @@ class _StoryScreenState extends State<StoryScreen> {
     );
   }
 
-  /// Показать титры главы
   void _showChapterEnd() {
     if (_currentNode == null) return;
 
@@ -381,6 +402,8 @@ class _StoryScreenState extends State<StoryScreen> {
                 'daysRemaining': ac.daysRemaining,
               }))
           .toList(),
+      searchedCounts: const {},
+      unlockedLocations: const [],
       savedAt: DateTime.now(),
     );
 
@@ -400,6 +423,7 @@ class _StoryScreenState extends State<StoryScreen> {
   }
 
   void _selectChoice(StoryChoice choice) {
+    AudioService.playClick();
     _applyEffects(choice.effects);
     _applyConditionsTick();
 
@@ -416,13 +440,17 @@ class _StoryScreenState extends State<StoryScreen> {
         enemyProtection: combat['enemy_protection'] ?? 0,
         enemyStrength: combat['enemy_strength'] ?? 5,
         victoryNode: choice.effects!['combat_victory'] ?? choice.next,
-        defeatNode: choice.effects!['combat_defeat'] ?? 'END_defeat',
+        defeatNode: choice.effects!['combat_defeat'] ?? 'END_died',
         fleeNode: choice.effects!['combat_flee'] ?? choice.next,
       );
       return;
     }
 
-    final nextNode = _story!.getNode(choice.next);
+    _navigateToNode(choice.next);
+  }
+
+  void _navigateToNode(String nodeId) {
+    final nextNode = _story!.getNode(nodeId);
     if (nextNode == null) {
       setState(() => _isEnd = true);
       _autoSave();
@@ -440,15 +468,48 @@ class _StoryScreenState extends State<StoryScreen> {
       }
     }
 
-    if (nextNode.choices.isEmpty) {
+    if (nextNode.choices.isNotEmpty) {
+      setState(() => _currentNode = nextNode);
+      _autoSave();
+      return;
+    }
+
+    if (nextNode.id.startsWith('END_')) {
       setState(() {
         _currentNode = nextNode;
         _isEnd = true;
       });
-    } else {
-      setState(() => _currentNode = nextNode);
+      _autoSave();
+      return;
     }
 
+    final currentActNumber = _story!.getActForNode(nextNode.id);
+
+    if (currentActNumber != null) {
+      final nextAct = _story!.getNextAct(currentActNumber);
+
+      if (nextAct != null && nextAct.entryNodes.isNotEmpty) {
+        final entryNodeId = nextAct.entryNodes.first;
+        final entryNode = _story!.getNode(entryNodeId);
+
+        if (entryNode != null) {
+          if (entryNode.onEnter != null) _applyEffects(entryNode.onEnter);
+
+          setState(() {
+            _currentNode = entryNode;
+            _isEnd = false;
+          });
+
+          _autoSave();
+          return;
+        }
+      }
+    }
+
+    setState(() {
+      _currentNode = nextNode;
+      _isEnd = true;
+    });
     _autoSave();
   }
 
@@ -469,6 +530,8 @@ class _StoryScreenState extends State<StoryScreen> {
       damage: equipment.totalDamage > 0 ? equipment.totalDamage : 3,
       protection: equipment.totalProtection,
       strength: 5,
+      damageType: equipment.weaponDamageType,
+      resistances: equipment.totalResistances,
     );
 
     final enemy = Combatant(
@@ -480,7 +543,7 @@ class _StoryScreenState extends State<StoryScreen> {
       strength: enemyStrength,
     );
 
-    final result = await Navigator.push<String>(
+    final rawResult = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => CombatScreen(player: player, enemy: enemy),
@@ -489,7 +552,14 @@ class _StoryScreenState extends State<StoryScreen> {
 
     if (!mounted) return;
 
-    health = player.health.clamp(0, 100);
+    String result = 'defeat';
+    if (rawResult is Map) {
+      result = rawResult['result'] ?? 'defeat';
+      health = (rawResult['playerHealth'] as int? ?? player.health).clamp(0, 100);
+    } else if (rawResult is String) {
+      result = rawResult;
+      health = player.health.clamp(0, 100);
+    }
 
     if (result == 'victory') {
       tracker.kills += 1;
@@ -501,18 +571,6 @@ class _StoryScreenState extends State<StoryScreen> {
     }
 
     _autoSave();
-  }
-
-  void _navigateToNode(String nodeId) {
-    final nextNode = _story!.getNode(nodeId);
-    if (nextNode == null) return;
-
-    if (nextNode.onEnter != null) _applyEffects(nextNode.onEnter);
-
-    setState(() {
-      _currentNode = nextNode;
-      _isEnd = nextNode.choices.isEmpty;
-    });
   }
 
   List<StoryChoice> get _availableChoices {
@@ -553,6 +611,7 @@ class _StoryScreenState extends State<StoryScreen> {
 
   // ====== ИНВЕНТАРЬ ======
   void _showInventory() {
+    AudioService.playTap();
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -583,6 +642,7 @@ class _StoryScreenState extends State<StoryScreen> {
   }
 
   void _useItem(InventoryItem item) {
+    AudioService.playSuccess();
     hunger = (hunger + item.hungerRestore).clamp(0, 100);
     thirst = (thirst + item.thirstRestore).clamp(0, 100);
     health = (health + item.healthRestore).clamp(0, 100);
@@ -635,6 +695,8 @@ class _StoryScreenState extends State<StoryScreen> {
   }
 
   void _equipItem(InventoryItem item) {
+    AudioService.playClick();
+
     String? slot;
     if (item.sourceType == 'weapon') {
       slot = 'weapon';
@@ -663,6 +725,7 @@ class _StoryScreenState extends State<StoryScreen> {
   }
 
   void _dropItem(InventoryItem item) {
+    AudioService.playClick();
     inventory.removeAll(item.id);
     _autoSave();
 
@@ -676,6 +739,7 @@ class _StoryScreenState extends State<StoryScreen> {
   }
 
   void _showEquipment() {
+    AudioService.playTap();
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -685,6 +749,7 @@ class _StoryScreenState extends State<StoryScreen> {
           return EquipmentPanel(
             equipment: equipment,
             onUnequip: (slot) {
+              AudioService.playClick();
               final item = equipment.unequip(slot);
               if (item != null) {
                 inventory.addItem(item);
@@ -725,6 +790,13 @@ class _StoryScreenState extends State<StoryScreen> {
           backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
           elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              AudioService.playClick();
+              Navigator.pop(context);
+            },
+          ),
         ),
         body: const Center(
           child: Text(
@@ -741,6 +813,13 @@ class _StoryScreenState extends State<StoryScreen> {
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            AudioService.playClick();
+            Navigator.pop(context);
+          },
+        ),
         title: Text(
           widget.characterName,
           style: const TextStyle(
@@ -790,6 +869,7 @@ class _StoryScreenState extends State<StoryScreen> {
             icon: const Icon(Icons.save_outlined),
             tooltip: 'Сохранить',
             onPressed: () async {
+              AudioService.playClick();
               await _autoSave();
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -872,7 +952,10 @@ class _StoryScreenState extends State<StoryScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: _showChapterEnd,
+                          onPressed: () {
+                            AudioService.playClick();
+                            _showChapterEnd();
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
                                 const Color.fromARGB(255, 200, 180, 100),
@@ -896,7 +979,10 @@ class _StoryScreenState extends State<StoryScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: OutlinedButton(
-                          onPressed: _goToMap,
+                          onPressed: () {
+                            AudioService.playClick();
+                            _goToMap();
+                          },
                           style: OutlinedButton.styleFrom(
                             foregroundColor:
                                 const Color.fromARGB(255, 100, 200, 100),
@@ -923,7 +1009,10 @@ class _StoryScreenState extends State<StoryScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: TextButton(
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () {
+                            AudioService.playClick();
+                            Navigator.pop(context);
+                          },
                           child: Text(
                             'ВЕРНУТЬСЯ В МЕНЮ',
                             style: TextStyle(

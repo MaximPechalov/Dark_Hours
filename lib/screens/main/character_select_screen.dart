@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dark_hours/models/character/character.dart';
 import 'package:dark_hours/widgets/cards/character_card.dart';
 import 'package:dark_hours/services/progress/achievement_manager.dart';
+import 'package:dark_hours/services/audio/audio_service.dart';
 import '../gameplay/story_screen.dart';
 
 class CharacterSelectScreen extends StatefulWidget {
@@ -13,6 +14,13 @@ class CharacterSelectScreen extends StatefulWidget {
 
 class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
   String? _selectedCharacterId;
+
+  @override
+  void initState() {
+    super.initState();
+    // Музыка menu_theme уже играет с StartScreen — не перезапускаем
+    AudioService.playMusic('audio/music/menu_theme.mp3');
+  }
 
   Widget _buildStatBar(String label, int value) {
     Color barColor;
@@ -166,6 +174,8 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () async {
+                AudioService.playClick();
+
                 // Отмечаем персонажа как игранного
                 final stats = await AchievementManager.loadStats();
                 stats.playedCharacters.add(character.id);
@@ -214,6 +224,13 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            AudioService.playClick();
+            Navigator.pop(context);
+          },
+        ),
         title: const Text(
           'ВЫБЕРИ ПЕРСОНАЖА',
           style: TextStyle(
@@ -235,6 +252,7 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
                   character: character,
                   isSelected: _selectedCharacterId == character.id,
                   onTap: () {
+                    AudioService.playTap();
                     setState(() {
                       if (_selectedCharacterId == character.id) {
                         _selectedCharacterId = null;

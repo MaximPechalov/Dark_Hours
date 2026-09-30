@@ -9,13 +9,18 @@ class SaveData {
   final int health;
   final int sanity;
   final int stamina;
-  final int fatigue; // ← новое
+  final int fatigue;
   final int timeMinutes;
   final int chapter;
   final List<String> history;
   final List<Map<String, dynamic>> inventoryItems;
   final Map<String, dynamic> equipmentItems;
   final List<Map<String, dynamic>> activeConditions;
+
+  // НОВЫЕ ПОЛЯ
+  final Map<String, int> searchedCounts;
+  final List<String> unlockedLocations;
+
   final DateTime savedAt;
 
   SaveData({
@@ -36,8 +41,11 @@ class SaveData {
     required this.inventoryItems,
     required this.equipmentItems,
     required this.activeConditions,
+    Map<String, int>? searchedCounts,
+    List<String>? unlockedLocations,
     required this.savedAt,
-  });
+  })  : searchedCounts = searchedCounts ?? {},
+        unlockedLocations = unlockedLocations ?? [];
 
   Map<String, dynamic> toJson() {
     return {
@@ -58,6 +66,8 @@ class SaveData {
       'inventoryItems': inventoryItems,
       'equipmentItems': equipmentItems,
       'activeConditions': activeConditions,
+      'searchedCounts': searchedCounts,
+      'unlockedLocations': unlockedLocations,
       'savedAt': savedAt.toIso8601String(),
     };
   }
@@ -87,6 +97,12 @@ class SaveData {
       activeConditions: List<Map<String, dynamic>>.from(
         (json['activeConditions'] as List?) ?? [],
       ),
+      searchedCounts: json['searchedCounts'] != null
+          ? Map<String, int>.from(json['searchedCounts'])
+          : {},
+      unlockedLocations: json['unlockedLocations'] != null
+          ? List<String>.from(json['unlockedLocations'])
+          : [],
       savedAt: DateTime.parse(json['savedAt']),
     );
   }

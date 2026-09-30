@@ -1,7 +1,7 @@
 name: dark_hours
 description: "Текстовый квест о выживании в блекаут"
 publish_to: 'none'
-version: 1.0.0+1
+version: 0.6.0+1
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   shared_preferences: ^2.2.2
+  audioplayers: ^6.1.0
 
 dev_dependencies:
   flutter_test:
@@ -19,6 +20,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+    # ===== БАЗОВЫЕ ДАННЫЕ =====
     - assets/data/weapons.json
     - assets/data/tools.json
     - assets/data/consumables.json
@@ -27,9 +29,33 @@ flutter:
     - assets/data/recipes.json
     - assets/data/conditions.json
     - assets/data/locations.json
+    - assets/data/search_events.json
     - assets/data/achievements.json
+
+    # ===== СЮЖЕТ — НОВЫЙ ФОРМАТ =====
+    # Борис, Глава 1
+    - assets/data/story/boris/chapter_1/
+
+    # Алина, Глава 1
+    - assets/data/story/alina/chapter_1/
+
+    # Иван Ильич, Глава 1
+    - assets/data/story/ivan/chapter_1/
+
+    # Андрей, Глава 1
+    - assets/data/story/andrey/chapter_1/
+
+    # Дарья, Глава 1
+    - assets/data/story/darya/chapter_1/
+
+    # ===== СЮЖЕТ — СТАРЫЙ ФОРМАТ (временно, fallback) =====
     - assets/data/story_boris.json
     - assets/data/story_alina.json
     - assets/data/story_ivan.json
     - assets/data/story_andrey.json
     - assets/data/story_darya.json
+
+    # ===== ЗВУКИ =====
+    - assets/audio/ui/
+    - assets/audio/ambience/
+    - assets/audio/music/

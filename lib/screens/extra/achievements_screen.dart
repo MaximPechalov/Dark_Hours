@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dark_hours/models/progress/achievement.dart';
 import 'package:dark_hours/models/progress/player_stats.dart';
 import 'package:dark_hours/services/progress/achievement_manager.dart';
+import 'package:dark_hours/services/audio/audio_service.dart';
 
 class AchievementsScreen extends StatefulWidget {
   const AchievementsScreen({super.key});
@@ -19,6 +20,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   @override
   void initState() {
     super.initState();
+    // Если пришли из меню — menu_theme уже играет
+    AudioService.playMusic('audio/music/menu_theme.mp3');
     _load();
   }
 
@@ -92,6 +95,13 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            AudioService.playClick();
+            Navigator.pop(context);
+          },
+        ),
         title: const Text(
           'ДОСТИЖЕНИЯ',
           style: TextStyle(
@@ -115,7 +125,10 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
               children: _categories.map((cat) {
                 final isSelected = _selectedCategory == cat;
                 return GestureDetector(
-                  onTap: () => setState(() => _selectedCategory = cat),
+                  onTap: () {
+                    AudioService.playTap();
+                    setState(() => _selectedCategory = cat);
+                  },
                   child: Container(
                     margin: const EdgeInsets.only(right: 6),
                     padding: const EdgeInsets.symmetric(

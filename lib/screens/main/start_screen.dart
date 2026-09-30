@@ -4,8 +4,10 @@ import '../extra/equipment_test_screen.dart';
 import '../gameplay/map_screen.dart';
 import '../gameplay/story_screen.dart';
 import '../extra/achievements_screen.dart';
+import '../main/settings_screen.dart';
 import 'package:dark_hours/services/save/save_manager.dart';
 import 'package:dark_hours/services/progress/achievement_manager.dart';
+import 'package:dark_hours/services/audio/audio_service.dart';
 import 'package:dark_hours/models/save/save_data.dart';
 import 'package:dark_hours/models/progress/player_stats.dart';
 import 'package:dark_hours/widgets/effects/shimmer_button.dart';
@@ -26,6 +28,8 @@ class _StartScreenState extends State<StartScreen> {
   void initState() {
     super.initState();
     _loadData();
+    // На случай, если StartScreen открыт напрямую — включим menu_theme.
+    AudioService.forcePlayMusic('audio/music/menu_theme.mp3');
   }
 
   Future<void> _loadData() async {
@@ -60,7 +64,11 @@ class _StartScreenState extends State<StartScreen> {
           );
         },
       ),
-    ).then((_) => _loadData());
+    ).then((_) {
+      _loadData();
+      // При возврате в меню — переключаем музыку
+      AudioService.forcePlayMusic('audio/music/menu_theme.mp3');
+    });
   }
 
   Future<void> _deleteSave() async {
@@ -78,11 +86,17 @@ class _StartScreenState extends State<StartScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () {
+              AudioService.playClick();
+              Navigator.pop(context, false);
+            },
             child: const Text('Отмена'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () {
+              AudioService.playClick();
+              Navigator.pop(context, true);
+            },
             child: const Text(
               'Удалить',
               style: TextStyle(color: Colors.red),
@@ -108,6 +122,51 @@ class _StartScreenState extends State<StartScreen> {
       ),
     );
     _loadData();
+    AudioService.forcePlayMusic('audio/music/menu_theme.mp3');
+  }
+
+  Future<void> _openSettings() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const SettingsScreen(),
+      ),
+    );
+    AudioService.forcePlayMusic('audio/music/menu_theme.mp3');
+  }
+
+  Future<void> _openMapTest() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const MapScreen(
+          characterId: 'boris',
+          characterName: 'Борис',
+        ),
+      ),
+    );
+    AudioService.forcePlayMusic('audio/music/menu_theme.mp3');
+  }
+
+  Future<void> _openEquipmentTest() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const EquipmentTestScreen(),
+      ),
+    );
+    AudioService.forcePlayMusic('audio/music/menu_theme.mp3');
+  }
+
+  Future<void> _openCharacterSelect() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const CharacterSelectScreen(),
+      ),
+    );
+    _loadData();
+    AudioService.forcePlayMusic('audio/music/menu_theme.mp3');
   }
 
   @override
@@ -189,7 +248,10 @@ class _StartScreenState extends State<StartScreen> {
                   // Счётчик достижений
                   if (_stats != null && _stats!.unlockedAchievements.isNotEmpty)
                     GestureDetector(
-                      onTap: _openAchievements,
+                      onTap: () {
+                        AudioService.playTap();
+                        _openAchievements();
+                      },
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
@@ -229,7 +291,10 @@ class _StartScreenState extends State<StartScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: _continueGame,
+                        onPressed: () {
+                          AudioService.playClick();
+                          _continueGame();
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor:
                               const Color.fromARGB(255, 100, 180, 100),
@@ -242,7 +307,7 @@ class _StartScreenState extends State<StartScreen> {
                         child: Column(
                           children: [
                             const Text(
-                              '▶  ПРОДОЛЖИТЬ',
+                              'ПРОДОЛЖИТЬ',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -263,7 +328,10 @@ class _StartScreenState extends State<StartScreen> {
                     ),
                     const SizedBox(height: 8),
                     TextButton(
-                      onPressed: _deleteSave,
+                      onPressed: () {
+                        AudioService.playClick();
+                        _deleteSave();
+                      },
                       child: Text(
                         'Удалить сохранение',
                         style: TextStyle(
@@ -275,20 +343,13 @@ class _StartScreenState extends State<StartScreen> {
                     const SizedBox(height: 12),
                   ],
 
-                  // ===== КНОПКА "НАЧАТЬ ИГРУ" (Shimmer) =====
+                  // ===== КНОПКА "НАЧАТЬ ИГРУ" =====
                   SizedBox(
                     width: double.infinity,
                     child: ShimmerButton(
-                      text: _save != null ? '▶  НОВАЯ ИГРА' : '▶  НАЧАТЬ ИГРУ',
+                      text: _save != null ? 'НОВАЯ ИГРА' : 'НАЧАТЬ ИГРУ',
                       icon: Icons.play_arrow,
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const CharacterSelectScreen(),
-                          ),
-                        ).then((_) => _loadData());
-                      },
+                      onPressed: _openCharacterSelect,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -298,19 +359,12 @@ class _StartScreenState extends State<StartScreen> {
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const MapScreen(
-                              characterId: 'boris',
-                              characterName: 'Борис',
-                            ),
-                          ),
-                        );
+                        AudioService.playClick();
+                        _openMapTest();
                       },
                       icon: const Icon(Icons.map_outlined, size: 18),
                       label: const Text(
-                        '🗺️  КАРТА МИРА (ТЕСТ)',
+                        'КАРТА МИРА (ТЕСТ)',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -337,10 +391,13 @@ class _StartScreenState extends State<StartScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
-                      onPressed: _openAchievements,
+                      onPressed: () {
+                        AudioService.playClick();
+                        _openAchievements();
+                      },
                       icon: const Icon(Icons.emoji_events_outlined, size: 18),
                       label: const Text(
-                        '🏆  ДОСТИЖЕНИЯ',
+                        'ДОСТИЖЕНИЯ',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -363,18 +420,56 @@ class _StartScreenState extends State<StartScreen> {
                   ),
                   const SizedBox(height: 12),
 
+                  // ===== КНОПКА "НАСТРОЙКИ" =====
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        AudioService.playClick();
+                        _openSettings();
+                      },
+                      icon: const Icon(Icons.settings_outlined, size: 18),
+                      label: const Text(
+                        'НАСТРОЙКИ',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2.0,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor:
+                            const Color.fromARGB(255, 150, 180, 220),
+                        side: const BorderSide(
+                          color: Color.fromARGB(255, 150, 180, 220),
+                          width: 1.0,
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
                   // ===== КНОПКА "ТЕСТ СНАРЯЖЕНИЯ" =====
                   SizedBox(
                     width: double.infinity,
-                    child: OutlinedButton(
+                    child: OutlinedButton.icon(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const EquipmentTestScreen(),
-                          ),
-                        );
+                        AudioService.playClick();
+                        _openEquipmentTest();
                       },
+                      icon: const Icon(Icons.backpack_outlined, size: 18),
+                      label: const Text(
+                        'ТЕСТ СНАРЯЖЕНИЯ',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2.0,
+                        ),
+                      ),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.grey[500],
                         side: BorderSide(
@@ -386,21 +481,13 @@ class _StartScreenState extends State<StartScreen> {
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                       ),
-                      child: const Text(
-                        '🎒  ТЕСТ СНАРЯЖЕНИЯ',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2.0,
-                        ),
-                      ),
                     ),
                   ),
                   const SizedBox(height: 24),
 
                   // Версия
                   Text(
-                    'v 0.5.0',
+                    'v 0.6.0',
                     style: TextStyle(
                       color: Colors.grey[700],
                       fontSize: 12,

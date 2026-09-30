@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:dark_hours/models/items/recipe.dart';
 import 'package:dark_hours/models/inventory/inventory.dart';
-import 'package:dark_hours/models/inventory/inventory_item.dart';
 import 'package:dark_hours/services/items/item_loader.dart';
+import 'package:dark_hours/services/audio/audio_service.dart';
 
 class CraftPanel extends StatefulWidget {
   final Inventory inventory;
@@ -167,7 +167,10 @@ class _CraftPanelState extends State<CraftPanel> {
               children: _categories.map((cat) {
                 final isSelected = _selectedCategory == cat;
                 return GestureDetector(
-                  onTap: () => setState(() => _selectedCategory = cat),
+                  onTap: () {
+                    AudioService.playTap();
+                    setState(() => _selectedCategory = cat);
+                  },
                   child: Container(
                     margin: const EdgeInsets.only(right: 6),
                     padding: const EdgeInsets.symmetric(
@@ -443,7 +446,10 @@ class _CraftPanelState extends State<CraftPanel> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () => widget.onCraft(recipe),
+                onPressed: () {
+                  AudioService.playClick();
+                  widget.onCraft(recipe);
+                },
                 icon: const Icon(Icons.build, size: 14),
                 label: const Text(
                   'СОЗДАТЬ',

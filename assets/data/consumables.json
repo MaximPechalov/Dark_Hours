@@ -3,7 +3,7 @@
     {
       "id": "canned_stew",
       "name": "Банка тушёнки",
-      "description": "Говядина в собственном соку. Сытно, но тяжело.",
+      "description": "Говядина в собственном соку. Тяжёлая, сытная, почти как дома. Открывается с трудом.",
       "category": "food",
       "hunger_restore": 40,
       "thirst_restore": 0,
@@ -18,7 +18,7 @@
     {
       "id": "crackers",
       "name": "Галеты",
-      "description": "Сухие, но сытные. Не портятся.",
+      "description": "Сухие, пресные, но не портятся. Настоящая еда для долгой дороги.",
       "category": "food",
       "hunger_restore": 15,
       "thirst_restore": -5,
@@ -33,7 +33,7 @@
     {
       "id": "chocolate",
       "name": "Плитка шоколада",
-      "description": "Редкая роскошь. Поднимает настроение.",
+      "description": "Молочный, в блестящей обёртке. Редкая роскошь. Поднимает настроение почти сразу.",
       "category": "food",
       "hunger_restore": 15,
       "thirst_restore": 0,
@@ -48,7 +48,7 @@
     {
       "id": "mre",
       "name": "ИРП (армейский паёк)",
-      "description": "Полноценный набор еды. Компактный, но редкий.",
+      "description": "Полноценный набор еды в плотной упаковке. Компактный, сытный, редкий.",
       "category": "food",
       "hunger_restore": 60,
       "thirst_restore": 10,
@@ -63,7 +63,7 @@
     {
       "id": "dog_food",
       "name": "Собачий корм",
-      "description": "Съедобно. Только если совсем прижало.",
+      "description": "Сухой корм из чьей-то кладовки. Съедобно. Если совсем прижало.",
       "category": "food",
       "hunger_restore": 25,
       "thirst_restore": -10,
@@ -78,7 +78,7 @@
     {
       "id": "raw_meat",
       "name": "Сырое мясо",
-      "description": "Свежее мясо. Нужно приготовить, иначе — опасно.",
+      "description": "Свежее мясо, ещё тёплое. Нужно приготовить — иначе опасно. Но есть можно.",
       "category": "food",
       "hunger_restore": 35,
       "thirst_restore": 0,
@@ -93,7 +93,7 @@
     {
       "id": "mushrooms",
       "name": "Грибы (съедобные)",
-      "description": "Собраны в лесу. Проверены на вид.",
+      "description": "Собраны в лесу, проверены на вид. Немного еды. Немного тишины.",
       "category": "food",
       "hunger_restore": 20,
       "thirst_restore": 5,
@@ -108,7 +108,7 @@
     {
       "id": "berries",
       "name": "Ягоды",
-      "description": "Лесные ягоды. Немного еды и воды.",
+      "description": "Лесные ягоды в ладони. Немного еды, немного воды, немного радости.",
       "category": "food",
       "hunger_restore": 10,
       "thirst_restore": 15,
@@ -123,7 +123,7 @@
     {
       "id": "water_bottle",
       "name": "Бутылка воды (0.5 л)",
-      "description": "Чистая вода. Основа жизни.",
+      "description": "Чистая вода в пластиковой бутылке. Основа жизни. Береги её.",
       "category": "water",
       "hunger_restore": 0,
       "thirst_restore": 40,
@@ -138,7 +138,7 @@
     {
       "id": "dirty_water",
       "name": "Грязная вода",
-      "description": "Можно пить, но есть риск заболеть.",
+      "description": "Мутная, с осадком. Пить можно, но есть риск заболеть. Иногда выбора нет.",
       "category": "water",
       "hunger_restore": 0,
       "thirst_restore": 30,
@@ -153,7 +153,7 @@
     {
       "id": "vodka",
       "name": "Водка (0.5 л)",
-      "description": "Можно продезинфицировать рану. Или забыться.",
+      "description": "Прозрачная, в стеклянной бутылке. Можно продезинфицировать рану. Можно забыться.",
       "category": "water",
       "hunger_restore": 0,
       "thirst_restore": -10,
@@ -168,7 +168,7 @@
     {
       "id": "coffee",
       "name": "Кофе (термос)",
-      "description": "Бодрит. Особенно нужен Андрею.",
+      "description": "Ещё горячий. Термос держит тепло с утра. Бодрит. Особенно нужен Андрею.",
       "category": "water",
       "hunger_restore": 0,
       "thirst_restore": 20,
@@ -183,7 +183,7 @@
     {
       "id": "energy_drink",
       "name": "Энергетик",
-      "description": "Даёт бодрость на пару часов.",
+      "description": "Яркая банка, обещает бодрость на пару часов. Верится с трудом. Но помогает.",
       "category": "water",
       "hunger_restore": 0,
       "thirst_restore": 25,
@@ -198,7 +198,7 @@
     {
       "id": "painkiller_pill",
       "name": "Обезболивающее",
-      "description": "Снимает боль. Позволяет идти дальше.",
+      "description": "Белая таблетка в блистере. Снимает боль. Позволяет идти дальше.",
       "category": "medicine",
       "hunger_restore": 0,
       "thirst_restore": 0,
@@ -213,7 +213,7 @@
     {
       "id": "bandage",
       "name": "Бинт",
-      "description": "Останавливает кровотечение.",
+      "description": "Стерильный, в бумажной упаковке. Останавливает кровь. Возвращает силы.",
       "category": "medicine",
       "hunger_restore": 0,
       "thirst_restore": 0,
@@ -228,7 +228,7 @@
     {
       "id": "antibiotic_pill",
       "name": "Антибиотик",
-      "description": "Лечит инфекции. Одна таблетка — один курс.",
+      "description": "Сильное средство. Одна таблетка — целый курс. Береги для серьёзного.",
       "category": "medicine",
       "hunger_restore": 0,
       "thirst_restore": 0,
@@ -243,7 +243,7 @@
     {
       "id": "anti_rad",
       "name": "Антирад",
-      "description": "Защищает от радиации. Редкая находка.",
+      "description": "Редкая находка. Защищает от радиации. Надежда в маленькой упаковке.",
       "category": "medicine",
       "hunger_restore": 0,
       "thirst_restore": 0,
@@ -258,7 +258,7 @@
     {
       "id": "cigarette",
       "name": "Сигарета",
-      "description": "Успокаивает нервы. Борис одобряет.",
+      "description": "Одна сигарета. Успокаивает нервы. Борис одобряет.",
       "category": "other",
       "hunger_restore": 0,
       "thirst_restore": -5,
@@ -273,7 +273,7 @@
     {
       "id": "match",
       "name": "Спичка",
-      "description": "Одна спичка. Один шанс развести огонь.",
+      "description": "Одна спичка. Один шанс развести огонь. Один шанс согреться.",
       "category": "other",
       "hunger_restore": 0,
       "thirst_restore": 0,
@@ -288,7 +288,7 @@
     {
       "id": "battery",
       "name": "Батарейка",
-      "description": "Для фонарика или рации.",
+      "description": "Пальчиковая, ещё с зарядом. Для фонарика или рации. Может, для чего-то ещё.",
       "category": "other",
       "hunger_restore": 0,
       "thirst_restore": 0,
@@ -303,7 +303,7 @@
     {
       "id": "fuel_can",
       "name": "Канистра топлива (5 л)",
-      "description": "Для генератора. Очень тяжёлая.",
+      "description": "Тяжёлая, полная. Для генератора. Для машины. Для костра.",
       "category": "other",
       "hunger_restore": 0,
       "thirst_restore": 0,
@@ -318,7 +318,7 @@
     {
       "id": "herb_medkit",
       "name": "Травяной сбор",
-      "description": "Народное средство. Слабое, но доступное.",
+      "description": "Пучок сушёных трав в марле. Народное средство. Слабое, но доступное.",
       "category": "medicine",
       "hunger_restore": 0,
       "thirst_restore": 0,
@@ -333,7 +333,7 @@
     {
       "id": "arrow",
       "name": "Стрела",
-      "description": "Самодельная стрела для лука.",
+      "description": "Деревянная, с перьями. Самодельная, но аккуратная. Кто-то старался.",
       "category": "other",
       "hunger_restore": 0,
       "thirst_restore": 0,
@@ -348,7 +348,7 @@
     {
       "id": "signal_flare",
       "name": "Сигнальный факел",
-      "description": "Яркий сигнал для привлечения помощи.",
+      "description": "Красный, яркий, привлекает внимание. Помощь — или беду. Иногда и то, и другое.",
       "category": "other",
       "hunger_restore": 0,
       "thirst_restore": 0,

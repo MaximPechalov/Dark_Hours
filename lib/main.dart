@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:dark_hours/screens/main/start_screen.dart';
+import 'package:dark_hours/screens/main/splash_screen.dart';
+import 'package:dark_hours/services/audio/audio_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AudioService.init();
   runApp(const DarkHoursApp());
 }
 
@@ -19,7 +22,7 @@ class DarkHoursApp extends StatelessWidget {
         fontFamily: 'RobotoMono',
         useMaterial3: true,
       ),
-      home: const StartScreen(),
+      home: const SplashScreen(),
     );
   }
 }

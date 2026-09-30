@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:dark_hours/models/progress/chapter_summary.dart';
+import 'package:dark_hours/services/audio/audio_service.dart';
 import 'package:dark_hours/screens/gameplay/credits_screen.dart';
 
-class ChapterEndScreen extends StatelessWidget {
+class ChapterEndScreen extends StatefulWidget {
   final ChapterSummary summary;
 
   const ChapterEndScreen({
@@ -11,7 +12,25 @@ class ChapterEndScreen extends StatelessWidget {
   });
 
   @override
+  State<ChapterEndScreen> createState() => _ChapterEndScreenState();
+}
+
+class _ChapterEndScreenState extends State<ChapterEndScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _playEndingMusic();
+  }
+
+  Future<void> _playEndingMusic() async {
+    await AudioService.stopAmbience();
+    await AudioService.playMusic('audio/music/ending_theme.ogg');
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final summary = widget.summary;
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 5, 5, 5),
       body: SafeArea(
@@ -104,6 +123,7 @@ class ChapterEndScreen extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () {
+                    AudioService.playClick();
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
@@ -139,6 +159,7 @@ class ChapterEndScreen extends StatelessWidget {
                 width: double.infinity,
                 child: TextButton(
                   onPressed: () {
+                    AudioService.playClick();
                     Navigator.pop(context);
                   },
                   child: Text(
