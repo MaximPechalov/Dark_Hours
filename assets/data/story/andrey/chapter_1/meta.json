@@ -19,7 +19,12 @@
       "id": "act_2",
       "title": "Город",
       "file": "act_2.json",
-      "entry_nodes": ["a2_street_start", "a2_pharmacy_run", "a2_office_run"],
+      "entry_nodes": [
+        "a2_street_start",
+        "a2_office_route",
+        "a2_pharmacy_route",
+        "a2_metro_route"
+      ],
       "description": "Путь через центр. Встречи. Поиск."
     },
     {
@@ -68,6 +73,6 @@
       "description": "Ты погиб в первый день"
     }
   ],
-  "total_nodes": 74,
+  "total_nodes": 105,
   "estimated_minutes": 75
 }

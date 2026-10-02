@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 /// Условия для выбора в ноде
@@ -259,7 +260,6 @@ class Story {
   }
 
   /// Найти номер акта, в котором находится нода
-  /// Ищет и в startNode, и в entryNodes
   int? getActForNode(String nodeId) {
     for (final act in acts) {
       if (act.startNode == nodeId) return act.number;
@@ -288,6 +288,8 @@ class Story {
       // 1. Загружаем meta.json
       final String metaPath =
           'assets/data/story/$characterId/chapter_$chapter/meta.json';
+      debugPrint('📖 Story.loadFor: загрузка $metaPath');
+
       final String metaJsonString = await rootBundle.loadString(metaPath);
       final Map<String, dynamic> metaMap = json.decode(metaJsonString);
 
@@ -300,26 +302,74 @@ class Story {
           .map((e) => StoryEnding.fromJson(Map<String, dynamic>.from(e)))
           .toList();
 
+      debugPrint('📖 Story.loadFor: найдено ${acts.length} актов');
+
       // 3. Загружаем все акты и сливаем ноды в один словарь
       final Map<String, StoryNode> allNodes = {};
+      final Map<String, String> nodeSource = {}; // id → акт (для диагностики)
+
+      int totalDuplicates = 0;
 
       for (final act in acts) {
         try {
           final String actPath =
               'assets/data/story/$characterId/chapter_$chapter/${act.file}';
+
+          debugPrint('📖 Story.loadFor: загрузка акта ${act.file}');
+
           final String actJsonString = await rootBundle.loadString(actPath);
           final Map<String, dynamic> actMap = json.decode(actJsonString);
 
           final List<dynamic> nodesJson = actMap['nodes'] ?? [];
+          debugPrint(
+            '📖 Story.loadFor: акт ${act.file} содержит ${nodesJson.length} нод',
+          );
+
+          int nodesAdded = 0;
+          int duplicates = 0;
+
           for (final nodeJson in nodesJson) {
             final node = StoryNode.fromJson(
               Map<String, dynamic>.from(nodeJson),
             );
-            allNodes[node.id] = node;
+
+            if (allNodes.containsKey(node.id)) {
+              duplicates++;
+              totalDuplicates++;
+              debugPrint(
+                '❌ Story.loadFor: ДУБЛИКАТ ноды "${node.id}" — '
+                'уже загружена из ${nodeSource[node.id]}, '
+                'сейчас пришла из ${act.file}',
+              );
+            } else {
+              allNodes[node.id] = node;
+              nodeSource[node.id] = act.file;
+              nodesAdded++;
+            }
           }
-        } catch (e) {
-          // Пропускаем акт, если он не найден
+
+          debugPrint(
+            '✅ Story.loadFor: акт ${act.file} загружен — '
+            '$nodesAdded новых нод, $duplicates дубликатов',
+          );
+        } catch (e, stackTrace) {
+          debugPrint(
+            '❌ Story.loadFor: ОШИБКА загрузки акта ${act.file}: $e',
+          );
+          debugPrint('📍 Stack trace:\n$stackTrace');
         }
+      }
+
+      debugPrint(
+        '📖 Story.loadFor: всего загружено ${allNodes.length} нод, '
+        'дубликатов: $totalDuplicates',
+      );
+
+      if (totalDuplicates > 0) {
+        debugPrint(
+          '⚠️ ОБНАРУЖЕНЫ ДУБЛИКАТЫ — проверь структуру актов! '
+          'Возможно, END_* ноды находятся и в act_1, и в act_3.',
+        );
       }
 
       return Story(
@@ -335,7 +385,9 @@ class Story {
         estimatedMinutes: metaMap['estimated_minutes'] ?? 0,
         nodes: allNodes,
       );
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint('❌ Story.loadFor: КРИТИЧЕСКАЯ ОШИБКА: $e');
+      debugPrint('📍 Stack trace:\n$stackTrace');
       return null;
     }
   }
@@ -343,6 +395,8 @@ class Story {
   /// Обратная совместимость со старым форматом
   static Future<Story?> loadLegacy(String characterId) async {
     try {
+      debugPrint('📖 Story.loadLegacy: загрузка $characterId');
+
       final String jsonString = await rootBundle
           .loadString('assets/data/story_$characterId.json');
       final Map<String, dynamic> jsonMap = json.decode(jsonString);
@@ -374,7 +428,9 @@ class Story {
         estimatedMinutes: 0,
         nodes: nodesMap,
       );
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint('❌ Story.loadLegacy: ошибка: $e');
+      debugPrint('📍 Stack trace:\n$stackTrace');
       return null;
     }
   }
@@ -384,6 +440,10 @@ class Story {
     final newStory = await loadFor(characterId, chapter: chapter);
     if (newStory != null) return newStory;
 
+    debugPrint(
+      '⚠️ Story.load: новый формат не загрузился, '
+      'пробуем legacy для $characterId',
+    );
     return await loadLegacy(characterId);
   }
 }

@@ -159,6 +159,26 @@
       "stack_max": 1,
       "icon": "🔋",
       "rarity": "rare"
+    },
+    {
+      "id": "whistle",
+      "name": "Свисток",
+      "description": "Тонкий, пронзительный. На шее — шнурок. Работает. Пока.",
+      "category": "special",
+      "weight": 0.05,
+      "stack_max": 1,
+      "icon": "📢",
+      "rarity": "common"
+    },
+    {
+      "id": "keycard",
+      "name": "Ключ-карта",
+      "description": "Пластик с магнитом. Работает в офисном здании. Где-то есть ответы.",
+      "category": "special",
+      "weight": 0.02,
+      "stack_max": 1,
+      "icon": "🪪",
+      "rarity": "uncommon"
     }
   ]
 }

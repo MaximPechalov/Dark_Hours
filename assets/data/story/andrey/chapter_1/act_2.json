@@ -353,7 +353,7 @@
             "sanity": 5,
             "flag_set": "stayed_in_server_room"
           },
-          "next": "END_office"
+          "next": "act_2_end"
         }
       ]
     },
@@ -488,7 +488,7 @@
             "sanity": -5,
             "flag_set": "stayed_in_server_room"
           },
-          "next": "END_office"
+          "next": "act_2_end"
         }
       ]
     },
@@ -1053,7 +1053,7 @@
             "inventory_add": ["map"],
             "flag_set": "knows_north_coordinates"
           },
-          "next": "END_north_andrey"
+          "next": "act_2_end"
         },
         {
           "text": "Изучить радиостанцию — может, есть ещё сигналы",
@@ -1087,7 +1087,7 @@
             "time": -10,
             "sanity": -15
           },
-          "next": "END_north_andrey"
+          "next": "act_2_end"
         }
       ]
     },
@@ -1242,6 +1242,63 @@
             "flag_set": "going_north_tonight"
           },
           "next": "a3_night_falls"
+        }
+      ]
+    },
+
+    {
+      "id": "a2_pharmacy_route",
+      "title": "Путь к аптеке",
+      "text": "Ты идёшь к аптеке. Ты помнишь её — маленькая, на углу, с зелёным крестом. Ты проходил мимо неё тысячу раз.\n\nСейчас крест погас. Витрина выбита. Внутри — темно. Ты слышишь голоса — тихие, настороженные. Кто-то там есть. И этот кто-то тебя тоже слышит.",
+      "choices": [
+        {
+          "text": "Войти через главный вход",
+          "effects": {
+            "time": -10,
+            "stamina": -5
+          },
+          "next": "a2_pharmacy_run"
+        },
+        {
+          "text": "Обойти аптеку — зайти с чёрного хода",
+          "effects": {
+            "time": -15,
+            "stamina": -10
+          },
+          "next": "a2_pharmacy_backdoor"
+        },
+        {
+          "text": "Понаблюдать снаружи — оценить обстановку",
+          "effects": {
+            "time": -5,
+            "sanity": 5
+          },
+          "next": "a2_pharmacy_watch"
+        }
+      ]
+    },
+
+    {
+      "id": "a2_metro_meet",
+      "title": "Встреча в метро",
+      "text": "Ты оборачиваешься. Из темноты выходит **мужчина**. Лет 50. В руках — фонарик и пистолет. Он светит тебе в лицо.\n\n*«Стой. Кто такой?»*\n\nТы поднимаешь руки. Говоришь, что один, что ищешь выход. Он молчит. Потом опускает фонарик:\n\n*«Один, значит. Здесь опасно. Я знаю тут все тоннели. Пойдём со мной — если не врёшь.»*",
+      "choices": [
+        {
+          "text": "Пойти с ним",
+          "effects": {
+            "time": -20,
+            "sanity": 10,
+            "flag_set": "a2_with_metro_guide"
+          },
+          "next": "a2_metro_group"
+        },
+        {
+          "text": "Отказаться — идти своей дорогой",
+          "effects": {
+            "time": -5,
+            "sanity": -5
+          },
+          "next": "a2_metro_route"
         }
       ]
     }

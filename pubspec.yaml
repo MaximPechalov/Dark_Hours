@@ -32,28 +32,12 @@ flutter:
     - assets/data/search_events.json
     - assets/data/achievements.json
 
-    # ===== СЮЖЕТ — НОВЫЙ ФОРМАТ =====
-    # Борис, Глава 1
+    # ===== СЮЖЕТ =====
     - assets/data/story/boris/chapter_1/
-
-    # Алина, Глава 1
     - assets/data/story/alina/chapter_1/
-
-    # Иван Ильич, Глава 1
     - assets/data/story/ivan/chapter_1/
-
-    # Андрей, Глава 1
     - assets/data/story/andrey/chapter_1/
-
-    # Дарья, Глава 1
     - assets/data/story/darya/chapter_1/
-
-    # ===== СЮЖЕТ — СТАРЫЙ ФОРМАТ (временно, fallback) =====
-    - assets/data/story_boris.json
-    - assets/data/story_alina.json
-    - assets/data/story_ivan.json
-    - assets/data/story_andrey.json
-    - assets/data/story_darya.json
 
     # ===== ЗВУКИ =====
     - assets/audio/ui/

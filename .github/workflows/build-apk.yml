@@ -28,6 +28,9 @@ jobs:
     - name: Install dependencies
       run: flutter pub get
 
+    - name: Validate JSON
+      run: dart run tool/validate.dart
+
     - name: Build APK
       run: flutter build apk --release
 
