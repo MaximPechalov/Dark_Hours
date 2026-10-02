@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:dark_hours/models/conditions/condition.dart';
 import 'package:dark_hours/models/conditions/active_condition.dart';
-import 'package:dark_hours/models/inventory/inventory.dart';
 
 class ConditionManager {
   static final Random _rng = Random();

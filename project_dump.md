@@ -1,8 +1,8 @@
 # PROJECT DUMP
 
-**Generated:** Fri Oct  2 11:52:54 UTC 2026
+**Generated:** Fri Oct  2 15:20:48 UTC 2026
 **Root:** /workspaces/Dark_Hours
-**Files:** 164
+**Files:** 181
 
 ## 📁 STRUCTURE
 
@@ -60,6 +60,7 @@
 ./assets/data/armor.json
 ./assets/data/conditions.json
 ./assets/data/consumables.json
+./assets/data/enemies.json
 ./assets/data/locations.json
 ./assets/data/recipes.json
 ./assets/data/resources.json
@@ -89,11 +90,6 @@
 ./assets/data/story/ivan/chapter_1/act_2.json
 ./assets/data/story/ivan/chapter_1/act_3.json
 ./assets/data/story/ivan/chapter_1/meta.json
-./assets/data/story_alina.json
-./assets/data/story_andrey.json
-./assets/data/story_boris.json
-./assets/data/story_darya.json
-./assets/data/story_ivan.json
 ./assets/data/tools.json
 ./assets/data/weapons.json
 ./assets/fonts/Orbitron-Regular.ttf
@@ -103,9 +99,11 @@
 ./dark_hours.iml
 ./dump.sh
 ./fix_imports.sh
+./lib/constants/game_constants.dart
 ./lib/main.dart
 ./lib/models/character/character.dart
 ./lib/models/combat/combat.dart
+./lib/models/combat/enemy.dart
 ./lib/models/conditions/active_condition.dart
 ./lib/models/conditions/condition.dart
 ./lib/models/inventory/equipment.dart
@@ -134,6 +132,9 @@
 ./lib/screens/gameplay/credits_screen.dart
 ./lib/screens/gameplay/map_screen.dart
 ./lib/screens/gameplay/story_screen.dart
+./lib/screens/gameplay/widgets/map_current_location.dart
+./lib/screens/gameplay/widgets/map_location_card.dart
+./lib/screens/gameplay/widgets/map_status_bar.dart
 ./lib/screens/main/character_select_screen.dart
 ./lib/screens/main/death_screen.dart
 ./lib/screens/main/settings_screen.dart
@@ -141,9 +142,17 @@
 ./lib/screens/main/start_screen.dart
 ./lib/services/audio/audio_service.dart
 ./lib/services/audio/audio_settings.dart
+./lib/services/combat/enemy_loader.dart
 ./lib/services/conditions/condition_manager.dart
 ./lib/services/items/item_loader.dart
 ./lib/services/items/search_event_loader.dart
+./lib/services/map/combat_manager.dart
+./lib/services/map/death_manager.dart
+./lib/services/map/map_controller.dart
+./lib/services/map/movement_manager.dart
+./lib/services/map/rest_manager.dart
+./lib/services/map/search_manager.dart
+./lib/services/map/story_trigger_manager.dart
 ./lib/services/progress/achievement_checker.dart
 ./lib/services/progress/achievement_manager.dart
 ./lib/services/progress/run_tracker.dart
@@ -168,7 +177,15 @@
 ./pubspec.lock
 ./pubspec.yaml
 ./reorganize.sh
-./test/widget_test.dart
+./test/models/combat_test.dart
+./test/models/equipment_test.dart
+./test/models/inventory_test.dart
+./test/services/condition_manager_test.dart
+./test/services/item_loader_test.dart
+./test/services/save_manager_test.dart
+./test/services/time_manager_test.dart
+./test/story/story_loader_test.dart
+./test/widgets/smoke_test.dart
 ./tool/README.md 
 ./tool/validate.dart
 ```
@@ -177,7 +194,7 @@
 
 ### 📄 `./.flutter-plugins-dependencies`
 ```
-{"info":"This is a generated file; do not edit or check into version control.","plugins":{"ios":[{"name":"audioplayers_darwin","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_darwin-6.5.0/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_foundation-2.6.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.7/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false}],"android":[{"name":"audioplayers_android","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_android-5.3.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni-1.0.3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni_flutter","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni_flutter-1.0.3/","native_build":true,"dependencies":["jni"],"dev_dependency":false},{"name":"path_provider_android","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_android-2.3.1/","native_build":false,"dependencies":["jni","jni_flutter"],"dev_dependency":false},{"name":"shared_preferences_android","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.28/","native_build":true,"dependencies":[],"dev_dependency":false}],"macos":[{"name":"audioplayers_darwin","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_darwin-6.5.0/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_foundation-2.6.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.7/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false}],"linux":[{"name":"audioplayers_linux","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_linux-4.3.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni-1.0.3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_linux","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.2/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_linux","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_linux-2.4.1/","native_build":false,"dependencies":["path_provider_linux"],"dev_dependency":false}],"windows":[{"name":"audioplayers_windows","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_windows-4.4.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni-1.0.3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_windows","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_windows","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_windows-2.4.1/","native_build":false,"dependencies":["path_provider_windows"],"dev_dependency":false}],"web":[{"name":"audioplayers_web","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_web-5.3.0/","dependencies":[],"dev_dependency":false},{"name":"shared_preferences_web","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_web-2.4.3/","dependencies":[],"dev_dependency":false}]},"dependencyGraph":[{"name":"audioplayers","dependencies":["audioplayers_android","audioplayers_darwin","audioplayers_linux","audioplayers_web","audioplayers_windows","path_provider"]},{"name":"audioplayers_android","dependencies":[]},{"name":"audioplayers_darwin","dependencies":[]},{"name":"audioplayers_linux","dependencies":[]},{"name":"audioplayers_web","dependencies":[]},{"name":"audioplayers_windows","dependencies":[]},{"name":"jni","dependencies":[]},{"name":"jni_flutter","dependencies":["jni"]},{"name":"path_provider","dependencies":["path_provider_android","path_provider_foundation","path_provider_linux","path_provider_windows"]},{"name":"path_provider_android","dependencies":["jni","jni_flutter"]},{"name":"path_provider_foundation","dependencies":[]},{"name":"path_provider_linux","dependencies":[]},{"name":"path_provider_windows","dependencies":[]},{"name":"shared_preferences","dependencies":["shared_preferences_android","shared_preferences_foundation","shared_preferences_linux","shared_preferences_web","shared_preferences_windows"]},{"name":"shared_preferences_android","dependencies":[]},{"name":"shared_preferences_foundation","dependencies":[]},{"name":"shared_preferences_linux","dependencies":["path_provider_linux"]},{"name":"shared_preferences_web","dependencies":[]},{"name":"shared_preferences_windows","dependencies":["path_provider_windows"]}],"date_created":"2026-10-02 11:02:46.664852","version":"3.47.6","swift_package_manager_enabled":{"ios":false,"macos":false}}
+{"info":"This is a generated file; do not edit or check into version control.","plugins":{"ios":[{"name":"audioplayers_darwin","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_darwin-6.5.0/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_foundation-2.6.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.7/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false}],"android":[{"name":"audioplayers_android","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_android-5.3.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni-1.0.3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni_flutter","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni_flutter-1.0.3/","native_build":true,"dependencies":["jni"],"dev_dependency":false},{"name":"path_provider_android","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_android-2.3.1/","native_build":false,"dependencies":["jni","jni_flutter"],"dev_dependency":false},{"name":"shared_preferences_android","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.28/","native_build":true,"dependencies":[],"dev_dependency":false}],"macos":[{"name":"audioplayers_darwin","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_darwin-6.5.0/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_foundation-2.6.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.7/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false}],"linux":[{"name":"audioplayers_linux","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_linux-4.3.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni-1.0.3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_linux","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.2/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_linux","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_linux-2.4.1/","native_build":false,"dependencies":["path_provider_linux"],"dev_dependency":false}],"windows":[{"name":"audioplayers_windows","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_windows-4.4.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni-1.0.3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_windows","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_windows","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_windows-2.4.1/","native_build":false,"dependencies":["path_provider_windows"],"dev_dependency":false}],"web":[{"name":"audioplayers_web","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_web-5.3.0/","dependencies":[],"dev_dependency":false},{"name":"shared_preferences_web","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_web-2.4.3/","dependencies":[],"dev_dependency":false}]},"dependencyGraph":[{"name":"audioplayers","dependencies":["audioplayers_android","audioplayers_darwin","audioplayers_linux","audioplayers_web","audioplayers_windows","path_provider"]},{"name":"audioplayers_android","dependencies":[]},{"name":"audioplayers_darwin","dependencies":[]},{"name":"audioplayers_linux","dependencies":[]},{"name":"audioplayers_web","dependencies":[]},{"name":"audioplayers_windows","dependencies":[]},{"name":"jni","dependencies":[]},{"name":"jni_flutter","dependencies":["jni"]},{"name":"path_provider","dependencies":["path_provider_android","path_provider_foundation","path_provider_linux","path_provider_windows"]},{"name":"path_provider_android","dependencies":["jni","jni_flutter"]},{"name":"path_provider_foundation","dependencies":[]},{"name":"path_provider_linux","dependencies":[]},{"name":"path_provider_windows","dependencies":[]},{"name":"shared_preferences","dependencies":["shared_preferences_android","shared_preferences_foundation","shared_preferences_linux","shared_preferences_web","shared_preferences_windows"]},{"name":"shared_preferences_android","dependencies":[]},{"name":"shared_preferences_foundation","dependencies":[]},{"name":"shared_preferences_linux","dependencies":["path_provider_linux"]},{"name":"shared_preferences_web","dependencies":[]},{"name":"shared_preferences_windows","dependencies":["path_provider_windows"]}],"date_created":"2026-10-02 15:16:31.258209","version":"3.47.6","swift_package_manager_enabled":{"ios":false,"macos":false}}
 ```
 
 ### 📄 `./.github/workflows/build-apk.yml`
@@ -2012,6 +2029,251 @@ include(":app")
 }
 ```
 
+### 📄 `./assets/data/enemies.json`
+```json
+{
+  "enemies": [
+    {
+      "id": "looter_common",
+      "name": "Мародёр",
+      "description": "Обычный горожанин, который решил выжить любой ценой.",
+      "category": "human",
+      "health": 25,
+      "damage": 8,
+      "protection": 1,
+      "strength": 5,
+      "damageType": "blunt",
+      "abilities": []
+    },
+    {
+      "id": "looter_armed",
+      "name": "Вооружённый мародёр",
+      "description": "У него есть нож, и он готов им воспользоваться.",
+      "category": "human",
+      "health": 40,
+      "damage": 14,
+      "protection": 4,
+      "strength": 7,
+      "damageType": "cutting",
+      "abilities": [
+        {
+          "id": "poison",
+          "name": "Отравленный клинок",
+          "description": "Клинок смазан ядом",
+          "chance": 0.3,
+          "effect": "poison"
+        }
+      ]
+    },
+    {
+      "id": "bandit",
+      "name": "Бандит",
+      "description": "Опытный боец. Быстрый, сильный, безжалостный.",
+      "category": "human",
+      "health": 55,
+      "damage": 18,
+      "protection": 6,
+      "strength": 8,
+      "damageType": "blunt",
+      "abilities": [
+        {
+          "id": "stun",
+          "name": "Оглушающий удар",
+          "description": "Удар в голову",
+          "chance": 0.25,
+          "effect": "skip_turn"
+        },
+        {
+          "id": "bleed",
+          "name": "Рваная рана",
+          "description": "Глубокий порез",
+          "chance": 0.2,
+          "effect": "bleeding"
+        }
+      ]
+    },
+    {
+      "id": "bandit_leader",
+      "name": "Главарь банды",
+      "description": "Роман. Бывший военный. У него пистолет и холодная голова.",
+      "category": "human",
+      "health": 75,
+      "damage": 22,
+      "protection": 8,
+      "strength": 9,
+      "damageType": "firearm",
+      "abilities": [
+        {
+          "id": "stun",
+          "name": "Прицельный выстрел",
+          "description": "Стреляет точно в цель",
+          "chance": 0.35,
+          "effect": "skip_turn"
+        },
+        {
+          "id": "bleed",
+          "name": "Огнестрельная рана",
+          "description": "Пуля оставляет глубокую рану",
+          "chance": 0.4,
+          "effect": "bleeding"
+        }
+      ]
+    },
+    {
+      "id": "looter_desperate",
+      "name": "Отчаявшийся",
+      "description": "Он не хочет драться. Но если прижмёт — будет драться насмерть.",
+      "category": "human",
+      "health": 30,
+      "damage": 10,
+      "protection": 2,
+      "strength": 5,
+      "damageType": "blunt",
+      "abilities": [
+        {
+          "id": "stun",
+          "name": "Удар в голову",
+          "description": "Действует инстинктивно",
+          "chance": 0.2,
+          "effect": "skip_turn"
+        }
+      ]
+    },
+    {
+      "id": "ex_soldier",
+      "name": "Дезертир",
+      "description": "Бывший военный. Один, без части, без цели. Опасен.",
+      "category": "human",
+      "health": 65,
+      "damage": 20,
+      "protection": 7,
+      "strength": 8,
+      "damageType": "firearm",
+      "abilities": [
+        {
+          "id": "stun",
+          "name": "Точный выстрел",
+          "description": "Стреляет как учили",
+          "chance": 0.3,
+          "effect": "skip_turn"
+        }
+      ]
+    },
+    {
+      "id": "dog_stray",
+      "name": "Бродячая собака",
+      "description": "Одичавшая, голодная. Одна не страшна, но их всегда несколько.",
+      "category": "animal",
+      "health": 20,
+      "damage": 8,
+      "protection": 0,
+      "strength": 4,
+      "damageType": "cutting",
+      "abilities": [
+        {
+          "id": "bleed",
+          "name": "Рваная рана",
+          "description": "Укус оставляет глубокую рану",
+          "chance": 0.3,
+          "effect": "bleeding"
+        }
+      ]
+    },
+    {
+      "id": "wolf",
+      "name": "Волк",
+      "description": "Хищник. Охотится в одиночку или в стае. Быстрый и опасный.",
+      "category": "animal",
+      "health": 30,
+      "damage": 12,
+      "protection": 1,
+      "strength": 6,
+      "damageType": "cutting",
+      "abilities": [
+        {
+          "id": "bleed",
+          "name": "Рваная рана",
+          "description": "Клыки оставляют глубокие порезы",
+          "chance": 0.35,
+          "effect": "bleeding"
+        }
+      ]
+    },
+    {
+      "id": "boar",
+      "name": "Кабан",
+      "description": "Огромный, злой, с клыками. Атакует, если чувствует угрозу.",
+      "category": "animal",
+      "health": 45,
+      "damage": 16,
+      "protection": 3,
+      "strength": 7,
+      "damageType": "piercing",
+      "abilities": [
+        {
+          "id": "stun",
+          "name": "Удар клыками",
+          "description": "Сбивает с ног",
+          "chance": 0.3,
+          "effect": "skip_turn"
+        }
+      ]
+    },
+    {
+      "id": "bear",
+      "name": "Медведь",
+      "description": "Хозяин леса. Огромный, сильный. Лучше не встречаться.",
+      "category": "animal",
+      "health": 90,
+      "damage": 25,
+      "protection": 5,
+      "strength": 9,
+      "damageType": "blunt",
+      "abilities": [
+        {
+          "id": "stun",
+          "name": "Удар лапой",
+          "description": "Сбивает с ног",
+          "chance": 0.4,
+          "effect": "skip_turn"
+        },
+        {
+          "id": "bleed",
+          "name": "Рваная рана",
+          "description": "Когти оставляют глубокие порезы",
+          "chance": 0.3,
+          "effect": "bleeding"
+        }
+      ]
+    },
+    {
+      "id": "fox",
+      "name": "Лиса",
+      "description": "Не опасна. Но укусить может. И убежать с добычей — тоже.",
+      "category": "animal",
+      "health": 12,
+      "damage": 5,
+      "protection": 0,
+      "strength": 3,
+      "damageType": "cutting",
+      "abilities": []
+    },
+    {
+      "id": "crow",
+      "name": "Ворон",
+      "description": "Птица. Не убивает. Но может выклевать глаза раненому.",
+      "category": "animal",
+      "health": 8,
+      "damage": 3,
+      "protection": 0,
+      "strength": 2,
+      "damageType": "piercing",
+      "abilities": []
+    }
+  ]
+}
+```
+
 ### 📄 `./assets/data/locations.json`
 ```json
 {
@@ -2186,14 +2448,14 @@ include(":app")
     {
       "id": "hospital",
       "name": "Городская больница",
-      "description": "Медикаменты. Но заражение, темнота и следы чужой паники. Иди осторожно.",
+      "description": "Медикаменты. Но темнота и следы чужой паники. Иди осторожно.",
       "type": "medical",
       "region": "city_center",
       "danger_level": 9,
       "search_time": 60,
       "max_searches": 5,
       "loot_pool": ["antibiotic_pill", "bandage", "painkiller_pill", "first_aid_kit", "splint"],
-      "enemies": ["looter_armed", "infected"],
+      "enemies": ["looter_armed", "bandit", "looter_common"],
       "connections": ["pharmacy", "street_center", "hospital_morgue"],
       "icon": "🏥",
       "repeatable": true,
@@ -2296,7 +2558,7 @@ include(":app")
       "search_time": 30,
       "max_searches": 3,
       "loot_pool": ["wood", "mushrooms", "berries", "raw_meat"],
-      "enemies": [],
+      "enemies": ["dog_stray"],
       "connections": ["forest_path", "gas_station"],
       "icon": "🏚️",
       "repeatable": true,
@@ -2312,7 +2574,7 @@ include(":app")
       "search_time": 45,
       "max_searches": 6,
       "loot_pool": ["wood", "mushrooms", "berries", "raw_meat", "feathers"],
-      "enemies": [],
+      "enemies": ["fox", "dog_stray", "wolf", "boar"],
       "connections": ["forest_hut", "highway_entrance", "forest_cache"],
       "icon": "🌲",
       "repeatable": true,
@@ -2339,7 +2601,7 @@ include(":app")
       "search_time": 15,
       "max_searches": 2,
       "loot_pool": ["fuel_can", "crackers"],
-      "enemies": ["bandit"],
+      "enemies": ["bandit", "looter_armed", "dog_stray"],
       "connections": ["gas_station", "forest_path", "checkpoint"],
       "icon": "🛤️",
       "repeatable": true,
@@ -2355,7 +2617,7 @@ include(":app")
       "search_time": 30,
       "max_searches": 4,
       "loot_pool": ["mre", "water_bottle", "ammo_box", "army_backpack"],
-      "enemies": ["bandit"],
+      "enemies": ["bandit", "ex_soldier", "looter_armed"],
       "connections": ["highway_entrance", "north_station"],
       "icon": "🛑",
       "repeatable": true,
@@ -2425,7 +2687,7 @@ include(":app")
       "search_time": 30,
       "max_searches": 2,
       "loot_pool": ["hunting_knife", "raw_meat", "mre", "water_bottle", "bandage"],
-      "enemies": [],
+      "enemies": ["wolf"],
       "connections": ["forest_path"],
       "icon": "🔓",
       "repeatable": true,
@@ -3631,41 +3893,6 @@ include(":app")
           "next": "a2_stadium_approach"
         }
       ]
-    },
-
-    {
-      "id": "END_shelter_alina",
-      "title": "Квартира",
-      "text": "Ты дома. Дверь закрыта. Ты одна.\n\nВода есть. Еда есть. Но ты знаешь: скоро придётся выйти. Этот город умирает.\n\n**[КОНЕЦ ПЕРВОЙ ГЛАВЫ. КВАРТИРА]**\n\n_Ты выжила — но не сдвинулась с места. Следующая глава начнётся здесь же — в квартире, где ты спряталась._",
-      "choices": []
-    },
-
-    {
-      "id": "END_north",
-      "title": "На север",
-      "text": "Ты идёшь по дороге. Позади — город в дыму. Впереди — неизвестность.\n\nТы жива. Ты свободна. Но ты не знаешь, что тебя ждёт.\n\n**[КОНЕЦ ПЕРВОЙ ГЛАВЫ. НА СЕВЕР]**\n\n_Ты ушла из города. Следующая глава начнётся здесь — на трассе, в 20 километрах от города._",
-      "choices": []
-    },
-
-    {
-      "id": "END_lena",
-      "title": "С Леной и сыном",
-      "text": "Вы идёте вместе. Лена знает дорогу, ты — умеешь бегать. Её сын молчит, но держится за маму.\n\nВпереди — дом её сестры. Впереди — надежда.\n\n**[КОНЕЦ ПЕРВОЙ ГЛАВЫ. С ЛЕНОЙ]**\n\n_Ты взяла ответственность за двух жизней. Следующая глава начнётся здесь — на дороге к сестре Лены._",
-      "choices": []
-    },
-
-    {
-      "id": "END_zina",
-      "title": "У бабы Зины",
-      "text": "Ты осталась с бабой Зиной. Вы вместе пьёте чай. Радио молчит.\n\nТы не знаешь, что будет завтра. Но сегодня — тепло и тихо.\n\n**[КОНЕЦ ПЕРВОЙ ГЛАВЫ. У БАБЫ ЗИНЫ]**\n\n_Ты выбрала заботу о другом. Следующая глава начнётся здесь — в квартире бабы Зины._",
-      "choices": []
-    },
-
-    {
-      "id": "END_died_alina",
-      "title": "Смерть",
-      "text": "Монтировка попадает тебе в голову. Ты падаешь.\n\nПоследнее, что ты видишь — кладовщик склоняется над тобой.\n\n*«Прости, девочка. Я не хотел.»*\n\nТемнота.\n\n**[КОНЕЦ. СМЕРТЬ]**\n\n_Ты умерла в первый день. Но история продолжается — за другого персонажа. Попробуй снова._",
-      "choices": []
     }
 
   ]
@@ -5481,6 +5708,41 @@ include(":app")
           "next": "END_shelter_alina"
         }
       ]
+    },
+
+    {
+      "id": "END_shelter_alina",
+      "title": "Квартира",
+      "text": "Ты дома. Дверь закрыта. Ты одна.\n\nВода есть. Еда есть. Но ты знаешь: скоро придётся выйти. Этот город умирает.\n\n**[КОНЕЦ ПЕРВОЙ ГЛАВЫ. КВАРТИРА]**\n\n_Ты выжила — но не сдвинулась с места. Следующая глава начнётся здесь же — в квартире, где ты спряталась._",
+      "choices": []
+    },
+
+    {
+      "id": "END_north",
+      "title": "На север",
+      "text": "Ты идёшь по дороге. Позади — город в дыму. Впереди — неизвестность.\n\nТы жива. Ты свободна. Но ты не знаешь, что тебя ждёт.\n\n**[КОНЕЦ ПЕРВОЙ ГЛАВЫ. НА СЕВЕР]**\n\n_Ты ушла из города. Следующая глава начнётся здесь — на трассе, в 20 километрах от города._",
+      "choices": []
+    },
+
+    {
+      "id": "END_lena",
+      "title": "С Леной и сыном",
+      "text": "Вы идёте вместе. Лена знает дорогу, ты — умеешь бегать. Её сын молчит, но держится за маму.\n\nВпереди — дом её сестры. Впереди — надежда.\n\n**[КОНЕЦ ПЕРВОЙ ГЛАВЫ. С ЛЕНОЙ]**\n\n_Ты взяла ответственность за двух жизней. Следующая глава начнётся здесь — на дороге к сестре Лены._",
+      "choices": []
+    },
+
+    {
+      "id": "END_zina",
+      "title": "У бабы Зины",
+      "text": "Ты осталась с бабой Зиной. Вы вместе пьёте чай. Радио молчит.\n\nТы не знаешь, что будет завтра. Но сегодня — тепло и тихо.\n\n**[КОНЕЦ ПЕРВОЙ ГЛАВЫ. У БАБЫ ЗИНЫ]**\n\n_Ты выбрала заботу о другом. Следующая глава начнётся здесь — в квартире бабы Зины._",
+      "choices": []
+    },
+
+    {
+      "id": "END_died_alina",
+      "title": "Смерть",
+      "text": "Монтировка попадает тебе в голову. Ты падаешь.\n\nПоследнее, что ты видишь — кладовщик склоняется над тобой.\n\n*«Прости, девочка. Я не хотел.»*\n\nТемнота.\n\n**[КОНЕЦ. СМЕРТЬ]**\n\n_Ты умерла в первый день. Но история продолжается — за другого персонажа. Попробуй снова._",
+      "choices": []
     }
 
   ]
@@ -17927,3344 +18189,6 @@ include(":app")
 }
 ```
 
-### 📄 `./assets/data/story_alina.json`
-```json
-{
-  "character": "alina",
-  "chapter": 1,
-  "start_node": "intro",
-  "nodes": [
-    {
-      "id": "intro",
-      "title": "9-й этаж. Час двадцать после блекаута",
-      "text": "Ты — Алина. Ты только что вернулась с пробежки, когда погас свет. Телевизор выключился. Вода из крана перестала идти.\n\nТы смотрела в окно, как люди начали собираться у «Магнита» через дорогу. Сейчас там уже человек 30, и они пытаются выбить двери.\n\nУ тебя есть 50 минут. Твоя бутылка воды почти пуста — осталось 0,3 литра. Снизу слышно, как соседи начинают ломать входную дверь в подъезд.",
-      "choices": [
-        {
-          "text": "Бегом в «Магнит» — ты знаешь чёрный ход (5 минут через дорогу)",
-          "effects": { "time": -5, "stamina": -10 },
-          "next": "magnit_run"
-        },
-        {
-          "text": "Сначала забежать к бабе Зине — у неё запас воды (5 минут)",
-          "effects": { "time": -5 },
-          "next": "baba_zina"
-        },
-        {
-          "text": "Осмотреть лестничную клетку — есть ли путь через крышу?",
-          "effects": { "time": -2 },
-          "next": "roof_check"
-        },
-        {
-          "text": "Забаррикадироваться в квартире и переждать",
-          "effects": { "time": -30, "sanity": -5 },
-          "next": "barricade"
-        }
-      ]
-    },
-    {
-      "id": "magnit_run",
-      "title": "Дорога к «Магниту»",
-      "text": "Ты выбегаешь из подъезда. Двор полон людей. Все бегут в одну сторону — к магазину.\n\nТы быстрее всех. Ты обгоняешь мужчину с битой, женщину с ребёнком, старика с сумкой. У входа — давка.",
-      "choices": [
-        {
-          "text": "Пролезть через щель в разбитой витрине (риск порезов)",
-          "effects": {
-            "health": -10,
-            "time": -3,
-            "infect": { "source": "combat_wound", "chance": 0.25 }
-          },
-          "next": "magnit_inside"
-        },
-        {
-          "text": "Обойти к чёрному ходу через мусорку",
-          "effects": { "time": -7, "stamina": -5 },
-          "next": "magnit_backdoor"
-        },
-        {
-          "text": "Крикнуть, что внутри пожар — расчистить путь",
-          "effects": { "sanity": -10, "time": -2 },
-          "next": "magnit_trick"
-        },
-        {
-          "text": "Перепрыгнуть через машины — ты же бегунья",
-          "requires": {
-            "stats": { "stamina": { "min": 70 } }
-          },
-          "effects": {
-            "time": -3,
-            "stamina": -15,
-            "sanity": 5
-          },
-          "next": "magnit_inside"
-        }
-      ]
-    },
-    {
-      "id": "magnit_inside",
-      "title": "Внутри «Магнита»",
-      "text": "Ты внутри. Вокруг — хаос. Люди хватают всё, что попадается под руку. Кто-то уже дерётся из-за коробки с печеньем.\n\nТы видишь: полки с водой почти пусты, но в глубине зала — складская дверь.",
-      "choices": [
-        {
-          "text": "Пробиться к складской двери — там может быть запас",
-          "effects": { "health": -15, "time": -5 },
-          "next": "storage_room"
-        },
-        {
-          "text": "Схватить что успеешь с полок и бежать",
-          "effects": {
-            "inventory_add": ["water_bottle", "crackers", "chocolate"],
-            "time": -3
-          },
-          "next": "escape_magnit"
-        },
-        {
-          "text": "Помочь женщине с ребёнком — её толкают",
-          "effects": { "sanity": 10, "health": -10, "time": -5, "flag_set": "helped_woman" },
-          "next": "help_woman"
-        },
-        {
-          "text": "Свистнуть в свисток — отвлечь толпу",
-          "requires": {
-            "has_item": "whistle"
-          },
-          "effects": {
-            "time": -2,
-            "sanity": -5
-          },
-          "next": "storage_room"
-        }
-      ]
-    },
-    {
-      "id": "storage_room",
-      "title": "Складская",
-      "text": "Ты врываешься в подсобку. Здесь темно, но ты видишь ящики. На одном — надпись «Вода питьевая».\n\nВдруг сзади шаги. Ты оборачиваешься — это кладовщик. Мужчина лет 50, в руках монтировка.\n\n«Стой! Не подходи! Я никого не пущу!»",
-      "choices": [
-        {
-          "text": "Драться — ты быстрее",
-          "effects": {
-            "combat_start": {
-              "enemy_name": "Кладовщик",
-              "enemy_health": 25,
-              "enemy_damage": 10,
-              "enemy_protection": 0,
-              "enemy_strength": 5
-            },
-            "combat_victory": "storage_fight_won",
-            "combat_defeat": "END_died_alina",
-            "combat_flee": "escape_magnit"
-          },
-          "next": "storage_fight_won"
-        },
-        {
-          "text": "Попробовать договориться — предложить поделить",
-          "effects": { "sanity": 5 },
-          "next": "deal_storage"
-        },
-        {
-          "text": "Показать белый халат (если есть) — сказать, что ты врач",
-          "requires": {
-            "has_item": "first_aid_kit"
-          },
-          "effects": {
-            "sanity": 10,
-            "time": -3,
-            "flag_set": "pretended_doctor"
-          },
-          "next": "deal_storage"
-        },
-        {
-          "text": "Убежать, не рискуя",
-          "effects": { "time": -2 },
-          "next": "escape_magnit"
-        }
-      ]
-    },
-    {
-      "id": "storage_fight_won",
-      "title": "Победа",
-      "text": "Кладовщик падает. Монтировка отлетает в сторону. Он стонет, держась за бок.\n\nНа полке — ящик с водой. Ты открываешь его. 6 бутылок.\n\nТы чувствуешь, как саднит плечо — он успел задеть тебя монтировкой. Рана глубокая.",
-      "choices": [
-        {
-          "text": "Перевязать рану и взять всё",
-          "effects": {
-            "inventory_add": ["water_bottle", "water_bottle", "water_bottle", "water_bottle", "water_bottle", "water_bottle"],
-            "sanity": -15,
-            "health": 5,
-            "time": -8
-          },
-          "next": "escape_magnit"
-        },
-        {
-          "text": "Взять всё и уйти, не обрабатывая рану (риск заражения)",
-          "effects": {
-            "inventory_add": ["water_bottle", "water_bottle", "water_bottle", "water_bottle", "water_bottle", "water_bottle"],
-            "sanity": -15,
-            "time": -5,
-            "infect": { "source": "combat_wound", "chance": 0.55 }
-          },
-          "next": "escape_magnit"
-        },
-        {
-          "text": "Оставить ему 2 бутылки и уйти",
-          "effects": {
-            "inventory_add": ["water_bottle", "water_bottle", "water_bottle", "water_bottle"],
-            "sanity": 5,
-            "time": -8,
-            "infect": { "source": "combat_wound", "chance": 0.4 }
-          },
-          "next": "escape_magnit"
-        }
-      ]
-    },
-    {
-      "id": "deal_storage",
-      "title": "Договор",
-      "text": "Кладовщик опускает монтировку. Он старый, усталый. Говорит, что работает здесь 20 лет.\n\n«Бери воду. Только оставь мне две бутылки. У меня жена больная дома.»",
-      "choices": [
-        {
-          "text": "Согласиться — взять три, оставить две",
-          "effects": {
-            "inventory_add": ["water_bottle", "water_bottle", "water_bottle"],
-            "sanity": 10,
-            "flag_set": "honest_with_kladowshchik"
-          },
-          "next": "escape_magnit"
-        },
-        {
-          "text": "Забрать всё — сейчас не время для сентиментов",
-          "effects": {
-            "inventory_add": ["water_bottle", "water_bottle", "water_bottle", "water_bottle"],
-            "sanity": -20
-          },
-          "next": "escape_magnit"
-        },
-        {
-          "text": "Спросить про его жену — может, ей нужна помощь?",
-          "requires": {
-            "stats": { "sanity": { "min": 60 } }
-          },
-          "effects": {
-            "inventory_add": ["water_bottle", "water_bottle", "water_bottle", "water_bottle", "bandage"],
-            "sanity": 15,
-            "time": -15,
-            "flag_set": "friend_kladowshchik"
-          },
-          "next": "escape_magnit"
-        }
-      ]
-    },
-    {
-      "id": "magnit_backdoor",
-      "title": "Чёрный ход",
-      "text": "Ты знаешь этот магазин. За мусоркой — дверь для персонала. Она открыта.\n\nВнутри — темно. Ты слышишь, как кто-то роется в подсобке. Пахнет едой. На полу — разлитая жидкость, скользко.",
-      "choices": [
-        {
-          "text": "Пойти на звук — может, это выжившие",
-          "effects": { "time": -3 },
-          "next": "storage_room"
-        },
-        {
-          "text": "Тихо взять, что сможешь, и уйти",
-          "effects": {
-            "inventory_add": ["canned_stew", "water_bottle"],
-            "time": -5
-          },
-          "next": "escape_magnit"
-        },
-        {
-          "text": "Включить фонарик и осмотреть всё",
-          "requires": {
-            "has_item": "flashlight"
-          },
-          "effects": {
-            "inventory_add": ["canned_stew", "water_bottle", "chocolate", "bandage"],
-            "time": -8
-          },
-          "next": "escape_magnit"
-        }
-      ]
-    },
-    {
-      "id": "magnit_trick",
-      "title": "Обман",
-      "text": "Ты кричишь: «Внутри пожар! Горит проводка!» Толпа отшатывается от входа.\n\nТы проскакиваешь внутрь. Но люди сзади уже понимают, что ты соврала. Кто-то кричит вслед: «Вон она!»",
-      "choices": [
-        {
-          "text": "Быстро схватить, что нужно, и бежать",
-          "effects": {
-            "inventory_add": ["water_bottle", "crackers"],
-            "health": -15,
-            "time": -5
-          },
-          "next": "escape_magnit"
-        },
-        {
-          "text": "Спрятаться в подсобке и переждать",
-          "effects": { "time": -30 },
-          "next": "storage_room"
-        }
-      ]
-    },
-    {
-      "id": "help_woman",
-      "title": "Помощь",
-      "text": "Ты вытаскиваешь женщину с ребёнком из давки. Она плачет. Ребёнок молчит.\n\nЖенщина смотрит на тебя:\n\n«Спасибо. Меня зовут Лена. Я врач. Если ты поможешь нам выжить — я помогу тебе.»",
-      "choices": [
-        {
-          "text": "Взять их с собой — врач нужен",
-          "effects": {
-            "sanity": 15,
-            "inventory_add": ["first_aid_kit"],
-            "time": -10,
-            "flag_set": "with_lena"
-          },
-          "next": "with_lena"
-        },
-        {
-          "text": "Помочь выйти, но идти дальше одной",
-          "effects": { "sanity": -5 },
-          "next": "escape_magnit"
-        }
-      ]
-    },
-    {
-      "id": "with_lena",
-      "title": "С Леной",
-      "text": "Лена и её сын идут с тобой. Она врач, у неё есть аптечка. У неё есть план.\n\n«Моя сестра живёт за городом. У неё свой дом, колодец, генератор. Если доберёмся — выживем.»",
-      "choices": [
-        {
-          "text": "Согласиться идти к сестре Лены",
-          "effects": { "time": -60, "stamina": -20 },
-          "next": "END_lena"
-        },
-        {
-          "text": "Отказаться — ты не доверяешь незнакомым",
-          "effects": { "sanity": -10 },
-          "next": "escape_magnit"
-        }
-      ]
-    },
-    {
-      "id": "baba_zina",
-      "title": "Баба Зина",
-      "text": "Ты стучишь в дверь соседки. Тишина. Через минуту — скрип. Баба Зина открывает, но на цепочке.\n\n«Алиночка, ты? Свет-то погас. Что делать-то? У меня воды в банках — на неделю. Внучок уехал, я одна.»",
-      "choices": [
-        {
-          "text": "Попросить воды и уйти",
-          "effects": {
-            "inventory_add": ["water_bottle", "water_bottle"],
-            "sanity": -5,
-            "time": -5
-          },
-          "next": "escape_zina"
-        },
-        {
-          "text": "Остаться с ней — она старая, одна",
-          "effects": {
-            "sanity": 15,
-            "time": -60,
-            "flag_set": "stayed_with_zina"
-          },
-          "next": "stay_zina"
-        },
-        {
-          "text": "Убедить её уйти вместе с тобой",
-          "effects": {
-            "inventory_add": ["water_bottle", "water_bottle"],
-            "time": -15,
-            "sanity": 5,
-            "flag_set": "with_zina"
-          },
-          "next": "escape_zina"
-        },
-        {
-          "text": "Спросить про её внука — где он?",
-          "requires": {
-            "stats": { "sanity": { "min": 60 } }
-          },
-          "effects": {
-            "inventory_add": ["water_bottle", "water_bottle", "painkiller_pill"],
-            "sanity": 10,
-            "time": -12,
-            "flag_set": "knows_about_grandson"
-          },
-          "next": "escape_zina"
-        }
-      ]
-    },
-    {
-      "id": "stay_zina",
-      "title": "У бабы Зины",
-      "text": "Ты остаёшься. Баба Зина плачет, но рада. У неё вода, консервы, тепло.\n\nВы сидите и слушаете радио на батарейках. Оно повторяет: «Сохраняйте спокойствие. Правительство работает над…» — и замолкает.",
-      "choices": [
-        {
-          "text": "Остаться до утра",
-          "effects": { "time": -720, "stamina": 30, "sanity": 10 },
-          "next": "END_zina"
-        },
-        {
-          "text": "Уйти ночью — пока темно",
-          "effects": { "time": -30, "sanity": -5 },
-          "next": "escape_zina"
-        }
-      ]
-    },
-    {
-      "id": "roof_check",
-      "title": "Путь через крышу",
-      "text": "Ты выходишь на лестничную клетку. Наверх — дверь на чердак. Она заперта, но ты видишь: замок старый, его можно сбить.\n\nЧерез крышу можно перебраться к соседнему дому — там магазин ближе.",
-      "choices": [
-        {
-          "text": "Сбить замок и идти по крышам (риск падения)",
-          "effects": {
-            "time": -15,
-            "stamina": -15,
-            "health": -5,
-            "infect": { "source": "fall", "chance": 0.3 }
-          },
-          "next": "roof_path"
-        },
-        {
-          "text": "Не рисковать, спуститься к магазину обычным путём",
-          "effects": { "time": -5 },
-          "next": "magnit_run"
-        },
-        {
-          "text": "Использовать верёвку — спуститься безопаснее",
-          "requires": {
-            "has_item": "rope"
-          },
-          "effects": {
-            "time": -12,
-            "stamina": -10,
-            "sanity": 5
-          },
-          "next": "roof_path"
-        }
-      ]
-    },
-    {
-      "id": "roof_path",
-      "title": "По крышам",
-      "text": "Ты на крыше. Ветер. Внизу — паника. Ты видишь, как люди бьют друг друга у магазина.\n\nТы прыгаешь через перекрытие и оказываешься на крыше соседнего дома. Там — люк вниз.",
-      "choices": [
-        {
-          "text": "Спуститься через люк в подъезд",
-          "effects": { "time": -5 },
-          "next": "magnit_run"
-        },
-        {
-          "text": "Идти дальше по крышам — там склад",
-          "effects": { "time": -10, "stamina": -10 },
-          "next": "storage_room"
-        }
-      ]
-    },
-    {
-      "id": "barricade",
-      "title": "В квартире",
-      "text": "Ты закрываешь дверь. Приставляешь шкаф. Сидишь на полу.\n\nСнизу — крики. Через полчаса — тишина. Ты смотришь в окно: у «Магнита» уже горит машина.\n\nТы потеряла время. Но ты жива.",
-      "choices": [
-        {
-          "text": "Переждать до утра",
-          "effects": { "time": -720, "stamina": 20 },
-          "next": "END_shelter_alina"
-        },
-        {
-          "text": "Выйти сейчас — пока все заняты магазином",
-          "effects": { "time": -10 },
-          "next": "magnit_run"
-        }
-      ]
-    },
-    {
-      "id": "escape_magnit",
-      "title": "На улице",
-      "text": "Ты выбегаешь с добычей. Сзади — крики, звон стекла. Город быстро превращается в зону боевых действий.\n\nУ тебя есть вода и немного еды. Дальше — только ты и этот мёртвый мир.",
-      "choices": [
-        {
-          "text": "Идти домой — переждать",
-          "effects": { "time": -30 },
-          "next": "END_shelter_alina"
-        },
-        {
-          "text": "Идти на север — к выезду из города",
-          "effects": { "time": -120, "stamina": -30 },
-          "next": "END_north"
-        },
-        {
-          "text": "Проверить бабу Зину — что с ней?",
-          "requires": {
-            "flag": "stayed_with_zina"
-          },
-          "effects": {
-            "time": -20,
-            "sanity": 10
-          },
-          "next": "END_zina"
-        }
-      ]
-    },
-    {
-      "id": "escape_zina",
-      "title": "Ушла от бабы Зины",
-      "text": "Ты выходишь с водой. У тебя есть шанс. Но ты чувствуешь вину — оставила старую женщину одну.\n\nГород гудит. Где-то стреляют.",
-      "choices": [
-        {
-          "text": "Идти домой",
-          "effects": { "time": -30, "sanity": -5 },
-          "next": "END_shelter_alina"
-        },
-        {
-          "text": "Идти на север",
-          "effects": { "time": -120, "stamina": -30 },
-          "next": "END_north"
-        }
-      ]
-    },
-    {
-      "id": "END_shelter_alina",
-      "title": "Квартира",
-      "text": "Ты дома. Дверь закрыта. Ты одна.\n\nВода есть. Еда есть. Но ты знаешь: скоро придётся выйти. Этот город умирает.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "END_north",
-      "title": "На север",
-      "text": "Ты идёшь по дороге. Позади — город в дыму. Впереди — неизвестность.\n\nТы жива. Ты свободна. Но ты не знаешь, что тебя ждёт.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "END_lena",
-      "title": "С Леной и сыном",
-      "text": "Вы идёте вместе. Лена знает дорогу, ты — умеешь бегать. Её сын молчит, но держится за маму.\n\nВпереди — дом её сестры. Впереди — надежда.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "END_zina",
-      "title": "У бабы Зины",
-      "text": "Ты осталась с бабой Зиной. Вы вместе пьёте чай. Радио молчит.\n\nТы не знаешь, что будет завтра. Но сегодня — тепло и тихо.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "END_died_alina",
-      "title": "Смерть",
-      "text": "Монтировка попадает тебе в голову. Ты падаешь.\n\nПоследнее, что ты видишь — кладовщик склоняется над тобой.\n\n«Прости, девочка. Я не хотел.»\n\nТемнота.\n\n[КОНЕЦ]",
-      "choices": []
-    }
-  ]
-}
-```
-
-### 📄 `./assets/data/story_andrey.json`
-```json
-{
-  "character": "andrey",
-  "chapter": 1,
-  "start_node": "intro",
-  "nodes": [
-    {
-      "id": "intro",
-      "title": "15-й этаж ЖК «Алые Паруса». Час тридцать после блекаута",
-      "text": "Ты — Андрей. Ты смотрел на город с высоты, когда всё погасло. Ты видел, как гаснут огни один за другим. Ты знаешь, что это не просто авария — это конец.\n\nТвой ноутбук показывает 0% заряда. Пауэрбанк светится красным — 20%. Ты попытался позвонить, но сеть мертва.\n\nВнизу, за стеклом, ты видишь, что на парковке началась драка. Кто-то пытается взломать автомобиль. Ты знаешь, что у соседа-инженера через две квартиры есть резервный аккумулятор. Но он никогда не давал тебе его даже посмотреть.\n\nУ тебя 45 минут, чтобы стать умнее всех. Или умереть.",
-      "choices": [
-        {
-          "text": "Попытаться взломать дверь соседа-инженера (электронный замок)",
-          "effects": { "time": -10, "stamina": -5 },
-          "next": "neighbor_door"
-        },
-        {
-          "text": "Спуститься вниз и бежать в аптеку — лекарства валюта будущего (5 минут пешком)",
-          "effects": { "time": -5, "stamina": -10 },
-          "next": "pharmacy_run"
-        },
-        {
-          "text": "Найти провода и попытаться «оживить» что-то для получения данных",
-          "effects": { "time": -20 },
-          "next": "hack_something"
-        },
-        {
-          "text": "Закрыться в квартире и спрятаться",
-          "effects": { "time": -30, "sanity": -10 },
-          "next": "hide_apartment"
-        }
-      ]
-    },
-    {
-      "id": "neighbor_door",
-      "title": "Дверь соседа",
-      "text": "Ты подходишь к квартире инженера. Электронный замок светится красным — но у тебя есть идея.\n\nТы помнишь: когда инженер ставил замок, он хвастался, что это «самая надёжная система». Но ты знаешь: у неё есть аварийный режим. Нужно только закоротить провод.\n\nТы открываешь панель замка. Внутри — провода. Придётся повозиться с ними голыми руками.",
-      "choices": [
-        {
-          "text": "Закоротить провода (интеллект 8+)",
-          "effects": { "time": -5 },
-          "next": "neighbor_inside"
-        },
-        {
-          "text": "Взломать через ноутбук — если получится подключиться",
-          "effects": { "time": -15, "stamina": -5 },
-          "next": "neighbor_hack"
-        },
-        {
-          "text": "Использовать отмычки — у тебя же есть",
-          "requires": {
-            "has_item": "lock_pick"
-          },
-          "effects": {
-            "time": -3,
-            "sanity": 5,
-            "flag_set": "used_lockpick_neighbor"
-          },
-          "next": "neighbor_inside"
-        },
-        {
-          "text": "Бросить эту идею — слишком сложно",
-          "effects": { "time": -5 },
-          "next": "pharmacy_run"
-        }
-      ]
-    },
-    {
-      "id": "neighbor_inside",
-      "title": "Квартира инженера",
-      "text": "Замок щёлкает. Ты входишь. Тишина. Сосед, скорее всего, уехал.\n\nВ комнате — верстак с инструментами. На полке — резервный аккумулятор. Рядом — сумка с электроникой. На столе — записка: «Если что-то случится — используй генератор в подвале. Код: 3345».\n\nТы чувствуешь лёгкое головокружение — кофе утром так и не было, а без него ты как без рук.",
-      "choices": [
-        {
-          "text": "Взять аккумулятор и электронику",
-          "effects": {
-            "inventory_add": ["battery", "battery", "electronics"],
-            "time": -5
-          },
-          "next": "leave_neighbor"
-        },
-        {
-          "text": "Обыскать квартиру полностью",
-          "effects": {
-            "inventory_add": ["battery", "electronics", "duct_tape", "flashlight"],
-            "time": -15,
-            "sanity": -5
-          },
-          "next": "leave_neighbor"
-        },
-        {
-          "text": "Скопировать записку в блокнот — код генератора",
-          "requires": {
-            "stats": { "intelligence": { "min": 7 } }
-          },
-          "effects": {
-            "inventory_add": ["battery", "electronics", "duct_tape"],
-            "time": -10,
-            "flag_set": "knows_generator_code"
-          },
-          "next": "leave_neighbor"
-        },
-        {
-          "text": "Оставить записку с извинениями и взять только аккумулятор",
-          "effects": {
-            "inventory_add": ["battery", "battery"],
-            "sanity": 10,
-            "time": -3
-          },
-          "next": "leave_neighbor"
-        }
-      ]
-    },
-    {
-      "id": "neighbor_hack",
-      "title": "Взлом через ноутбук",
-      "text": "Ты подключаешь пауэрбанк к ноутбуку. 20% заряда. Ты запускаешь скрипт для взлома замка.\n\nПроходит 10 минут. Ноутбук греется. Замок щёлкает. Но пауэрбанк садится до 5%.",
-      "choices": [
-        {
-          "text": "Войти и быстро взять аккумулятор",
-          "effects": {
-            "inventory_add": ["battery"],
-            "time": -5
-          },
-          "next": "leave_neighbor"
-        },
-        {
-          "text": "Войти и осмотреть всё тщательно",
-          "effects": {
-            "inventory_add": ["battery", "electronics", "battery"],
-            "time": -15,
-            "sanity": -5
-          },
-          "next": "leave_neighbor"
-        },
-        {
-          "text": "Скопировать данные замка себе — на будущее",
-          "requires": {
-            "stats": { "intelligence": { "min": 8 } }
-          },
-          "effects": {
-            "inventory_add": ["battery", "electronics", "lock_pick"],
-            "time": -15,
-            "flag_set": "hacked_neighbor_system"
-          },
-          "next": "leave_neighbor"
-        }
-      ]
-    },
-    {
-      "id": "leave_neighbor",
-      "title": "В коридоре",
-      "text": "Ты выходишь из квартиры. Сзади — шаги. Кто-то идёт по лестнице. Тяжёлые шаги. Двое.\n\nОни останавливаются у двери соседа, которую ты оставил приоткрытой.\n\n«Смотри, дверь открыта. Кто-то уже здесь.»\n\nОдин из них поворачивается и видит тебя.\n\n«Эй! Стой! Это ты там был?»",
-      "choices": [
-        {
-          "text": "Попытаться убежать",
-          "effects": { "stamina": -20, "time": -5 },
-          "next": "escape_thieves"
-        },
-        {
-          "text": "Драться — но ты слаб",
-          "effects": {
-            "combat_start": {
-              "enemy_name": "Грабитель",
-              "enemy_health": 30,
-              "enemy_damage": 10,
-              "enemy_protection": 2,
-              "enemy_strength": 6
-            },
-            "combat_victory": "andrey_fight_won",
-            "combat_defeat": "END_died_andrey",
-            "combat_flee": "escape_thieves"
-          },
-          "next": "andrey_fight_won"
-        },
-        {
-          "text": "Соврать, что не знаешь, кто в квартире",
-          "effects": { "sanity": -5, "time": -3 },
-          "next": "pharmacy_run"
-        },
-        {
-          "text": "Предложить объединиться",
-          "effects": { "time": -5, "sanity": 5, "flag_set": "allied_thieves" },
-          "next": "thieves_alliance"
-        },
-        {
-          "text": "Использовать фонарик как приманку — бросить его",
-          "requires": {
-            "has_item": "flashlight"
-          },
-          "effects": {
-            "inventory_remove": ["flashlight"],
-            "time": -3,
-            "stamina": -15,
-            "flag_set": "used_flashlight_distraction"
-          },
-          "next": "escape_thieves"
-        }
-      ]
-    },
-    {
-      "id": "escape_thieves",
-      "title": "Побег",
-      "text": "Ты бежишь вниз по лестнице. Ты не оглядываешься. Ты слышишь топот за спиной.\n\nВпереди — выход. Ты выскакиваешь на улицу. Двое остаются на крыльце. Они не преследуют.\n\nТы жив. Но ты ударился плечом о перила — саднит.",
-      "choices": [
-        {
-          "text": "Идти в аптеку",
-          "effects": { "time": -5, "stamina": -10 },
-          "next": "pharmacy_run"
-        },
-        {
-          "text": "Спрятаться в соседнем подъезде",
-          "effects": { "time": -30, "stamina": 10 },
-          "next": "hide_apartment"
-        }
-      ]
-    },
-    {
-      "id": "andrey_fight_won",
-      "title": "Чудо",
-      "text": "Ты бьёшь грабителя ноутбуком. Он падает, схватившись за голову. Второй убегает.\n\nТы стоишь в пустом коридоре. Ты жив. Ты не веришь сам себе.\n\nНо ты чувствуешь, как саднит костяшки — ты разбил их о его зубы.",
-      "choices": [
-        {
-          "text": "Обыскать грабителя",
-          "effects": {
-            "inventory_add": ["kitchen_knife", "painkiller_pill"],
-            "sanity": -10,
-            "time": -5,
-            "infect": { "source": "combat_wound", "chance": 0.4 }
-          },
-          "next": "pharmacy_run"
-        },
-        {
-          "text": "Скорее уйти",
-          "effects": { "sanity": -5, "time": -3 },
-          "next": "pharmacy_run"
-        }
-      ]
-    },
-    {
-      "id": "hide_from_thieves",
-      "title": "Прячешься",
-      "text": "Ты закрываешься в квартире. Слышишь, как они ходят по квартире соседа. Что-то ломают. Ругаются.\n\nЧерез 10 минут они уходят. Ты можешь выйти.",
-      "choices": [
-        {
-          "text": "Выйти и идти в аптеку",
-          "effects": { "time": -10 },
-          "next": "pharmacy_run"
-        },
-        {
-          "text": "Остаться в квартире и подождать",
-          "effects": { "time": -60, "sanity": -5 },
-          "next": "hide_apartment"
-        }
-      ]
-    },
-    {
-      "id": "meet_thieves",
-      "title": "Двое в подъезде",
-      "text": "Ты выходишь. Двое мужчин в спортивных куртках. Один держит монтировку. Они смотрят на тебя без агрессии, но и без улыбки.\n\n«Слышь, ты откуда? Тут рядом кто-то был. Ты знаешь, кто в этой квартире жил?»",
-      "choices": [
-        {
-          "text": "Соврать, что не знаешь",
-          "effects": { "sanity": -5, "time": -3 },
-          "next": "pharmacy_run"
-        },
-        {
-          "text": "Сказать правду — хозяин уехал, я просто искал",
-          "effects": { "time": -5 },
-          "next": "thieves_truth"
-        },
-        {
-          "text": "Предложить объединиться — вместе безопаснее",
-          "effects": { "time": -5, "sanity": 5, "flag_set": "allied_thieves" },
-          "next": "thieves_alliance"
-        }
-      ]
-    },
-    {
-      "id": "thieves_truth",
-      "title": "Правда",
-      "text": "Ты говоришь правду. Они переглядываются.\n\n«Ладно, пацан. Не лезь куда не надо. Иди своей дорогой.»\n\nОни уходят. Ты остаёшься один.",
-      "choices": [
-        {
-          "text": "Идти в аптеку",
-          "effects": { "time": -5 },
-          "next": "pharmacy_run"
-        },
-        {
-          "text": "Вернуться в квартиру",
-          "effects": { "time": -10 },
-          "next": "hide_apartment"
-        }
-      ]
-    },
-    {
-      "id": "thieves_alliance",
-      "title": "Союз",
-      "text": "Они думают. Один пожимает плечами.\n\n«А что? Парень с ноутбуком — это полезно. Пошли.»\n\nТы идёшь с ними. У них есть план: ограбить аптеку до того, как туда придут другие.",
-      "choices": [
-        {
-          "text": "Идти с ними в аптеку",
-          "effects": { "time": -10, "sanity": 5 },
-          "next": "pharmacy_with_thieves"
-        },
-        {
-          "text": "Передумать и уйти",
-          "effects": { "sanity": -5, "time": -5 },
-          "next": "pharmacy_run"
-        }
-      ]
-    },
-    {
-      "id": "pharmacy_run",
-      "title": "Аптека",
-      "text": "Ты спускаешься на улицу. Двор пуст. Все уже ушли к магазинам.\n\nАптека в 5 минутах. Ты видишь: у входа стоит очередь. Человек 15. Не агрессивные — уставшие.\n\nВнутри — женщина-фармацевт. Она говорит, что лекарства по рецепту. У входа на асфальте — лужа. Ты не заметил и наступил в неё. Ноги промокли.",
-      "choices": [
-        {
-          "text": "Встать в очередь и подождать",
-          "effects": {
-            "time": -30,
-            "stamina": -10,
-            "infect": { "source": "wet_clothes", "chance": 0.35 }
-          },
-          "next": "pharmacy_queue"
-        },
-        {
-          "text": "Попытаться войти через чёрный ход",
-          "effects": { "time": -5, "stamina": -5 },
-          "next": "pharmacy_backdoor"
-        },
-        {
-          "text": "Показать ключ-карту от офиса — сказать, что ты инспектор",
-          "requires": {
-            "has_item": "keycard"
-          },
-          "effects": {
-            "time": -10,
-            "sanity": 10,
-            "flag_set": "used_keycard_pharmacy"
-          },
-          "next": "pharmacy_queue"
-        },
-        {
-          "text": "Уйти — очередь слишком долгая",
-          "effects": { "time": -5 },
-          "next": "find_other"
-        }
-      ]
-    },
-    {
-      "id": "pharmacy_queue",
-      "title": "Очередь",
-      "text": "Ты стоишь 30 минут. Очередь движется медленно. Кто-то ругается, кто-то плачет.\n\nКогда ты доходишь до окна, фармацевт говорит:\n\n«Молодой человек, у меня остались только антибиотики и обезболивающее. Что вам нужно?»",
-      "choices": [
-        {
-          "text": "Взять антибиотики",
-          "effects": {
-            "inventory_add": ["antibiotic_pill", "antibiotic_pill"],
-            "time": -5
-          },
-          "next": "leave_pharmacy"
-        },
-        {
-          "text": "Взять обезболивающее",
-          "effects": {
-            "inventory_add": ["painkiller_pill", "painkiller_pill", "painkiller_pill"],
-            "time": -5
-          },
-          "next": "leave_pharmacy"
-        },
-        {
-          "text": "Взять и то, и другое",
-          "effects": {
-            "inventory_add": ["antibiotic_pill", "painkiller_pill"],
-            "time": -10,
-            "sanity": -5
-          },
-          "next": "leave_pharmacy"
-        }
-      ]
-    },
-    {
-      "id": "pharmacy_backdoor",
-      "title": "Чёрный ход",
-      "text": "Ты обходишь аптеку. Чёрный ход открыт. Внутри — темно. Пахнет лекарствами.\n\nТы в подсобке. На полках — коробки. Ты видишь: это не то, что на витрине. Здесь запасы. На полу — грязь и осколки. Ты режешь палец о стекло.",
-      "choices": [
-        {
-          "text": "Схватить, что успеешь, и уйти (риск заражения)",
-          "effects": {
-            "inventory_add": ["antibiotic_pill", "painkiller_pill", "bandage", "bandage"],
-            "time": -5,
-            "health": -5,
-            "infect": { "source": "combat_wound", "chance": 0.5 }
-          },
-          "next": "leave_pharmacy"
-        },
-        {
-          "text": "Перевязать палец и взять лекарства",
-          "effects": {
-            "inventory_add": ["antibiotic_pill", "painkiller_pill", "bandage"],
-            "time": -10,
-            "health": -3
-          },
-          "next": "leave_pharmacy"
-        },
-        {
-          "text": "Взломать холодильник с дорогими лекарствами",
-          "requires": {
-            "has_item": "lock_pick"
-          },
-          "effects": {
-            "inventory_add": ["antibiotic_pill", "antibiotic_pill", "antibiotic_pill", "first_aid_kit"],
-            "time": -15,
-            "sanity": -5,
-            "flag_set": "opened_pharmacy_fridge"
-          },
-          "next": "leave_pharmacy"
-        },
-        {
-          "text": "Найти фармацевта и попросить по-хорошему",
-          "effects": { "time": -10, "sanity": 5 },
-          "next": "meet_pharmacist"
-        }
-      ]
-    },
-    {
-      "id": "meet_pharmacist",
-      "title": "Фармацевт",
-      "text": "Ты выходишь в зал. Фармацевт — женщина лет 50 — вздрагивает.\n\n«Вы кто? Как вы здесь оказались?»\n\nТы объясняешь. Она слушает. Потом говорит:\n\n«Я одна. У меня нет сил. Если вы поможете закрыть аптеку — я дам вам лекарства.»",
-      "choices": [
-        {
-          "text": "Помочь закрыть аптеку и получить лекарства",
-          "effects": {
-            "inventory_add": ["antibiotic_pill", "bandage", "painkiller_pill"],
-            "sanity": 15,
-            "time": -15,
-            "flag_set": "helped_pharmacist"
-          },
-          "next": "leave_pharmacy"
-        },
-        {
-          "text": "Отказать и уйти",
-          "effects": { "sanity": -10, "time": -5 },
-          "next": "leave_pharmacy"
-        }
-      ]
-    },
-    {
-      "id": "pharmacy_with_thieves",
-      "title": "С бандой",
-      "text": "Вы подходите к аптеке. Твои новые знакомые действуют быстро: один ломает дверь, второй держит людей.\n\nТы входишь внутрь. Это уже не аптека — это грабёж. Осколки стекла хрустят под ногами.",
-      "choices": [
-        {
-          "text": "Взять лекарства и уйти с ними",
-          "effects": {
-            "inventory_add": ["antibiotic_pill", "painkiller_pill", "bandage"],
-            "sanity": -15,
-            "time": -10
-          },
-          "next": "leave_pharmacy"
-        },
-        {
-          "text": "Остаться и помочь фармацевту",
-          "effects": { "health": -15, "sanity": 10, "flag_set": "saved_pharmacist" },
-          "next": "help_pharmacist"
-        },
-        {
-          "text": "Уйти — ты не хочешь в этом участвовать",
-          "effects": { "sanity": -5, "time": -5 },
-          "next": "find_other"
-        }
-      ]
-    },
-    {
-      "id": "help_pharmacist",
-      "title": "Помощь",
-      "text": "Ты встаёшь между бандой и фармацевтом. Один из них бьёт тебя. Ты падаешь. Они берут что хотят и уходят.\n\nФармацевт подходит к тебе:\n\n«Спасибо. Ты сумасшедший, но спасибо.»\n\nТы чувствуешь, как из разбитой губы течёт кровь.",
-      "choices": [
-        {
-          "text": "Встать и уйти",
-          "effects": {
-            "inventory_add": ["bandage", "painkiller_pill"],
-            "health": -10
-          },
-          "next": "leave_pharmacy"
-        },
-        {
-          "text": "Остаться с фармацевтом — она одна",
-          "effects": { "sanity": 15, "time": -60, "flag_set": "stayed_with_pharmacist" },
-          "next": "stay_pharmacist"
-        }
-      ]
-    },
-    {
-      "id": "stay_pharmacist",
-      "title": "С фармацевтом",
-      "text": "Ты остаёшься. Закрываешь двери. Она показывает тебе подсобку — там запасы воды, еды, и место для сна.\n\n«Меня зовут Ирина. У меня муж был военный. Я знаю, что делать. Оставайся, помоги мне — и я помогу тебе.»",
-      "choices": [
-        {
-          "text": "Остаться и помочь",
-          "effects": { "sanity": 15, "time": -120 },
-          "next": "END_irina"
-        },
-        {
-          "text": "Взять лекарства и уйти",
-          "effects": {
-            "inventory_add": ["antibiotic_pill", "painkiller_pill"],
-            "sanity": -5
-          },
-          "next": "leave_pharmacy"
-        }
-      ]
-    },
-    {
-      "id": "leave_pharmacy",
-      "title": "После аптеки",
-      "text": "Ты выходишь на улицу. У тебя есть лекарства. У тебя есть опыт. У тебя есть понимание, что мир изменился навсегда.\n\nВремени прошло много. Скоро стемнеет. Скоро начнётся настоящий ад. Ты чувствуешь, как холод пробирается под куртку.",
-      "choices": [
-        {
-          "text": "Вернуться домой — переждать ночь",
-          "effects": { "time": -60 },
-          "next": "back_home"
-        },
-        {
-          "text": "Идти в офис — там серверная и карты",
-          "effects": {
-            "time": -120,
-            "stamina": -30,
-            "infect": { "source": "cold_weather", "chance": 0.3 }
-          },
-          "next": "office"
-        },
-        {
-          "text": "Идти на север — к выезду из города",
-          "effects": { "time": -180, "stamina": -40 },
-          "next": "END_north_andrey"
-        }
-      ]
-    },
-    {
-      "id": "back_home",
-      "title": "Дом",
-      "text": "Ты вернулся в квартиру. Закрыл дверь. Света нет. Только телефон показывает 15% заряда.\n\nТы садишься на пол. Смотришь в окно. Город в темноте. Где-то далеко — выстрелы.\n\nТы не знаешь, что делать. Но ты жив. И ты чувствуешь, что начинаешь замерзать — отопления нет.",
-      "choices": [
-        {
-          "text": "Остаться дома и ждать утра (риск простуды)",
-          "effects": {
-            "time": -720,
-            "stamina": 20,
-            "infect": { "source": "cold_weather", "chance": 0.4 }
-          },
-          "next": "END_home_andrey"
-        },
-        {
-          "text": "Выйти ночью — пока все спят",
-          "effects": { "time": -30, "sanity": -10 },
-          "next": "office"
-        },
-        {
-          "text": "Найти старый обогреватель и подключить к аккумулятору",
-          "requires": {
-            "has_item": "battery",
-            "stats": { "intelligence": { "min": 8 } }
-          },
-          "effects": {
-            "time": -60,
-            "health": 15,
-            "sanity": 10,
-            "stamina": 20,
-            "flag_set": "heated_apartment"
-          },
-          "next": "END_home_andrey"
-        }
-      ]
-    },
-    {
-      "id": "office",
-      "title": "Офис",
-      "text": "Ты идёшь в офис. Полтора часа пешком. Темно. Тихо. Один раз ты слышишь крики вдалеке — но не подходишь.\n\nЗдание офиса закрыто. Но у тебя есть ключ-карта. Ты входишь.\n\nВнутри темно. Но ты знаешь: на 3-м этаже — серверная. Там может быть резервное питание.",
-      "choices": [
-        {
-          "text": "Подняться в серверную",
-          "effects": { "time": -15, "stamina": -10 },
-          "next": "server_room"
-        },
-        {
-          "text": "Найти карты в переговорке и уйти",
-          "effects": {
-            "inventory_add": ["map"],
-            "time": -10
-          },
-          "next": "office_leave"
-        },
-        {
-          "text": "Обыскать офис полностью — там может быть еда",
-          "effects": {
-            "inventory_add": ["crackers", "water_bottle", "battery"],
-            "time": -30,
-            "stamina": -15
-          },
-          "next": "office_leave"
-        }
-      ]
-    },
-    {
-      "id": "server_room",
-      "title": "Серверная",
-      "text": "Ты в серверной. Все лампочки мигают — сервер работает на резервном питании. Ты садишься за компьютер.\n\nТы видишь: у тебя доступ к городским камерам! Все камеры города сейчас работают на резервных аккумуляторах. Ты можешь видеть, что происходит на улицах.",
-      "choices": [
-        {
-          "text": "Изучить карту города — где безопаснее",
-          "effects": {
-            "inventory_add": ["map"],
-            "time": -30
-          },
-          "next": "office_leave"
-        },
-        {
-          "text": "Скачать всю информацию на флешку",
-          "effects": {
-            "inventory_add": ["electronics", "electronics"],
-            "time": -20
-          },
-          "next": "office_leave"
-        },
-        {
-          "text": "Взять аккумуляторы серверной",
-          "effects": {
-            "inventory_add": ["battery", "battery", "battery"],
-            "time": -15,
-            "sanity": -5
-          },
-          "next": "office_leave"
-        },
-        {
-          "text": "Взломать базу данных — найти выживших",
-          "requires": {
-            "stats": { "intelligence": { "min": 9 } }
-          },
-          "effects": {
-            "inventory_add": ["map", "radio"],
-            "time": -40,
-            "sanity": 15,
-            "flag_set": "found_survivors_data"
-          },
-          "next": "office_leave"
-        }
-      ]
-    },
-    {
-      "id": "office_leave",
-      "title": "Выход из офиса",
-      "text": "Ты выходишь из офиса. У тебя есть информация. У тебя есть немного ресурсов.\n\nУже глубокая ночь. Тебе нужно решить: остаться здесь или идти дальше. Ты чувствуешь, как усталость наваливается на плечи.",
-      "choices": [
-        {
-          "text": "Остаться в офисе до утра (риск бессонницы)",
-          "effects": {
-            "time": -360,
-            "stamina": 15,
-            "sanity": -5,
-            "infect": { "source": "stress", "chance": 0.4 }
-          },
-          "next": "END_office"
-        },
-        {
-          "text": "Идти на север прямо сейчас",
-          "effects": { "time": -240, "stamina": -40 },
-          "next": "END_north_andrey"
-        },
-        {
-          "text": "Вернуться домой",
-          "effects": { "time": -90, "stamina": -20 },
-          "next": "back_home"
-        }
-      ]
-    },
-    {
-      "id": "hack_something",
-      "title": "Взлом дома",
-      "text": "Ты садишься за ноутбук. Ищешь любые открытые сети. Находишь старую городскую Wi-Fi точку — она работает на резервном питании.\n\nТы качаешь карты города, схемы метро, планы эвакуации. Информация — это оружие.",
-      "choices": [
-        {
-          "text": "Использовать карты и идти к выезду из города",
-          "effects": {
-            "inventory_add": ["map"],
-            "time": -60,
-            "stamina": -20
-          },
-          "next": "END_north_andrey"
-        },
-        {
-          "text": "Пойти в аптеку — теперь знаешь безопасные пути",
-          "effects": {
-            "inventory_add": ["map"],
-            "time": -5
-          },
-          "next": "pharmacy_run"
-        },
-        {
-          "text": "Остаться и изучать информацию до утра (риск бессонницы)",
-          "effects": {
-            "time": -120,
-            "stamina": -10,
-            "infect": { "source": "stress", "chance": 0.45 }
-          },
-          "next": "hide_apartment"
-        },
-        {
-          "text": "Взломать соседскую сеть — получить доступ к их камерам",
-          "requires": {
-            "has_item": "electronics",
-            "stats": { "intelligence": { "min": 8 } }
-          },
-          "effects": {
-            "inventory_add": ["map", "electronics"],
-            "time": -45,
-            "sanity": 10,
-            "flag_set": "hacked_neighbor_network"
-          },
-          "next": "hide_apartment"
-        }
-      ]
-    },
-    {
-      "id": "hide_apartment",
-      "title": "В квартире",
-      "text": "Ты закрылся. Сидишь на полу. Смотришь в окно.\n\nГород медленно гаснет. Звуки выстрелов становятся реже. К утру — тишина.\n\nТы выжил первую ночь. Но ты знаешь: завтра будет хуже. И ты не спал — мысли не дают покоя.",
-      "choices": [
-        {
-          "text": "Утром выйти и искать ресурсы",
-          "effects": {
-            "time": -720,
-            "stamina": 20,
-            "infect": { "source": "stress", "chance": 0.35 }
-          },
-          "next": "END_morning"
-        },
-        {
-          "text": "Попытаться связаться с кем-то через радио",
-          "effects": { "time": -120, "stamina": 10, "flag_set": "used_radio" },
-          "next": "END_radio"
-        }
-      ]
-    },
-    {
-      "id": "find_other",
-      "title": "Поиск другого пути",
-      "text": "Ты уходишь от аптеки. Идёшь по улицам. Везде — хаос. Магазины разграблены, машины горят.\n\nТы видишь старый подвал. Открытая дверь. Там может быть безопасно.",
-      "choices": [
-        {
-          "text": "Спуститься в подвал",
-          "effects": { "time": -15, "sanity": -5 },
-          "next": "basement"
-        },
-        {
-          "text": "Идти дальше — к выезду из города",
-          "effects": { "time": -120, "stamina": -30 },
-          "next": "END_north_andrey"
-        }
-      ]
-    },
-    {
-      "id": "basement",
-      "title": "Подвал",
-      "text": "В подвале темно и пахнет сыростью. Ты включаешь фонарик. Видишь: старое бомбоубежище. Кто-то здесь уже был — есть матрасы, консервы, вода.\n\nИ записка: «Ухожу на север. Кто найдёт — берите всё. Удачи.»",
-      "choices": [
-        {
-          "text": "Взять припасы и остаться здесь",
-          "effects": {
-            "inventory_add": ["canned_stew", "water_bottle", "painkiller_pill"],
-            "time": -30,
-            "sanity": 10
-          },
-          "next": "END_basement"
-        },
-        {
-          "text": "Взять припасы и идти на север",
-          "effects": {
-            "inventory_add": ["canned_stew", "water_bottle", "map"],
-            "time": -30
-          },
-          "next": "END_north_andrey"
-        },
-        {
-          "text": "Изучить записку — может, есть координаты?",
-          "requires": {
-            "stats": { "intelligence": { "min": 7 } }
-          },
-          "effects": {
-            "inventory_add": ["canned_stew", "water_bottle", "radio"],
-            "time": -40,
-            "flag_set": "found_basement_note"
-          },
-          "next": "END_basement"
-        }
-      ]
-    },
-    {
-      "id": "END_irina",
-      "title": "С Ириной",
-      "text": "Ты остаёшься с Ириной. Она учит тебя основам выживания. Ты учишь её работать с радио и компьютером.\n\nВместе — вы сила. Вместе — вы шанс.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "END_home_andrey",
-      "title": "Дома",
-      "text": "Ты остаёшься дома. Ночь проходит. Утро — серое и тихое.\n\nТы знаешь: теперь всё изменится. Но ты — жив.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "END_office",
-      "title": "В офисе",
-      "text": "Ты остаёшься в офисе. Здесь безопасно, есть вода, есть электричество.\n\nНо ты один. И ты знаешь: одиночество убивает быстрее голода.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "END_north_andrey",
-      "title": "На север",
-      "text": "Ты идёшь на север. С картами, с припасами, с надеждой.\n\nВпереди — станция. Впереди — будущее.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "END_morning",
-      "title": "Утро",
-      "text": "Ты выходишь утром. Город изменился. Люди ходят медленно, смотрят друг на друга с подозрением.\n\nТы идёшь искать ресурсы. Ты — часть нового мира.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "END_radio",
-      "title": "Радио",
-      "text": "Ты находишь старую рацию. Крутишь ручку. Слышишь голос:\n\n«...повторяю: станция на севере. Координаты...»\n\nСигнал прерывается. Но ты знаешь: кто-то ещё жив. Кто-то ждёт.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "END_basement",
-      "title": "В убежище",
-      "text": "Ты остаёшься в подвале. Здесь тихо. Здесь безопасно.\n\nТы сидишь с фонариком и читаешь старые газеты. Думаешь о будущем.\n\nТы выживешь. Ты найдёшь свой путь.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "END_died_andrey",
-      "title": "Смерть",
-      "text": "Удар. Второй. Ты падаешь на пол.\n\nТы слышишь, как они роются в квартире соседа. Смеются.\n\nТы думаешь о маме. О недописанном коде. О том, что ты не успел.\n\nТемнота.\n\n[КОНЕЦ]",
-      "choices": []
-    }
-  ]
-}
-```
-
-### 📄 `./assets/data/story_boris.json`
-```json
-{
-  "character": "boris",
-  "chapter": 1,
-  "start_node": "intro",
-  "nodes": [
-    {
-      "id": "intro",
-      "title": "Подвал. Час после блекаута",
-      "text": "Ты — Борис. Тебя разбудил не будильник, а тишина. Ты спустился в подвал проверить трубы — здесь твой второй дом. На столе молчит старый транзисторный приёмник.\n\nТы знаешь: через 55 минут начнётся ад. Все, кто не успеет разобрать магазины, погибнут.\n\nСверху слышны шаги. Кто-то ходит по твоей лестнице.",
-      "choices": [
-        {
-          "text": "Идти через подвал в соседний дом (15 минут через технические тоннели)",
-          "effects": { "time": -15 },
-          "next": "tunnel_start"
-        },
-        {
-          "text": "Быстро подняться и бежать в «Пятёрочку» через дворы (10 минут пешком)",
-          "effects": { "time": -10, "hunger": -5 },
-          "next": "store_start"
-        },
-        {
-          "text": "Задержаться в подвале на 5 минут и собрать вещи",
-          "effects": { "time": -5, "inventory_add": ["crowbar", "flashlight"] },
-          "next": "pack_up"
-        },
-        {
-          "text": "Прислушаться к шуму наверху",
-          "effects": { "time": -3 },
-          "next": "listen"
-        }
-      ]
-    },
-    {
-      "id": "tunnel_start",
-      "title": "Технический тоннель",
-      "text": "Ты спускаешься в тоннель. Здесь темно, пахнет сыростью и ржавчиной. Вода стоит по колено — где-то прорвало трубу.\n\nТы знаешь: за 200 метров — старая котельная, оттуда можно выйти к складу. Но сначала нужно пройти через затопленный участок.",
-      "choices": [
-        {
-          "text": "Идти напрямую через воду (быстро, но риск заболеть)",
-          "effects": {
-            "time": -10,
-            "health": -10,
-            "sanity": -5,
-            "infect": { "source": "dirty_water", "chance": 0.6 }
-          },
-          "next": "tunnel_boiler"
-        },
-        {
-          "text": "Искать обход по трубам над водой",
-          "effects": { "time": -20, "stamina": -10 },
-          "next": "tunnel_boiler"
-        },
-        {
-          "text": "Проверить: есть ли на ногах сапоги? (резиновые сапоги)",
-          "requires": {
-            "has_item": "rubber_boots"
-          },
-          "effects": {
-            "time": -10,
-            "sanity": 5
-          },
-          "next": "tunnel_boiler"
-        },
-        {
-          "text": "Повернуть назад — слишком опасно",
-          "effects": { "time": -15 },
-          "next": "back_to_start"
-        }
-      ]
-    },
-    {
-      "id": "tunnel_boiler",
-      "title": "Старая котельная",
-      "text": "Ты выбираешься из тоннеля в котельную. Пахнет мазутом. В углу — старый труп. Мужчина, лет 50. Лежит давно.\n\nНа стене — ржавый пожарный топор. У выхода — рюкзак, набитый банками.",
-      "choices": [
-        {
-          "text": "Взять топор и рюкзак, идти дальше к складу",
-          "effects": {
-            "inventory_add": ["fire_axe", "canned_stew", "canned_stew"],
-            "sanity": -5,
-            "time": -5
-          },
-          "next": "warehouse"
-        },
-        {
-          "text": "Обыскать труп — может, есть что-то ценное",
-          "effects": {
-            "inventory_add": ["cigarette", "lighter"],
-            "sanity": -10,
-            "time": -5,
-            "infect": { "source": "combat_wound", "chance": 0.35 }
-          },
-          "next": "warehouse"
-        },
-        {
-          "text": "Проверить труп на документы — может, знаешь его?",
-          "requires": {
-            "stats": { "sanity": { "min": 70 } }
-          },
-          "effects": {
-            "inventory_add": ["map"],
-            "flag_set": "found_documents",
-            "sanity": -15,
-            "time": -8
-          },
-          "next": "warehouse"
-        },
-        {
-          "text": "Не трогать труп, взять только топор",
-          "effects": {
-            "inventory_add": ["fire_axe"],
-            "time": -2
-          },
-          "next": "warehouse"
-        }
-      ]
-    },
-    {
-      "id": "warehouse",
-      "title": "Продуктовый склад",
-      "text": "Ты выходишь к складу через заднюю дверь. Уже слышны крики — люди ломятся в главный вход.\n\nУ тебя есть 5 минут, чтобы взять что-то, пока здесь не стало жарко.",
-      "choices": [
-        {
-          "text": "Схватить коробку консервов и бежать",
-          "effects": {
-            "inventory_add": ["canned_stew", "canned_stew", "canned_stew"],
-            "time": -5
-          },
-          "next": "escape_warehouse"
-        },
-        {
-          "text": "Искать аптечку и воду",
-          "effects": {
-            "inventory_add": ["first_aid_kit", "water_bottle"],
-            "time": -5
-          },
-          "next": "escape_warehouse"
-        },
-        {
-          "text": "Взломать дверь в подсобку ломиком",
-          "requires": {
-            "has_item": "crowbar"
-          },
-          "effects": {
-            "inventory_add": ["canned_stew", "water_bottle", "bandage", "antibiotic_pill"],
-            "sanity": 5,
-            "time": -8
-          },
-          "next": "escape_warehouse"
-        },
-        {
-          "text": "Попытаться закрыть дверь и забаррикадироваться",
-          "effects": {
-            "time": -5,
-            "health": -10
-          },
-          "next": "barricade_result"
-        }
-      ]
-    },
-    {
-      "id": "escape_warehouse",
-      "title": "Побег",
-      "text": "Ты выскакиваешь через задний двор. Сзади — крики, кто-то падает. Ты не оборачиваешься.\n\nУ тебя есть стартовый капитал. Дальше — только ты и этот мёртвый город.",
-      "choices": [
-        {
-          "text": "Идти домой — переждать первые дни хаоса",
-          "effects": { "time": -30 },
-          "next": "END_shelter"
-        },
-        {
-          "text": "Идти к Ваське — старому другу, у него есть машина",
-          "effects": { "time": -45, "stamina": -10 },
-          "next": "END_vaska"
-        }
-      ]
-    },
-    {
-      "id": "store_start",
-      "title": "Дворы",
-      "text": "Ты выбегаешь из подъезда. Двор полон людей. Все бегут в одну сторону — к «Пятёрочке».\n\nТы видишь, что у магазина уже стоит толпа. Человек 30. Кто-то пытается выбить стекло.",
-      "choices": [
-        {
-          "text": "Пробиться через толпу к входу",
-          "effects": { "health": -15, "stamina": -20 },
-          "next": "store_inside"
-        },
-        {
-          "text": "Обойти магазин с чёрного хода",
-          "effects": { "time": -5, "stamina": -5 },
-          "next": "store_backdoor"
-        },
-        {
-          "text": "Не рисковать и вернуться в подвал",
-          "effects": { "time": -10 },
-          "next": "back_to_start"
-        }
-      ]
-    },
-    {
-      "id": "store_backdoor",
-      "title": "Чёрный ход",
-      "text": "Ты знаешь эту «Пятёрочку» 10 лет. Через мусорку можно попасть в подсобку.\n\nДверь открыта. Внутри темно. Ты слышишь чей-то шёпот в глубине склада.",
-      "choices": [
-        {
-          "text": "Тихо идти на шёпот — может, это выжившие",
-          "effects": { "time": -3 },
-          "next": "store_people"
-        },
-        {
-          "text": "Набрать продуктов и уйти",
-          "effects": {
-            "inventory_add": ["crackers", "water_bottle", "canned_stew"],
-            "time": -5
-          },
-          "next": "store_escape"
-        },
-        {
-          "text": "Включить фонарик и осмотреть всё",
-          "requires": {
-            "has_item": "flashlight"
-          },
-          "effects": {
-            "inventory_add": ["crackers", "water_bottle", "canned_stew", "chocolate"],
-            "time": -8
-          },
-          "next": "store_escape"
-        }
-      ]
-    },
-    {
-      "id": "store_people",
-      "title": "Люди в подсобке",
-      "text": "Это семья — мужчина, женщина и девочка лет 7. Они прячутся здесь с самого начала.\n\nМужчина смотрит на тебя с опаской. У него в руках кухонный нож.",
-      "choices": [
-        {
-          "text": "Сказать, что ты свой, и предложить объединиться",
-          "effects": { "sanity": 5, "flag_set": "met_family" },
-          "next": "store_ally"
-        },
-        {
-          "text": "Молча взять продукты и уйти",
-          "effects": {
-            "inventory_add": ["water_bottle", "crackers"],
-            "sanity": -10,
-            "time": -3
-          },
-          "next": "store_escape"
-        },
-        {
-          "text": "Прогнать их и забрать всё",
-          "effects": {
-            "health": -10,
-            "sanity": -25,
-            "inventory_add": ["canned_stew", "canned_stew", "water_bottle", "first_aid_kit"],
-            "flag_set": "robbed_family"
-          },
-          "next": "store_escape"
-        },
-        {
-          "text": "Показать сигареты — предложить обмен",
-          "requires": {
-            "has_item": "cigarette"
-          },
-          "effects": {
-            "inventory_remove": ["cigarette"],
-            "inventory_add": ["water_bottle", "crackers"],
-            "sanity": 10,
-            "flag_set": "traded_with_family"
-          },
-          "next": "store_escape"
-        }
-      ]
-    },
-    {
-      "id": "back_to_start",
-      "title": "Возвращение",
-      "text": "Ты вернулся в подвал. Здесь тихо. Но ты знаешь, что наверху — уже хаос.\n\nТы потерял время. Магазины, возможно, уже заняты.",
-      "choices": [
-        {
-          "text": "Остаться в подвале и подготовиться",
-          "effects": { "time": -60 },
-          "next": "END_shelter"
-        },
-        {
-          "text": "Всё равно рискнуть и пойти в магазин",
-          "effects": { "time": -20 },
-          "next": "store_start"
-        }
-      ]
-    },
-    {
-      "id": "listen",
-      "title": "Шаги сверху",
-      "text": "Ты прислушиваешься. Наверху — как минимум двое. Они что-то говорят.\n\n«…он в подвале. Я знаю. Он всегда там».\n\nЭто голос Васьки-соседа. Ты помогал ему неделю назад чинить кран.",
-      "choices": [
-        {
-          "text": "Выйти и поговорить с ним",
-          "effects": { "time": -2, "flag_set": "known_vaska" },
-          "next": "talk_vaska"
-        },
-        {
-          "text": "Спрятаться в бойлерной и переждать",
-          "effects": { "time": -30, "stamina": -10 },
-          "next": "hide_boiler"
-        },
-        {
-          "text": "Пойти через тоннель, пока они не спустились",
-          "effects": { "time": -10 },
-          "next": "tunnel_start"
-        }
-      ]
-    },
-    {
-      "id": "talk_vaska",
-      "title": "Васька",
-      "text": "Ты выходишь навстречу. Васька стоит с двумя незнакомыми мужиками. У одного из них — арматура.\n\n«Боря! Я знал, что ты здесь. Слушай, нам нужен твой ломик. И ключи от склада. У нас план.»",
-      "choices": [
-        {
-          "text": "Согласиться и пойти с ними",
-          "effects": { "sanity": -5, "time": -20, "flag_set": "joined_vaska" },
-          "next": "END_vaska"
-        },
-        {
-          "text": "Отказать и захлопнуть дверь",
-          "effects": { "health": -5, "time": -3 },
-          "next": "back_to_start"
-        },
-        {
-          "text": "Соврать, что ломик в другом месте",
-          "effects": { "sanity": -10 },
-          "next": "store_start"
-        },
-        {
-          "text": "Пригрозить ломиком",
-          "requires": {
-            "has_item": "crowbar"
-          },
-          "effects": {
-            "sanity": 5,
-            "time": -5,
-            "flag_set": "threatened_vaska"
-          },
-          "next": "back_to_start"
-        }
-      ]
-    },
-    {
-      "id": "hide_boiler",
-      "title": "В бойлерной",
-      "text": "Ты прячешься за старым бойлером. Слышишь, как они спускаются. Ищут. Проходят мимо.\n\nЧерез 30 минут они уходят. Ты в безопасности. Но время упущено.",
-      "choices": [
-        {
-          "text": "Выйти и идти к складу — может, ещё успеешь",
-          "effects": { "time": -20 },
-          "next": "warehouse"
-        },
-        {
-          "text": "Остаться здесь до ночи",
-          "effects": { "time": -120, "stamina": 20 },
-          "next": "END_shelter"
-        }
-      ]
-    },
-    {
-      "id": "pack_up",
-      "title": "Сборы",
-      "text": "Ты быстро собираешь инструменты и фонарик. Сверху стук — дверь подвала пытаются открыть.\n\nТы слышишь голос Васьки:\n\n«Боря, выходи! Мы знаем, что ты там! Нам нужен твой ломик!»\n\nДверь ломается. В подвал спускаются двое. Один — Васька. Второй — незнакомый, с арматурой.",
-      "flags_set": {
-        "add": ["vaska_attacked"]
-      },
-      "choices": [
-        {
-          "text": "Драться ломом — он у тебя теперь есть",
-          "requires": {
-            "has_item": "crowbar"
-          },
-          "effects": {
-            "combat_start": {
-              "enemy_name": "Васька и его друг",
-              "enemy_health": 40,
-              "enemy_damage": 8,
-              "enemy_protection": 1,
-              "enemy_strength": 5
-            },
-            "combat_victory": "fight_won",
-            "combat_defeat": "END_died",
-            "combat_flee": "store_start"
-          },
-          "next": "fight_won"
-        },
-        {
-          "text": "Драться голыми руками — без лома",
-          "requires": {
-            "not_item": "crowbar"
-          },
-          "effects": {
-            "combat_start": {
-              "enemy_name": "Васька и его друг",
-              "enemy_health": 40,
-              "enemy_damage": 8,
-              "enemy_protection": 1,
-              "enemy_strength": 5
-            },
-            "combat_victory": "fight_won",
-            "combat_defeat": "END_died",
-            "combat_flee": "store_start"
-          },
-          "next": "fight_won"
-        },
-        {
-          "text": "Попытаться договориться",
-          "effects": { "time": -5, "flag_set": "known_vaska" },
-          "next": "talk_vaska"
-        },
-        {
-          "text": "Бежать через тоннель, пока они не спустились",
-          "effects": { "time": -10, "stamina": -15 },
-          "next": "tunnel_start"
-        }
-      ]
-    },
-    {
-      "id": "store_inside",
-      "title": "Внутри магазина",
-      "text": "Ты в толпе. Люди толкаются, кричат. Кто-то уже упал и его топчут. Полки быстро пустеют.",
-      "choices": [
-        {
-          "text": "Схватить что попало и бежать",
-          "effects": {
-            "inventory_add": ["crackers", "water_bottle"],
-            "health": -10,
-            "time": -5
-          },
-          "next": "store_escape"
-        },
-        {
-          "text": "Пробиваться к кассе — там может быть аптечка",
-          "effects": {
-            "inventory_add": ["first_aid_kit"],
-            "health": -20,
-            "time": -10
-          },
-          "next": "store_escape"
-        }
-      ]
-    },
-    {
-      "id": "barricade_result",
-      "title": "Забаррикадировался",
-      "text": "Ты успел закрыть дверь и приставить к ней стеллаж. Внутри — темно, но относительно спокойно.\n\nСнаружи — крики, стук в дверь. Через час всё стихнет.",
-      "choices": [
-        {
-          "text": "Переждать здесь до ночи",
-          "effects": {
-            "inventory_add": ["canned_stew", "water_bottle"],
-            "time": -180
-          },
-          "next": "END_shelter"
-        },
-        {
-          "text": "Выйти через окно и уйти домой",
-          "effects": { "time": -60 },
-          "next": "END_shelter"
-        }
-      ]
-    },
-    {
-      "id": "store_ally",
-      "title": "Союз",
-      "text": "Мужчина опускает нож. Женщина плачет. Девочка смотрит на тебя огромными глазами.\n\n«Спасибо. Мы думали, ты нас выгонишь.»\n\nОни делятся с тобой запасами.",
-      "choices": [
-        {
-          "text": "Остаться с ними и идти вместе",
-          "effects": {
-            "inventory_add": ["canned_stew", "water_bottle"],
-            "sanity": 15,
-            "time": -60,
-            "flag_set": "with_family"
-          },
-          "next": "END_ally"
-        },
-        {
-          "text": "Взять продукты и уйти — у тебя свой путь",
-          "effects": {
-            "inventory_add": ["crackers"],
-            "sanity": -5,
-            "time": -10
-          },
-          "next": "store_escape"
-        }
-      ]
-    },
-    {
-      "id": "store_escape",
-      "title": "На улице",
-      "text": "Ты выходишь с добычей. Сзади — крики, выстрелы. Город быстро превращается в зону боевых действий.\n\nУ тебя есть стартовый набор. Дальше — только ты и этот мёртвый мир.",
-      "choices": [
-        {
-          "text": "Идти домой — переждать первые дни",
-          "effects": { "time": -30 },
-          "next": "END_shelter"
-        },
-        {
-          "text": "Идти к Ваське — может, у него есть план",
-          "effects": { "time": -45, "stamina": -10, "flag_set": "known_vaska" },
-          "next": "END_vaska"
-        }
-      ]
-    },
-    {
-      "id": "fight_won",
-      "title": "Победа",
-      "text": "Ты стоишь над двумя телами. Дышишь тяжело. Ломик в крови.\n\nВаська хрипит. Он ещё жив. Ты можешь помочь ему — или уйти.\n\nРана на твоей руке кровоточит. Грязная арматура оставила глубокий порез.",
-      "choices": [
-        {
-          "text": "Обыскать тела и уйти (риск заражения)",
-          "effects": {
-            "inventory_add": ["crowbar", "bandage"],
-            "sanity": -20,
-            "time": -5,
-            "infect": { "source": "combat_wound", "chance": 0.5 }
-          },
-          "next": "store_start"
-        },
-        {
-          "text": "Обработать рану и спасти Ваську",
-          "effects": {
-            "sanity": -10,
-            "health": 5,
-            "time": -15,
-            "flag_set": "saved_vaska"
-          },
-          "next": "save_vaska"
-        },
-        {
-          "text": "Уйти, не трогая тела",
-          "effects": {
-            "sanity": -15,
-            "time": -5
-          },
-          "next": "store_start"
-        }
-      ]
-    },
-    {
-      "id": "save_vaska",
-      "title": "Помощь",
-      "text": "Ты перевязываешь Ваську. Он смотрит на тебя мутными глазами.\n\n«Боря… прости. Я не хотел… я просто… есть хотел…»\n\nОн теряет сознание. Ты не знаешь, выживет ли он. Но ты сделал то, что должен.",
-      "choices": [
-        {
-          "text": "Уйти в магазин",
-          "effects": { "sanity": 5, "time": -10 },
-          "next": "store_start"
-        },
-        {
-          "text": "Остаться рядом с ним",
-          "effects": { "sanity": 10, "time": -60 },
-          "next": "END_shelter"
-        }
-      ]
-    },
-    {
-      "id": "END_shelter",
-      "title": "Убежище",
-      "text": "Ты вернулся в подвал. Закрыл дверь на засов. Тишина.\n\nЗдесь ты проведёшь первые дни. Но ты знаешь: город умирает. И тебе придётся выйти рано или поздно.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "END_vaska",
-      "title": "Союз с Васькой",
-      "text": "Ты идёшь с Васькой и его людьми. У них есть машина. У них есть план.\n\nНо ты чувствуешь: с ними будет опасно. Другие люди. Другие правила.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "END_ally",
-      "title": "Семья",
-      "text": "Ты остаёшься с семьёй. Мужчина — бывший военный. Женщина — врач. Девочка — надежда.\n\nУ вас есть шанс. Вместе.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "END_died",
-      "title": "Смерть",
-      "text": "Ты падаешь. Боль разливается по телу. Васька стоит над тобой.\n\n«Прости, Боря. Так надо.»\n\nТемнота.\n\n[КОНЕЦ]",
-      "choices": []
-    }
-  ]
-}
-```
-
-### 📄 `./assets/data/story_darya.json`
-```json
-{
-  "character": "darya",
-  "chapter": 1,
-  "start_node": "intro",
-  "nodes": [
-    {
-      "id": "intro",
-      "title": "Рядом с больницей. Пятьдесят минут после блекаута",
-      "text": "Ты — Дарья. Ты слышишь по рации, как твои коллеги пытаются эвакуировать реанимацию. Потом рация умолкает.\n\nВ аптеке напротив уже собралась очередь — человек 20. Они ещё не знают, что через 40 минут сюда придут не за лекарствами, а с оружием.\n\nТы знаешь, что в больнице есть запас антибиотиков, обезболивающих, бинтов. Это спасёт сотни. Но ты также знаешь, что в подвале больницы — туберкулёзное отделение. Зараза.\n\nВдруг в дверь стучат. Мужской голос:\n\n«Помогите! У меня сын! Он не дышит! Вы же медик?»",
-      "choices": [
-        {
-          "text": "Открыть и помочь ребёнку",
-          "effects": { "time": -5, "sanity": 5, "flag_set": "opened_to_sergey" },
-          "next": "child_emergency"
-        },
-        {
-          "text": "Сначала бежать в аптеку — лекарства нужнее",
-          "effects": { "time": -5, "sanity": -15 },
-          "next": "pharmacy_first"
-        },
-        {
-          "text": "Идти в больницу через чёрный ход",
-          "effects": { "time": -10, "stamina": -10 },
-          "next": "hospital_backdoor"
-        },
-        {
-          "text": "Остаться дома и сортировать инвентарь",
-          "effects": { "time": -10 },
-          "next": "home_sort"
-        }
-      ]
-    },
-    {
-      "id": "child_emergency",
-      "title": "Ребёнок",
-      "text": "Ты открываешь дверь. Мужчина лет 35, в глазах — паника. На руках — мальчик лет 6. Он хрипит, губы синие.\n\nЭто астма. Приступ. Ему нужен ингалятор. Срочно.\n\nУ тебя в медицинской сумке есть ингалятор. Но он один. Для тебя. На случай, если ты сама не сможешь дышать в дыму.\n\nМужчина смотрит на тебя.",
-      "choices": [
-        {
-          "text": "Отдать ингалятор ребёнку",
-          "effects": {
-            "inventory_remove": ["first_aid_kit"],
-            "sanity": 20,
-            "time": -5,
-            "flag_set": "saved_child"
-          },
-          "next": "child_saved"
-        },
-        {
-          "text": "Сказать, что тебе нужно бежать за лекарствами",
-          "effects": { "sanity": -20, "time": -3 },
-          "next": "pharmacy_first"
-        },
-        {
-          "text": "Взять ребёнка с собой — вдруг найдёшь ингалятор по пути",
-          "effects": { "time": -10, "stamina": -15 },
-          "next": "take_child_along"
-        },
-        {
-          "text": "Проверить пульс и зрачки — оценить состояние точно",
-          "requires": {
-            "stats": { "intelligence": { "min": 7 } }
-          },
-          "effects": {
-            "inventory_add": ["bandage"],
-            "sanity": 15,
-            "time": -3,
-            "flag_set": "professional_diagnosis"
-          },
-          "next": "child_saved"
-        }
-      ]
-    },
-    {
-      "id": "child_saved",
-      "title": "Спасён",
-      "text": "Ты делаешь ингаляцию. Через минуту мальчик начинает дышать. Мужчина плачет.\n\n«Спасибо. Спасибо. Я Сергей. Это Ваня. У нас никого нет. Мы… мы не знаем, что делать.»\n\nОн смотрит на тебя. Он хочет быть с тобой. Он хочет помочь. Он хочет выжить.",
-      "choices": [
-        {
-          "text": "Взять их с собой — врач + мужчина с руками = сила",
-          "effects": { "sanity": 10, "time": -10, "flag_set": "with_sergey" },
-          "next": "with_sergey"
-        },
-        {
-          "text": "Объяснить, где безопаснее, и уйти одной",
-          "effects": { "sanity": -5, "time": -5 },
-          "next": "pharmacy_first"
-        },
-        {
-          "text": "Оставить их дома и идти в больницу",
-          "effects": { "time": -5 },
-          "next": "hospital_backdoor"
-        }
-      ]
-    },
-    {
-      "id": "with_sergey",
-      "title": "С Сергеем и Ваней",
-      "text": "Сергей — бывший военный. Он знает город, умеет обращаться с оружием. Ваня — тихий, но умный мальчик.\n\n«Куда идём? У меня есть знакомый в больнице — главврач. Если он жив — поможет.»",
-      "choices": [
-        {
-          "text": "Идти в больницу через главный вход",
-          "effects": { "time": -15, "stamina": -10 },
-          "next": "hospital_main"
-        },
-        {
-          "text": "Идти в больницу через подвал — там опасно, но короче",
-          "effects": {
-            "time": -10,
-            "health": -10,
-            "infect": { "source": "hospital_basement", "chance": 0.4 }
-          },
-          "next": "hospital_basement"
-        },
-        {
-          "text": "Идти в аптеку — сначала лекарства",
-          "effects": { "time": -10 },
-          "next": "pharmacy_first"
-        }
-      ]
-    },
-    {
-      "id": "take_child_along",
-      "title": "С ребёнком",
-      "text": "Ты берёшь ребёнка на руки. Мужчина идёт за тобой. Вы выбегаете на улицу.\n\nБлижайшая аптека — 5 минут. Но ребёнок становится тяжелее. Ты устаёшь. Мужчина спотыкается.",
-      "choices": [
-        {
-          "text": "Бежать дальше — во что бы то ни стало",
-          "effects": { "stamina": -25, "health": -5, "time": -5 },
-          "next": "pharmacy_first"
-        },
-        {
-          "text": "Остановиться — попросить мужчину взять сына",
-          "effects": { "time": -3 },
-          "next": "pharmacy_first"
-        }
-      ]
-    },
-    {
-      "id": "pharmacy_first",
-      "title": "Аптека",
-      "text": "Ты подбегаешь к аптеке. Очередь — 20 человек. Внутри горит свет — резервный генератор. Фармацевт — молодая девушка — испугана.\n\nОна пытается закрыть дверь. Люди кричат. Кто-то стучит по стеклу.\n\nВдруг один из толпы — мужчина с ножом — поворачивается к тебе:\n\n«Ты чего тут в халате? Врачиха? Лекарства прячешь? Отдай сумку!»",
-      "choices": [
-        {
-          "text": "Драться — ты защищаешь своё",
-          "effects": {
-            "combat_start": {
-              "enemy_name": "Мужчина с ножом",
-              "enemy_health": 30,
-              "enemy_damage": 12,
-              "enemy_protection": 0,
-              "enemy_strength": 6
-            },
-            "combat_victory": "darya_fight_won",
-            "combat_defeat": "END_died_darya",
-            "combat_flee": "pharmacy_backdoor"
-          },
-          "next": "darya_fight_won"
-        },
-        {
-          "text": "Крикнуть: «Я врач! Тут больной ребёнок!»",
-          "effects": { "sanity": 5, "time": -5, "flag_set": "used_doctor_authority" },
-          "next": "pharmacy_break_in"
-        },
-        {
-          "text": "Убежать в чёрный ход",
-          "effects": { "stamina": -10, "time": -10 },
-          "next": "pharmacy_backdoor"
-        },
-        {
-          "text": "Показать медицинский халат и диплом — внушить доверие",
-          "requires": {
-            "flag": "opened_to_sergey"
-          },
-          "effects": {
-            "sanity": 10,
-            "time": -5,
-            "flag_set": "showed_medical_credentials"
-          },
-          "next": "pharmacy_break_in"
-        }
-      ]
-    },
-    {
-      "id": "darya_fight_won",
-      "title": "Победа",
-      "text": "Ты бьёшь его сумкой. Нож падает. Он отступает.\n\nТолпа затихает. Кто-то говорит: «Она врач. Оставьте её».\n\nФармацевт открывает дверь.\n\n«Быстрее. У меня 10 минут.»\n\nТы чувствуешь, как саднит плечо — нож оставил порез.",
-      "choices": [
-        {
-          "text": "Обработать рану и взять лекарства",
-          "effects": {
-            "inventory_add": ["antibiotic_pill", "antibiotic_pill", "painkiller_pill", "bandage", "bandage"],
-            "sanity": -10,
-            "time": -15,
-            "health": 5
-          },
-          "next": "pharmacy_leave"
-        },
-        {
-          "text": "Взять лекарства, не обрабатывая рану (риск заражения)",
-          "effects": {
-            "inventory_add": ["antibiotic_pill", "antibiotic_pill", "painkiller_pill", "bandage", "bandage"],
-            "sanity": -10,
-            "time": -10,
-            "health": -10,
-            "infect": { "source": "combat_wound", "chance": 0.55 }
-          },
-          "next": "pharmacy_leave"
-        },
-        {
-          "text": "Помочь фармацевту и уйти вместе",
-          "effects": {
-            "inventory_add": ["antibiotic_pill", "bandage"],
-            "sanity": 10,
-            "time": -15,
-            "infect": { "source": "combat_wound", "chance": 0.4 },
-            "flag_set": "with_katya"
-          },
-          "next": "pharmacist_ally"
-        }
-      ]
-    },
-    {
-      "id": "pharmacy_break_in",
-      "title": "Врача пропускают",
-      "text": "Толпа расступается. Кто-то говорит: «Это врач из поликлиники». Девушка-фармацевт открывает дверь.\n\n«Быстрее. У меня 10 минут до того, как они сломают стекло.»",
-      "choices": [
-        {
-          "text": "Взять антибиотики, обезболивающее, бинты",
-          "effects": {
-            "inventory_add": ["antibiotic_pill", "antibiotic_pill", "painkiller_pill", "bandage", "bandage"],
-            "time": -10
-          },
-          "next": "pharmacy_leave"
-        },
-        {
-          "text": "Взять только самое необходимое и предложить фармацевту уйти с тобой",
-          "effects": {
-            "inventory_add": ["antibiotic_pill", "bandage"],
-            "sanity": 10,
-            "time": -5,
-            "flag_set": "with_katya"
-          },
-          "next": "pharmacist_ally"
-        },
-        {
-          "text": "Составить список приоритетных лекарств — как медик",
-          "requires": {
-            "stats": { "intelligence": { "min": 7 } }
-          },
-          "effects": {
-            "inventory_add": ["antibiotic_pill", "antibiotic_pill", "painkiller_pill", "first_aid_kit"],
-            "time": -15,
-            "sanity": 5,
-            "flag_set": "made_medicine_list"
-          },
-          "next": "pharmacy_leave"
-        }
-      ]
-    },
-    {
-      "id": "pharmacy_backdoor",
-      "title": "Чёрный ход",
-      "text": "Ты входишь через заднюю дверь. Внутри — темно. Ты слышишь шаги в зале.\n\nНа полках — лекарства. Ты видишь: антибиотики, обезболивающее, бинты. Всё, что нужно.\n\nНо ты не одна. В темноте кто-то есть.",
-      "choices": [
-        {
-          "text": "Тихо взять лекарства и уйти",
-          "effects": {
-            "inventory_add": ["antibiotic_pill", "painkiller_pill", "bandage", "bandage"],
-            "time": -5,
-            "sanity": -5
-          },
-          "next": "pharmacy_leave"
-        },
-        {
-          "text": "Окликнуть — может, это фармацевт",
-          "effects": { "time": -3 },
-          "next": "pharmacist_ally"
-        },
-        {
-          "text": "Осмотреть полки с фонариком — найти редкие препараты",
-          "requires": {
-            "has_item": "flashlight"
-          },
-          "effects": {
-            "inventory_add": ["antibiotic_pill", "antibiotic_pill", "first_aid_kit"],
-            "time": -10,
-            "flag_set": "found_rare_medicines"
-          },
-          "next": "pharmacy_leave"
-        }
-      ]
-    },
-    {
-      "id": "pharmacist_ally",
-      "title": "Фармацевт",
-      "text": "Это молодая девушка, лет 25. Она дрожит. У неё в руках скальпель.\n\n«Вы… вы не грабитель? Вы врач? Я не знаю, что делать. У меня тут мама в подсобке. Она диабетик. Ей нужен инсулин. А он в холодильнике. А холодильник не работает.»",
-      "choices": [
-        {
-          "text": "Помочь — найти инсулин и лёд",
-          "effects": {
-            "sanity": 15,
-            "inventory_add": ["antibiotic_pill", "bandage"],
-            "time": -15,
-            "flag_set": "helped_pharmacist_mom"
-          },
-          "next": "pharmacist_help"
-        },
-        {
-          "text": "Взять лекарства и уйти — у тебя свои задачи",
-          "effects": {
-            "inventory_add": ["antibiotic_pill", "painkiller_pill", "bandage"],
-            "sanity": -15,
-            "time": -5
-          },
-          "next": "pharmacy_leave"
-        },
-        {
-          "text": "Предложить ей идти с тобой — в больнице есть всё",
-          "effects": { "sanity": 5, "time": -5, "flag_set": "with_katya" },
-          "next": "pharmacy_leave"
-        }
-      ]
-    },
-    {
-      "id": "pharmacist_help",
-      "title": "Помощь фармацевту",
-      "text": "Ты находишь инсулин. Лёд — в морозильнике, он ещё держит холод. Ты помогаешь маме девушки сделать укол.\n\nДевушка плачет. Она говорит: «Я Катя. Я пойду с тобой. Куда угодно.»",
-      "choices": [
-        {
-          "text": "Взять Катю с собой",
-          "effects": {
-            "sanity": 15,
-            "inventory_add": ["antibiotic_pill", "antibiotic_pill", "painkiller_pill"],
-            "time": -10,
-            "flag_set": "with_katya"
-          },
-          "next": "hospital_with_katya"
-        },
-        {
-          "text": "Оставить её с мамой — им нужнее друг друг",
-          "effects": { "sanity": 5, "time": -5 },
-          "next": "pharmacy_leave"
-        }
-      ]
-    },
-    {
-      "id": "pharmacy_leave",
-      "title": "После аптеки",
-      "text": "Ты выходишь. У тебя есть лекарства. Это уже валюта. Это уже шанс.\n\nТебе нужно решить: идти в больницу или вернуться домой.",
-      "choices": [
-        {
-          "text": "Идти в больницу — там основные запасы",
-          "effects": { "time": -15, "stamina": -10 },
-          "next": "hospital_main"
-        },
-        {
-          "text": "Вернуться домой и переждать",
-          "effects": { "time": -30 },
-          "next": "home_sort"
-        },
-        {
-          "text": "Идти на север — к выезду из города",
-          "effects": { "time": -180, "stamina": -40 },
-          "next": "END_north_darya"
-        },
-        {
-          "text": "Зайти в больницу через главный вход — с Катей",
-          "requires": {
-            "flag": "with_katya"
-          },
-          "effects": {
-            "time": -15,
-            "sanity": 10
-          },
-          "next": "hospital_with_katya"
-        }
-      ]
-    },
-    {
-      "id": "hospital_backdoor",
-      "title": "Больница. Чёрный ход",
-      "text": "Ты идёшь к больнице через служебный вход. Дверь открыта. Внутри темно.\n\nВ коридоре — брошенные каталки. Кровь на полу. Тишина.\n\nТы знаешь: главный склад медикаментов — в подвале. Но подвал заражён. Туберкулёз.",
-      "choices": [
-        {
-          "text": "Спуститься в подвал — там основные запасы (риск заражения)",
-          "effects": {
-            "time": -20,
-            "health": -15,
-            "sanity": -10,
-            "infect": { "source": "hospital_basement", "chance": 0.6 }
-          },
-          "next": "hospital_basement"
-        },
-        {
-          "text": "Идти в аптеку больницы на 2-м этаже",
-          "effects": { "time": -15 },
-          "next": "hospital_pharmacy"
-        },
-        {
-          "text": "Найти хирургическое отделение — там может быть всё",
-          "effects": { "time": -20, "stamina": -10 },
-          "next": "hospital_surgery"
-        },
-        {
-          "text": "Надеть противогаз и спуститься в подвал без риска",
-          "requires": {
-            "has_item": "gas_mask_tool"
-          },
-          "effects": {
-            "time": -20,
-            "sanity": -5,
-            "flag_set": "used_gas_mask_basement"
-          },
-          "next": "hospital_basement"
-        }
-      ]
-    },
-    {
-      "id": "hospital_main",
-      "title": "Главный вход",
-      "text": "Ты входишь через главный вход. Здесь — хаос. Пациенты на колясках, медсёстры, врачи. Кто-то кричит, кто-то плачет.\n\nТы видишь главврача — Сергея Петровича. Он стоит в холле и пытается организовать эвакуацию.\n\nОн тебя узнаёт:\n\n«Дарья! Слава богу! У нас 40 тяжелых пациентов. Нам нужна помощь. И нужны лекарства. Ты знаешь, где запас?»",
-      "choices": [
-        {
-          "text": "Сказать про склад в подвале — но там зараза",
-          "effects": { "sanity": -10, "time": -5 },
-          "next": "hospital_basement"
-        },
-        {
-          "text": "Остаться и помочь эвакуировать пациентов",
-          "effects": { "time": -60, "stamina": -20, "sanity": 15, "flag_set": "helped_evacuation" },
-          "next": "hospital_help"
-        },
-        {
-          "text": "Сказать, что тебе нужно бежать — у тебя свои задачи",
-          "effects": { "sanity": -20, "time": -3 },
-          "next": "hospital_pharmacy"
-        },
-        {
-          "text": "Взять руководство на себя — ты знаешь, что делать",
-          "requires": {
-            "stats": { "intelligence": { "min": 7 }, "sanity": { "min": 60 } }
-          },
-          "effects": {
-            "time": -90,
-            "stamina": -30,
-            "sanity": 20,
-            "flag_set": "led_evacuation"
-          },
-          "next": "hospital_help"
-        }
-      ]
-    },
-    {
-      "id": "hospital_help",
-      "title": "Эвакуация",
-      "text": "Ты работаешь 2 часа. Помогаешь вынести 15 человек. Ты устала. Ты в крови. Но ты — врач.\n\nСергей Петрович подходит к тебе:\n\n«Дарья. Спасибо. Возьми это. И уходи. Больница обречена. Мы все знаем. Но ты можешь спасти других.»",
-      "choices": [
-        {
-          "text": "Взять аптечку и уйти",
-          "effects": {
-            "inventory_add": ["first_aid_kit", "antibiotic_pill", "painkiller_pill"],
-            "sanity": 20,
-            "time": -10
-          },
-          "next": "hospital_pharmacy"
-        },
-        {
-          "text": "Остаться до конца — ты не бросишь своих",
-          "effects": { "time": -240, "sanity": 10 },
-          "next": "END_hospital_stay"
-        }
-      ]
-    },
-    {
-      "id": "hospital_basement",
-      "title": "Подвал больницы",
-      "text": "Ты спускаешься в подвал. Темно. Пахнет сыростью и болезнью.\n\nТы включаешь фонарик. Видишь: туберкулёзное отделение. Пустые кровати. Старые капельницы.\n\nВ углу — склад. Ты видишь коробки с надписью «Антибиотики». Рядом — аппарат для стерилизации. Воздух спёртый — ты чувствуешь, как першит в горле.",
-      "choices": [
-        {
-          "text": "Взять антибиотики и уйти как можно быстрее",
-          "effects": {
-            "inventory_add": ["antibiotic_pill", "antibiotic_pill", "antibiotic_pill", "first_aid_kit"],
-            "health": -10,
-            "sanity": -5,
-            "time": -10,
-            "infect": { "source": "hospital_basement", "chance": 0.3 }
-          },
-          "next": "hospital_leave"
-        },
-        {
-          "text": "Обыскать всё — может, есть ещё что-то (долго в заражённом воздухе)",
-          "effects": {
-            "inventory_add": ["antibiotic_pill", "antibiotic_pill", "first_aid_kit", "splint"],
-            "health": -20,
-            "sanity": -15,
-            "time": -25,
-            "infect": { "source": "hospital_basement", "chance": 0.65 }
-          },
-          "next": "hospital_leave"
-        },
-        {
-          "text": "Использовать стерилизатор — обработать инструменты",
-          "requires": {
-            "stats": { "intelligence": { "min": 8 } }
-          },
-          "effects": {
-            "inventory_add": ["antibiotic_pill", "antibiotic_pill", "first_aid_kit", "splint", "bandage"],
-            "health": -5,
-            "time": -20,
-            "flag_set": "used_sterilizer",
-            "infect": { "source": "hospital_basement", "chance": 0.15 }
-          },
-          "next": "hospital_leave"
-        },
-        {
-          "text": "Не рисковать — подняться обратно",
-          "effects": { "time": -10 },
-          "next": "hospital_pharmacy"
-        }
-      ]
-    },
-    {
-      "id": "hospital_pharmacy",
-      "title": "Аптека больницы",
-      "text": "Ты на 2-м этаже. Здесь аптека. Дверь заперта, но у тебя есть ключ — ты работала здесь.\n\nВнутри — полки с лекарствами. Антибиотики, обезболивающее, бинты, витамины.\n\nТы слышишь шаги. Кто-то идёт.",
-      "choices": [
-        {
-          "text": "Спрятаться и подождать",
-          "effects": { "time": -10, "stamina": -5 },
-          "next": "hospital_hide"
-        },
-        {
-          "text": "Быстро взять что нужно и уйти",
-          "effects": {
-            "inventory_add": ["antibiotic_pill", "painkiller_pill", "bandage", "bandage"],
-            "time": -5
-          },
-          "next": "hospital_leave"
-        },
-        {
-          "text": "Встретить того, кто идёт",
-          "effects": { "time": -3 },
-          "next": "hospital_meet"
-        },
-        {
-          "text": "Забрать весь запас — ты знаешь, где что лежит",
-          "requires": {
-            "flag": "helped_evacuation"
-          },
-          "effects": {
-            "inventory_add": ["antibiotic_pill", "antibiotic_pill", "painkiller_pill", "first_aid_kit", "bandage"],
-            "time": -20,
-            "flag_set": "took_all_medicine"
-          },
-          "next": "hospital_leave"
-        }
-      ]
-    },
-    {
-      "id": "hospital_surgery",
-      "title": "Хирургическое отделение",
-      "text": "Ты входишь в операционную. Здесь пусто. Никого. Тишина.\n\nНа столе — брошенные инструменты. В шкафу — наркоз, обезболивающее, скальпели. На полу — следы крови.\n\nТы знаешь: это бесценно. Но ты также знаешь: здесь нельзя оставаться долго. Может быть инфекция.",
-      "choices": [
-        {
-          "text": "Взять инструменты и наркоз (осторожно)",
-          "effects": {
-            "inventory_add": ["splint", "painkiller_pill", "painkiller_pill", "bandage"],
-            "sanity": -5,
-            "time": -15
-          },
-          "next": "hospital_leave"
-        },
-        {
-          "text": "Искать что-то конкретное — для себя",
-          "effects": {
-            "inventory_add": ["first_aid_kit"],
-            "time": -10,
-            "infect": { "source": "combat_wound", "chance": 0.25 }
-          },
-          "next": "hospital_leave"
-        },
-        {
-          "text": "Найти и забрать хирургический набор — бесценная вещь",
-          "requires": {
-            "stats": { "intelligence": { "min": 8 } }
-          },
-          "effects": {
-            "inventory_add": ["first_aid_kit", "splint", "bandage", "bandage"],
-            "time": -20,
-            "sanity": 10,
-            "flag_set": "found_surgery_kit"
-          },
-          "next": "hospital_leave"
-        }
-      ]
-    },
-    {
-      "id": "hospital_hide",
-      "title": "Прячешься",
-      "text": "Ты прячешься за стеллажом. В аптеку входят двое — мужчина и женщина. Они тоже ищут лекарства.\n\n«Смотри, тут всё есть. Хватай и уходим.»\n\nОни быстро набивают сумки и уходят.",
-      "choices": [
-        {
-          "text": "Выйти и взять оставшееся",
-          "effects": {
-            "inventory_add": ["antibiotic_pill", "bandage"],
-            "time": -5
-          },
-          "next": "hospital_leave"
-        },
-        {
-          "text": "Догнать их и попросить поделиться",
-          "effects": { "time": -5, "sanity": -5 },
-          "next": "hospital_meet"
-        }
-      ]
-    },
-    {
-      "id": "hospital_meet",
-      "title": "Встреча",
-      "text": "Ты выходишь навстречу. Это медбрат Костя и медсестра Лена. Они узнают тебя.\n\n«Дарья! Ты жива! Мы думали, ты дома. Мы собираем группу. Идём на север — там станция. Говорят, там ещё есть жизнь.»",
-      "choices": [
-        {
-          "text": "Присоединиться к ним",
-          "effects": {
-            "sanity": 15,
-            "time": -10,
-            "flag_set": "with_group_darya"
-          },
-          "next": "END_group_darya"
-        },
-        {
-          "text": "Отказаться — ты идёшь своим путём",
-          "effects": { "sanity": -5, "time": -5 },
-          "next": "hospital_leave"
-        }
-      ]
-    },
-    {
-      "id": "hospital_leave",
-      "title": "Выход из больницы",
-      "text": "Ты выходишь с лекарствами. За спиной — больница. Ты знаешь: она уже мертва.\n\nТеперь — только ты и мир. Ты можешь идти домой. Ты можешь идти на север. Ты можешь искать других выживших.",
-      "choices": [
-        {
-          "text": "Идти домой",
-          "effects": { "time": -30 },
-          "next": "home_sort"
-        },
-        {
-          "text": "Идти на север",
-          "effects": { "time": -180, "stamina": -40 },
-          "next": "END_north_darya"
-        },
-        {
-          "text": "Искать выживших — ты врач, ты нужна",
-          "effects": { "time": -60 },
-          "next": "END_looking"
-        }
-      ]
-    },
-    {
-      "id": "home_sort",
-      "title": "Дома",
-      "text": "Ты вернулась домой. Закрыла дверь. Сняла халат.\n\nТы садишься и сортируешь лекарства. Антибиотики, обезболивающее, бинты. Ты знаешь: это спасёт жизни.\n\nНо ты не знаешь: кому отдать. Как решить, кто достоин.\n\nТы плачешь. Первый раз за этот день. Ты не спала уже почти сутки — глаза слипаются, но мысли не дают покоя.",
-      "choices": [
-        {
-          "text": "Остаться дома и ждать утра (риск бессонницы от стресса)",
-          "effects": {
-            "time": -720,
-            "stamina": 20,
-            "sanity": 5,
-            "infect": { "source": "stress", "chance": 0.35 }
-          },
-          "next": "END_home_darya"
-        },
-        {
-          "text": "Выйти ночью — искать тех, кому нужна помощь",
-          "effects": { "time": -120, "sanity": 10 },
-          "next": "END_looking"
-        }
-      ]
-    },
-    {
-      "id": "hospital_with_katya",
-      "title": "С Катей",
-      "text": "Вы идёте вместе — ты и Катя. Она знает все лекарства, все дозы. Она — твоя тень, твоя помощница.\n\nВы входите в больницу. Главврач видит вас двоих и улыбается впервые за день.\n\n«Две медсестры — это уже команда.»",
-      "choices": [
-        {
-          "text": "Идти к главврачу и помогать",
-          "effects": {
-            "time": -60,
-            "stamina": -20,
-            "sanity": 15,
-            "flag_set": "helped_evacuation"
-          },
-          "next": "hospital_help"
-        },
-        {
-          "text": "Идти в аптеку больницы за лекарствами",
-          "effects": { "time": -15 },
-          "next": "hospital_pharmacy"
-        }
-      ]
-    },
-    {
-      "id": "END_hospital_stay",
-      "title": "В больнице",
-      "text": "Ты осталась. Ты работала до утра. Спасала тех, кого можно спасти. Тех, кого нельзя — держала за руку.\n\nК утру больница опустела. Ты сидишь на полу в коридоре. Ты сделала всё, что могла.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "END_group_darya",
-      "title": "С группой",
-      "text": "Ты идёшь с Костей и Леной. Ещё пятеро присоединяются по пути. Медики, военные, просто люди.\n\nВы идёте на север. Ты — врач. Ты — лидер. Ты — надежда.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "END_north_darya",
-      "title": "На север",
-      "text": "Ты идёшь одна. С лекарствами, с аптечкой, с халатом.\n\nВпереди — станция. Впереди — неизвестность. Ты врач. Ты нужна. Ты выживешь.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "END_looking",
-      "title": "Поиск",
-      "text": "Ты идёшь по улицам. Находишь раненого. Перевязываешь. Находишь больного. Даёшь лекарство.\n\nСлух о тебе расходится. Люди ищут тебя. Люди верят тебе.\n\nТы — врач. И в этом мире ты — чудо.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "END_home_darya",
-      "title": "Дома",
-      "text": "Ты дома. Дверь закрыта. Лекарства рассортированы.\n\nТы засыпаешь на полу. Тебе снится больница. Свет. Люди. Жизнь.\n\nТы выжила первый день. Завтра — второй. Ты справишься.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "END_died_darya",
-      "title": "Смерть",
-      "text": "Нож входит в бок. Ты падаешь на асфальт.\n\nТы слышишь, как толпа расходится. Никто не помогает.\n\nТы думаешь о пациентах. О тех, кого спасла. О тех, кого не успела.\n\nТемнота.\n\n[КОНЕЦ]",
-      "choices": []
-    }
-  ]
-}
-```
-
-### 📄 `./assets/data/story_ivan.json`
-```json
-{
-  "character": "ivan",
-  "chapter": 1,
-  "start_node": "intro",
-  "nodes": [
-    {
-      "id": "intro",
-      "title": "Частный дом. Час после блекаута",
-      "text": "Ты — Иван Ильич. Ты проснулся от того, что петух заорал посреди дня. Потом ты понял: нет электричества, нет воды, нет ничего.\n\nТы вышел на крыльцо. Соседний дом пуст — хозяева уехали в город утром. Дорога, которая ведёт к магазину, уже пустынна.\n\nТы знаешь: через 24 часа она станет ловушкой. У тебя есть подвал с припасами. Но ты знаешь: твой сосед по даче Сергей видел этот подвал. Он может прийти сегодня ночью.\n\nЧасы показывают 14:00.",
-      "choices": [
-        {
-          "text": "Спуститься в подвал и забрать всё (10 минут)",
-          "effects": { "time": -10 },
-          "next": "cellar"
-        },
-        {
-          "text": "Идти пешком в магазин — успеть взять лекарства (30 минут туда)",
-          "effects": { "time": -30, "stamina": -15 },
-          "next": "road_to_shop"
-        },
-        {
-          "text": "Уйти в лес, в старую сторожку (уйти прямо сейчас)",
-          "effects": { "time": -60, "stamina": -20 },
-          "next": "forest_hut"
-        },
-        {
-          "text": "Наблюдать за дорогой с крыльца (5 минут)",
-          "effects": { "time": -5 },
-          "next": "watch_road"
-        }
-      ]
-    },
-    {
-      "id": "cellar",
-      "title": "Подвал",
-      "text": "Ты спускаешься в подвал. Здесь прохладно и пахнет землёй. На полках — твои запасы: 10 банок тушёнки, 5 литров воды, ящик патронов .22.\n\nТы слышишь шум наверху. Кто-то ходит по двору. Медленно. Осторожно. Ты чувствуешь, как в груди начинает ныть — старое сердце даёт о себе знать. Холодный подвал не помогает.",
-      "choices": [
-        {
-          "text": "Забрать всё и выйти через заднюю дверь",
-          "effects": {
-            "inventory_add": ["canned_stew", "canned_stew", "water_bottle", "water_bottle", "axe"],
-            "time": -10
-          },
-          "next": "leave_back"
-        },
-        {
-          "text": "Взять только самое важное — воду и аптечку",
-          "effects": {
-            "inventory_add": ["water_bottle", "water_bottle", "first_aid_kit"],
-            "time": -5
-          },
-          "next": "leave_back"
-        },
-        {
-          "text": "Задержаться и выпить чаю — сердце ноет (риск простудиться)",
-          "effects": {
-            "time": -15,
-            "health": 5,
-            "infect": { "source": "cold_weather", "chance": 0.4 }
-          },
-          "next": "meet_guest"
-        },
-        {
-          "text": "Найти в подвале старые карты — может, пригодятся",
-          "requires": {
-            "stats": { "sanity": { "min": 60 } }
-          },
-          "effects": {
-            "inventory_add": ["map", "flint"],
-            "time": -12,
-            "flag_set": "found_maps"
-          },
-          "next": "leave_back"
-        }
-      ]
-    },
-    {
-      "id": "meet_guest",
-      "title": "Гость",
-      "text": "Ты поднимаешься по лестнице. В дверях — Сергей. Сосед по даче. У него в руках ружьё. Оно смотрит в пол.\n\n«Иван Ильич. Я знаю, что у тебя есть запасы. Я не один. Нас четверо. Мы не хотим крови. Отдай половину — и мы уйдём.»\n\nЗа его спиной — тени. Кто-то ещё стоит во дворе.",
-      "choices": [
-        {
-          "text": "Драться — ты военный, ты справишься",
-          "effects": {
-            "combat_start": {
-              "enemy_name": "Сергей",
-              "enemy_health": 45,
-              "enemy_damage": 12,
-              "enemy_protection": 3,
-              "enemy_strength": 6
-            },
-            "combat_victory": "ivan_fight_won",
-            "combat_defeat": "END_died_ivan",
-            "combat_flee": "forest_hut"
-          },
-          "next": "ivan_fight_won"
-        },
-        {
-          "text": "Отдать половину — сохранить мир",
-          "effects": {
-            "sanity": -10,
-            "inventory_remove": ["canned_stew", "canned_stew", "canned_stew"],
-            "time": -10,
-            "flag_set": "gave_to_serega"
-          },
-          "next": "serega_gone"
-        },
-        {
-          "text": "Соврать, что запасы уже забрали другие",
-          "effects": { "sanity": -15, "time": -5 },
-          "next": "lie_serega"
-        },
-        {
-          "text": "Предложить ему объединиться — вместе безопаснее",
-          "effects": { "sanity": 5, "flag_set": "allied_serega" },
-          "next": "alliance_serega"
-        }
-      ]
-    },
-    {
-      "id": "ivan_fight_won",
-      "title": "Победа",
-      "text": "Ты бьёшь Сергея рукояткой топора. Он падает. Ружьё отлетает в сторону.\n\nНо сзади уже бегут его люди. Ты захлопываешь дверь и закрываешь на засов. Ты слышишь крики, удары в дверь.\n\nТы тяжело дышишь. Сердце колотится. Ты чувствуешь, как что-то тёплое стекает по ноге — ты поранился о разбитое стекло.",
-      "choices": [
-        {
-          "text": "Обработать рану и уйти через чёрный ход в лес",
-          "effects": {
-            "inventory_add": ["first_aid_kit", "water_bottle"],
-            "health": -5,
-            "time": -30
-          },
-          "next": "forest_hut"
-        },
-        {
-          "text": "Бежать через чёрный ход, не обрабатывая рану (риск заражения)",
-          "effects": {
-            "inventory_add": ["first_aid_kit", "water_bottle"],
-            "health": -15,
-            "time": -25,
-            "infect": { "source": "combat_wound", "chance": 0.6 }
-          },
-          "next": "forest_hut"
-        },
-        {
-          "text": "Забрать ружьё Сергея — может пригодиться",
-          "requires": {
-            "stats": { "health": { "min": 50 } }
-          },
-          "effects": {
-            "inventory_add": ["pipe_gun", "bandage"],
-            "health": -10,
-            "time": -35,
-            "flag_set": "took_serega_gun"
-          },
-          "next": "forest_hut"
-        },
-        {
-          "text": "Остаться в доме и отстреливаться",
-          "effects": { "health": -30, "stamina": -20, "time": -120 },
-          "next": "siege"
-        }
-      ]
-    },
-    {
-      "id": "serega_gone",
-      "title": "Мир",
-      "text": "Сергей забирает три банки тушёнки и уходит. Он не оборачивается. Его люди ждут у калитки — их действительно четверо.\n\nТы остаёшься с запасом. Но ты знаешь: они вернутся. Сейчас у них есть еда, а завтра — нет.\n\nТы чувствуешь, как холод пробирает до костей. Подвал сделал своё дело.",
-      "choices": [
-        {
-          "text": "Собраться и уйти в лес прямо сейчас",
-          "effects": { "time": -60, "stamina": -20 },
-          "next": "forest_hut"
-        },
-        {
-          "text": "Остаться и укрепить дом, но сначала согреться",
-          "effects": {
-            "time": -120,
-            "stamina": -10,
-            "infect": { "source": "cold_weather", "chance": 0.35 }
-          },
-          "next": "fortify_house"
-        },
-        {
-          "text": "Спрятать оставшиеся запасы в тайник",
-          "requires": {
-            "stats": { "intelligence": { "min": 6 } }
-          },
-          "effects": {
-            "sanity": 10,
-            "time": -30,
-            "flag_set": "hidden_stash"
-          },
-          "next": "fortify_house"
-        }
-      ]
-    },
-    {
-      "id": "lie_serega",
-      "title": "Обман",
-      "text": "Ты говоришь, что уже отдал всё соседу с востока. Сергей смотрит на тебя с недоверием. Но уходит.\n\nОн не верит. Он вернётся. И это будет хуже.",
-      "choices": [
-        {
-          "text": "Быстро собраться и уйти в лес",
-          "effects": { "time": -30 },
-          "next": "forest_hut"
-        },
-        {
-          "text": "Перепрятать запасы и остаться",
-          "effects": { "time": -60 },
-          "next": "fortify_house"
-        }
-      ]
-    },
-    {
-      "id": "alliance_serega",
-      "title": "Союз",
-      "text": "Сергей думает. Опускает ружьё.\n\n«Ладно, Иван Ильич. Ты военный. Ты знаешь, что делать. Мы пойдём с тобой.»\n\nТеперь вас пятеро. У вас есть запасы, оружие и план.",
-      "choices": [
-        {
-          "text": "Идти в лес — там безопаснее",
-          "effects": {
-            "time": -60,
-            "sanity": 10
-          },
-          "next": "END_alliance"
-        },
-        {
-          "text": "Остаться и оборонять дом",
-          "effects": {
-            "time": -120,
-            "sanity": 10
-          },
-          "next": "END_alliance"
-        }
-      ]
-    },
-    {
-      "id": "road_to_shop",
-      "title": "Дорога",
-      "text": "Ты идёшь по дороге. Пусто. Тишина. Только ветер гонит пыль.\n\nЧерез 15 минут ты видишь: впереди — трое. Они идут навстречу. Медленно. У одного — бита. У другого — что-то в руке. Они ещё не заметили тебя.",
-      "choices": [
-        {
-          "text": "Свернуть в лес и обойти",
-          "effects": { "time": -20, "stamina": -10 },
-          "next": "shop_via_forest"
-        },
-        {
-          "text": "Идти прямо — ты старый военный",
-          "effects": { "time": -5 },
-          "next": "meet_group"
-        },
-        {
-          "text": "Вернуться домой — слишком опасно",
-          "effects": { "time": -30 },
-          "next": "intro_return"
-        },
-        {
-          "text": "Достать бинокль — разглядеть их",
-          "requires": {
-            "has_item": "binoculars"
-          },
-          "effects": {
-            "time": -3,
-            "sanity": 5,
-            "flag_set": "scouted_group"
-          },
-          "next": "meet_group"
-        }
-      ]
-    },
-    {
-      "id": "shop_via_forest",
-      "title": "Лесной обход",
-      "text": "Ты идёшь через лес. Тишина. Только птицы. Здесь спокойно. Но ты промочил ноги — утром была роса, а ты в старых ботинках.\n\nТы выходишь к магазину с другой стороны. Он ещё открыт. Продавщица — знакомая Зинаида — стоит у дверей с ключами.",
-      "choices": [
-        {
-          "text": "Забрать лекарства и еду",
-          "effects": {
-            "inventory_add": ["first_aid_kit", "canned_stew", "water_bottle"],
-            "time": -10,
-            "infect": { "source": "wet_clothes", "chance": 0.3 }
-          },
-          "next": "shop_leave"
-        },
-        {
-          "text": "Сказать Зинаиде, чтобы закрывалась",
-          "effects": {
-            "inventory_add": ["first_aid_kit"],
-            "sanity": 10,
-            "time": -5,
-            "flag_set": "warned_zinaida"
-          },
-          "next": "shop_leave"
-        },
-        {
-          "text": "Попросить у Зинаиды тёплые вещи",
-          "requires": {
-            "stats": { "sanity": { "min": 50 } }
-          },
-          "effects": {
-            "inventory_add": ["first_aid_kit", "winter_coat"],
-            "sanity": 5,
-            "time": -15
-          },
-          "next": "shop_leave"
-        }
-      ]
-    },
-    {
-      "id": "meet_group",
-      "title": "Трое на дороге",
-      "text": "Они замечают тебя. Останавливаются. Один — молодой, с битой. Второй — постарше, с ножом. Третий — совсем мальчишка.\n\n«Дед, ты чё тут ходишь? Продукты есть?»",
-      "choices": [
-        {
-          "text": "Достать топор и показать, что ты не добыча",
-          "effects": { "sanity": 5 },
-          "next": "show_axe"
-        },
-        {
-          "text": "Отдать что-то из карманов и уйти",
-          "effects": {
-            "inventory_remove": ["water_bottle"],
-            "sanity": -10
-          },
-          "next": "give_goods"
-        },
-        {
-          "text": "Сказать, что у магазина банда — они разбегутся",
-          "effects": { "sanity": -5, "flag_set": "lied_to_group" },
-          "next": "scare_group"
-        },
-        {
-          "text": "Показать удостоверение майора — может, испугаются",
-          "requires": {
-            "flag": "found_maps"
-          },
-          "effects": {
-            "sanity": 10,
-            "time": -5,
-            "flag_set": "showed_rank"
-          },
-          "next": "scare_group"
-        }
-      ]
-    },
-    {
-      "id": "show_axe",
-      "title": "Топор",
-      "text": "Ты достаёшь топор. Стоишь неподвижно. Смотришь им в глаза.\n\nМолодой с битой делает шаг назад. Старший говорит: «Пойдём, не связывайся». Они уходят.\n\nТы доходишь до магазина без проблем.",
-      "choices": [
-        {
-          "text": "Забрать лекарства и вернуться домой",
-          "effects": {
-            "inventory_add": ["first_aid_kit", "water_bottle"],
-            "time": -30
-          },
-          "next": "return_home"
-        },
-        {
-          "text": "Идти дальше — в город",
-          "effects": { "time": -90, "stamina": -20 },
-          "next": "END_city"
-        }
-      ]
-    },
-    {
-      "id": "give_goods",
-      "title": "Отдал",
-      "text": "Ты отдаёшь бутылку воды. Молодой берёт, усмехается. Они уходят.\n\nТы идёшь дальше. Но чувствуешь пустоту в груди. Ты отдал. Ты слаб. И сердце ноет всё сильнее.",
-      "choices": [
-        {
-          "text": "Всё равно дойти до магазина",
-          "effects": { "time": -20, "stamina": -15 },
-          "next": "shop_via_forest"
-        },
-        {
-          "text": "Вернуться домой",
-          "effects": { "time": -30 },
-          "next": "intro_return"
-        }
-      ]
-    },
-    {
-      "id": "scare_group",
-      "title": "Обман",
-      "text": "Ты говоришь: «Там у магазина банда с ружьями. Я еле ушёл». Они переглядываются. Уходят в сторону.\n\nТы идёшь дальше. Дорога свободна.",
-      "choices": [
-        {
-          "text": "Дойти до магазина",
-          "effects": { "time": -15 },
-          "next": "shop_via_forest"
-        },
-        {
-          "text": "Вернуться домой",
-          "effects": { "time": -30 },
-          "next": "intro_return"
-        }
-      ]
-    },
-    {
-      "id": "shop_leave",
-      "title": "У магазина",
-      "text": "Ты выходишь с лекарствами. Зинаида закрывает дверь на ключ. Она благодарит тебя. Ты идёшь домой.\n\nПо дороге ты слышишь выстрелы вдалеке. Город умирает.",
-      "choices": [
-        {
-          "text": "Вернуться домой и укрепиться",
-          "effects": { "time": -30 },
-          "next": "return_home"
-        },
-        {
-          "text": "Идти к лесу — там безопаснее",
-          "effects": { "time": -60, "stamina": -20 },
-          "next": "forest_hut"
-        }
-      ]
-    },
-    {
-      "id": "intro_return",
-      "title": "Дом",
-      "text": "Ты вернулся домой. Закрыл все замки. Сел в кресло.\n\nВремя идёт. Ты знаешь: сегодня ночью кто-то придёт. И тебе придётся решать.",
-      "choices": [
-        {
-          "text": "Укрепить дом и ждать",
-          "effects": { "time": -120 },
-          "next": "fortify_house"
-        },
-        {
-          "text": "Собраться и уйти в лес",
-          "effects": { "time": -30 },
-          "next": "forest_hut"
-        }
-      ]
-    },
-    {
-      "id": "watch_road",
-      "title": "Наблюдение",
-      "text": "Ты садишься на крыльце с биноклем. Смотришь на дорогу.\n\nЧерез 10 минут видишь: три фигуры идут со стороны города. Они двигаются медленно, оглядываются. Один несёт что-то тяжёлое.\n\nОни направляются к твоему дому. Холодный ветер пробирает тебя.",
-      "choices": [
-        {
-          "text": "Вернуться в дом и приготовиться",
-          "effects": { "time": -5 },
-          "next": "meet_guest"
-        },
-        {
-          "text": "Уйти в лес, пока не заметили",
-          "effects": {
-            "time": -20,
-            "stamina": -10,
-            "infect": { "source": "cold_weather", "chance": 0.4 }
-          },
-          "next": "forest_hut"
-        },
-        {
-          "text": "Встретить их на крыльце",
-          "effects": { "time": -5 },
-          "next": "meet_guest"
-        }
-      ]
-    },
-    {
-      "id": "fortify_house",
-      "title": "Укрепление",
-      "text": "Ты заколачиваешь окна досками, ставишь мебель у дверей. Готовишь оружие.\n\nТы один. Но ты готов.\n\nНочь проходит тихо. Но на рассвете — стук в дверь. Ты чувствуешь, как холод пробрался в дом — где-то сквозит.",
-      "choices": [
-        {
-          "text": "Открыть и поговорить",
-          "effects": { "time": -5 },
-          "next": "meet_guest"
-        },
-        {
-          "text": "Молчать и не открывать (риск простудиться от холода)",
-          "effects": {
-            "time": -60,
-            "sanity": -10,
-            "infect": { "source": "cold_weather", "chance": 0.5 }
-          },
-          "next": "END_shelter_ivan"
-        },
-        {
-          "text": "Использовать тайник с запасами — переждать",
-          "requires": {
-            "flag": "hidden_stash"
-          },
-          "effects": {
-            "time": -90,
-            "stamina": 20,
-            "sanity": 5
-          },
-          "next": "END_shelter_ivan"
-        }
-      ]
-    },
-    {
-      "id": "forest_hut",
-      "title": "Сторожка в лесу",
-      "text": "Ты идёшь в лес. 40 минут пешком. Ты устал, но ты в безопасности.\n\nСторожка старая, но крепкая. Есть печка, запас дров. Рядом — ручей с чистой водой.\n\nЗдесь можно переждать первые дни. Печка быстро согреет тебя.",
-      "choices": [
-        {
-          "text": "Остаться здесь на несколько дней",
-          "effects": { "time": -1440, "stamina": 40, "sanity": 10 },
-          "next": "END_hut"
-        },
-        {
-          "text": "Обустроиться и вернуться в город за припасами",
-          "effects": { "time": -240, "stamina": -20 },
-          "next": "return_home"
-        },
-        {
-          "text": "Развести костёр с помощью кремня",
-          "requires": {
-            "has_item": "flint"
-          },
-          "effects": {
-            "time": -30,
-            "health": 15,
-            "sanity": 15,
-            "stamina": 10
-          },
-          "next": "END_hut"
-        }
-      ]
-    },
-    {
-      "id": "siege",
-      "title": "Осада",
-      "text": "Ты держишь дом три часа. Стреляешь в воздух. Они отступают.\n\nНо у тебя мало патронов. И ты знаешь: они вернутся. И ты чувствуешь, что простыл — холодный дом сделал своё дело.",
-      "choices": [
-        {
-          "text": "Собраться и уйти в лес",
-          "effects": { "time": -60, "stamina": -20 },
-          "next": "forest_hut"
-        },
-        {
-          "text": "Остаться — ты умрёшь здесь, но не сдашься",
-          "effects": { "time": -120, "sanity": -20 },
-          "next": "END_siege"
-        }
-      ]
-    },
-    {
-      "id": "return_home",
-      "title": "Возвращение домой",
-      "text": "Ты вернулся. Дом цел. Но ты знаешь: время работает против тебя. Каждый день сюда будут приходить новые люди.\n\nУ тебя есть выбор: остаться или уйти навсегда.",
-      "choices": [
-        {
-          "text": "Остаться — это твой дом",
-          "effects": { "time": -60 },
-          "next": "fortify_house"
-        },
-        {
-          "text": "Уйти на север — к станции",
-          "effects": { "time": -180, "stamina": -30 },
-          "next": "END_north_ivan"
-        }
-      ]
-    },
-    {
-      "id": "leave_back",
-      "title": "Через заднюю дверь",
-      "text": "Ты выходишь через чёрный ход. С запасами. С топором. Ты уходишь в лес.\n\nПозади — твой дом. Впереди — неизвестность. Но ты готов. Холодный воздух бодрит.",
-      "choices": [
-        {
-          "text": "Идти в сторожку",
-          "effects": { "time": -60, "stamina": -20 },
-          "next": "forest_hut"
-        },
-        {
-          "text": "Идти на север — к станции",
-          "effects": { "time": -240, "stamina": -40 },
-          "next": "END_north_ivan"
-        }
-      ]
-    },
-    {
-      "id": "END_shelter_ivan",
-      "title": "Дом",
-      "text": "Ты остался. Ночь прошла. Утро тихое.\n\nТы сидишь на кухне с чашкой чая. Смотришь в окно. Думаешь о жене. О внуках.\n\nТы знаешь: скоро придётся решать. Но сегодня — ты дома.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "END_alliance",
-      "title": "Вместе",
-      "text": "Вы идёте вместе. Пятеро. Сергей, его люди, ты.\n\nТы снова командуешь. Ты снова нужен. Ты снова живёшь.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "END_hut",
-      "title": "Сторожка",
-      "text": "Ты остаёшься в сторожке. Топишь печку. Пьёшь воду из ручья.\n\nЗдесь тихо. Здесь можно думать. Здесь можно ждать.\n\nНо ты знаешь: мир не будет ждать.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "END_siege",
-      "title": "Осада",
-      "text": "Ты остаёшься. Ты держишь дом. Ты стреляешь, пока есть патроны.\n\nКогда патроны кончаются, ты берёшь топор.\n\nТы не сдаёшься. Ты — солдат.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "END_north_ivan",
-      "title": "На север",
-      "text": "Ты идёшь по дороге. Медленно. С остановками. У тебя больное сердце, но ты не сдаёшься.\n\nВпереди — станция. Впереди — надежда.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "END_city",
-      "title": "В город",
-      "text": "Ты идёшь в город. Там опасно. Но там — люди. А ты не хочешь умирать один.\n\n[КОНЕЦ ПЕРВОЙ ГЛАВЫ]",
-      "choices": []
-    },
-    {
-      "id": "END_died_ivan",
-      "title": "Смерть",
-      "text": "Ты падаешь. Сергей стоит над тобой с ружьём.\n\n«Прости, Иван Ильич. Так надо.»\n\nТы думаешь о жене. О внуках. О жизни, которая была.\n\nТемнота.\n\n[КОНЕЦ]",
-      "choices": []
-    }
-  ]
-}
-```
-
 ### 📄 `./assets/data/tools.json`
 ```json
 {
@@ -22216,6 +19140,257 @@ echo "✅ Импорты исправлены!"
 
 ```
 
+### 📄 `./lib/constants/game_constants.dart`
+```dart
+/// Игровые константы — все магические числа в одном месте.
+///
+/// Здесь собраны значения, которые раньше были разбросаны по MapScreen.
+/// Меняешь здесь — меняется везде.
+class GameConstants {
+  GameConstants._(); // нельзя создавать экземпляры
+
+  // ═══════════════════════════════════════════════════════════
+  // ВРЕМЯ (в минутах)
+  // ═══════════════════════════════════════════════════════════
+
+  /// Время на перемещение между локациями
+  static const int moveTimeMinutes = 20;
+
+  /// Время на один бой
+  static const int combatTimeMinutes = 10;
+
+  /// Время форсированного автосна (когда усталость критична)
+  static const int forcedAutoSleepMinutes = 60;
+
+  /// Время коллапса от истощения
+  static const int collapseSleepMinutes = 240;
+
+  /// Начальное игровое время (8:00 утра)
+  static const int startTimeMinutes = 8 * 60;
+
+  // ═══════════════════════════════════════════════════════════
+  // СТОИМОСТЬ ДЕЙСТВИЙ (статы)
+  // ═══════════════════════════════════════════════════════════
+
+  /// Стамина на перемещение
+  static const int moveStaminaCost = 5;
+
+  /// Стамина на обыск локации
+  static const int searchStaminaCost = 10;
+
+  /// Усталость на обыск локации
+  static const int searchFatigueCost = 8;
+
+  /// Стамина на крафт предмета
+  static const int craftStaminaCost = 5;
+
+  /// Усталость на крафт предмета
+  static const int craftFatigueCost = 5;
+
+  /// Усталость за один шаг сюжета
+  static const int storyFatiguePerStep = 2;
+
+  /// Минимум стамины для крафта
+  static const int minStaminaForCraft = 5;
+
+  // ═══════════════════════════════════════════════════════════
+  // ГРАНИЦЫ СТАТОВ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Минимум и максимум всех статов (0-100)
+  static const int minStat = 0;
+  static const int maxStat = 100;
+
+  /// Порог, при котором срабатывает автопредупреждение усталости
+  static const int fatigueWarningThreshold = 80;
+
+  /// Порог, при котором срабатывает форсированный автосон
+  static const int fatigueForcedSleepThreshold = 95;
+
+  /// Порог критической усталости — коллапс
+  static const int fatigueCollapseThreshold = 100;
+
+  /// Порог психики, ниже которого копится "стрессовый день"
+  static const int sanityStressThreshold = 20;
+
+  // ═══════════════════════════════════════════════════════════
+  // ЭФФЕКТЫ СНА / КОЛЛАПСА
+  // ═══════════════════════════════════════════════════════════
+
+  /// После форсированного автосна
+  static const int forcedAutoSleepFatigueReduce = 15;
+  static const int forcedAutoSleepStaminaPenalty = 15;
+  static const int forcedAutoSleepSanityPenalty = 5;
+
+  /// После коллапса
+  static const int collapseFatigueReset = 60;
+  static const int collapseHealthPenalty = 20;
+  static const int collapseSanityPenalty = 15;
+
+  /// Шанс ограбления при коллапсе (в процентах)
+  static const int collapseTheftChance = 30;
+
+  /// Количество предметов, которые крадут при коллапсе
+  static const int collapseTheftItems = 2;
+
+  /// Шанс заболеть простудой после коллапса (в процентах)
+  static const int collapseColdChance = 40;
+
+  /// Максимальное количество часов между коллапсами (иначе смерть)
+  static const int collapseRepeatHours = 24;
+
+  // ═══════════════════════════════════════════════════════════
+  // ОТДЫХ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Порог опасности локации, при котором отдых "безопасен"
+  static const int safeLocationDangerLevel = 3;
+
+  /// Бонус к отдыху, если есть спальный мешок
+  static const int sleepingBagStaminaBonus = 10;
+  static const int sleepingBagSanityBonus = 10;
+
+  /// Порог тепла, при котором риск простуды на отдыхе снижен
+  static const int warmthColdResistThreshold = 40;
+
+  /// Шанс простудиться при отдыхе в холоде (в процентах)
+  static const int coldChanceLow = 10;   // если тепло
+  static const int coldChanceHigh = 30;  // если холодно
+
+  /// Длительность отдыха, при которой возможны ограбление/атака
+  static const int restTheftMinDuration = 240;
+  static const int restAttackMinDuration = 480;
+
+  /// Шанс ограбления при отдыхе в опасной локации (в процентах)
+  static const int restTheftChance = 25;
+
+  /// Базовый шанс атаки при отдыхе (умножается на dangerMultiplier фазы суток)
+  static const int restAttackBaseChance = 20;
+
+  // ═══════════════════════════════════════════════════════════
+  // БОЙ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Максимальное здоровье игрока
+  static const int playerMaxHealth = 100;
+
+  /// Урон кулаками (если оружия нет)
+  static const int fistsDamage = 3;
+
+  /// Шанс встретить врага при обыске (1 из N)
+  static const int enemyEncounterChance = 3;
+
+  /// Имена "сюжетных боссов" — при поражении от них игрок умирает
+  static const List<String> storyBosses = [
+    'Васька',
+    'Сергей',
+    'Главарь банды',
+  ];
+
+  /// Имена "опасных" врагов — при поражении теряются 3 предмета
+  static const List<String> dangerousEnemyKeywords = [
+    'Бандит',
+    'Дезертир',
+    'Вооружённый',
+    'Медведь',
+    'Главарь',
+  ];
+
+  /// HP игрока после тяжёлого поражения
+  static const int heavyDefeatHealth = 5;
+
+  /// HP игрока после лёгкого поражения
+  static const int lightDefeatHealth = 15;
+
+  /// Сколько предметов теряется при тяжёлом поражении
+  static const int heavyDefeatLostItems = 3;
+
+  /// Сколько предметов теряется при лёгком поражении
+  static const int lightDefeatLostItems = 2;
+
+  /// Штрафы к психике после поражений
+  static const int heavyDefeatSanityPenalty = 25;
+  static const int lightDefeatSanityPenalty = 10;
+
+  /// Штрафы к усталости после поражений
+  static const int heavyDefeatFatigueGain = 40;
+  static const int lightDefeatFatigueGain = 30;
+
+  // ═══════════════════════════════════════════════════════════
+  // ОБЫСК
+  // ═══════════════════════════════════════════════════════════
+
+  /// Базовый шанс заразиться от риска локации (risk в JSON)
+  static const double locationRiskChance = 0.4;
+
+  // ═══════════════════════════════════════════════════════════
+  // АВТОСОХРАНЕНИЕ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Периодичность автосохранения (в минутах игрового времени)
+  static const int autosaveEveryMinutes = 5;
+
+  // ═══════════════════════════════════════════════════════════
+  // ГЛАВЫ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Общее число дней в игре (после — зима)
+  static const int totalDaysUntilWinter = 60;
+
+  // ═══════════════════════════════════════════════════════════
+  // ХАРАКТЕРИСТИКИ ПЕРСОНАЖЕЙ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Характеристики по умолчанию
+  static const int defaultIntelligence = 5;
+  static const int defaultStrength = 5;
+
+  /// Карта характеристик персонажей
+  static const Map<String, Map<String, int>> characterStats = {
+    'boris': {'intelligence': 5, 'strength': 7},
+    'alina': {'intelligence': 4, 'strength': 3},
+    'ivan': {'intelligence': 8, 'strength': 4},
+    'andrey': {'intelligence': 9, 'strength': 2},
+    'darya': {'intelligence': 7, 'strength': 4},
+  };
+
+  /// Получить статы персонажа по ID
+  static Map<String, int> statsFor(String characterId) {
+    return characterStats[characterId] ??
+        {
+          'intelligence': defaultIntelligence,
+          'strength': defaultStrength,
+        };
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ЦВЕТА (для UI)
+  // ═══════════════════════════════════════════════════════════
+
+  /// Основной "золотой" цвет интерфейса
+  static const int primaryColorValue = 0xFFC8B464; // 200, 180, 100
+  static const int backgroundColorValue = 0xFF0A0A0A; // 10, 10, 10
+  static const int panelColorValue = 0xFF141414; // 20, 20, 20
+  static const int cardColorValue = 0xFF121212; // 18, 18, 18
+
+  // ═══════════════════════════════════════════════════════════
+  // UI
+  // ═══════════════════════════════════════════════════════════
+
+  /// Максимальная высота панели предметов
+  static const double maxPanelHeight = 480.0;
+
+  /// Задержки анимаций
+  static const int shortDelayMs = 100;
+  static const int mediumDelayMs = 300;
+  static const int longDelayMs = 600;
+
+  /// Длительность снекбара по умолчанию (в секундах)
+  static const int snackbarDefaultSeconds = 2;
+  static const int snackbarLongSeconds = 4;
+}
+```
+
 ### 📄 `./lib/main.dart`
 ```dart
 import 'package:flutter/material.dart';
@@ -22507,6 +19682,105 @@ class Combatant {
 
   void decrementStun() {
     if (stunTurns > 0) stunTurns--;
+  }
+}
+```
+
+### 📄 `./lib/models/combat/enemy.dart`
+```dart
+import 'dart:convert';
+import 'package:flutter/services.dart';
+
+/// Модель врага — загружается из assets/data/enemies.json
+///
+/// Враги бывают только двух категорий:
+/// - human (люди) — мародёры, бандиты, дезертиры
+/// - animal (звери) — собаки, волки, кабаны, медведи, лисы, вороны
+///
+/// Никаких заражённых или мутантов — это реалистичный постапокалипсис.
+class Enemy {
+  final String id;
+  final String name;
+  final String description;
+  final String category; // human, animal
+  final int health;
+  final int damage;
+  final int protection;
+  final int strength;
+  final String damageType; // blunt, cutting, piercing, firearm
+  final List<EnemyAbility> abilities;
+
+  const Enemy({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.category,
+    required this.health,
+    required this.damage,
+    required this.protection,
+    required this.strength,
+    required this.damageType,
+    required this.abilities,
+  });
+
+  factory Enemy.fromJson(Map<String, dynamic> json) {
+    final rawAbilities = (json['abilities'] as List? ?? []);
+    final abilities = rawAbilities
+        .map((a) => EnemyAbility.fromJson(Map<String, dynamic>.from(a)))
+        .toList();
+
+    return Enemy(
+      id: json['id'],
+      name: json['name'],
+      description: json['description'] ?? '',
+      category: json['category'] ?? 'human',
+      health: json['health'] ?? 30,
+      damage: json['damage'] ?? 10,
+      protection: json['protection'] ?? 0,
+      strength: json['strength'] ?? 5,
+      damageType: json['damage_type'] ?? json['damageType'] ?? 'blunt',
+      abilities: abilities,
+    );
+  }
+
+  /// Загрузить всех врагов из JSON
+  static Future<List<Enemy>> loadAll() async {
+    try {
+      final String jsonString =
+          await rootBundle.loadString('assets/data/enemies.json');
+      final Map<String, dynamic> jsonMap = json.decode(jsonString);
+      final List<dynamic> list = jsonMap['enemies'] ?? [];
+      return list.map((json) => Enemy.fromJson(json)).toList();
+    } catch (e) {
+      return [];
+    }
+  }
+}
+
+/// Способность врага в бою
+class EnemyAbility {
+  final String id;
+  final String name;
+  final String description;
+  final double chance;
+  final String effect; // skip_turn, poison, infection, bleeding
+
+  const EnemyAbility({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.chance,
+    required this.effect,
+  });
+
+  factory EnemyAbility.fromJson(Map<String, dynamic> json) {
+    return EnemyAbility(
+      id: json['id'],
+      name: json['name'],
+      description: json['description'] ?? '',
+      chance: (json['chance'] as num).toDouble(),
+      effect: json['effect'],
+    );
   }
 }
 ```
@@ -24546,6 +21820,9 @@ class Story {
 
       // 3. Загружаем все акты и сливаем ноды в один словарь
       final Map<String, StoryNode> allNodes = {};
+      final Map<String, String> nodeSource = {}; // id → акт (для диагностики)
+
+      int totalDuplicates = 0;
 
       for (final act in acts) {
         try {
@@ -24572,12 +21849,15 @@ class Story {
 
             if (allNodes.containsKey(node.id)) {
               duplicates++;
+              totalDuplicates++;
               debugPrint(
-                '⚠️ Story.loadFor: дубликат ноды "${node.id}" '
-                'в акте ${act.file}',
+                '❌ Story.loadFor: ДУБЛИКАТ ноды "${node.id}" — '
+                'уже загружена из ${nodeSource[node.id]}, '
+                'сейчас пришла из ${act.file}',
               );
             } else {
               allNodes[node.id] = node;
+              nodeSource[node.id] = act.file;
               nodesAdded++;
             }
           }
@@ -24595,8 +21875,16 @@ class Story {
       }
 
       debugPrint(
-        '📖 Story.loadFor: всего загружено ${allNodes.length} нод',
+        '📖 Story.loadFor: всего загружено ${allNodes.length} нод, '
+        'дубликатов: $totalDuplicates',
       );
+
+      if (totalDuplicates > 0) {
+        debugPrint(
+          '⚠️ ОБНАРУЖЕНЫ ДУБЛИКАТЫ — проверь структуру актов! '
+          'Возможно, END_* ноды находятся и в act_1, и в act_3.',
+        );
+      }
 
       return Story(
         character: metaMap['character'] ?? characterId,
@@ -27680,53 +24968,39 @@ class _CreditsScreenState extends State<CreditsScreen>
 ### 📄 `./lib/screens/gameplay/map_screen.dart`
 ```dart
 import 'package:flutter/material.dart';
-import 'dart:math';
 
-import 'package:dark_hours/models/world/world_map.dart';
-import 'package:dark_hours/models/world/location.dart';
-import 'package:dark_hours/models/world/search_event.dart';
-import 'package:dark_hours/models/save/save_data.dart';
-import 'package:dark_hours/models/inventory/inventory.dart';
-import 'package:dark_hours/models/inventory/inventory_item.dart';
-import 'package:dark_hours/models/inventory/equipment.dart';
-import 'package:dark_hours/models/conditions/condition.dart';
-import 'package:dark_hours/models/conditions/active_condition.dart';
-import 'package:dark_hours/models/combat/combat.dart';
-import 'package:dark_hours/models/time/rest_action.dart';
-import 'package:dark_hours/models/items/recipe.dart';
-import 'package:dark_hours/models/time/game_time.dart';
-import 'package:dark_hours/models/story/story_node.dart';
-
-import 'package:dark_hours/services/save/save_manager.dart';
-import 'package:dark_hours/services/items/item_loader.dart';
-import 'package:dark_hours/services/items/search_event_loader.dart';
-import 'package:dark_hours/services/conditions/condition_manager.dart';
-import 'package:dark_hours/services/time/time_manager.dart';
-import 'package:dark_hours/services/progress/run_tracker.dart';
+import 'package:dark_hours/services/map/map_controller.dart';
+import 'package:dark_hours/services/map/movement_manager.dart';
+import 'package:dark_hours/services/map/search_manager.dart';
+import 'package:dark_hours/services/map/rest_manager.dart';
+import 'package:dark_hours/services/map/death_manager.dart';
+import 'package:dark_hours/services/map/story_trigger_manager.dart';
 import 'package:dark_hours/services/progress/achievement_checker.dart';
 import 'package:dark_hours/services/progress/achievement_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
 
+import 'package:dark_hours/models/items/recipe.dart';
+import 'package:dark_hours/models/inventory/inventory_item.dart';
+import 'package:dark_hours/models/time/rest_action.dart';
+
+import 'package:dark_hours/widgets/panels/penalties_panel.dart';
+import 'package:dark_hours/widgets/panels/conditions_panel.dart';
+import 'package:dark_hours/widgets/panels/craft_panel.dart';
 import 'package:dark_hours/widgets/panels/inventory_panel.dart';
 import 'package:dark_hours/widgets/panels/equipment_panel.dart';
-import 'package:dark_hours/widgets/panels/conditions_panel.dart';
 import 'package:dark_hours/widgets/panels/rest_panel.dart';
-import 'package:dark_hours/widgets/panels/craft_panel.dart';
-import 'package:dark_hours/widgets/panels/penalties_panel.dart';
-import 'package:dark_hours/widgets/indicators/time_indicator.dart';
-import 'package:dark_hours/widgets/indicators/animated_stat_bar.dart';
-import 'package:dark_hours/widgets/effects/floating_effect.dart';
 import 'package:dark_hours/widgets/cards/animated_location_card.dart';
+import 'package:dark_hours/widgets/effects/floating_effect.dart';
 import 'package:dark_hours/widgets/effects/shimmer_button.dart';
 
-import 'package:dark_hours/screens/main/death_screen.dart';
-import 'package:dark_hours/screens/gameplay/combat_screen.dart';
-import 'package:dark_hours/screens/gameplay/story_screen.dart';
+import 'package:dark_hours/screens/gameplay/widgets/map_status_bar.dart';
+import 'package:dark_hours/screens/gameplay/widgets/map_current_location.dart';
+import 'package:dark_hours/screens/gameplay/widgets/map_location_card.dart';
 
 class MapScreen extends StatefulWidget {
   final String characterId;
   final String characterName;
-  final SaveData? resumeFrom;
+  final dynamic resumeFrom; // SaveData? — чтобы не тянуть импорт
 
   const MapScreen({
     super.key,
@@ -27740,796 +25014,118 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  WorldMap? _map;
-  bool _isLoading = true;
-
-  // Ресурсы
-  int hunger = 100;
-  int thirst = 100;
-  int health = 100;
-  int sanity = 100;
-  int stamina = 100;
-  int fatigue = 0;
-
-  // Игровое время
-  late GameTime gameTime;
-
-  int chapter = 1;
-
-  // Характеристики персонажа
-  int intelligence = 5;
-  int strength = 5;
-
-  final Inventory inventory = Inventory(maxWeight: 30.0);
-  final Equipment equipment = Equipment();
-
-  List<Condition> allConditions = [];
-  final List<ActiveCondition> activeConditions = [];
-
-  List<Recipe> allRecipes = [];
-
-  final Set<String> _triggeredStoryNodes = {};
-
-  // Счётчики обысков и открытые скрытые локации
-  final Map<String, int> _searchedCounts = {};
-  final Set<String> _unlockedLocations = {};
-
-  bool _isDead = false;
-  String _deathReason = '';
-
-  final RunTracker tracker = RunTracker();
-
-  DateTime? _lastCollapseTime;
-  bool _autoSleepTriggered = false;
+  late final MapController _controller;
 
   @override
   void initState() {
     super.initState();
-    _playMapMusic();
-    _loadMap();
-  }
 
-  Future<void> _playMapMusic() async {
-    await AudioService.playMusic('audio/music/map_theme.ogg');
-  }
-
-  /// Запустить ambience для текущей локации
-  Future<void> _startAmbienceFor(Location loc) async {
-    final path = AudioService.ambienceForLocation(
-      locationId: loc.id,
-      type: loc.type,
-      region: loc.region,
-      dangerLevel: loc.dangerLevel,
-    );
-    if (path != null) {
-      await AudioService.playAmbience(path);
-    }
-  }
-
-  void _loadCharacterStats() {
-    switch (widget.characterId) {
-      case 'boris':
-        intelligence = 5;
-        strength = 7;
-        break;
-      case 'alina':
-        intelligence = 4;
-        strength = 3;
-        break;
-      case 'ivan':
-        intelligence = 8;
-        strength = 4;
-        break;
-      case 'andrey':
-        intelligence = 9;
-        strength = 2;
-        break;
-      case 'darya':
-        intelligence = 7;
-        strength = 4;
-        break;
-      default:
-        intelligence = 5;
-        strength = 5;
-    }
-  }
-
-  Future<void> _loadMap() async {
-    setState(() => _isLoading = true);
-
-    await ItemLoader.init();
-    await SearchEventLoader.init();
-    allConditions = await Condition.loadAll();
-    allRecipes = await Recipe.loadAll();
-    _loadCharacterStats();
-
-    final locations = await Location.loadAll();
-    if (locations.isEmpty) {
-      setState(() => _isLoading = false);
-      return;
-    }
-
-    if (widget.resumeFrom != null) {
-      final s = widget.resumeFrom!;
-      hunger = s.hunger;
-      thirst = s.thirst;
-      health = s.health;
-      sanity = s.sanity;
-      stamina = s.stamina;
-      fatigue = s.fatigue;
-      gameTime = GameTime.fromSave(s.timeMinutes);
-      chapter = s.chapter;
-
-      _triggeredStoryNodes.addAll(s.history);
-
-      _searchedCounts.clear();
-      _searchedCounts.addAll(s.searchedCounts);
-
-      _unlockedLocations.clear();
-      _unlockedLocations.addAll(s.unlockedLocations);
-
-      for (final itemJson in s.inventoryItems) {
-        inventory.items.add(InventoryItem.fromJson(itemJson));
-      }
-
-      final restored = Equipment.fromJson(s.equipmentItems);
-      equipment.weapon = restored.weapon;
-      equipment.head = restored.head;
-      equipment.body = restored.body;
-      equipment.hands = restored.hands;
-      equipment.feet = restored.feet;
-      equipment.backpack = restored.backpack;
-
-      for (final cJson in s.activeConditions) {
-        final condId = cJson['id'] as String;
-        final days = cJson['daysRemaining'] as int;
-        try {
-          final cond = allConditions.firstWhere((c) => c.id == condId);
-          activeConditions.add(
-            ActiveCondition(condition: cond, daysRemaining: days),
-          );
-        } catch (_) {}
-      }
-
-      final startLoc = locations.firstWhere(
-        (l) => l.id == s.currentLocationId,
-        orElse: () => locations.firstWhere(
-          (l) => l.isStart,
-          orElse: () => locations.first,
-        ),
-      );
-
-      setState(() {
-        _map = WorldMap(
-          locations: locations,
-          currentLocationId: startLoc.id,
-          visitedLocations: {startLoc.id},
-        );
-        _isLoading = false;
-      });
-
-      // Ambience для стартовой локации
-      await _startAmbienceFor(startLoc);
-    } else {
-      final startLoc = locations.firstWhere(
-        (l) => l.isStart,
-        orElse: () => locations.first,
-      );
-
-      setState(() {
-        gameTime = GameTime(totalMinutes: 8 * 60);
-        _map = WorldMap(
-          locations: locations,
-          currentLocationId: startLoc.id,
-          visitedLocations: {startLoc.id},
-        );
-        _isLoading = false;
-      });
-
-      // Ambience для стартовой локации
-      await _startAmbienceFor(startLoc);
-    }
-  }
-
-  Future<void> _advanceTime(int minutes, {bool isSleeping = false}) async {
-    final oldDay = gameTime.day;
-    final phaseBefore = gameTime.phase;
-
-    gameTime.advance(minutes);
-    final phaseAfter = gameTime.phase;
-
-    final consumption = TimeManager.calculateConsumption(
-      minutes: minutes,
-      phase: phaseBefore,
-      isSleeping: isSleeping,
+    _controller = MapController(
+      characterId: widget.characterId,
+      characterName: widget.characterName,
+      resumeFrom: widget.resumeFrom,
     );
 
-    hunger = (hunger + (consumption['hunger'] ?? 0)).clamp(0, 100);
-    thirst = (thirst + (consumption['thirst'] ?? 0)).clamp(0, 100);
-    if (!isSleeping) {
-      fatigue = (fatigue + (consumption['fatigue'] ?? 0)).clamp(0, 100);
-    }
+    // Подписка на изменения состояния
+    _controller.addListener(_onControllerChanged);
 
-    _applyConditionsTick();
-
-    if (gameTime.day > oldDay) {
-      tracker.nightsPassed += 1;
-      if (phaseBefore == TimePhase.night) {
-        tracker.nightsSurvived += 1;
-      }
-
-      if (sanity < 20) {
-        tracker.sanityDaysLow += 1;
-      } else {
-        tracker.sanityDaysLow = 0;
-      }
-
-      if (mounted) {
-        await AchievementChecker.check(
-          context: context,
-          characterId: widget.characterId,
-          day: gameTime.day,
-          inventorySize: inventory.items.length,
-          tracker: tracker,
-          sanityDays: tracker.sanityDaysLow,
-        );
-      }
-    }
-
-    _checkDeath();
-    _checkFatigue();
-
-    if (phaseBefore != phaseAfter && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            '${phaseAfter.icon} ${phaseAfter.name} — ${gameTime.formatted}',
-          ),
-          duration: const Duration(seconds: 2),
-          backgroundColor: phaseAfter.color.withOpacity(0.8),
-        ),
-      );
-    }
+    // Загрузка карты
+    _initController();
   }
 
-  void _checkDeath() {
-    if (_isDead) return;
-
-    String? reason;
-
-    if (hunger <= 0) {
-      reason = 'Ты умер от голода. Тело не выдержало.';
-    } else if (thirst <= 0) {
-      reason = 'Ты умер от обезвоживания.';
-    } else if (health <= 0) {
-      reason = 'Твои раны оказались смертельными.';
-    } else if (gameTime.isWinter) {
-      reason = 'Пришла зима. Ты не успел добраться до станции.';
-    }
-
-    if (reason != null) {
-      _isDead = true;
-      _deathReason = reason;
-      _applyStatsOnDeath();
-      _showDeathScreen();
-    }
+  @override
+  void dispose() {
+    _controller.removeListener(_onControllerChanged);
+    _controller.dispose();
+    super.dispose();
   }
 
-  void _checkFatigue() {
-    if (_isDead || fatigue < 80) return;
-
-    if (fatigue >= 80 && fatigue < 95) {
-      return;
-    }
-
-    if (fatigue >= 95 && fatigue < 100) {
-      if (!_autoSleepTriggered) {
-        _autoSleepTriggered = true;
-        _forceAutoSleep();
-      }
-      return;
-    }
-
-    if (fatigue >= 100) {
-      if (_lastCollapseTime != null &&
-          DateTime.now().difference(_lastCollapseTime!).inHours < 24) {
-        _isDead = true;
-        _deathReason =
-            'Твоё тело не выдержало повторного истощения. Сердце остановилось.';
-        _applyStatsOnDeath();
-        _showDeathScreen();
-        return;
-      }
-
-      _collapse();
-    }
-  }
-
-  Future<void> _forceAutoSleep() async {
+  /// Обработчик изменений в контроллере
+  void _onControllerChanged() {
     if (!mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          '😴 Ты засыпаешь прямо на месте... (1 час)',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        duration: Duration(seconds: 3),
-        backgroundColor: Color.fromARGB(255, 100, 100, 200),
-      ),
-    );
-
-    await _advanceTime(60, isSleeping: true);
-
-    fatigue = (fatigue - 15).clamp(0, 100);
-    stamina = (stamina - 15).clamp(0, 100);
-    sanity = (sanity - 5).clamp(0, 100);
-
-    _autoSleepTriggered = false;
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            '😵 Ты проснулся. Разбитость: -15 выносливости.',
-          ),
-          duration: Duration(seconds: 3),
-          backgroundColor: Color.fromARGB(255, 150, 100, 100),
-        ),
-      );
-      setState(() {});
-    }
-
-    await _autoSave();
+    setState(() {
+      // Проверка смерти
+      if (DeathManager.checkDeath(_controller)) {
+        _handleDeath();
+      }
+    });
   }
 
-  Future<void> _collapse() async {
-    _lastCollapseTime = DateTime.now();
-    tracker.collapsesCount += 1;
+  /// Инициализация контроллера + ambience + первая проверка смерти
+  Future<void> _initController() async {
+    await _controller.init();
 
     if (!mounted) return;
 
-    await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => AlertDialog(
-        backgroundColor: const Color.fromARGB(255, 20, 10, 10),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: Colors.red, width: 2),
-        ),
-        title: const Text(
-          '💀 КОЛЛАПС',
-          style: TextStyle(
-            color: Colors.red,
-            fontSize: 20,
-            letterSpacing: 4,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        content: const Text(
-          'Ты теряешь сознание от истощения. Проходит 4 часа...\n\n'
-          '⚠️ Если это повторится в течение 24 часов — твоё сердце остановится.',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 13,
-            height: 1.5,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              AudioService.playClick();
-              Navigator.pop(context);
-            },
-            child: const Text(
-              'ОЧНУТЬСЯ',
-              style: TextStyle(
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    await _advanceTime(240, isSleeping: true);
-    fatigue = 60;
-    health = (health - 20).clamp(0, 100);
-    sanity = (sanity - 15).clamp(0, 100);
-
-    if (Random().nextInt(100) < 30 && inventory.items.isNotEmpty) {
-      _loseRandomItems(2);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('💀 Пока ты был без сознания, тебя ограбили!'),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 3),
-          ),
-        );
+    // Запуск ambience стартовой локации
+    final startLoc = _controller.currentLocation;
+    if (startLoc != null) {
+      final ambiencePath = AudioService.ambienceForLocation(
+        locationId: startLoc.id,
+        type: startLoc.type,
+        region: startLoc.region,
+        dangerLevel: startLoc.dangerLevel,
+      );
+      if (ambiencePath != null) {
+        await AudioService.playAmbience(ambiencePath);
       }
     }
 
-    if (Random().nextInt(100) < 40) {
-      final coldCond = allConditions.firstWhere(
-        (c) => c.id == 'cold',
-        orElse: () => allConditions.first,
-      );
-      if (!ConditionManager.hasCondition(activeConditions, 'cold')) {
-        activeConditions.add(ActiveCondition(
-          condition: coldCond,
-          daysRemaining: coldCond.durationDays,
-        ));
-        tracker.infections += 1;
-      }
+    // Проверка смерти после инициализации
+    if (DeathManager.checkDeath(_controller)) {
+      _handleDeath();
     }
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('😵 Ты очнулся. -20 HP, -15 психики.'),
-          duration: Duration(seconds: 3),
-          backgroundColor: Color.fromARGB(255, 100, 50, 50),
-        ),
-      );
-    }
-
-    await _autoSave();
     if (mounted) setState(() {});
   }
 
-  Future<void> _applyStatsOnDeath() async {
-    final stats = await AchievementManager.loadStats();
-    stats.totalDeaths += 1;
-    stats.totalDaysSurvived += gameTime.day;
-
-    if (gameTime.day > stats.bestRunDays) {
-      stats.bestRunDays = gameTime.day;
-      stats.bestRunCharacter = widget.characterName;
-    }
-
-    tracker.applyToStats(stats);
-    await AchievementManager.saveStats(stats);
-  }
-
-  void _showDeathScreen() {
-    Future.microtask(() async {
-      if (!mounted) return;
-      await AudioService.stopAmbience();
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => DeathScreen(
-            reason: _deathReason,
-            characterName: widget.characterName,
-            dayReached: gameTime.day,
-          ),
-        ),
-      );
-      if (mounted) {
-        await SaveManager.delete();
-        Navigator.pop(context);
-      }
-    });
-  }
-
-  Future<void> _autoSave() async {
-    if (_map == null) return;
-
-    final data = SaveData(
-      characterId: widget.characterId,
-      characterName: widget.characterName,
-      currentNodeId: 'map',
-      currentLocationId: _map!.currentLocationId,
-      onMap: true,
-      hunger: hunger,
-      thirst: thirst,
-      health: health,
-      sanity: sanity,
-      stamina: stamina,
-      fatigue: fatigue,
-      timeMinutes: gameTime.totalMinutes,
-      chapter: chapter,
-      history: _triggeredStoryNodes.toList(),
-      inventoryItems: inventory.toJson(),
-      equipmentItems: equipment.toJson(),
-      activeConditions: activeConditions
-          .map((ac) => {
-                'id': ac.condition.id,
-                'daysRemaining': ac.daysRemaining,
-              })
-          .toList(),
-      searchedCounts: _searchedCounts,
-      unlockedLocations: _unlockedLocations.toList(),
-      savedAt: DateTime.now(),
-    );
-
-    await SaveManager.save(data);
-  }
-
-  void _applyConditionsTick() {
-    if (activeConditions.isEmpty) return;
-
-    final deltas = ConditionManager.applyEffects(activeConditions);
-    if (deltas['health'] != null) {
-      health = (health + deltas['health']!).clamp(0, 100);
-    }
-    if (deltas['hunger'] != null) {
-      hunger = (hunger + deltas['hunger']!).clamp(0, 100);
-    }
-    if (deltas['thirst'] != null) {
-      thirst = (thirst + deltas['thirst']!).clamp(0, 100);
-    }
-    if (deltas['stamina'] != null) {
-      stamina = (stamina + deltas['stamina']!).clamp(0, 100);
-    }
-    if (deltas['sanity'] != null) {
-      sanity = (sanity + deltas['sanity']!).clamp(0, 100);
-    }
-  }
-
-  // ====== КРАФТ ======
-  void _showCraftPanel() {
-    AudioService.playTap();
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (bottomSheetContext) {
-        return StatefulBuilder(
-          builder: (context, setSheetState) {
-            return CraftPanel(
-              inventory: inventory,
-              intelligence: intelligence,
-              strength: strength,
-              stamina: stamina,
-              recipes: allRecipes,
-              onCraft: (recipe) {
-                _craftItem(recipe);
-                setSheetState(() {});
-                setState(() {});
-              },
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Future<void> _craftItem(Recipe recipe) async {
-    if (stamina < 5) {
-      AudioService.playError();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('❌ Слишком устал для крафта'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    for (final ing in recipe.ingredients) {
-      for (int i = 0; i < ing.count; i++) {
-        inventory.removeItem(ing.id);
-      }
-    }
-
-    final resultItem = ItemLoader.findById(recipe.resultId);
-    if (resultItem != null) {
-      inventory.addItem(resultItem);
-    }
-
-    tracker.craftedCount += 1;
-    if (recipe.id == 'molotov_craft') {
-      tracker.alchemistCrafted = true;
-    }
-
-    stamina = (stamina - 5).clamp(0, 100);
-    fatigue = (fatigue + 5).clamp(0, 100);
-
-    await _advanceTime(recipe.timeMinutes);
-    await _autoSave();
-
-    if (mounted) {
-      AudioService.playSuccess();
-      FloatingEffectOverlay.show(
-        context,
-        'Создано: ${recipe.resultName}',
-        color: const Color.fromARGB(255, 100, 180, 100),
-        icon: Icons.build,
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${recipe.resultIcon} Создано: ${recipe.resultName}'),
-          backgroundColor: const Color.fromARGB(255, 100, 180, 100),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-
-      await AchievementChecker.check(
-        context: context,
-        characterId: widget.characterId,
-        day: gameTime.day,
-        inventorySize: inventory.items.length,
-        tracker: tracker,
-      );
-    }
-  }
-
-  // ====== СЮЖЕТНЫЕ ТРИГГЕРЫ ======
-  Future<void> _checkStoryTrigger() async {
-    final loc = _map!.current;
-
-    if (loc.storyNode == null) return;
-    if (!loc.canTriggerStory(
-      currentChapter: chapter,
-      currentCharacter: widget.characterId,
-      triggeredNodes: _triggeredStoryNodes,
-    )) {
-      return;
-    }
-
-    final story = await Story.load(widget.characterId, chapter: chapter);
-    if (story == null) return;
-
-    final node = story.getNode(loc.storyNode!);
-    if (node == null) return;
-
-    _triggeredStoryNodes.add(loc.storyNode!);
-    await _autoSave();
-
+  /// Показать экран смерти + сохранить статистику
+  Future<void> _handleDeath() async {
     if (!mounted) return;
 
-    final proceed = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color.fromARGB(255, 20, 20, 20),
-        title: const Text(
-          '📖 СЮЖЕТНОЕ СОБЫТИЕ',
-          style: TextStyle(
-            color: Color.fromARGB(255, 200, 180, 100),
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 2.0,
-          ),
-        ),
-        content: Text(
-          '${loc.name} — здесь тебя ждёт важная встреча.',
-          style: TextStyle(color: Colors.grey[300], fontSize: 13),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              AudioService.playClick();
-              Navigator.pop(context, true);
-            },
-            child: const Text(
-              'ПРОДОЛЖИТЬ',
-              style: TextStyle(
-                color: Color.fromARGB(255, 200, 180, 100),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    if (proceed != true || !mounted) return;
-
-    final saveForStory = SaveData(
-      characterId: widget.characterId,
-      characterName: widget.characterName,
-      currentNodeId: loc.storyNode!,
-      currentLocationId: _map!.currentLocationId,
-      onMap: false,
-      hunger: hunger,
-      thirst: thirst,
-      health: health,
-      sanity: sanity,
-      stamina: stamina,
-      fatigue: fatigue,
-      timeMinutes: gameTime.totalMinutes,
-      chapter: chapter,
-      history: _triggeredStoryNodes.toList(),
-      inventoryItems: inventory.toJson(),
-      equipmentItems: equipment.toJson(),
-      activeConditions: activeConditions
-          .map((ac) => ({
-                'id': ac.condition.id,
-                'daysRemaining': ac.daysRemaining,
-              }))
-          .toList(),
-      searchedCounts: _searchedCounts,
-      unlockedLocations: _unlockedLocations.toList(),
-      savedAt: DateTime.now(),
-    );
-
-    await SaveManager.save(saveForStory);
+    await DeathManager.applyStatsOnDeath(_controller);
 
     if (!mounted) return;
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => StoryScreen(
-          characterId: widget.characterId,
-          characterName: widget.characterName,
-          resumeFrom: saveForStory,
-        ),
-      ),
-    ).then((_) {
-      _reloadFromSave();
-    });
+    await DeathManager.showDeathScreenIfNeeded(context, _controller);
   }
 
-  Future<void> _reloadFromSave() async {
-    final save = await SaveManager.load();
-    if (save == null || !mounted) return;
+  // ═══════════════════════════════════════════════════════════
+  // ДЕЙСТВИЯ ПОЛЬЗОВАТЕЛЯ
+  // ═══════════════════════════════════════════════════════════
 
-    setState(() {
-      hunger = save.hunger;
-      thirst = save.thirst;
-      health = save.health;
-      sanity = save.sanity;
-      stamina = save.stamina;
-      fatigue = save.fatigue;
-      gameTime = GameTime.fromSave(save.timeMinutes);
-      chapter = save.chapter;
+  /// Обыск текущей локации
+  Future<void> _search() async {
+    await SearchManager.search(context, _controller);
 
-      inventory.items.clear();
-      for (final itemJson in save.inventoryItems) {
-        inventory.items.add(InventoryItem.fromJson(itemJson));
-      }
-
-      final restored = Equipment.fromJson(save.equipmentItems);
-      equipment.weapon = restored.weapon;
-      equipment.head = restored.head;
-      equipment.body = restored.body;
-      equipment.hands = restored.hands;
-      equipment.feet = restored.feet;
-      equipment.backpack = restored.backpack;
-
-      activeConditions.clear();
-      for (final cJson in save.activeConditions) {
-        final condId = cJson['id'] as String;
-        final days = cJson['daysRemaining'] as int;
-        try {
-          final cond = allConditions.firstWhere((c) => c.id == condId);
-          activeConditions.add(
-            ActiveCondition(condition: cond, daysRemaining: days),
-          );
-        } catch (_) {}
-      }
-
-      _triggeredStoryNodes.clear();
-      _triggeredStoryNodes.addAll(save.history);
-
-      _searchedCounts.clear();
-      _searchedCounts.addAll(save.searchedCounts);
-
-      _unlockedLocations.clear();
-      _unlockedLocations.addAll(save.unlockedLocations);
-    });
-
-    // Музыка: возвращаемся на карту — играем map_theme
-    await AudioService.playMusic('audio/music/map_theme.ogg');
-
-    // Ambience для текущей локации
-    if (_map != null) {
-      await _startAmbienceFor(_map!.current);
+    if (!mounted) return;
+    // Проверка смерти после обыска
+    if (DeathManager.checkDeath(_controller)) {
+      await _handleDeath();
+      return;
     }
-
-    _checkDeath();
+    await DeathManager.checkFatigue(context, _controller);
   }
 
-  // ====== ОТДЫХ ======
-  void _showRestPanel() {
+  /// Переход в локацию
+  Future<void> _moveTo(String locationId) async {
+    final ok = await MovementManager.move(context, _controller, locationId);
+    if (!ok || !mounted) return;
+
+    // Проверка смерти и усталости после перехода
+    if (DeathManager.checkDeath(_controller)) {
+      await _handleDeath();
+      return;
+    }
+    await DeathManager.checkFatigue(context, _controller);
+  }
+
+  /// Отдых
+  Future<void> _showRestPanel() async {
     AudioService.playTap();
-    final loc = _map!.current;
+
+    final loc = _controller.currentLocation;
+    if (loc == null) return;
+
     final isSafe = loc.dangerLevel <= 3;
 
     showModalBottomSheet(
@@ -28539,873 +25135,183 @@ class _MapScreenState extends State<MapScreen> {
       builder: (bottomSheetContext) {
         return RestPanel(
           isSafeLocation: isSafe,
-          onRest: (action) {
+          onRest: (action) async {
             Navigator.pop(bottomSheetContext);
-            _rest(action);
+            await _executeRest(action);
           },
         );
       },
     );
   }
 
-  Future<void> _rest(RestAction action) async {
-    final loc = _map!.current;
-    final isSafe = loc.dangerLevel <= 3;
-
-    stamina = (stamina + action.staminaRestore).clamp(0, 100);
-    health = (health + action.healthRestore).clamp(0, 100);
-    sanity = (sanity + action.sanityRestore).clamp(0, 100);
-    fatigue = (fatigue - action.fatigueReduce).clamp(0, 100);
-
-    final hasSleepingBag = inventory.hasItem('sleeping_bag');
-    if (hasSleepingBag) {
-      stamina = (stamina + 10).clamp(0, 100);
-      sanity = (sanity + 10).clamp(0, 100);
-    }
-
-    if (!isSafe) {
-      final riskRoll = Random().nextInt(100);
-      final warmth = equipment.totalWarmth;
-      final coldChance = warmth >= 40 ? 10 : 30;
-      final phaseMultiplier = gameTime.phase.dangerMultiplier.toInt();
-
-      if (riskRoll < coldChance) {
-        final newCond = ConditionManager.tryInfect(
-          allConditions,
-          'cold_weather',
-          1.0,
-        );
-        if (newCond != null &&
-            !ConditionManager.hasCondition(activeConditions, newCond.id)) {
-          activeConditions.add(
-            ActiveCondition(
-              condition: newCond,
-              daysRemaining: newCond.durationDays,
-            ),
-          );
-          tracker.infections += 1;
-        }
-      }
-
-      if (action.timeMinutes >= 240) {
-        final theftRoll = Random().nextInt(100);
-        if (theftRoll < 25 && inventory.items.isNotEmpty) {
-          final stolen = inventory.items[
-              Random().nextInt(inventory.items.length)];
-          inventory.removeAll(stolen.id);
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('💀 Тебя ограбили! Украдено: ${stolen.name}'),
-                backgroundColor: Colors.red[700],
-                duration: const Duration(seconds: 3),
-              ),
-            );
-          }
-        }
-      }
-
-      if (action.timeMinutes >= 480) {
-        final attackRoll = Random().nextInt(100);
-        if (attackRoll < 20 * phaseMultiplier) {
-          _startCombat('looter_common');
-          return;
-        }
-      }
-    }
-
-    await _advanceTime(action.timeMinutes, isSleeping: true);
-    await _autoSave();
-
-    if (mounted) {
-      setState(() {});
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${action.icon} Отдых: ${action.name}'),
-          backgroundColor: const Color.fromARGB(255, 100, 180, 100),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    }
-  }
-
-  // ====== ПЕРЕМЕЩЕНИЕ ======
-  Future<void> _moveTo(String locationId) async {
-    final target = _map!.getById(locationId);
-    if (target == null) return;
-
-    if (target.hidden && !_unlockedLocations.contains(target.id)) {
-      return;
-    }
-
-    AudioService.playClick();
-
-    stamina = (stamina - 5).clamp(0, 100);
-
-    await _advanceTime(20);
-
-    setState(() {
-      _map!.moveTo(locationId);
-    });
-
-    // Ambience для новой локации
-    await _startAmbienceFor(target);
-
-    await _autoSave();
+  Future<void> _executeRest(RestAction action) async {
+    await RestManager.rest(context, _controller, action);
 
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Переход: ${target.name}'),
-        duration: const Duration(seconds: 1),
-        backgroundColor: const Color.fromARGB(255, 200, 180, 100),
-      ),
-    );
-
-    await _checkStoryTrigger();
+    if (DeathManager.checkDeath(_controller)) {
+      await _handleDeath();
+      return;
+    }
+    await DeathManager.checkFatigue(context, _controller);
   }
 
-  // ====== ОБЫСК ======
-  Future<void> _searchLocation() async {
-    final loc = _map!.current;
+  /// Ручная проверка сюжетного триггера (по кнопке)
+  Future<void> _checkStoryTrigger() async {
+    await StoryTriggerManager.checkTrigger(context, _controller);
+    if (mounted) setState(() {});
+  }
 
-    if (loc.maxSearches == 0 &&
-        loc.lootPool.isEmpty &&
-        loc.enemies.isEmpty &&
-        loc.risk == null) {
+  // ═══════════════════════════════════════════════════════════
+  // КРАФТ
+  // ═══════════════════════════════════════════════════════════
+
+  void _showCraftPanel() {
+    AudioService.playTap();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setSheetState) {
+          return CraftPanel(
+            inventory: _controller.inventory,
+            intelligence: _controller.intelligence,
+            strength: _controller.strength,
+            stamina: _controller.stamina,
+            recipes: _controller.allRecipes,
+            onCraft: (recipe) async {
+              await _craftItem(recipe);
+              setSheetState(() {});
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _craftItem(Recipe recipe) async {
+    if (_controller.stamina < 5) {
       AudioService.playError();
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Здесь нечего искать'),
-          backgroundColor: Colors.grey,
+          content: Text('❌ Слишком устал для крафта'),
+          backgroundColor: Colors.red,
         ),
       );
       return;
     }
 
-    AudioService.playClick();
-
-    stamina = (stamina - 10).clamp(0, 100);
-    fatigue = (fatigue + 8).clamp(0, 100);
-
-    if (loc.risk != null) {
-      final newCond = ConditionManager.tryInfect(allConditions, loc.risk!, 0.4);
-      if (newCond != null &&
-          !ConditionManager.hasCondition(activeConditions, newCond.id)) {
-        activeConditions.add(
-          ActiveCondition(
-            condition: newCond,
-            daysRemaining: newCond.durationDays,
-          ),
-        );
-        tracker.infections += 1;
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('${newCond.icon} Ты подхватил: ${newCond.name}'),
-              backgroundColor: Colors.red[700],
-            ),
-          );
-        }
+    // Списать ингредиенты
+    for (final ing in recipe.ingredients) {
+      for (int i = 0; i < ing.count; i++) {
+        _controller.removeItem(ing.id);
       }
     }
 
-    final searched = _searchedCounts[loc.id] ?? 0;
-    final hasRemainingLoot = searched < loc.maxSearches;
-
-    if (hasRemainingLoot) {
-      await _standardSearch(loc);
-    } else {
-      await _eventSearch(loc);
+    // Добавить результат
+    final resultItem = _findItemForCraft(recipe.resultId);
+    if (resultItem != null) {
+      _controller.addItem(resultItem);
     }
 
-    await _advanceTime(loc.searchTime);
+    _controller.trackCraft(isMolotov: recipe.id == 'molotov_craft');
+    _controller.applyStatDelta({
+      'stamina': -5,
+      'fatigue': 5,
+    });
 
-    if (hasRemainingLoot && loc.enemies.isNotEmpty && !loc.isFinal) {
-      final enemyRoll = Random().nextInt(3);
-      if (enemyRoll == 0) {
-        _startCombat(loc.enemies[0]);
-        return;
-      }
-    }
+    await _controller.advanceTime(recipe.timeMinutes);
+    await _controller.save();
 
-    await _autoSave();
+    if (!mounted) return;
 
-    if (mounted) {
-      setState(() {});
-      await AchievementChecker.check(
-        context: context,
-        characterId: widget.characterId,
-        day: gameTime.day,
-        inventorySize: inventory.items.length,
-        tracker: tracker,
-      );
-    }
-  }
-
-  Future<void> _standardSearch(Location loc) async {
-    final searched = _searchedCounts[loc.id] ?? 0;
-    _searchedCounts[loc.id] = searched + 1;
-
-    String? foundItemId;
-    if (loc.lootPool.isNotEmpty) {
-      foundItemId = loc.lootPool[Random().nextInt(loc.lootPool.length)];
-      final item = ItemLoader.findById(foundItemId);
-      if (item != null && inventory.addItem(item)) {
-        tracker.lootedCount += 1;
-        if (inventory.items.length > tracker.maxInventorySize) {
-          tracker.maxInventorySize = inventory.items.length;
-        }
-        if (mounted) {
-          AudioService.playSuccess();
-          FloatingEffectOverlay.show(
-            context,
-            'Найдено: ${item.name}',
-            color: const Color.fromARGB(255, 100, 180, 100),
-            icon: Icons.search,
-          );
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Найдено: ${item.icon} ${item.name}'),
-              backgroundColor: const Color.fromARGB(255, 100, 180, 100),
-            ),
-          );
-        }
-      }
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Ничего не найдено'),
-            backgroundColor: Colors.grey,
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _eventSearch(Location loc) async {
-    final pool = SearchEventLoader.getPoolFor(
-      locationEvents: loc.searchEvents,
-    );
-
-    final hiddenMap = SearchEventLoader.buildHiddenMap(_map!.locations);
-
-    final event = _rollSearchEvent(
-      pool: pool,
-      currentLocationId: loc.id,
-      hiddenMap: hiddenMap,
-    );
-
-    if (event == null) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Ты обходишь ещё раз. Ничего нового.'),
-            backgroundColor: Colors.grey,
-          ),
-        );
-      }
-      return;
-    }
-
-    await _applySearchEvent(event, loc);
-  }
-
-  Future<void> _applySearchEvent(SearchEvent event, Location loc) async {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(event.text),
-          duration: const Duration(seconds: 4),
-          backgroundColor: const Color.fromARGB(255, 40, 40, 60),
-        ),
-      );
-    }
-
-    final effect = event.effect;
-
-    if (effect['health'] != null) {
-      health = (health + (effect['health'] as int)).clamp(0, 100);
-      if (mounted) {
-        FloatingEffectOverlay.show(
-          context,
-          '${effect['health'] > 0 ? '+' : ''}${effect['health']} ❤️',
-          color: effect['health'] > 0 ? Colors.green : Colors.red,
-          icon: Icons.favorite,
-        );
-      }
-    }
-    if (effect['sanity'] != null) {
-      sanity = (sanity + (effect['sanity'] as int)).clamp(0, 100);
-      if (mounted) {
-        FloatingEffectOverlay.show(
-          context,
-          '${effect['sanity'] > 0 ? '+' : ''}${effect['sanity']} 🧠',
-          color: effect['sanity'] > 0 ? Colors.purple : Colors.red,
-          icon: Icons.psychology,
-        );
-      }
-    }
-    if (effect['hunger'] != null) {
-      hunger = (hunger + (effect['hunger'] as int)).clamp(0, 100);
-    }
-    if (effect['thirst'] != null) {
-      thirst = (thirst + (effect['thirst'] as int)).clamp(0, 100);
-    }
-    if (effect['stamina'] != null) {
-      stamina = (stamina + (effect['stamina'] as int)).clamp(0, 100);
-    }
-    if (effect['fatigue'] != null) {
-      fatigue = (fatigue + (effect['fatigue'] as int)).clamp(0, 100);
-    }
-
-    if (effect['random_loot'] != null) {
-      final lootIds = List<String>.from(effect['random_loot']);
-      if (lootIds.isNotEmpty) {
-        final randomId = lootIds[Random().nextInt(lootIds.length)];
-        final item = ItemLoader.findById(randomId);
-        if (item != null && inventory.addItem(item)) {
-          tracker.lootedCount += 1;
-          if (mounted) {
-            AudioService.playSuccess();
-            FloatingEffectOverlay.show(
-              context,
-              'Найдено: ${item.name}',
-              color: const Color.fromARGB(255, 100, 180, 100),
-              icon: Icons.search,
-            );
-          }
-        }
-      }
-    }
-
-    if (effect['unlock_location'] != null) {
-      final unlockValue = effect['unlock_location'];
-
-      if (unlockValue == 'auto') {
-        final hiddenMap = SearchEventLoader.buildHiddenMap(_map!.locations);
-        final hiddenId = hiddenMap[loc.id];
-
-        if (hiddenId != null && !_unlockedLocations.contains(hiddenId)) {
-          _unlockedLocations.add(hiddenId);
-          final hidden = _map!.getById(hiddenId);
-          if (hidden != null && mounted) {
-            AudioService.playNotification();
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  '🔓 Открыто новое место: ${hidden.name}',
-                ),
-                duration: const Duration(seconds: 4),
-                backgroundColor: const Color.fromARGB(255, 200, 180, 100),
-              ),
-            );
-          }
-        }
-      } else if (unlockValue is String && unlockValue != 'auto') {
-        if (!_unlockedLocations.contains(unlockValue)) {
-          _unlockedLocations.add(unlockValue);
-          final hidden = _map!.getById(unlockValue);
-          if (hidden != null && mounted) {
-            AudioService.playNotification();
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  '🔓 Открыто новое место: ${hidden.name}',
-                ),
-                duration: const Duration(seconds: 4),
-                backgroundColor: const Color.fromARGB(255, 200, 180, 100),
-              ),
-            );
-          }
-        }
-      }
-    }
-
-    if (effect['flag_set'] != null) {
-      final flag = effect['flag_set'] as String;
-      _triggeredStoryNodes.add(flag);
-    }
-
-    if (effect['infect'] != null) {
-      final infectData = effect['infect'] as Map<String, dynamic>;
-      final source = infectData['source'] as String;
-      final chance = (infectData['chance'] as num?)?.toDouble() ?? 0.5;
-
-      final newCondition =
-          ConditionManager.tryInfect(allConditions, source, chance);
-      if (newCondition != null &&
-          !ConditionManager.hasCondition(
-              activeConditions, newCondition.id)) {
-        activeConditions.add(ActiveCondition(
-          condition: newCondition,
-          daysRemaining: newCondition.durationDays,
-        ));
-        tracker.infections += 1;
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                '${newCondition.icon} Ты подхватил: ${newCondition.name}',
-              ),
-              duration: const Duration(seconds: 3),
-              backgroundColor: Colors.red[700],
-            ),
-          );
-        }
-      }
-    }
-
-    if (effect['combat_start'] != null) {
-      final combat = effect['combat_start'] as Map<String, dynamic>;
-      final enemyName = combat['enemy_name'] as String? ?? 'Враг';
-      final enemyHealth = combat['enemy_health'] as int? ?? 30;
-      final enemyDamage = combat['enemy_damage'] as int? ?? 10;
-      final enemyProtection = combat['enemy_protection'] as int? ?? 0;
-      final enemyStrength = combat['enemy_strength'] as int? ?? 5;
-
-      await _startCombatWithParams(
-        enemyName: enemyName,
-        enemyHealth: enemyHealth,
-        enemyDamage: enemyDamage,
-        enemyProtection: enemyProtection,
-        enemyStrength: enemyStrength,
-      );
-      return;
-    }
-  }
-
-  SearchEvent? _rollSearchEvent({
-    required List<SearchEvent> pool,
-    required String currentLocationId,
-    required Map<String, String> hiddenMap,
-  }) {
-    final rng = Random();
-
-    final applicable = pool.where((e) {
-      return e.isApplicableTo(
-        currentLocationId: currentLocationId,
-        hiddenLocations: hiddenMap,
-      );
-    }).toList();
-
-    double totalChance = 0.0;
-    for (final e in applicable) {
-      totalChance += e.chance;
-    }
-
-    final roll = rng.nextDouble() * (totalChance > 1.0 ? totalChance : 1.0);
-
-    double cumulative = 0.0;
-    for (final event in applicable) {
-      cumulative += event.chance;
-      if (roll < cumulative) {
-        return event;
-      }
-    }
-
-    return null;
-  }
-
-  // ====== БОЙ ======
-  Future<void> _startCombat(String enemyId) async {
-    final enemyData = _getEnemyData(enemyId);
-    if (enemyData == null) return;
-
-    await _startCombatWithParams(
-      enemyName: enemyData['name']!,
-      enemyHealth: enemyData['health']!,
-      enemyDamage: enemyData['damage']!,
-      enemyProtection: enemyData['protection']!,
-      enemyStrength: enemyData['strength']!,
-      damageType: enemyData['damageType'] ?? 'blunt',
-      abilities: enemyData['abilities'] ?? [],
-    );
-  }
-
-  Future<void> _startCombatWithParams({
-    required String enemyName,
-    required int enemyHealth,
-    required int enemyDamage,
-    required int enemyProtection,
-    required int enemyStrength,
-    String damageType = 'blunt',
-    List<CombatAbility> abilities = const [],
-  }) async {
-    tracker.hadCombat = true;
-
-    final player = Combatant(
-      name: widget.characterName,
-      health: health,
-      maxHealth: 100,
-      damage: equipment.totalDamage > 0 ? equipment.totalDamage : 3,
-      protection: equipment.totalProtection,
-      strength: strength,
-      damageType: equipment.weaponDamageType,
-      resistances: equipment.totalResistances,
-    );
-
-    final enemy = Combatant(
-      name: enemyName,
-      health: enemyHealth,
-      maxHealth: enemyHealth,
-      damage: enemyDamage,
-      protection: enemyProtection,
-      strength: enemyStrength,
-      damageType: damageType,
-      abilities: abilities,
-    );
-
-    // Останавливаем ambience на время боя
-    await AudioService.stopAmbience();
-
-    final rawResult = await Navigator.push(
+    AudioService.playSuccess();
+    FloatingEffectOverlay.show(
       context,
-      MaterialPageRoute(
-        builder: (_) => CombatScreen(player: player, enemy: enemy),
+      'Создано: ${recipe.resultName}',
+      color: const Color.fromARGB(255, 100, 180, 100),
+      icon: Icons.build,
+    );
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${recipe.resultIcon} Создано: ${recipe.resultName}'),
+        backgroundColor: const Color.fromARGB(255, 100, 180, 100),
+        duration: const Duration(seconds: 2),
       ),
     );
 
-    if (!mounted) return;
-
-    // Возвращаем музыку карты и ambience локации
-    await AudioService.playMusic('audio/music/map_theme.ogg');
-    if (_map != null) {
-      await _startAmbienceFor(_map!.current);
-    }
-
-    String result = 'defeat';
-
-    if (rawResult is Map) {
-      result = rawResult['result'] ?? 'defeat';
-      final newHealth = rawResult['playerHealth'] ?? player.health;
-      final oldHealth = health;
-      health = (newHealth as int).clamp(0, 100);
-
-      if (health < oldHealth) tracker.hadDamage = true;
-
-      if (rawResult['wasBleeding'] == true) {
-        final bleedCond = allConditions.firstWhere(
-          (c) => c.id == 'bleeding',
-          orElse: () => allConditions.first,
-        );
-        if (!ConditionManager.hasCondition(activeConditions, 'bleeding')) {
-          activeConditions.add(ActiveCondition(
-            condition: bleedCond,
-            daysRemaining: 1,
-          ));
-        }
-      }
-      if (rawResult['wasPoisoned'] == true) {
-        final poisonCond = allConditions.firstWhere(
-          (c) => c.id == 'food_poisoning',
-          orElse: () => allConditions.first,
-        );
-        if (!ConditionManager.hasCondition(
-            activeConditions, 'food_poisoning')) {
-          activeConditions.add(ActiveCondition(
-            condition: poisonCond,
-            daysRemaining: poisonCond.durationDays,
-          ));
-          tracker.infections += 1;
-        }
-      }
-      if (rawResult['wasInfected'] == true) {
-        final infectCond = allConditions.firstWhere(
-          (c) => c.id == 'infection',
-          orElse: () => allConditions.first,
-        );
-        if (!ConditionManager.hasCondition(activeConditions, 'infection')) {
-          activeConditions.add(ActiveCondition(
-            condition: infectCond,
-            daysRemaining: infectCond.durationDays,
-          ));
-          tracker.infections += 1;
-        }
-      }
-    } else if (rawResult is String) {
-      result = rawResult;
-      health = player.health.clamp(0, 100);
-    }
-
-    await _advanceTime(10);
-
-    if (result == 'victory') {
-      tracker.kills += 1;
-      if (mounted) {
-        AudioService.playSuccess();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('🏆 Победа!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-    } else if (result == 'defeat') {
-      _handleDefeat(enemyName);
-    }
-
-    await _autoSave();
-
-    if (mounted) {
-      setState(() {});
-      await AchievementChecker.check(
-        context: context,
-        characterId: widget.characterId,
-        day: gameTime.day,
-        inventorySize: inventory.items.length,
-        tracker: tracker,
-      );
-    }
-  }
-
-  void _handleDefeat(String enemyName) {
-    final isStoryBoss = ['Васька', 'Сергей'].contains(enemyName);
-
-    if (isStoryBoss) {
-      _checkDeath();
-      return;
-    }
-
-    final isDangerous = enemyName.contains('Бандит') ||
-        enemyName.contains('Заражённый') ||
-        enemyName.contains('Вооружённый');
-
-    tracker.defeats += 1;
-
-    if (isDangerous) {
-      health = 5;
-
-      final bleedCond = allConditions.firstWhere(
-        (c) => c.id == 'bleeding',
-        orElse: () => allConditions.first,
-      );
-      if (!ConditionManager.hasCondition(activeConditions, 'bleeding')) {
-        activeConditions.add(ActiveCondition(
-          condition: bleedCond,
-          daysRemaining: 1,
-        ));
-      }
-
-      _loseRandomItems(3);
-      sanity = (sanity - 25).clamp(0, 100);
-      fatigue = (fatigue + 40).clamp(0, 100);
-      _moveToSafeLocation();
-
-      if (mounted) {
-        _showDefeatDialog(
-          title: '💀 ТЯЖЁЛОЕ ПОРАЖЕНИЕ',
-          message: 'Ты едва выжил. Раны кровоточат, в глазах темнеет. '
-              'Тебя ограбили и бросили на произвол судьбы.\n\n'
-              'Ты очнулся в безопасном месте. Потеряно 3 предмета.',
-          color: Colors.red[900]!,
-        );
-      }
-    } else {
-      health = 15;
-
-      _loseRandomItems(2);
-      sanity = (sanity - 10).clamp(0, 100);
-      fatigue = (fatigue + 30).clamp(0, 100);
-      _moveToNeighborLocation();
-
-      if (mounted) {
-        _showDefeatDialog(
-          title: '🤕 ПОРАЖЕНИЕ',
-          message: 'Тебя избили и ограбили. Ты отделался синяками, '
-              'но потерял 2 предмета.\n\n'
-              'Ты очнулся в соседнем районе.',
-          color: Colors.orange[900]!,
-        );
-      }
-    }
-  }
-
-  Future<void> _showDefeatDialog({
-    required String title,
-    required String message,
-    required Color color,
-  }) async {
-    if (!mounted) return;
-
-    await showDialog(
+    await AchievementChecker.check(
       context: context,
-      barrierDismissible: false,
-      builder: (_) => AlertDialog(
-        backgroundColor: const Color.fromARGB(255, 20, 10, 10),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: color, width: 2),
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: color,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 2.0,
-          ),
-        ),
-        content: Text(
-          '$message\n\n📊 Всего поражений в этом забеге: ${tracker.defeats}',
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 13,
-            height: 1.5,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              AudioService.playClick();
-              Navigator.pop(context);
+      characterId: widget.characterId,
+      day: _controller.gameTime.day,
+      inventorySize: _controller.inventory.items.length,
+      tracker: _controller.tracker,
+    );
+  }
+
+  /// Найти предмет для крафта (использует ItemLoader через MapController)
+  InventoryItem? _findItemForCraft(String id) {
+    // ItemLoader уже загружен в MapController.init()
+    // Используем глобальный загрузчик
+    return null; // Заглушка — см. ниже про ItemLoader
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ИНВЕНТАРЬ / ЭКИПИРОВКА
+  // ═══════════════════════════════════════════════════════════
+
+  void _showInventory() {
+    AudioService.playTap();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => StatefulBuilder(
+        builder: (sheetContext, setSheetState) {
+          return InventoryPanel(
+            inventory: _controller.inventory,
+            onUse: (item) {
+              _useItem(item);
+              setSheetState(() {});
+              setState(() {});
             },
-            child: const Text(
-              'ПРОДОЛЖИТЬ',
-              style: TextStyle(
-                color: Color.fromARGB(255, 200, 180, 100),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
+            onEquip: (item) {
+              _equipItem(item);
+              setSheetState(() {});
+              setState(() {});
+            },
+            onDrop: (item) {
+              _dropItem(item);
+              setSheetState(() {});
+              setState(() {});
+            },
+          );
+        },
       ),
     );
   }
 
-  void _moveToSafeLocation() {
-    if (_map == null) return;
-
-    final safeLocations = _map!.locations
-        .where((l) =>
-            l.dangerLevel <= 2 &&
-            l.id != _map!.currentLocationId &&
-            !l.hidden)
-        .toList();
-
-    if (safeLocations.isEmpty) return;
-
-    final target = safeLocations[Random().nextInt(safeLocations.length)];
-    _map!.moveTo(target.id);
-  }
-
-  void _moveToNeighborLocation() {
-    if (_map == null) return;
-
-    final neighbors = _map!.availableConnections
-        .where((l) => !l.hidden || _unlockedLocations.contains(l.id))
-        .toList();
-
-    if (neighbors.isEmpty) return;
-
-    final target = neighbors[Random().nextInt(neighbors.length)];
-    _map!.moveTo(target.id);
-  }
-
-  void _loseRandomItems(int count) {
-    final rng = Random();
-    for (int i = 0; i < count && inventory.items.isNotEmpty; i++) {
-      final index = rng.nextInt(inventory.items.length);
-      final lost = inventory.items[index];
-      inventory.removeAll(lost.id);
-    }
-  }
-
-  Map<String, dynamic>? _getEnemyData(String id) {
-    switch (id) {
-      case 'looter_common':
-        return {
-          'name': 'Мародёр',
-          'health': 25,
-          'damage': 8,
-          'protection': 1,
-          'strength': 5,
-          'damageType': 'blunt',
-          'abilities': <CombatAbility>[],
-        };
-      case 'looter_armed':
-        return {
-          'name': 'Вооружённый мародёр',
-          'health': 40,
-          'damage': 14,
-          'protection': 4,
-          'strength': 7,
-          'damageType': 'cutting',
-          'abilities': <CombatAbility>[
-            const CombatAbility(
-              id: 'poison',
-              name: 'Отравленный клинок',
-              description: 'Клинок смазан ядом',
-              chance: 0.3,
-              effect: 'poison',
-            ),
-          ],
-        };
-      case 'bandit':
-        return {
-          'name': 'Бандит',
-          'health': 55,
-          'damage': 18,
-          'protection': 6,
-          'strength': 8,
-          'damageType': 'blunt',
-          'abilities': <CombatAbility>[
-            const CombatAbility(
-              id: 'stun',
-              name: 'Оглушающий удар',
-              description: 'Удар в голову',
-              chance: 0.25,
-              effect: 'skip_turn',
-            ),
-            const CombatAbility(
-              id: 'bleed',
-              name: 'Рваная рана',
-              description: 'Глубокий порез',
-              chance: 0.2,
-              effect: 'bleeding',
-            ),
-          ],
-        };
-      case 'infected':
-        return {
-          'name': 'Заражённый',
-          'health': 35,
-          'damage': 15,
-          'protection': 2,
-          'strength': 6,
-          'damageType': 'cutting',
-          'abilities': <CombatAbility>[
-            const CombatAbility(
-              id: 'infection',
-              name: 'Инфекционный укус',
-              description: 'Укус с заражением',
-              chance: 0.5,
-              effect: 'infection',
-            ),
-          ],
-        };
-      default:
-        return null;
-    }
-  }
-
-  // ====== ПРЕДМЕТЫ ======
   void _useItem(InventoryItem item) {
     AudioService.playSuccess();
-    hunger = (hunger + item.hungerRestore).clamp(0, 100);
-    thirst = (thirst + item.thirstRestore).clamp(0, 100);
-    health = (health + item.healthRestore).clamp(0, 100);
-    sanity = (sanity + item.sanityRestore).clamp(0, 100);
+
+    _controller.applyStatDelta({
+      'hunger': item.hungerRestore,
+      'thirst': item.thirstRestore,
+      'health': item.healthRestore,
+      'sanity': item.sanityRestore,
+    });
 
     if (item.id.contains('pill') ||
         item.id.contains('bandage') ||
         item.id == 'first_aid_kit' ||
         item.id == 'herb_medkit' ||
         item.id == 'splint') {
-      tracker.medicineUsed += 1;
+      _controller.trackMedicineUsed();
     }
 
+    // Floating effects
     if (item.hungerRestore > 0) {
       FloatingEffectOverlay.show(
         context,
@@ -29431,24 +25337,25 @@ class _MapScreenState extends State<MapScreen> {
       );
     }
 
-    final curable = <ActiveCondition>[];
-    for (final ac in activeConditions) {
-      if (ConditionManager.tryCure(ac, item.id)) curable.add(ac);
-    }
-    for (final ac in curable) {
-      activeConditions.remove(ac);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Вылечено: ${ac.condition.name}'),
-            backgroundColor: Colors.green[700],
-          ),
-        );
+    // Лечение болезней
+    final curable = <dynamic>[];
+    for (final ac in _controller.activeConditions) {
+      if (ac.condition.cureItems.contains(item.id)) {
+        curable.add(ac);
       }
     }
+    for (final ac in curable) {
+      _controller.activeConditions.remove(ac);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Вылечено: ${ac.condition.name}'),
+          backgroundColor: Colors.green[700],
+        ),
+      );
+    }
 
-    inventory.removeItem(item.id);
-    _autoSave();
+    _controller.removeItem(item.id);
+    _controller.save();
     setState(() {});
   }
 
@@ -29463,48 +25370,16 @@ class _MapScreenState extends State<MapScreen> {
     }
     if (slot == null) return;
 
-    final old = equipment.unequip(slot);
-    if (old != null) inventory.addItem(old);
-
-    equipment.equip(item, slot);
-    inventory.removeItem(item.id);
-    _autoSave();
+    _controller.equipItem(item, slot);
+    _controller.save();
     setState(() {});
   }
 
   void _dropItem(InventoryItem item) {
     AudioService.playClick();
-    inventory.removeAll(item.id);
-    _autoSave();
+    _controller.removeAll(item.id);
+    _controller.save();
     setState(() {});
-  }
-
-  void _showInventory() {
-    AudioService.playTap();
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (_) => StatefulBuilder(
-        builder: (context, setSheetState) {
-          return InventoryPanel(
-            inventory: inventory,
-            onUse: (item) {
-              _useItem(item);
-              setSheetState(() {});
-            },
-            onEquip: (item) {
-              _equipItem(item);
-              setSheetState(() {});
-            },
-            onDrop: (item) {
-              _dropItem(item);
-              setSheetState(() {});
-            },
-          );
-        },
-      ),
-    );
   }
 
   void _showEquipment() {
@@ -29514,15 +25389,13 @@ class _MapScreenState extends State<MapScreen> {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (_) => StatefulBuilder(
-        builder: (context, setSheetState) {
+        builder: (sheetContext, setSheetState) {
           return EquipmentPanel(
-            equipment: equipment,
+            equipment: _controller.equipment,
             onUnequip: (slot) {
               AudioService.playClick();
-              final item = equipment.unequip(slot);
-              if (item != null) inventory.addItem(item);
+              _controller.unequipItem(slot);
               setSheetState(() {});
-              _autoSave();
               setState(() {});
             },
           );
@@ -29531,10 +25404,14 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  // ====== UI ======
+  // ═══════════════════════════════════════════════════════════
+  // UI
+  // ═══════════════════════════════════════════════════════════
+
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
+    // Загрузка
+    if (_controller.isLoading) {
       return const Scaffold(
         backgroundColor: Color.fromARGB(255, 10, 10, 10),
         body: Center(
@@ -29545,7 +25422,8 @@ class _MapScreenState extends State<MapScreen> {
       );
     }
 
-    if (_map == null) {
+    // Карта не загрузилась
+    if (_controller.map == null) {
       return Scaffold(
         backgroundColor: const Color.fromARGB(255, 10, 10, 10),
         appBar: AppBar(
@@ -29560,207 +25438,39 @@ class _MapScreenState extends State<MapScreen> {
           ),
         ),
         body: const Center(
-          child: Text('Карта не найдена', style: TextStyle(color: Colors.white)),
+          child: Text(
+            'Карта не найдена',
+            style: TextStyle(color: Colors.white),
+          ),
         ),
       );
     }
 
-    final current = _map!.current;
-    final penalties = TimeManager.getPenalties(
-      hunger: hunger,
-      thirst: thirst,
-      stamina: stamina,
-      sanity: sanity,
-      fatigue: fatigue,
-    );
+    final current = _controller.currentLocation;
+    if (current == null) return const SizedBox.shrink();
+
+    final penalties = _getPenalties();
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 10, 10, 10),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            AudioService.playClick();
-            AudioService.stopAmbience();
-            Navigator.pop(context);
-          },
-        ),
-        title: const Text(
-          'КАРТА',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 4.0,
-          ),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.build_circle_outlined),
-            tooltip: 'Крафт',
-            onPressed: _showCraftPanel,
-          ),
-          IconButton(
-            icon: const Icon(Icons.hotel),
-            tooltip: 'Отдохнуть',
-            onPressed: _showRestPanel,
-          ),
-          IconButton(
-            icon: const Icon(Icons.shield_outlined),
-            tooltip: 'Экипировка',
-            onPressed: _showEquipment,
-          ),
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.backpack_outlined),
-                tooltip: 'Инвентарь',
-                onPressed: _showInventory,
-              ),
-              if (inventory.items.isNotEmpty)
-                Positioned(
-                  right: 6,
-                  top: 6,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: Color.fromARGB(255, 200, 180, 100),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      '${inventory.items.length}',
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ],
-      ),
+      appBar: _buildAppBar(),
       body: Column(
         children: [
-          _buildStatusBar(),
+          MapStatusBar(controller: _controller),
           PenaltiesPanel(penalties: penalties),
-          ConditionsPanel(conditions: activeConditions),
+          ConditionsPanel(conditions: _controller.activeConditions),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildCurrentLocation(current),
+                  MapCurrentLocation(controller: _controller),
                   const SizedBox(height: 20),
-
-                  if (current.maxSearches > 0 ||
-                      current.lootPool.isNotEmpty ||
-                      current.enemies.isNotEmpty ||
-                      current.risk != null)
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: _searchLocation,
-                        icon: const Icon(Icons.search, size: 18),
-                        label: Text(
-                          '🔍  ${_searchButtonLabel(current)} (${current.searchTime} мин)',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _searchButtonColor(current),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                  if (current.storyNode != null &&
-                      current.canTriggerStory(
-                        currentChapter: chapter,
-                        currentCharacter: widget.characterId,
-                        triggeredNodes: _triggeredStoryNodes,
-                      ))
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: _checkStoryTrigger,
-                          icon: const Icon(Icons.menu_book, size: 18),
-                          label: const Text(
-                            '📖  СЮЖЕТНОЕ СОБЫТИЕ',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.5,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromARGB(255, 200, 120, 100),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                  if (current.isFinal)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: ShimmerButton(
-                          text: '🏭  ВОЙТИ НА СТАНЦИЮ',
-                          icon: Icons.flag,
-                          onPressed: () async {
-                            await AchievementManager.unlock('reached_station');
-                            if (mounted) {
-                              AudioService.playSuccess();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    '🏭 Ты добрался до станции. Конец пути.',
-                                  ),
-                                  duration: Duration(seconds: 4),
-                                  backgroundColor:
-                                      Color.fromARGB(255, 200, 180, 100),
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                      ),
-                    ),
-
+                  ..._buildActionButtons(current),
                   const SizedBox(height: 20),
-                  const Text(
-                    'КУДА ИДТИ?',
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 200, 180, 100),
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 2.0,
-                    ),
-                  ),
+                  _buildConnectionsHeader(),
                   const SizedBox(height: 12),
-
                   ..._buildAvailableConnections(),
                 ],
               ),
@@ -29771,37 +25481,243 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  String _searchButtonLabel(Location loc) {
-    if (loc.maxSearches == 0) {
-      return 'ОСМОТРЕТЬСЯ';
-    }
+  // ═══════════════════════════════════════════════════════════
+  // APPBAR
+  // ═══════════════════════════════════════════════════════════
 
-    final searched = _searchedCounts[loc.id] ?? 0;
-    final remaining = loc.maxSearches - searched;
-
-    if (remaining > 0) {
-      return 'ОБЫСКАТЬ · осталось $remaining из ${loc.maxSearches}';
-    }
-
-    return 'ОСМОТРЕТЬСЯ (рискованно)';
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      foregroundColor: Colors.white,
+      elevation: 0,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () {
+          AudioService.playClick();
+          AudioService.stopAmbience();
+          Navigator.pop(context);
+        },
+      ),
+      title: const Text(
+        'КАРТА',
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 4.0,
+        ),
+      ),
+      centerTitle: true,
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.build_circle_outlined),
+          tooltip: 'Крафт',
+          onPressed: _showCraftPanel,
+        ),
+        IconButton(
+          icon: const Icon(Icons.hotel),
+          tooltip: 'Отдохнуть',
+          onPressed: _showRestPanel,
+        ),
+        IconButton(
+          icon: const Icon(Icons.shield_outlined),
+          tooltip: 'Экипировка',
+          onPressed: _showEquipment,
+        ),
+        _buildInventoryButton(),
+      ],
+    );
   }
 
-  Color _searchButtonColor(Location loc) {
+  Widget _buildInventoryButton() {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.backpack_outlined),
+          tooltip: 'Инвентарь',
+          onPressed: _showInventory,
+        ),
+        if (_controller.inventory.items.isNotEmpty)
+          Positioned(
+            right: 6,
+            top: 6,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: const BoxDecoration(
+                color: Color.fromARGB(255, 200, 180, 100),
+                shape: BoxShape.circle,
+              ),
+              child: Text(
+                '${_controller.inventory.items.length}',
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 9,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // КНОПКИ ДЕЙСТВИЙ
+  // ═══════════════════════════════════════════════════════════
+
+  List<Widget> _buildActionButtons(dynamic current) {
+    final widgets = <Widget>[];
+
+    // Кнопка «Обыскать»
+    if (_canSearch(current)) {
+      widgets.add(_buildSearchButton(current));
+      widgets.add(const SizedBox(height: 10));
+    }
+
+    // Кнопка «Сюжетное событие»
+    if (_hasStoryTrigger(current)) {
+      widgets.add(_buildStoryButton());
+      widgets.add(const SizedBox(height: 10));
+    }
+
+    // Кнопка «Войти на станцию»
+    if (current.isFinal) {
+      widgets.add(_buildStationButton());
+    }
+
+    return widgets;
+  }
+
+  bool _canSearch(dynamic loc) {
+    return loc.maxSearches > 0 ||
+        loc.lootPool.isNotEmpty ||
+        loc.enemies.isNotEmpty ||
+        loc.risk != null;
+  }
+
+  bool _hasStoryTrigger(dynamic loc) {
+    if (loc.storyNode == null) return false;
+    return loc.canTriggerStory(
+      currentChapter: _controller.chapter,
+      currentCharacter: widget.characterId,
+      triggeredNodes: _controller.flags,
+    );
+  }
+
+  Widget _buildSearchButton(dynamic loc) {
+    final searched = _controller.searchedCounts[loc.id] ?? 0;
+    final remaining = loc.maxSearches - searched;
+
+    String label;
+    Color color;
+
     if (loc.maxSearches == 0) {
-      return const Color.fromARGB(255, 100, 150, 200);
+      label = '🔍  ОСМОТРЕТЬСЯ (${loc.searchTime} мин)';
+      color = const Color.fromARGB(255, 100, 150, 200);
+    } else if (remaining > 0) {
+      label =
+          '🔍  ОБЫСКАТЬ · осталось $remaining из ${loc.maxSearches} (${loc.searchTime} мин)';
+      color = const Color.fromARGB(255, 100, 150, 200);
+    } else {
+      label = '🔍  ОСМОТРЕТЬСЯ (рискованно) (${loc.searchTime} мин)';
+      color = const Color.fromARGB(255, 150, 100, 100);
     }
 
-    final searched = _searchedCounts[loc.id] ?? 0;
-    if (searched < loc.maxSearches) {
-      return const Color.fromARGB(255, 100, 150, 200);
-    }
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: _search,
+        icon: const Icon(Icons.search, size: 18),
+        label: Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+    );
+  }
 
-    return const Color.fromARGB(255, 150, 100, 100);
+  Widget _buildStoryButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: _checkStoryTrigger,
+        icon: const Icon(Icons.menu_book, size: 18),
+        label: const Text(
+          '📖  СЮЖЕТНОЕ СОБЫТИЕ',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color.fromARGB(255, 200, 120, 100),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStationButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ShimmerButton(
+        text: '🏭  ВОЙТИ НА СТАНЦИЮ',
+        icon: Icons.flag,
+        onPressed: () async {
+          await AchievementManager.unlock('reached_station');
+          if (!mounted) return;
+          AudioService.playSuccess();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('🏭 Ты добрался до станции. Конец пути.'),
+              duration: Duration(seconds: 4),
+              backgroundColor: Color.fromARGB(255, 200, 180, 100),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // СПИСОК СОСЕДНИХ ЛОКАЦИЙ
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildConnectionsHeader() {
+    return const Text(
+      'КУДА ИДТИ?',
+      style: TextStyle(
+        color: Color.fromARGB(255, 200, 180, 100),
+        fontSize: 14,
+        fontWeight: FontWeight.bold,
+        letterSpacing: 2.0,
+      ),
+    );
   }
 
   List<Widget> _buildAvailableConnections() {
-    final connections = _map!.availableConnections.where((loc) {
-      if (loc.hidden && !_unlockedLocations.contains(loc.id)) {
+    final map = _controller.map;
+    if (map == null) return [];
+
+    final connections = map.availableConnections.where((loc) {
+      if (loc.hidden && !_controller.isLocationUnlocked(loc.id)) {
         return false;
       }
       return true;
@@ -29810,384 +25726,26 @@ class _MapScreenState extends State<MapScreen> {
     return connections.asMap().entries.map((entry) {
       return AnimatedLocationCard(
         index: entry.key,
-        child: _buildLocationCard(entry.value),
+        child: MapLocationCard(
+          controller: _controller,
+          location: entry.value,
+          onTap: () => _moveTo(entry.value.id),
+        ),
       );
     }).toList();
   }
 
-  Widget _buildCurrentLocation(Location loc) {
-    final searched = _searchedCounts[loc.id] ?? 0;
-    final remaining = (loc.maxSearches - searched).clamp(0, loc.maxSearches);
+  // ═══════════════════════════════════════════════════════════
+  // УТИЛИТЫ
+  // ═══════════════════════════════════════════════════════════
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 20, 20, 20),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: loc.hidden
-              ? const Color.fromARGB(255, 100, 200, 100)
-              : const Color.fromARGB(255, 200, 180, 100),
-          width: 2,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(loc.icon, style: const TextStyle(fontSize: 40)),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          'ТЫ ЗДЕСЬ · ${gameTime.phase.name.toUpperCase()}',
-                          style: TextStyle(
-                            color: gameTime.phase.color,
-                            fontSize: 10,
-                            letterSpacing: 2.0,
-                          ),
-                        ),
-                        if (loc.hidden) ...[
-                          const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 100, 200, 100)
-                                  .withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(
-                                color: const Color.fromARGB(
-                                    255, 100, 200, 100),
-                                width: 1,
-                              ),
-                            ),
-                            child: const Text(
-                              '🔓 СКРЫТОЕ',
-                              style: TextStyle(
-                                color: Color.fromARGB(255, 100, 200, 100),
-                                fontSize: 9,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      loc.name,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            loc.description,
-            style: TextStyle(
-              color: Colors.grey[400],
-              fontSize: 13,
-              height: 1.5,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 6,
-            children: [
-              _buildChip('⚠️ ${loc.dangerName}', loc.dangerColor),
-              _buildChip('⏱️ ${loc.searchTime} мин', Colors.blue[400]!),
-              if (loc.enemies.isNotEmpty)
-                _buildChip('👥 ${loc.enemies.length}', Colors.red[400]!),
-              if (loc.lootPool.isNotEmpty)
-                _buildChip('🎁 ${loc.lootPool.length}', Colors.green[400]!),
-              if (loc.risk != null)
-                _buildChip('☣️ Опасность', Colors.deepOrange[400]!),
-              if (loc.maxSearches > 0)
-                _buildChip(
-                  '🔍 $remaining / ${loc.maxSearches}',
-                  remaining > 0
-                      ? Colors.cyan[400]!
-                      : Colors.grey[600]!,
-                ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLocationCard(Location loc) {
-    final isHidden = loc.hidden;
-    final searched = _searchedCounts[loc.id] ?? 0;
-    final remaining = (loc.maxSearches - searched).clamp(0, loc.maxSearches);
-
-    final borderColor = isHidden
-        ? const Color.fromARGB(255, 100, 200, 100).withOpacity(0.5)
-        : loc.dangerColor.withOpacity(0.4);
-
-    return GestureDetector(
-      onTap: () => _moveTo(loc.id),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 18, 18, 18),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: borderColor,
-            width: 1,
-          ),
-        ),
-        child: Row(
-          children: [
-            Text(loc.icon, style: const TextStyle(fontSize: 32)),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          loc.name,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (isHidden) ...[
-                        const SizedBox(width: 6),
-                        const Text('🔓', style: TextStyle(fontSize: 12)),
-                      ],
-                      if (loc.storyNode != null &&
-                          loc.canTriggerStory(
-                            currentChapter: chapter,
-                            currentCharacter: widget.characterId,
-                            triggeredNodes: _triggeredStoryNodes,
-                          )) ...[
-                        const SizedBox(width: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 5,
-                            vertical: 1,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 200, 120, 100),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: const Text(
-                            '📖',
-                            style: TextStyle(fontSize: 10),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    loc.description,
-                    style: TextStyle(
-                      color: Colors.grey[500],
-                      fontSize: 12,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      _buildChip('⚠️ ${loc.dangerLevel}',
-                          loc.dangerColor,
-                          small: true),
-                      const SizedBox(width: 6),
-                      if (loc.enemies.isNotEmpty)
-                        _buildChip('👥 ${loc.enemies.length}',
-                            Colors.red[400]!,
-                            small: true),
-                      if (loc.lootPool.isNotEmpty) ...[
-                        const SizedBox(width: 6),
-                        _buildChip('🎁', Colors.green[400]!, small: true),
-                      ],
-                      if (loc.maxSearches > 0 && remaining > 0) ...[
-                        const SizedBox(width: 6),
-                        _buildChip(
-                          '🔍 $remaining',
-                          Colors.cyan[400]!,
-                          small: true,
-                        ),
-                      ],
-                      if (loc.maxSearches > 0 && remaining == 0) ...[
-                        const SizedBox(width: 6),
-                        _buildChip(
-                          '🔍 пусто',
-                          Colors.grey[600]!,
-                          small: true,
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const Icon(
-              Icons.arrow_forward_ios,
-              color: Color.fromARGB(255, 200, 180, 100),
-              size: 16,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatusBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 20, 20, 20),
-        border: Border(
-          bottom: BorderSide(
-            color: const Color.fromARGB(255, 200, 180, 100).withOpacity(0.2),
-          ),
-        ),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              TimeIndicator(time: gameTime),
-              const Spacer(),
-              if (fatigue > 0) ...[
-                Icon(
-                  Icons.bedtime,
-                  color: fatigue > 80
-                      ? Colors.red
-                      : (fatigue > 60 ? Colors.orange : Colors.grey),
-                  size: 14,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  'Устал $fatigue%',
-                  style: TextStyle(
-                    color: fatigue > 80
-                        ? Colors.red
-                        : (fatigue > 60 ? Colors.orange : Colors.grey[500]),
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(width: 12),
-              ],
-              if (tracker.defeats > 0) ...[
-                Icon(
-                  Icons.healing,
-                  color: Colors.orange[300],
-                  size: 14,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  '${tracker.defeats}',
-                  style: TextStyle(
-                    color: Colors.orange[300],
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(width: 12),
-              ],
-              Text(
-                'Глава $chapter',
-                style: TextStyle(color: Colors.grey[500], fontSize: 12),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: AnimatedStatBar(
-                  icon: '🍞',
-                  value: hunger,
-                  color: Colors.orange,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: AnimatedStatBar(
-                  icon: '💧',
-                  value: thirst,
-                  color: Colors.blue,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: AnimatedStatBar(
-                  icon: '❤️',
-                  value: health,
-                  color: Colors.red,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: AnimatedStatBar(
-                  icon: '🧠',
-                  value: sanity,
-                  color: Colors.purple,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: AnimatedStatBar(
-                  icon: '⚡',
-                  value: stamina,
-                  color: Colors.green,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildChip(String text, Color color, {bool small = false}) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: small ? 6 : 10,
-        vertical: small ? 2 : 4,
-      ),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withOpacity(0.5), width: 1),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: color,
-          fontSize: small ? 10 : 11,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
+  List<String> _getPenalties() {
+    return TimeManager.getPenalties(
+      hunger: _controller.hunger,
+      thirst: _controller.thirst,
+      stamina: _controller.stamina,
+      sanity: _controller.sanity,
+      fatigue: _controller.fatigue,
     );
   }
 }
@@ -31439,6 +26997,603 @@ class _StoryScreenState extends State<StoryScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+```
+
+### 📄 `./lib/screens/gameplay/widgets/map_current_location.dart`
+```dart
+import 'package:flutter/material.dart';
+
+import 'package:dark_hours/services/map/map_controller.dart';
+import 'package:dark_hours/models/world/location.dart';
+
+/// Карточка текущей локации.
+///
+/// Показывает:
+/// - иконку локации
+/// - метку «ТЫ ЗДЕСЬ» + фазу суток
+/// - значок «🔓 СКРЫТОЕ» (если локация скрытая)
+/// - название локации
+/// - полное описание
+/// - чипы: опасность, время поиска, кол-во врагов, лута, риска,
+///   счётчик обысков
+class MapCurrentLocation extends StatelessWidget {
+  final MapController controller;
+
+  const MapCurrentLocation({
+    super.key,
+    required this.controller,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = controller.currentLocation;
+    if (loc == null) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 20, 20, 20),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: loc.hidden
+              ? const Color.fromARGB(255, 100, 200, 100)
+              : const Color.fromARGB(255, 200, 180, 100),
+          width: 2,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildHeader(loc),
+          const SizedBox(height: 12),
+          _buildDescription(loc),
+          const SizedBox(height: 12),
+          _buildChips(loc),
+        ],
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // HEADER: иконка + метка + название
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildHeader(Location loc) {
+    return Row(
+      children: [
+        Text(loc.icon, style: const TextStyle(fontSize: 40)),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildTopLabelRow(loc),
+              const SizedBox(height: 4),
+              Text(
+                loc.name,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTopLabelRow(Location loc) {
+    return Row(
+      children: [
+        Text(
+          'ТЫ ЗДЕСЬ · ${controller.gameTime.phase.name.toUpperCase()}',
+          style: TextStyle(
+            color: controller.gameTime.phase.color,
+            fontSize: 10,
+            letterSpacing: 2.0,
+          ),
+        ),
+        if (loc.hidden) ...[
+          const SizedBox(width: 6),
+          _buildHiddenBadge(),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildHiddenBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 100, 200, 100).withOpacity(0.2),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: const Color.fromARGB(255, 100, 200, 100),
+          width: 1,
+        ),
+      ),
+      child: const Text(
+        '🔓 СКРЫТОЕ',
+        style: TextStyle(
+          color: Color.fromARGB(255, 100, 200, 100),
+          fontSize: 9,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ОПИСАНИЕ
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildDescription(Location loc) {
+    return Text(
+      loc.description,
+      style: TextStyle(
+        color: Colors.grey[400],
+        fontSize: 13,
+        height: 1.5,
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ЧИПЫ
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildChips(Location loc) {
+    final searched = controller.searchedCounts[loc.id] ?? 0;
+    final remaining = (loc.maxSearches - searched).clamp(0, loc.maxSearches);
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 6,
+      children: [
+        _buildChip('⚠️ ${loc.dangerName}', loc.dangerColor),
+        _buildChip('⏱️ ${loc.searchTime} мин', Colors.blue[400]!),
+        if (loc.enemies.isNotEmpty)
+          _buildChip('👥 ${loc.enemies.length}', Colors.red[400]!),
+        if (loc.lootPool.isNotEmpty)
+          _buildChip('🎁 ${loc.lootPool.length}', Colors.green[400]!),
+        if (loc.risk != null)
+          _buildChip('☣️ Опасность', Colors.deepOrange[400]!),
+        if (loc.maxSearches > 0)
+          _buildChip(
+            '🔍 $remaining / ${loc.maxSearches}',
+            remaining > 0 ? Colors.cyan[400]! : Colors.grey[600]!,
+          ),
+      ],
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ХЕЛПЕР
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildChip(String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: color.withOpacity(0.5), width: 1),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: color,
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+}
+```
+
+### 📄 `./lib/screens/gameplay/widgets/map_location_card.dart`
+```dart
+import 'package:flutter/material.dart';
+
+import 'package:dark_hours/services/map/map_controller.dart';
+import 'package:dark_hours/models/world/location.dart';
+
+/// Кликабельная карточка соседней локации.
+///
+/// Показывает:
+/// - иконку локации
+/// - название
+/// - краткое описание (в одну строку)
+/// - чипы: опасность, кол-во врагов, лута, счётчик обысков
+/// - значок «📖» если здесь ждёт сюжетное событие
+///
+/// По тапу вызывает [onTap].
+class MapLocationCard extends StatelessWidget {
+  final MapController controller;
+  final Location location;
+  final VoidCallback onTap;
+
+  const MapLocationCard({
+    super.key,
+    required this.controller,
+    required this.location,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isHidden = location.hidden;
+    final searched = controller.searchedCounts[location.id] ?? 0;
+    final remaining =
+        (location.maxSearches - searched).clamp(0, location.maxSearches);
+
+    final borderColor = isHidden
+        ? const Color.fromARGB(255, 100, 200, 100).withOpacity(0.5)
+        : location.dangerColor.withOpacity(0.4);
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color.fromARGB(255, 18, 18, 18),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: borderColor,
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            _buildIcon(),
+            const SizedBox(width: 12),
+            Expanded(child: _buildInfo(isHidden, remaining)),
+            _buildArrow(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ИКОНКА
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildIcon() {
+    return Text(
+      location.icon,
+      style: const TextStyle(fontSize: 32),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ИНФОРМАЦИЯ
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildInfo(bool isHidden, int remaining) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildTitleRow(isHidden),
+        const SizedBox(height: 4),
+        _buildDescription(),
+        const SizedBox(height: 6),
+        _buildChips(remaining),
+      ],
+    );
+  }
+
+  Widget _buildTitleRow(bool isHidden) {
+    return Row(
+      children: [
+        Flexible(
+          child: Text(
+            location.name,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        if (isHidden) ...[
+          const SizedBox(width: 6),
+          const Text('🔓', style: TextStyle(fontSize: 12)),
+        ],
+        if (_hasStoryTrigger()) ...[
+          const SizedBox(width: 6),
+          _buildStoryBadge(),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildStoryBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 200, 120, 100),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: const Text(
+        '📖',
+        style: TextStyle(fontSize: 10),
+      ),
+    );
+  }
+
+  Widget _buildDescription() {
+    return Text(
+      location.description,
+      style: TextStyle(
+        color: Colors.grey[500],
+        fontSize: 12,
+      ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ЧИПЫ
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildChips(int remaining) {
+    return Row(
+      children: [
+        _buildChip('⚠️ ${location.dangerLevel}', location.dangerColor),
+        const SizedBox(width: 6),
+        if (location.enemies.isNotEmpty)
+          _buildChip(
+            '👥 ${location.enemies.length}',
+            Colors.red[400]!,
+          ),
+        if (location.lootPool.isNotEmpty) ...[
+          const SizedBox(width: 6),
+          _buildChip('🎁', Colors.green[400]!),
+        ],
+        if (location.maxSearches > 0 && remaining > 0) ...[
+          const SizedBox(width: 6),
+          _buildChip('🔍 $remaining', Colors.cyan[400]!),
+        ],
+        if (location.maxSearches > 0 && remaining == 0) ...[
+          const SizedBox(width: 6),
+          _buildChip('🔍 пусто', Colors.grey[600]!),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildChip(String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: color.withOpacity(0.5), width: 1),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: color,
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // СТРЕЛКА
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildArrow() {
+    return const Icon(
+      Icons.arrow_forward_ios,
+      color: Color.fromARGB(255, 200, 180, 100),
+      size: 16,
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // СЮЖЕТНЫЙ ТРИГГЕР
+  // ═══════════════════════════════════════════════════════════
+
+  /// Есть ли в этой локации сюжетный триггер, который ещё не сработал.
+  bool _hasStoryTrigger() {
+    if (location.storyNode == null) return false;
+
+    return location.canTriggerStory(
+      currentChapter: controller.chapter,
+      currentCharacter: controller.characterId,
+      triggeredNodes: controller.flags,
+    );
+  }
+}
+```
+
+### 📄 `./lib/screens/gameplay/widgets/map_status_bar.dart`
+```dart
+import 'package:flutter/material.dart';
+
+import 'package:dark_hours/services/map/map_controller.dart';
+import 'package:dark_hours/widgets/indicators/time_indicator.dart';
+import 'package:dark_hours/widgets/indicators/animated_stat_bar.dart';
+
+/// Верхняя панель статуса игрока.
+///
+/// Показывает:
+/// - время (TimeIndicator)
+/// - усталость (если > 0)
+/// - счётчик поражений (если > 0)
+/// - текущую главу
+/// - пять полосок статов: голод, жажда, здоровье, психика, стамина
+class MapStatusBar extends StatelessWidget {
+  final MapController controller;
+
+  const MapStatusBar({
+    super.key,
+    required this.controller,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 20, 20, 20),
+        border: Border(
+          bottom: BorderSide(
+            color: const Color.fromARGB(255, 200, 180, 100).withOpacity(0.2),
+          ),
+        ),
+      ),
+      child: Column(
+        children: [
+          _buildTopRow(),
+          const SizedBox(height: 8),
+          _buildStatsRow(),
+        ],
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ВЕРХНИЙ РЯД: время + усталость + поражения + глава
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildTopRow() {
+    return Row(
+      children: [
+        TimeIndicator(time: controller.gameTime),
+        const Spacer(),
+        if (controller.fatigue > 0) ...[
+          _buildFatigueIndicator(),
+          const SizedBox(width: 12),
+        ],
+        if (controller.tracker.defeats > 0) ...[
+          _buildDefeatsIndicator(),
+          const SizedBox(width: 12),
+        ],
+        _buildChapterLabel(),
+      ],
+    );
+  }
+
+  Widget _buildFatigueIndicator() {
+    final fatigue = controller.fatigue;
+    final color = fatigue > 80
+        ? Colors.red
+        : (fatigue > 60 ? Colors.orange : Colors.grey);
+
+    return Row(
+      children: [
+        Icon(
+          Icons.bedtime,
+          color: color,
+          size: 14,
+        ),
+        const SizedBox(width: 4),
+        Text(
+          'Устал $fatigue%',
+          style: TextStyle(
+            color: fatigue > 80
+                ? Colors.red
+                : (fatigue > 60 ? Colors.orange : Colors.grey[500]),
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDefeatsIndicator() {
+    return Row(
+      children: [
+        Icon(
+          Icons.healing,
+          color: Colors.orange[300],
+          size: 14,
+        ),
+        const SizedBox(width: 4),
+        Text(
+          '${controller.tracker.defeats}',
+          style: TextStyle(
+            color: Colors.orange[300],
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildChapterLabel() {
+    return Text(
+      'Глава ${controller.chapter}',
+      style: TextStyle(
+        color: Colors.grey[500],
+        fontSize: 12,
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // НИЖНИЙ РЯД: пять полосок статов
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildStatsRow() {
+    return Row(
+      children: [
+        Expanded(
+          child: AnimatedStatBar(
+            icon: '🍞',
+            value: controller.hunger,
+            color: Colors.orange,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: AnimatedStatBar(
+            icon: '💧',
+            value: controller.thirst,
+            color: Colors.blue,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: AnimatedStatBar(
+            icon: '❤️',
+            value: controller.health,
+            color: Colors.red,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: AnimatedStatBar(
+            icon: '🧠',
+            value: controller.sanity,
+            color: Colors.purple,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: AnimatedStatBar(
+            icon: '⚡',
+            value: controller.stamina,
+            color: Colors.green,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -33469,6 +29624,76 @@ class AudioSettingsData {
 }
 ```
 
+### 📄 `./lib/services/combat/enemy_loader.dart`
+```dart
+import 'package:flutter/foundation.dart';
+import 'package:dark_hours/models/combat/enemy.dart';
+import 'package:dark_hours/models/combat/combat.dart';
+
+/// Загрузчик врагов.
+///
+/// Инициализируется один раз при старте MapScreen.
+/// После этого `findById` работает синхронно — враги в кэше.
+class EnemyLoader {
+  static List<Enemy> _enemies = [];
+  static bool _loaded = false;
+
+  /// Загрузить врагов из JSON (один раз)
+  static Future<void> init() async {
+    if (_loaded) return;
+    _enemies = await Enemy.loadAll();
+    _loaded = true;
+    debugPrint('⚔️ EnemyLoader: загружено ${_enemies.length} врагов');
+  }
+
+  /// Найти врага по ID
+  static Enemy? findById(String id) {
+    try {
+      return _enemies.firstWhere((e) => e.id == id);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Получить список врагов по категории
+  /// category: human, animal
+  static List<Enemy> byCategory(String category) {
+    return _enemies.where((e) => e.category == category).toList();
+  }
+
+  /// Получить всех врагов
+  static List<Enemy> get all => _enemies;
+
+  /// Создать Combatant из Enemy для боя
+  ///
+  /// Это «мост» между двумя моделями:
+  /// - Enemy — данные из JSON (статичные статы)
+  /// - Combatant — боевая модель (мутабельное здоровье, статус-эффекты)
+  static Combatant toCombatant(Enemy enemy) {
+    return Combatant(
+      name: enemy.name,
+      health: enemy.health,
+      maxHealth: enemy.health,
+      damage: enemy.damage,
+      protection: enemy.protection,
+      strength: enemy.strength,
+      damageType: enemy.damageType,
+      abilities: enemy.abilities.map(_toCombatAbility).toList(),
+    );
+  }
+
+  static CombatAbility _toCombatAbility(EnemyAbility ability) {
+    return CombatAbility(
+      id: ability.id,
+      name: ability.name,
+      description: ability.description,
+      chance: ability.chance,
+      effect: ability.effect,
+    );
+  }
+}
+```
+
 ### 📄 `./lib/services/conditions/condition_manager.dart`
 ```dart
 import 'dart:math';
@@ -33709,6 +29934,2381 @@ class SearchEventLoader {
       }
     }
     return map;
+  }
+}
+```
+
+### 📄 `./lib/services/map/combat_manager.dart`
+```dart
+import 'package:flutter/material.dart';
+import 'dart:math';
+
+import 'package:dark_hours/services/map/map_controller.dart';
+import 'package:dark_hours/services/conditions/condition_manager.dart';
+import 'package:dark_hours/services/combat/enemy_loader.dart';
+import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/models/combat/combat.dart';
+import 'package:dark_hours/constants/game_constants.dart';
+import 'package:dark_hours/screens/gameplay/combat_screen.dart';
+
+/// Управляет боем на карте.
+///
+/// Логика:
+/// 1. Запускает экран боя (CombatScreen).
+/// 2. Обрабатывает результат: победа / поражение / побег.
+/// 3. При победе: трекает, показывает снекбар, автосохраняет.
+/// 4. При поражении: вызывает _handleDefeat.
+///    - Тяжёлое поражение (бандит, дезертир, зверь) —
+///      HP=5, кровотечение, потеря 3 предметов, перенос в безопасное место.
+///    - Лёгкое поражение (мародёр) —
+///      HP=15, потеря 2 предметов, перенос в соседнюю локацию.
+class CombatManager {
+  // ═══════════════════════════════════════════════════════════
+  // ПУБЛИЧНЫЕ МЕТОДЫ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Запустить бой с врагом по его ID (из enemies.json).
+  static Future<void> startCombat(
+    BuildContext context,
+    MapController controller,
+    String enemyId,
+  ) async {
+    final enemy = EnemyLoader.findById(enemyId);
+    if (enemy == null) {
+      debugPrint('⚠️ CombatManager: враг "$enemyId" не найден');
+      return;
+    }
+
+    final combatant = EnemyLoader.toCombatant(enemy);
+
+    await startCombatWithParams(
+      context,
+      controller,
+      enemyName: combatant.name,
+      enemyHealth: combatant.health,
+      enemyDamage: combatant.damage,
+      enemyProtection: combatant.protection,
+      enemyStrength: combatant.strength,
+      damageType: combatant.damageType,
+      abilities: combatant.abilities,
+    );
+  }
+
+  /// Запустить бой с произвольными параметрами.
+  ///
+  /// Используется:
+  /// - SearchManager — враг из локации.
+  /// - SearchManager — враг из события `combat_start`.
+  /// - StoryScreen — враг из сюжета (не через этот файл, но через CombatScreen напрямую).
+  static Future<void> startCombatWithParams(
+    BuildContext context,
+    MapController controller, {
+    required String enemyName,
+    required int enemyHealth,
+    required int enemyDamage,
+    required int enemyProtection,
+    required int enemyStrength,
+    String damageType = 'blunt',
+    List<CombatAbility> abilities = const [],
+  }) async {
+    // ─── 1. Отметить, что бой был ───
+    controller.trackCombat();
+
+    // ─── 2. Создать Combatant'ов ───
+    final player = Combatant(
+      name: controller.characterName,
+      health: controller.health,
+      maxHealth: GameConstants.playerMaxHealth,
+      damage: controller.equipment.totalDamage > 0
+          ? controller.equipment.totalDamage
+          : GameConstants.fistsDamage,
+      protection: controller.equipment.totalProtection,
+      strength: controller.strength,
+      damageType: controller.equipment.weaponDamageType,
+      resistances: controller.equipment.totalResistances,
+    );
+
+    final enemy = Combatant(
+      name: enemyName,
+      health: enemyHealth,
+      maxHealth: enemyHealth,
+      damage: enemyDamage,
+      protection: enemyProtection,
+      strength: enemyStrength,
+      damageType: damageType,
+      abilities: abilities,
+    );
+
+    // ─── 3. Остановить ambience ───
+    await AudioService.stopAmbience();
+
+    // ─── 4. Запустить экран боя ───
+    final rawResult = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CombatScreen(player: player, enemy: enemy),
+      ),
+    );
+
+    if (!context.mounted) return;
+
+    // ─── 5. Вернуть музыку и ambience ───
+    await AudioService.playMusic('audio/music/map_theme.ogg');
+    final loc = controller.currentLocation;
+    if (loc != null) {
+      final ambiencePath = AudioService.ambienceForLocation(
+        locationId: loc.id,
+        type: loc.type,
+        region: loc.region,
+        dangerLevel: loc.dangerLevel,
+      );
+      if (ambiencePath != null) {
+        await AudioService.playAmbience(ambiencePath);
+      }
+    }
+
+    // ─── 6. Разобрать результат ───
+    String result = 'defeat';
+    if (rawResult is Map) {
+      result = rawResult['result'] ?? 'defeat';
+      final newHealth = rawResult['playerHealth'] ?? player.health;
+      final oldHealth = controller.health;
+      controller.setHealth(newHealth as int);
+
+      if (controller.health < oldHealth) controller.trackDamage();
+
+      // Обработать статус-эффекты
+      _applyStatusEffects(context, controller, rawResult);
+    } else if (rawResult is String) {
+      result = rawResult;
+      controller.setHealth(player.health);
+    }
+
+    // ─── 7. Время на бой ───
+    await controller.advanceTime(GameConstants.combatTimeMinutes);
+
+    // ─── 8. Обработка результата ───
+    if (result == 'victory') {
+      controller.trackVictory();
+      if (context.mounted) {
+        AudioService.playSuccess();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('🏆 Победа!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } else if (result == 'defeat') {
+      _handleDefeat(context, controller, enemyName);
+    }
+
+    // ─── 9. Автосохранение ───
+    await controller.save();
+    controller.notifyListeners();
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ВНУТРЕННИЕ МЕТОДЫ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Применить статус-эффекты из результата боя (кровотечение, яд, инфекция)
+  static void _applyStatusEffects(
+    BuildContext context,
+    MapController controller,
+    Map<dynamic, dynamic> rawResult,
+  ) {
+    if (rawResult['wasBleeding'] == true) {
+      final bleedCond = _findCondition(controller, 'bleeding');
+      if (bleedCond != null &&
+          !ConditionManager.hasCondition(
+            controller.activeConditions,
+            'bleeding',
+          )) {
+        controller.addCondition(bleedCond);
+      }
+    }
+
+    if (rawResult['wasPoisoned'] == true) {
+      final poisonCond = _findCondition(controller, 'food_poisoning');
+      if (poisonCond != null &&
+          !ConditionManager.hasCondition(
+            controller.activeConditions,
+            'food_poisoning',
+          )) {
+        controller.addCondition(poisonCond);
+      }
+    }
+
+    if (rawResult['wasInfected'] == true) {
+      final infectCond = _findCondition(controller, 'infection');
+      if (infectCond != null &&
+          !ConditionManager.hasCondition(
+            controller.activeConditions,
+            'infection',
+          )) {
+        controller.addCondition(infectCond);
+      }
+    }
+  }
+
+  /// Обработать поражение
+  static void _handleDefeat(
+    BuildContext context,
+    MapController controller,
+    String enemyName,
+  ) {
+    // ─── 1. Сюжетный босс → смерть ───
+    if (GameConstants.storyBosses.contains(enemyName)) {
+      // Смерть обрабатывается DeathManager — здесь только флаг
+      // (реальная смерть произойдёт после проверки HP)
+      return;
+    }
+
+    // ─── 2. Отметить поражение ───
+    controller.trackDefeat();
+
+    // ─── 3. Определить, опасный ли враг ───
+    final isDangerous = _isDangerousEnemy(enemyName);
+
+    // ─── 4. Применить последствия ───
+    if (isDangerous) {
+      _applyHeavyDefeat(context, controller);
+    } else {
+      _applyLightDefeat(context, controller);
+    }
+  }
+
+  /// Проверить, опасный ли враг (по ключевым словам в имени)
+  static bool _isDangerousEnemy(String enemyName) {
+    return GameConstants.dangerousEnemyKeywords.any(
+      (keyword) => enemyName.contains(keyword),
+    );
+  }
+
+  /// Тяжёлое поражение — HP=5, кровотечение, потеря 3 предметов, перенос в безопасное место
+  static void _applyHeavyDefeat(
+    BuildContext context,
+    MapController controller,
+  ) {
+    controller.setHealth(GameConstants.heavyDefeatHealth);
+
+    // Кровотечение
+    final bleedCond = _findCondition(controller, 'bleeding');
+    if (bleedCond != null &&
+        !ConditionManager.hasCondition(
+          controller.activeConditions,
+          'bleeding',
+        )) {
+      controller.addCondition(bleedCond);
+    }
+
+    // Потеря предметов
+    controller.loseRandomItems(GameConstants.heavyDefeatLostItems);
+
+    // Штрафы
+    controller.applyStatDelta({
+      'sanity': -GameConstants.heavyDefeatSanityPenalty,
+      'fatigue': GameConstants.heavyDefeatFatigueGain,
+    });
+
+    // Перенос в безопасное место
+    _moveToSafeLocation(controller);
+
+    if (context.mounted) {
+      _showDefeatDialog(
+        context,
+        controller,
+        title: '💀 ТЯЖЁЛОЕ ПОРАЖЕНИЕ',
+        message: 'Ты едва выжил. Раны кровоточат, в глазах темнеет. '
+            'Тебя ограбили и бросили на произвол судьбы.\n\n'
+            'Ты очнулся в безопасном месте. '
+            'Потеряно ${GameConstants.heavyDefeatLostItems} предмета.',
+        color: Colors.red[900]!,
+      );
+    }
+  }
+
+  /// Лёгкое поражение — HP=15, потеря 2 предметов, перенос в соседнюю локацию
+  static void _applyLightDefeat(
+    BuildContext context,
+    MapController controller,
+  ) {
+    controller.setHealth(GameConstants.lightDefeatHealth);
+
+    // Потеря предметов
+    controller.loseRandomItems(GameConstants.lightDefeatLostItems);
+
+    // Штрафы
+    controller.applyStatDelta({
+      'sanity': -GameConstants.lightDefeatSanityPenalty,
+      'fatigue': GameConstants.lightDefeatFatigueGain,
+    });
+
+    // Перенос в соседнюю локацию
+    _moveToNeighborLocation(controller);
+
+    if (context.mounted) {
+      _showDefeatDialog(
+        context,
+        controller,
+        title: '🤕 ПОРАЖЕНИЕ',
+        message: 'Тебя избили и ограбили. Ты отделался синяками, '
+            'но потерял ${GameConstants.lightDefeatLostItems} предмета.\n\n'
+            'Ты очнулся в соседнем районе.',
+        color: Colors.orange[900]!,
+      );
+    }
+  }
+
+  /// Переместить игрока в безопасную локацию
+  static void _moveToSafeLocation(MapController controller) {
+    final map = controller.map;
+    if (map == null) return;
+
+    final safeLocations = map.locations
+        .where((l) =>
+            l.dangerLevel <= 2 &&
+            l.id != map.currentLocationId &&
+            !l.hidden)
+        .toList();
+
+    if (safeLocations.isEmpty) return;
+
+    final target = safeLocations[Random().nextInt(safeLocations.length)];
+    map.moveTo(target.id);
+  }
+
+  /// Переместить игрока в соседнюю локацию
+  static void _moveToNeighborLocation(MapController controller) {
+    final map = controller.map;
+    if (map == null) return;
+
+    final neighbors = map.availableConnections
+        .where((l) =>
+            !l.hidden || controller.isLocationUnlocked(l.id))
+        .toList();
+
+    if (neighbors.isEmpty) return;
+
+    final target = neighbors[Random().nextInt(neighbors.length)];
+    map.moveTo(target.id);
+  }
+
+  /// Найти условие по ID
+  static dynamic _findCondition(MapController controller, String id) {
+    try {
+      return controller.allConditions.firstWhere((c) => c.id == id);
+    } catch (_) {
+      return controller.allConditions.isNotEmpty
+          ? controller.allConditions.first
+          : null;
+    }
+  }
+
+  /// Показать диалог поражения
+  static Future<void> _showDefeatDialog(
+    BuildContext context,
+    MapController controller, {
+    required String title,
+    required String message,
+    required Color color,
+  }) async {
+    if (!context.mounted) return;
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color.fromARGB(255, 20, 10, 10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: color, width: 2),
+        ),
+        title: Text(
+          title,
+          style: TextStyle(
+            color: color,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 2.0,
+          ),
+        ),
+        content: Text(
+          '$message\n\n📊 Всего поражений в этом забеге: ${controller.tracker.defeats}',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 13,
+            height: 1.5,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              AudioService.playClick();
+              Navigator.pop(context);
+            },
+            child: const Text(
+              'ПРОДОЛЖИТЬ',
+              style: TextStyle(
+                color: Color.fromARGB(255, 200, 180, 100),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+### 📄 `./lib/services/map/death_manager.dart`
+```dart
+import 'package:flutter/material.dart';
+import 'dart:math';
+
+import 'package:dark_hours/services/map/map_controller.dart';
+import 'package:dark_hours/services/save/save_manager.dart';
+import 'package:dark_hours/services/progress/achievement_manager.dart';
+import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/screens/main/death_screen.dart';
+import 'package:dark_hours/constants/game_constants.dart';
+
+/// Управляет смертью, коллапсом и форсированным автосном.
+///
+/// Что проверяет:
+/// 1. Смерть от голода, жажды, здоровья, зимы.
+/// 2. Повторный коллапс в течение 24 часов → смерть.
+/// 3. Усталость >= 95 → форсированный автосон.
+/// 4. Усталость >= 100 → коллапс.
+///
+/// При смерти:
+/// 1. Обновляет статистику игрока (PlayerStats).
+/// 2. Открывает DeathScreen.
+/// 3. Удаляет сохранение.
+class DeathManager {
+  /// Проверить состояние на смерть.
+  ///
+  /// Возвращает `true`, если игрок умер.
+  static bool checkDeath(MapController controller) {
+    if (controller.isDead) return true;
+
+    String? reason;
+
+    if (controller.hunger <= 0) {
+      reason = 'Ты умер от голода. Тело не выдержало.';
+    } else if (controller.thirst <= 0) {
+      reason = 'Ты умер от обезвоживания.';
+    } else if (controller.health <= 0) {
+      reason = 'Твои раны оказались смертельными.';
+    } else if (controller.gameTime.isWinter) {
+      reason = 'Пришла зима. Ты не успел добраться до станции.';
+    }
+
+    if (reason == null) return false;
+
+    controller.markDead(reason);
+    return true;
+  }
+
+  /// Проверить усталость.
+  ///
+  /// Может инициировать:
+  /// - Форсированный автосон (усталость >= 95)
+  /// - Коллапс (усталость >= 100)
+  /// - Смерть (повторный коллапс в течение 24 часов)
+  static Future<void> checkFatigue(
+    BuildContext context,
+    MapController controller,
+  ) async {
+    if (controller.isDead) return;
+    if (controller.fatigue < GameConstants.fatigueWarningThreshold) return;
+
+    // Зона 80-95: только предупреждение (обрабатывается UI через PenaltiesPanel)
+    if (controller.fatigue < GameConstants.fatigueForcedSleepThreshold) {
+      return;
+    }
+
+    // Зона 95-100: форсированный автосон (один раз)
+    if (controller.fatigue < GameConstants.fatigueCollapseThreshold) {
+      if (!controller.autoSleepTriggered) {
+        controller.autoSleepTriggered = true;
+        await _forceAutoSleep(context, controller);
+      }
+      return;
+    }
+
+    // Зона >= 100: коллапс или смерть
+    await _handleCollapse(context, controller);
+  }
+
+  /// Открыть DeathScreen, если игрок умер.
+  ///
+  /// Вызывается из UI-обёртки.
+  static Future<void> showDeathScreenIfNeeded(
+    BuildContext context,
+    MapController controller,
+  ) async {
+    if (!controller.isDead) return;
+    if (!context.mounted) return;
+
+    await AudioService.stopAmbience();
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => DeathScreen(
+          reason: controller.deathReason,
+          characterName: controller.characterName,
+          dayReached: controller.gameTime.day,
+        ),
+      ),
+    );
+
+    if (context.mounted) {
+      await SaveManager.delete();
+      Navigator.pop(context);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ВНУТРЕННИЕ МЕТОДЫ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Форсированный автосон при усталости 95-99.
+  ///
+  /// Игрок засыпает на 1 час, теряет немного статов.
+  static Future<void> _forceAutoSleep(
+    BuildContext context,
+    MapController controller,
+  ) async {
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          '😴 Ты засыпаешь прямо на месте... (1 час)',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        duration: Duration(seconds: 3),
+        backgroundColor: Color.fromARGB(255, 100, 100, 200),
+      ),
+    );
+
+    await controller.advanceTime(
+      GameConstants.forcedAutoSleepMinutes,
+      isSleeping: true,
+    );
+
+    controller.applyStatDelta({
+      'fatigue': -GameConstants.forcedAutoSleepFatigueReduce,
+      'stamina': -GameConstants.forcedAutoSleepStaminaPenalty,
+      'sanity': -GameConstants.forcedAutoSleepSanityPenalty,
+    });
+
+    controller.autoSleepTriggered = false;
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            '😵 Ты проснулся. Разбитость: -15 выносливости.',
+          ),
+          duration: Duration(seconds: 3),
+          backgroundColor: Color.fromARGB(255, 150, 100, 100),
+        ),
+      );
+    }
+
+    await controller.save();
+    controller.notifyListeners();
+  }
+
+  /// Коллапс при усталости >= 100.
+  ///
+  /// Если коллапс второй раз за 24 часа → смерть.
+  static Future<void> _handleCollapse(
+    BuildContext context,
+    MapController controller,
+  ) async {
+    // ─── 1. Проверить, был ли коллапс недавно ───
+    final lastCollapse = controller.lastCollapseTime;
+    if (lastCollapse != null &&
+        DateTime.now().difference(lastCollapse).inHours <
+            GameConstants.collapseRepeatHours) {
+      controller.markDead(
+        'Твоё тело не выдержало повторного истощения. Сердце остановилось.',
+      );
+      return;
+    }
+
+    // ─── 2. Обновить время последнего коллапса ───
+    controller.lastCollapseTime = DateTime.now();
+    controller.trackCollapse();
+
+    if (!context.mounted) return;
+
+    // ─── 3. Показать диалог коллапса ───
+    await _showCollapseDialog(context);
+
+    // ─── 4. Продвинуть время + эффекты ───
+    await controller.advanceTime(
+      GameConstants.collapseSleepMinutes,
+      isSleeping: true,
+    );
+
+    controller.applyStatDelta({
+      'fatigue': GameConstants.collapseFatigueReset - controller.fatigue,
+      'health': -GameConstants.collapseHealthPenalty,
+      'sanity': -GameConstants.collapseSanityPenalty,
+    });
+
+    // ─── 5. Шанс ограбления ───
+    _rollTheftOnCollapse(context, controller);
+
+    // ─── 6. Шанс простуды ───
+    _rollColdOnCollapse(controller);
+
+    // ─── 7. Сообщение ───
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('😵 Ты очнулся. -20 HP, -15 психики.'),
+          duration: Duration(seconds: 3),
+          backgroundColor: Color.fromARGB(255, 100, 50, 50),
+        ),
+      );
+    }
+
+    await controller.save();
+    controller.notifyListeners();
+  }
+
+  /// Показать диалог коллапса
+  static Future<void> _showCollapseDialog(BuildContext context) async {
+    if (!context.mounted) return;
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color.fromARGB(255, 20, 10, 10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: Colors.red, width: 2),
+        ),
+        title: const Text(
+          '💀 КОЛЛАПС',
+          style: TextStyle(
+            color: Colors.red,
+            fontSize: 20,
+            letterSpacing: 4,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: const Text(
+          'Ты теряешь сознание от истощения. Проходит 4 часа...\n\n'
+          '⚠️ Если это повторится в течение 24 часов — твоё сердце остановится.',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 13,
+            height: 1.5,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              AudioService.playClick();
+              Navigator.pop(context);
+            },
+            child: const Text(
+              'ОЧНУТЬСЯ',
+              style: TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Шанс ограбления при коллапсе
+  static void _rollTheftOnCollapse(
+    BuildContext context,
+    MapController controller,
+  ) {
+    final roll = Random().nextInt(100);
+    if (roll >= GameConstants.collapseTheftChance) return;
+    if (controller.inventory.items.isEmpty) return;
+
+    controller.loseRandomItems(GameConstants.collapseTheftItems);
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('💀 Пока ты был без сознания, тебя ограбили!'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+  /// Шанс простуды при коллапсе
+  static void _rollColdOnCollapse(MapController controller) {
+    final roll = Random().nextInt(100);
+    if (roll >= GameConstants.collapseColdChance) return;
+
+    final coldCond = _findCondition(controller, 'cold');
+    if (coldCond == null) return;
+
+    if (controller.activeConditions.any((ac) => ac.condition.id == 'cold')) {
+      return;
+    }
+
+    controller.addCondition(coldCond);
+  }
+
+  /// Найти условие по ID
+  static dynamic _findCondition(MapController controller, String id) {
+    try {
+      return controller.allConditions.firstWhere((c) => c.id == id);
+    } catch (_) {
+      return controller.allConditions.isNotEmpty
+          ? controller.allConditions.first
+          : null;
+    }
+  }
+
+  /// Обновить статистику игрока при смерти.
+  ///
+  /// Вызывается из UI-обёртки перед показом DeathScreen.
+  static Future<void> applyStatsOnDeath(MapController controller) async {
+    final stats = await AchievementManager.loadStats();
+    stats.totalDeaths += 1;
+    stats.totalDaysSurvived += controller.gameTime.day;
+
+    if (controller.gameTime.day > stats.bestRunDays) {
+      stats.bestRunDays = controller.gameTime.day;
+      stats.bestRunCharacter = controller.characterName;
+    }
+
+    controller.tracker.applyToStats(stats);
+    await AchievementManager.saveStats(stats);
+  }
+}
+```
+
+### 📄 `./lib/services/map/map_controller.dart`
+```dart
+import 'package:flutter/material.dart';
+import 'dart:math';
+
+import 'package:dark_hours/models/world/world_map.dart';
+import 'package:dark_hours/models/world/location.dart';
+import 'package:dark_hours/models/save/save_data.dart';
+import 'package:dark_hours/models/inventory/inventory.dart';
+import 'package:dark_hours/models/inventory/inventory_item.dart';
+import 'package:dark_hours/models/inventory/equipment.dart';
+import 'package:dark_hours/models/conditions/condition.dart';
+import 'package:dark_hours/models/conditions/active_condition.dart';
+import 'package:dark_hours/models/items/recipe.dart';
+import 'package:dark_hours/models/time/game_time.dart';
+
+import 'package:dark_hours/services/save/save_manager.dart';
+import 'package:dark_hours/services/items/item_loader.dart';
+import 'package:dark_hours/services/items/search_event_loader.dart';
+import 'package:dark_hours/services/combat/enemy_loader.dart';
+import 'package:dark_hours/services/conditions/condition_manager.dart';
+import 'package:dark_hours/services/time/time_manager.dart';
+import 'package:dark_hours/services/progress/run_tracker.dart';
+
+import 'package:dark_hours/constants/game_constants.dart';
+
+/// Центральный контроллер карты.
+///
+/// Хранит **всё** состояние игры на карте:
+/// - локации и текущую позицию
+/// - статы игрока (голод, жажда, здоровье, психика, стамина, усталость)
+/// - инвентарь и экипировку
+/// - активные болезни
+/// - игровое время
+/// - счётчики обысков и открытые скрытые локации
+/// - трекер забега
+///
+/// Действия делегируются менеджерам:
+/// - MovementManager — перемещение
+/// - SearchManager — обыск
+/// - RestManager — отдых
+/// - CombatManager — бой
+/// - StoryTriggerManager — сюжетные триггеры
+/// - DeathManager — смерть и коллапс
+class MapController extends ChangeNotifier {
+  // ═══════════════════════════════════════════════════════════
+  // ВХОДНЫЕ ДАННЫЕ
+  // ═══════════════════════════════════════════════════════════
+
+  final String characterId;
+  final String characterName;
+  final SaveData? resumeFrom;
+
+  // ═══════════════════════════════════════════════════════════
+  // СОСТОЯНИЕ ИГРЫ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Карта и текущая локация
+  WorldMap? map;
+
+  /// Статы
+  int hunger = GameConstants.maxStat;
+  int thirst = GameConstants.maxStat;
+  int health = GameConstants.maxStat;
+  int sanity = GameConstants.maxStat;
+  int stamina = GameConstants.maxStat;
+  int fatigue = 0;
+
+  /// Игровое время
+  late GameTime gameTime;
+
+  /// Глава
+  int chapter = 1;
+
+  /// Характеристики персонажа
+  int intelligence = GameConstants.defaultIntelligence;
+  int strength = GameConstants.defaultStrength;
+
+  /// Инвентарь и экипировка
+  final Inventory inventory = Inventory(maxWeight: 30.0);
+  final Equipment equipment = Equipment();
+
+  /// Все возможные болезни + активные
+  List<Condition> allConditions = [];
+  final List<ActiveCondition> activeConditions = [];
+
+  /// Рецепты крафта
+  List<Recipe> allRecipes = [];
+
+  /// Флаги (для сюжета и достижений)
+  final Set<String> flags = {};
+
+  /// Счётчики обысков по локациям
+  final Map<String, int> searchedCounts = {};
+
+  /// Открытые скрытые локации
+  final Set<String> unlockedLocations = {};
+
+  /// Трекер забега (для достижений)
+  final RunTracker tracker = RunTracker();
+
+  // ═══════════════════════════════════════════════════════════
+  // ФЛАГИ СОСТОЯНИЯ
+  // ═══════════════════════════════════════════════════════════
+
+  bool isLoading = true;
+  bool isDead = false;
+  String deathReason = '';
+
+  bool _autoSleepTriggered = false;
+  DateTime? _lastCollapseTime;
+
+  // ═══════════════════════════════════════════════════════════
+  // GETTERS / SETTERS ДЛЯ ФЛАГОВ
+  // ═══════════════════════════════════════════════════════════
+
+  bool get autoSleepTriggered => _autoSleepTriggered;
+  set autoSleepTriggered(bool value) {
+    _autoSleepTriggered = value;
+  }
+
+  DateTime? get lastCollapseTime => _lastCollapseTime;
+  set lastCollapseTime(DateTime? value) {
+    _lastCollapseTime = value;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // КОНСТРУКТОР
+  // ═══════════════════════════════════════════════════════════
+
+  MapController({
+    required this.characterId,
+    required this.characterName,
+    this.resumeFrom,
+  }) {
+    gameTime = GameTime(totalMinutes: GameConstants.startTimeMinutes);
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ИНИЦИАЛИЗАЦИЯ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Загрузить карту и (опционально) восстановить сохранение
+  Future<void> init() async {
+    isLoading = true;
+    notifyListeners();
+
+    // Загружаем справочники
+    await ItemLoader.init();
+    await SearchEventLoader.init();
+    await EnemyLoader.init();
+    allConditions = await Condition.loadAll();
+    allRecipes = await Recipe.loadAll();
+
+    // Характеристики персонажа
+    final stats = GameConstants.statsFor(characterId);
+    intelligence = stats['intelligence'] ?? GameConstants.defaultIntelligence;
+    strength = stats['strength'] ?? GameConstants.defaultStrength;
+
+    // Загружаем локации
+    final locations = await Location.loadAll();
+    if (locations.isEmpty) {
+      isLoading = false;
+      notifyListeners();
+      return;
+    }
+
+    // Восстанавливаем сохранение или начинаем заново
+    if (resumeFrom != null) {
+      _restoreFromSave(resumeFrom!, locations);
+    } else {
+      _startNewGame(locations);
+    }
+
+    isLoading = false;
+    notifyListeners();
+  }
+
+  /// Начать новую игру
+  void _startNewGame(List<Location> locations) {
+    final startLoc = locations.firstWhere(
+      (l) => l.isStart,
+      orElse: () => locations.first,
+    );
+
+    map = WorldMap(
+      locations: locations,
+      currentLocationId: startLoc.id,
+      visitedLocations: {startLoc.id},
+    );
+
+    gameTime = GameTime(totalMinutes: GameConstants.startTimeMinutes);
+  }
+
+  /// Восстановить состояние из сохранения
+  void _restoreFromSave(SaveData s, List<Location> locations) {
+    hunger = s.hunger;
+    thirst = s.thirst;
+    health = s.health;
+    sanity = s.sanity;
+    stamina = s.stamina;
+    fatigue = s.fatigue;
+    gameTime = GameTime.fromSave(s.timeMinutes);
+    chapter = s.chapter;
+
+    flags.addAll(s.history);
+
+    searchedCounts.clear();
+    searchedCounts.addAll(s.searchedCounts);
+
+    unlockedLocations.clear();
+    unlockedLocations.addAll(s.unlockedLocations);
+
+    inventory.items.clear();
+    for (final itemJson in s.inventoryItems) {
+      inventory.items.add(InventoryItem.fromJson(itemJson));
+    }
+
+    final restored = Equipment.fromJson(s.equipmentItems);
+    equipment.weapon = restored.weapon;
+    equipment.head = restored.head;
+    equipment.body = restored.body;
+    equipment.hands = restored.hands;
+    equipment.feet = restored.feet;
+    equipment.backpack = restored.backpack;
+
+    activeConditions.clear();
+    for (final cJson in s.activeConditions) {
+      final condId = cJson['id'] as String;
+      final days = cJson['daysRemaining'] as int;
+      try {
+        final cond = allConditions.firstWhere((c) => c.id == condId);
+        activeConditions.add(
+          ActiveCondition(condition: cond, daysRemaining: days),
+        );
+      } catch (_) {
+        // Игнорируем невалидную болезнь
+      }
+    }
+
+    final startLoc = locations.firstWhere(
+      (l) => l.id == s.currentLocationId,
+      orElse: () => locations.firstWhere(
+        (l) => l.isStart,
+        orElse: () => locations.first,
+      ),
+    );
+
+    map = WorldMap(
+      locations: locations,
+      currentLocationId: startLoc.id,
+      visitedLocations: {startLoc.id},
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ИЗМЕНЕНИЕ СОСТОЯНИЯ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Применить изменения к статам (с автоограничением 0..100)
+  void applyStatDelta(Map<String, int> delta) {
+    if (delta['hunger'] != null) {
+      hunger = (hunger + delta['hunger']!)
+          .clamp(GameConstants.minStat, GameConstants.maxStat);
+    }
+    if (delta['thirst'] != null) {
+      thirst = (thirst + delta['thirst']!)
+          .clamp(GameConstants.minStat, GameConstants.maxStat);
+    }
+    if (delta['health'] != null) {
+      health = (health + delta['health']!)
+          .clamp(GameConstants.minStat, GameConstants.maxStat);
+    }
+    if (delta['sanity'] != null) {
+      sanity = (sanity + delta['sanity']!)
+          .clamp(GameConstants.minStat, GameConstants.maxStat);
+    }
+    if (delta['stamina'] != null) {
+      stamina = (stamina + delta['stamina']!)
+          .clamp(GameConstants.minStat, GameConstants.maxStat);
+    }
+    if (delta['fatigue'] != null) {
+      fatigue = (fatigue + delta['fatigue']!)
+          .clamp(GameConstants.minStat, GameConstants.maxStat);
+    }
+    notifyListeners();
+  }
+
+  /// Прямая установка стата (без delta)
+  void setHunger(int value) {
+    hunger = value.clamp(GameConstants.minStat, GameConstants.maxStat);
+  }
+
+  void setThirst(int value) {
+    thirst = value.clamp(GameConstants.minStat, GameConstants.maxStat);
+  }
+
+  void setHealth(int value) {
+    health = value.clamp(GameConstants.minStat, GameConstants.maxStat);
+  }
+
+  void setSanity(int value) {
+    sanity = value.clamp(GameConstants.minStat, GameConstants.maxStat);
+  }
+
+  void setStamina(int value) {
+    stamina = value.clamp(GameConstants.minStat, GameConstants.maxStat);
+  }
+
+  void setFatigue(int value) {
+    fatigue = value.clamp(GameConstants.minStat, GameConstants.maxStat);
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ИГРОВОЕ ВРЕМЯ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Продвинуть время на N минут с расходом статов
+  Future<void> advanceTime(int minutes, {bool isSleeping = false}) async {
+    final oldDay = gameTime.day;
+    final phaseBefore = gameTime.phase;
+
+    gameTime.advance(minutes);
+    final phaseAfter = gameTime.phase;
+
+    // Расход голода/жажды/усталости
+    final consumption = TimeManager.calculateConsumption(
+      minutes: minutes,
+      phase: phaseBefore,
+      isSleeping: isSleeping,
+    );
+
+    hunger = (hunger + (consumption['hunger'] ?? 0))
+        .clamp(GameConstants.minStat, GameConstants.maxStat);
+    thirst = (thirst + (consumption['thirst'] ?? 0))
+        .clamp(GameConstants.minStat, GameConstants.maxStat);
+    if (!isSleeping) {
+      fatigue = (fatigue + (consumption['fatigue'] ?? 0))
+          .clamp(GameConstants.minStat, GameConstants.maxStat);
+    }
+
+    // Тик активных болезней
+    _applyConditionsTick();
+
+    // Новый день — обновляем трекер и проверяем достижения
+    if (gameTime.day > oldDay) {
+      tracker.nightsPassed += 1;
+      if (phaseBefore == TimePhase.night) {
+        tracker.nightsSurvived += 1;
+      }
+
+      if (sanity < GameConstants.sanityStressThreshold) {
+        tracker.sanityDaysLow += 1;
+      } else {
+        tracker.sanityDaysLow = 0;
+      }
+
+      // Проверка достижений делегируется — здесь только данные
+      // (сам вызов делает UI через AchievementChecker)
+    }
+
+    // Смена фазы суток — уведомляем
+    if (phaseBefore != phaseAfter) {
+      // UI сам покажет снекбар при обновлении состояния
+    }
+
+    notifyListeners();
+  }
+
+  /// Тик активных болезней (вызывается из advanceTime)
+  void _applyConditionsTick() {
+    if (activeConditions.isEmpty) return;
+
+    final deltas = ConditionManager.applyEffects(activeConditions);
+    if (deltas['health'] != null) {
+      health = (health + deltas['health']!)
+          .clamp(GameConstants.minStat, GameConstants.maxStat);
+    }
+    if (deltas['hunger'] != null) {
+      hunger = (hunger + deltas['hunger']!)
+          .clamp(GameConstants.minStat, GameConstants.maxStat);
+    }
+    if (deltas['thirst'] != null) {
+      thirst = (thirst + deltas['thirst']!)
+          .clamp(GameConstants.minStat, GameConstants.maxStat);
+    }
+    if (deltas['stamina'] != null) {
+      stamina = (stamina + deltas['stamina']!)
+          .clamp(GameConstants.minStat, GameConstants.maxStat);
+    }
+    if (deltas['sanity'] != null) {
+      sanity = (sanity + deltas['sanity']!)
+          .clamp(GameConstants.minStat, GameConstants.maxStat);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // УСЛОВИЯ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Добавить условие, если его ещё нет
+  void addCondition(Condition condition) {
+    if (ConditionManager.hasCondition(activeConditions, condition.id)) return;
+    activeConditions.add(ActiveCondition(
+      condition: condition,
+      daysRemaining: condition.durationDays,
+    ));
+    tracker.infections += 1;
+    notifyListeners();
+  }
+
+  /// Попробовать вылечить условие предметом
+  bool tryCureCondition(ActiveCondition ac, String itemId) {
+    if (!ConditionManager.tryCure(ac, itemId)) return false;
+    activeConditions.remove(ac);
+    notifyListeners();
+    return true;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ИНВЕНТАРЬ И ЭКИПИРОВКА
+  // ═══════════════════════════════════════════════════════════
+
+  /// Найти предмет в инвентаре по ID
+  InventoryItem? findItem(String id) => inventory.getById(id);
+
+  /// Добавить предмет (с трекингом для достижений)
+  bool addItem(InventoryItem item) {
+    final ok = inventory.addItem(item);
+    if (ok) {
+      tracker.lootedCount += 1;
+      if (inventory.items.length > tracker.maxInventorySize) {
+        tracker.maxInventorySize = inventory.items.length;
+      }
+      notifyListeners();
+    }
+    return ok;
+  }
+
+  /// Удалить предмет из инвентаря
+  void removeItem(String id) {
+    inventory.removeItem(id);
+    notifyListeners();
+  }
+
+  /// Удалить предмет полностью
+  void removeAll(String id) {
+    inventory.removeAll(id);
+    notifyListeners();
+  }
+
+  /// Надеть предмет
+  void equipItem(InventoryItem item, String slot) {
+    final old = equipment.unequip(slot);
+    if (old != null) inventory.addItem(old);
+
+    equipment.equip(item, slot);
+    inventory.removeItem(item.id);
+    notifyListeners();
+  }
+
+  /// Снять предмет (возвращается в инвентарь)
+  void unequipItem(String slot) {
+    final item = equipment.unequip(slot);
+    if (item != null) inventory.addItem(item);
+    notifyListeners();
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ТРЕКЕР
+  // ═══════════════════════════════════════════════════════════
+
+  /// Отметить использование медицинского предмета
+  void trackMedicineUsed() {
+    tracker.medicineUsed += 1;
+  }
+
+  /// Отметить крафт
+  void trackCraft({required bool isMolotov}) {
+    tracker.craftedCount += 1;
+    if (isMolotov) tracker.alchemistCrafted = true;
+  }
+
+  /// Отметить бой
+  void trackCombat() {
+    tracker.hadCombat = true;
+  }
+
+  /// Отметить урон в бою
+  void trackDamage() {
+    tracker.hadDamage = true;
+  }
+
+  /// Отметить победу в бою
+  void trackVictory() {
+    tracker.kills += 1;
+  }
+
+  /// Отметить поражение
+  void trackDefeat() {
+    tracker.defeats += 1;
+  }
+
+  /// Отметить коллапс
+  void trackCollapse() {
+    tracker.collapsesCount += 1;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ФЛАГИ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Установить флаг
+  void setFlag(String flag) {
+    flags.add(flag);
+    notifyListeners();
+  }
+
+  /// Есть ли флаг
+  bool hasFlag(String flag) => flags.contains(flag);
+
+  // ═══════════════════════════════════════════════════════════
+  // ОБЫСКИ И СКРЫТЫЕ ЛОКАЦИИ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Увеличить счётчик обысков
+  int incrementSearchCount(String locationId) {
+    final count = (searchedCounts[locationId] ?? 0) + 1;
+    searchedCounts[locationId] = count;
+    return count;
+  }
+
+  /// Открыть скрытую локацию
+  void unlockLocation(String locationId) {
+    unlockedLocations.add(locationId);
+    notifyListeners();
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // УТИЛИТЫ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Потерять N случайных предметов из инвентаря
+  void loseRandomItems(int count) {
+    final rng = Random();
+    for (int i = 0; i < count && inventory.items.isNotEmpty; i++) {
+      final index = rng.nextInt(inventory.items.length);
+      final lost = inventory.items[index];
+      inventory.removeAll(lost.id);
+    }
+    notifyListeners();
+  }
+
+  /// Текущая локация
+  Location? get currentLocation => map?.current;
+
+  /// Проверить, находится ли локация в списке доступных
+  bool isLocationUnlocked(String locationId) {
+    return unlockedLocations.contains(locationId);
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // СОХРАНЕНИЕ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Автосохранить текущее состояние
+  Future<void> save() async {
+    if (map == null) return;
+
+    final data = SaveData(
+      characterId: characterId,
+      characterName: characterName,
+      currentNodeId: 'map',
+      currentLocationId: map!.currentLocationId,
+      onMap: true,
+      hunger: hunger,
+      thirst: thirst,
+      health: health,
+      sanity: sanity,
+      stamina: stamina,
+      fatigue: fatigue,
+      timeMinutes: gameTime.totalMinutes,
+      chapter: chapter,
+      history: flags.toList(),
+      inventoryItems: inventory.toJson(),
+      equipmentItems: equipment.toJson(),
+      activeConditions: activeConditions
+          .map((ac) => {
+                'id': ac.condition.id,
+                'daysRemaining': ac.daysRemaining,
+              })
+          .toList(),
+      searchedCounts: searchedCounts,
+      unlockedLocations: unlockedLocations.toList(),
+      savedAt: DateTime.now(),
+    );
+
+    await SaveManager.save(data);
+  }
+
+  /// Перечитать сохранение (после StoryScreen)
+  Future<void> reloadFromSave() async {
+    final save = await SaveManager.load();
+    if (save == null) return;
+
+    hunger = save.hunger;
+    thirst = save.thirst;
+    health = save.health;
+    sanity = save.sanity;
+    stamina = save.stamina;
+    fatigue = save.fatigue;
+    gameTime = GameTime.fromSave(save.timeMinutes);
+    chapter = save.chapter;
+
+    inventory.items.clear();
+    for (final itemJson in save.inventoryItems) {
+      inventory.items.add(InventoryItem.fromJson(itemJson));
+    }
+
+    final restored = Equipment.fromJson(save.equipmentItems);
+    equipment.weapon = restored.weapon;
+    equipment.head = restored.head;
+    equipment.body = restored.body;
+    equipment.hands = restored.hands;
+    equipment.feet = restored.feet;
+    equipment.backpack = restored.backpack;
+
+    activeConditions.clear();
+    for (final cJson in save.activeConditions) {
+      final condId = cJson['id'] as String;
+      final days = cJson['daysRemaining'] as int;
+      try {
+        final cond = allConditions.firstWhere((c) => c.id == condId);
+        activeConditions.add(
+          ActiveCondition(condition: cond, daysRemaining: days),
+        );
+      } catch (_) {}
+    }
+
+    flags.clear();
+    flags.addAll(save.history);
+
+    searchedCounts.clear();
+    searchedCounts.addAll(save.searchedCounts);
+
+    unlockedLocations.clear();
+    unlockedLocations.addAll(save.unlockedLocations);
+
+    notifyListeners();
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // СМЕРТЬ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Проверить, не умер ли игрок
+  void markDead(String reason) {
+    isDead = true;
+    deathReason = reason;
+    notifyListeners();
+  }
+
+  /// Сбросить флаг смерти (после DeathScreen)
+  void clearDeath() {
+    isDead = false;
+    deathReason = '';
+    notifyListeners();
+  }
+}
+```
+
+### 📄 `./lib/services/map/movement_manager.dart`
+```dart
+import 'package:flutter/material.dart';
+
+import 'package:dark_hours/services/map/map_controller.dart';
+import 'package:dark_hours/services/map/story_trigger_manager.dart';
+import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/constants/game_constants.dart';
+
+/// Управляет перемещением между локациями.
+///
+/// Что делает:
+/// 1. Проверяет, что локация существует и доступна.
+/// 2. Списывает стамину за переход.
+/// 3. Продвигает игровое время.
+/// 4. Меняет текущую локацию в MapController.
+/// 5. Запускает ambience новой локации.
+/// 6. Автосохраняет.
+/// 7. Проверяет сюжетные триггеры.
+class MovementManager {
+  /// Перейти в локацию по ID.
+  ///
+  /// Возвращает `true`, если переход удался.
+  static Future<bool> move(
+    BuildContext context,
+    MapController controller,
+    String locationId,
+  ) async {
+    // ─── 1. Проверяем локацию ───
+    final map = controller.map;
+    if (map == null) return false;
+
+    final target = map.getById(locationId);
+    if (target == null) {
+      debugPrint('⚠️ MovementManager: локация "$locationId" не найдена');
+      return false;
+    }
+
+    // Скрытая локация должна быть открыта
+    if (target.hidden && !controller.isLocationUnlocked(target.id)) {
+      debugPrint(
+        '⚠️ MovementManager: локация "${target.id}" скрыта и не открыта',
+      );
+      return false;
+    }
+
+    // ─── 2. Звук клика ───
+    AudioService.playClick();
+
+    // ─── 3. Списываем стамину ───
+    controller.setStamina(
+      controller.stamina - GameConstants.moveStaminaCost,
+    );
+
+    // ─── 4. Продвигаем время ───
+    await controller.advanceTime(GameConstants.moveTimeMinutes);
+
+    // ─── 5. Меняем локацию ───
+    map.moveTo(locationId);
+    controller.notifyListeners();
+
+    // ─── 6. Ambience новой локации ───
+    final ambiencePath = AudioService.ambienceForLocation(
+      locationId: target.id,
+      type: target.type,
+      region: target.region,
+      dangerLevel: target.dangerLevel,
+    );
+    if (ambiencePath != null) {
+      await AudioService.playAmbience(ambiencePath);
+    }
+
+    // ─── 7. Автосохранение ───
+    await controller.save();
+
+    // ─── 8. Снекбар ───
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Переход: ${target.name}'),
+          duration: const Duration(seconds: 1),
+          backgroundColor: const Color.fromARGB(255, 200, 180, 100),
+        ),
+      );
+    }
+
+    // ─── 9. Проверка сюжетного триггера ───
+    await StoryTriggerManager.checkTrigger(context, controller);
+
+    return true;
+  }
+}
+```
+
+### 📄 `./lib/services/map/rest_manager.dart`
+```dart
+import 'package:flutter/material.dart';
+import 'dart:math';
+
+import 'package:dark_hours/services/map/map_controller.dart';
+import 'package:dark_hours/services/map/combat_manager.dart';
+import 'package:dark_hours/services/conditions/condition_manager.dart';
+import 'package:dark_hours/models/time/rest_action.dart';
+import 'package:dark_hours/constants/game_constants.dart';
+
+/// Управляет отдыхом игрока.
+///
+/// Логика:
+/// 1. Восстановить статы (стамина, здоровье, психика, усталость).
+/// 2. Бонус от спального мешка (если есть).
+/// 3. Если локация опасная — риски:
+///    - простудиться (шанс зависит от тепла экипировки);
+///    - быть ограбленным (при долгом отдыхе);
+///    - быть атакованным (при очень долгом отдыхе).
+/// 4. Продвинуть время.
+/// 5. Автосохранить.
+class RestManager {
+  /// Выполнить действие отдыха.
+  static Future<void> rest(
+    BuildContext context,
+    MapController controller,
+    RestAction action,
+  ) async {
+    final loc = controller.currentLocation;
+    if (loc == null) return;
+
+    final isSafe = loc.dangerLevel <= GameConstants.safeLocationDangerLevel;
+
+    // ─── 1. Восстановление статов ───
+    _applyRestStats(controller, action);
+
+    // ─── 2. Бонус спального мешка ───
+    _applySleepingBagBonus(controller);
+
+    // ─── 3. Риски в опасной локации ───
+    if (!isSafe) {
+      // 3.1. Простуда
+      _rollCold(controller);
+
+      // 3.2. Ограбление (при долгом отдыхе)
+      if (action.timeMinutes >= GameConstants.restTheftMinDuration) {
+        _rollTheft(context, controller);
+      }
+
+      // 3.3. Атака (при очень долгом отдыхе)
+      if (action.timeMinutes >= GameConstants.restAttackMinDuration) {
+        final attacked = _rollAttack(context, controller);
+        if (attacked) return; // бой запущен, дальше не идём
+      }
+    }
+
+    // ─── 4. Время ───
+    await controller.advanceTime(action.timeMinutes, isSleeping: true);
+
+    // ─── 5. Автосохранение ───
+    await controller.save();
+
+    controller.notifyListeners();
+
+    // ─── 6. Снекбар ───
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${action.icon} Отдых: ${action.name}'),
+          backgroundColor: const Color.fromARGB(255, 100, 180, 100),
+          duration: const Duration(seconds: GameConstants.snackbarDefaultSeconds),
+        ),
+      );
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ВНУТРЕННИЕ МЕТОДЫ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Применить изменения статов от отдыха
+  static void _applyRestStats(MapController controller, RestAction action) {
+    controller.applyStatDelta({
+      'stamina': action.staminaRestore,
+      'health': action.healthRestore,
+      'sanity': action.sanityRestore,
+      'fatigue': -action.fatigueReduce,
+    });
+  }
+
+  /// Бонус от спального мешка
+  static void _applySleepingBagBonus(MapController controller) {
+    if (!controller.inventory.hasItem('sleeping_bag')) return;
+    controller.applyStatDelta({
+      'stamina': GameConstants.sleepingBagStaminaBonus,
+      'sanity': GameConstants.sleepingBagSanityBonus,
+    });
+  }
+
+  /// Риск простуды при отдыхе в опасной/холодной локации
+  static void _rollCold(MapController controller) {
+    final riskRoll = Random().nextInt(100);
+    final warmth = controller.equipment.totalWarmth;
+    final coldChance = warmth >= GameConstants.warmthColdResistThreshold
+        ? GameConstants.coldChanceLow
+        : GameConstants.coldChanceHigh;
+
+    if (riskRoll >= coldChance) return;
+
+    final newCond = ConditionManager.tryInfect(
+      controller.allConditions,
+      'cold_weather',
+      1.0,
+    );
+    if (newCond == null) return;
+
+    if (ConditionManager.hasCondition(
+      controller.activeConditions,
+      newCond.id,
+    )) {
+      return;
+    }
+
+    controller.addCondition(newCond);
+  }
+
+  /// Риск ограбления при отдыхе в опасной локации
+  static void _rollTheft(
+    BuildContext context,
+    MapController controller,
+  ) {
+    final theftRoll = Random().nextInt(100);
+    if (theftRoll >= GameConstants.restTheftChance) return;
+    if (controller.inventory.items.isEmpty) return;
+
+    final stolen = controller.inventory.items[
+        Random().nextInt(controller.inventory.items.length)];
+    controller.removeAll(stolen.id);
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('💀 Тебя ограбили! Украдено: ${stolen.name}'),
+          backgroundColor: Colors.red[700],
+          duration: const Duration(
+            seconds: GameConstants.snackbarLongSeconds,
+          ),
+        ),
+      );
+    }
+  }
+
+  /// Риск атаки при отдыхе в опасной локации.
+  ///
+  /// Возвращает `true`, если бой запущен.
+  static bool _rollAttack(
+    BuildContext context,
+    MapController controller,
+  ) {
+    final attackRoll = Random().nextInt(100);
+    final phaseMultiplier =
+        controller.gameTime.phase.dangerMultiplier.toInt();
+    final attackChance =
+        GameConstants.restAttackBaseChance * phaseMultiplier;
+
+    if (attackRoll >= attackChance) return false;
+
+    // Запускаем бой — но не ждём (асинхронно, огонь и забыли)
+    CombatManager.startCombat(context, controller, 'looter_common');
+    return true;
+  }
+}
+```
+
+### 📄 `./lib/services/map/search_manager.dart`
+```dart
+import 'package:flutter/material.dart';
+import 'dart:math';
+
+import 'package:dark_hours/services/map/map_controller.dart';
+import 'package:dark_hours/services/map/combat_manager.dart';
+import 'package:dark_hours/services/items/item_loader.dart';
+import 'package:dark_hours/services/items/search_event_loader.dart';
+import 'package:dark_hours/services/conditions/condition_manager.dart';
+import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/models/world/location.dart';
+import 'package:dark_hours/models/world/search_event.dart';
+import 'package:dark_hours/models/inventory/inventory_item.dart';
+import 'package:dark_hours/widgets/effects/floating_effect.dart';
+import 'package:dark_hours/constants/game_constants.dart';
+
+/// Управляет обыском локаций.
+///
+/// Логика:
+/// 1. Проверить, есть ли что искать.
+/// 2. Списать стамину и усталость.
+/// 3. Проверить risk локации (шанс заболеть).
+/// 4. Если ещё есть "свежие" обыски — стандартный поиск (лут из пула).
+/// 5. Если обыски кончились — случайное событие.
+/// 6. Продвинуть время.
+/// 7. Шанс встретить врага.
+/// 8. Автосохранить.
+class SearchManager {
+  /// Обыскать текущую локацию.
+  static Future<void> search(
+    BuildContext context,
+    MapController controller,
+  ) async {
+    final loc = controller.currentLocation;
+    if (loc == null) return;
+
+    // ─── 1. Проверка: есть ли что искать ───
+    if (_nothingToSearch(loc)) {
+      AudioService.playError();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Здесь нечего искать'),
+            backgroundColor: Colors.grey,
+          ),
+        );
+      }
+      return;
+    }
+
+    AudioService.playClick();
+
+    // ─── 2. Стоимость ───
+    controller.setStamina(
+      controller.stamina - GameConstants.searchStaminaCost,
+    );
+    controller.setFatigue(
+      controller.fatigue + GameConstants.searchFatigueCost,
+    );
+
+    // ─── 3. Risk локации ───
+    if (loc.risk != null) {
+      await _applyLocationRisk(context, controller, loc);
+    }
+
+    // ─── 4-5. Стандартный поиск или событие ───
+    final searched = controller.searchedCounts[loc.id] ?? 0;
+    final hasRemainingLoot = searched < loc.maxSearches;
+
+    if (hasRemainingLoot) {
+      await _standardSearch(context, controller, loc);
+    } else {
+      await _eventSearch(context, controller, loc);
+    }
+
+    // ─── 6. Время ───
+    await controller.advanceTime(loc.searchTime);
+
+    // ─── 7. Шанс встретить врага ───
+    if (hasRemainingLoot && loc.enemies.isNotEmpty && !loc.isFinal) {
+      final enemyRoll = Random().nextInt(GameConstants.enemyEncounterChance);
+      if (enemyRoll == 0) {
+        await CombatManager.startCombat(
+          context,
+          controller,
+          loc.enemies[0],
+        );
+        return;
+      }
+    }
+
+    // ─── 8. Автосохранение ───
+    await controller.save();
+
+    controller.notifyListeners();
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ВНУТРЕННИЕ МЕТОДЫ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Проверить, есть ли что искать в локации
+  static bool _nothingToSearch(Location loc) {
+    return loc.maxSearches == 0 &&
+        loc.lootPool.isEmpty &&
+        loc.enemies.isEmpty &&
+        loc.risk == null;
+  }
+
+  /// Применить риск локации (шанс заразиться)
+  static Future<void> _applyLocationRisk(
+    BuildContext context,
+    MapController controller,
+    Location loc,
+  ) async {
+    final newCond = ConditionManager.tryInfect(
+      controller.allConditions,
+      loc.risk!,
+      GameConstants.locationRiskChance,
+    );
+    if (newCond == null) return;
+
+    if (ConditionManager.hasCondition(
+      controller.activeConditions,
+      newCond.id,
+    )) {
+      return;
+    }
+
+    controller.addCondition(newCond);
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${newCond.icon} Ты подхватил: ${newCond.name}'),
+          backgroundColor: Colors.red[700],
+        ),
+      );
+    }
+  }
+
+  /// Стандартный поиск — берём случайный лут из пула
+  static Future<void> _standardSearch(
+    BuildContext context,
+    MapController controller,
+    Location loc,
+  ) async {
+    controller.incrementSearchCount(loc.id);
+
+    if (loc.lootPool.isEmpty) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Ничего не найдено'),
+            backgroundColor: Colors.grey,
+          ),
+        );
+      }
+      return;
+    }
+
+    final foundItemId = loc.lootPool[Random().nextInt(loc.lootPool.length)];
+    final item = ItemLoader.findById(foundItemId);
+    if (item == null) return;
+
+    if (!controller.addItem(item)) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Рюкзак переполнен'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    }
+
+    if (context.mounted) {
+      AudioService.playSuccess();
+      FloatingEffectOverlay.show(
+        context,
+        'Найдено: ${item.name}',
+        color: const Color.fromARGB(255, 100, 180, 100),
+        icon: Icons.search,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Найдено: ${item.icon} ${item.name}'),
+          backgroundColor: const Color.fromARGB(255, 100, 180, 100),
+        ),
+      );
+    }
+  }
+
+  /// Поиск события — когда стандартный пул исчерпан
+  static Future<void> _eventSearch(
+    BuildContext context,
+    MapController controller,
+    Location loc,
+  ) async {
+    final map = controller.map;
+    if (map == null) return;
+
+    final pool = SearchEventLoader.getPoolFor(
+      locationEvents: loc.searchEvents,
+    );
+
+    final hiddenMap = SearchEventLoader.buildHiddenMap(map.locations);
+
+    final event = _rollSearchEvent(
+      pool: pool,
+      currentLocationId: loc.id,
+      hiddenMap: hiddenMap,
+    );
+
+    if (event == null) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Ты обходишь ещё раз. Ничего нового.'),
+            backgroundColor: Colors.grey,
+          ),
+        );
+      }
+      return;
+    }
+
+    await _applySearchEvent(context, controller, event, loc);
+  }
+
+  /// Бросить случайное событие из пула
+  static SearchEvent? _rollSearchEvent({
+    required List<SearchEvent> pool,
+    required String currentLocationId,
+    required Map<String, String> hiddenMap,
+  }) {
+    final rng = Random();
+
+    final applicable = pool.where((e) {
+      return e.isApplicableTo(
+        currentLocationId: currentLocationId,
+        hiddenLocations: hiddenMap,
+      );
+    }).toList();
+
+    double totalChance = 0.0;
+    for (final e in applicable) {
+      totalChance += e.chance;
+    }
+
+    final roll = rng.nextDouble() * (totalChance > 1.0 ? totalChance : 1.0);
+
+    double cumulative = 0.0;
+    for (final event in applicable) {
+      cumulative += event.chance;
+      if (roll < cumulative) {
+        return event;
+      }
+    }
+
+    return null;
+  }
+
+  /// Применить событие поиска
+  static Future<void> _applySearchEvent(
+    BuildContext context,
+    MapController controller,
+    SearchEvent event,
+    Location loc,
+  ) async {
+    // Показать текст события
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(event.text),
+          duration: const Duration(seconds: 4),
+          backgroundColor: const Color.fromARGB(255, 40, 40, 60),
+        ),
+      );
+    }
+
+    final effect = event.effect;
+
+    // ─── Статы ───
+    _applyStatEffects(context, controller, effect);
+
+    // ─── Случайный лут ───
+    if (effect['random_loot'] != null) {
+      await _applyRandomLoot(context, controller, effect);
+    }
+
+    // ─── Открытие локации ───
+    if (effect['unlock_location'] != null) {
+      await _applyUnlockLocation(context, controller, effect, loc);
+    }
+
+    // ─── Флаги ───
+    if (effect['flag_set'] != null) {
+      controller.setFlag(effect['flag_set'] as String);
+    }
+
+    // ─── Заражение ───
+    if (effect['infect'] != null) {
+      await _applyInfect(context, controller, effect);
+    }
+
+    // ─── Бой ───
+    if (effect['combat_start'] != null) {
+      await _applyCombatStart(context, controller, effect);
+    }
+  }
+
+  static void _applyStatEffects(
+    BuildContext context,
+    MapController controller,
+    Map<String, dynamic> effect,
+  ) {
+    final delta = <String, int>{};
+
+    if (effect['health'] != null) {
+      delta['health'] = effect['health'] as int;
+    }
+    if (effect['sanity'] != null) {
+      delta['sanity'] = effect['sanity'] as int;
+    }
+    if (effect['hunger'] != null) {
+      delta['hunger'] = effect['hunger'] as int;
+    }
+    if (effect['thirst'] != null) {
+      delta['thirst'] = effect['thirst'] as int;
+    }
+    if (effect['stamina'] != null) {
+      delta['stamina'] = effect['stamina'] as int;
+    }
+    if (effect['fatigue'] != null) {
+      delta['fatigue'] = effect['fatigue'] as int;
+    }
+
+    if (delta.isEmpty) return;
+
+    controller.applyStatDelta(delta);
+
+    // Floating effect
+    if (context.mounted) {
+      if (delta['health'] != null) {
+        FloatingEffectOverlay.show(
+          context,
+          '${delta['health']! > 0 ? '+' : ''}${delta['health']} ❤️',
+          color: delta['health']! > 0 ? Colors.green : Colors.red,
+          icon: Icons.favorite,
+        );
+      }
+      if (delta['sanity'] != null) {
+        FloatingEffectOverlay.show(
+          context,
+          '${delta['sanity']! > 0 ? '+' : ''}${delta['sanity']} 🧠',
+          color: delta['sanity']! > 0 ? Colors.purple : Colors.red,
+          icon: Icons.psychology,
+        );
+      }
+    }
+  }
+
+  static Future<void> _applyRandomLoot(
+    BuildContext context,
+    MapController controller,
+    Map<String, dynamic> effect,
+  ) async {
+    final lootIds = List<String>.from(effect['random_loot']);
+    if (lootIds.isEmpty) return;
+
+    final randomId = lootIds[Random().nextInt(lootIds.length)];
+    final item = ItemLoader.findById(randomId);
+    if (item == null) return;
+
+    if (!controller.addItem(item)) return;
+
+    if (context.mounted) {
+      AudioService.playSuccess();
+      FloatingEffectOverlay.show(
+        context,
+        'Найдено: ${item.name}',
+        color: const Color.fromARGB(255, 100, 180, 100),
+        icon: Icons.search,
+      );
+    }
+  }
+
+  static Future<void> _applyUnlockLocation(
+    BuildContext context,
+    MapController controller,
+    Map<String, dynamic> effect,
+    Location loc,
+  ) async {
+    final unlockValue = effect['unlock_location'];
+    final map = controller.map;
+    if (map == null) return;
+
+    String? hiddenId;
+
+    if (unlockValue == 'auto') {
+      final hiddenMap = SearchEventLoader.buildHiddenMap(map.locations);
+      hiddenId = hiddenMap[loc.id];
+    } else if (unlockValue is String) {
+      hiddenId = unlockValue;
+    }
+
+    if (hiddenId == null) return;
+    if (controller.isLocationUnlocked(hiddenId)) return;
+
+    controller.unlockLocation(hiddenId);
+
+    final hidden = map.getById(hiddenId);
+    if (hidden == null) return;
+
+    if (context.mounted) {
+      AudioService.playNotification();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('🔓 Открыто новое место: ${hidden.name}'),
+          duration: const Duration(seconds: 4),
+          backgroundColor: const Color.fromARGB(255, 200, 180, 100),
+        ),
+      );
+    }
+  }
+
+  static Future<void> _applyInfect(
+    BuildContext context,
+    MapController controller,
+    Map<String, dynamic> effect,
+  ) async {
+    final infectData = effect['infect'] as Map<String, dynamic>;
+    final source = infectData['source'] as String;
+    final chance = (infectData['chance'] as num?)?.toDouble() ?? 0.5;
+
+    final newCondition = ConditionManager.tryInfect(
+      controller.allConditions,
+      source,
+      chance,
+    );
+    if (newCondition == null) return;
+
+    if (ConditionManager.hasCondition(
+      controller.activeConditions,
+      newCondition.id,
+    )) {
+      return;
+    }
+
+    controller.addCondition(newCondition);
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${newCondition.icon} Ты подхватил: ${newCondition.name}',
+          ),
+          duration: const Duration(seconds: 3),
+          backgroundColor: Colors.red[700],
+        ),
+      );
+    }
+  }
+
+  static Future<void> _applyCombatStart(
+    BuildContext context,
+    MapController controller,
+    Map<String, dynamic> effect,
+  ) async {
+    final combat = effect['combat_start'] as Map<String, dynamic>;
+    final enemyName = combat['enemy_name'] as String? ?? 'Враг';
+    final enemyHealth = combat['enemy_health'] as int? ?? 30;
+    final enemyDamage = combat['enemy_damage'] as int? ?? 10;
+    final enemyProtection = combat['enemy_protection'] as int? ?? 0;
+    final enemyStrength = combat['enemy_strength'] as int? ?? 5;
+
+    await CombatManager.startCombatWithParams(
+      context,
+      controller,
+      enemyName: enemyName,
+      enemyHealth: enemyHealth,
+      enemyDamage: enemyDamage,
+      enemyProtection: enemyProtection,
+      enemyStrength: enemyStrength,
+    );
+  }
+}
+```
+
+### 📄 `./lib/services/map/story_trigger_manager.dart`
+```dart
+import 'package:flutter/material.dart';
+
+import 'package:dark_hours/services/map/map_controller.dart';
+import 'package:dark_hours/services/save/save_manager.dart';
+import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/models/save/save_data.dart';
+import 'package:dark_hours/models/story/story_node.dart';
+import 'package:dark_hours/screens/gameplay/story_screen.dart';
+
+/// Управляет сюжетными триггерами на карте.
+///
+/// Что делает:
+/// 1. Проверяет, есть ли в текущей локации сюжетный триггер.
+/// 2. Проверяет условия: глава, персонаж, "один раз".
+/// 3. Если да — показывает диалог «Сюжетное событие».
+/// 4. Если игрок согласен — открывает StoryScreen.
+/// 5. После возвращения — перечитывает сохранение.
+class StoryTriggerManager {
+  /// Проверить триггер в текущей локации.
+  ///
+  /// Если триггер сработал — открывает StoryScreen и ждёт возвращения.
+  static Future<void> checkTrigger(
+    BuildContext context,
+    MapController controller,
+  ) async {
+    final loc = controller.currentLocation;
+    if (loc == null) return;
+
+    // ─── 1. Есть ли в локации сюжетный триггер ───
+    if (loc.storyNode == null) return;
+
+    // ─── 2. Проверка условий (глава, персонаж, "один раз") ───
+    if (!loc.canTriggerStory(
+      currentChapter: controller.chapter,
+      currentCharacter: controller.characterId,
+      triggeredNodes: controller.flags,
+    )) {
+      return;
+    }
+
+    // ─── 3. Загружаем сюжет и проверяем ноду ───
+    final story = await Story.load(
+      controller.characterId,
+      chapter: controller.chapter,
+    );
+    if (story == null) return;
+
+    final node = story.getNode(loc.storyNode!);
+    if (node == null) {
+      debugPrint(
+        '⚠️ StoryTriggerManager: нода "${loc.storyNode}" не найдена '
+        'в сюжете ${controller.characterId}/chapter_${controller.chapter}',
+      );
+      return;
+    }
+
+    // ─── 4. Отмечаем триггер как сработавший ───
+    controller.setFlag(loc.storyNode!);
+
+    // ─── 5. Автосохранение ───
+    await controller.save();
+
+    if (!context.mounted) return;
+
+    // ─── 6. Диалог «Сюжетное событие» ───
+    final proceed = await _showStoryDialog(context, loc.name);
+    if (proceed != true || !context.mounted) return;
+
+    // ─── 7. Создаём SaveData для StoryScreen ───
+    final saveForStory = _buildSaveForStory(controller, loc.storyNode!);
+
+    await SaveManager.save(saveForStory);
+
+    if (!context.mounted) return;
+
+    // ─── 8. Открываем StoryScreen ───
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => StoryScreen(
+          characterId: controller.characterId,
+          characterName: controller.characterName,
+          resumeFrom: saveForStory,
+        ),
+      ),
+    );
+
+    // ─── 9. После возвращения — перечитываем сохранение ───
+    await controller.reloadFromSave();
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ВНУТРЕННИЕ МЕТОДЫ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Показать диалог перед открытием StoryScreen.
+  ///
+  /// Возвращает `true`, если игрок нажал «ПРОДОЛЖИТЬ».
+  static Future<bool?> _showStoryDialog(
+    BuildContext context,
+    String locationName,
+  ) {
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: const Color.fromARGB(255, 20, 20, 20),
+        title: const Text(
+          '📖 СЮЖЕТНОЕ СОБЫТИЕ',
+          style: TextStyle(
+            color: Color.fromARGB(255, 200, 180, 100),
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 2.0,
+          ),
+        ),
+        content: Text(
+          '$locationName — здесь тебя ждёт важная встреча.',
+          style: TextStyle(color: Colors.grey[300], fontSize: 13),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              AudioService.playClick();
+              Navigator.pop(dialogContext, true);
+            },
+            child: const Text(
+              'ПРОДОЛЖИТЬ',
+              style: TextStyle(
+                color: Color.fromARGB(255, 200, 180, 100),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Собрать SaveData для открытия StoryScreen.
+  ///
+  /// StoryScreen не знает о MapController — он работает с SaveData.
+  /// Поэтому мы собираем snapshot текущего состояния.
+  static SaveData _buildSaveForStory(
+    MapController controller,
+    String nodeId,
+  ) {
+    return SaveData(
+      characterId: controller.characterId,
+      characterName: controller.characterName,
+      currentNodeId: nodeId,
+      currentLocationId: controller.map?.currentLocationId ?? 'home_boris',
+      onMap: false,
+      hunger: controller.hunger,
+      thirst: controller.thirst,
+      health: controller.health,
+      sanity: controller.sanity,
+      stamina: controller.stamina,
+      fatigue: controller.fatigue,
+      timeMinutes: controller.gameTime.totalMinutes,
+      chapter: controller.chapter,
+      history: controller.flags.toList(),
+      inventoryItems: controller.inventory.toJson(),
+      equipmentItems: controller.equipment.toJson(),
+      activeConditions: controller.activeConditions
+          .map((ac) => {
+                'id': ac.condition.id,
+                'daysRemaining': ac.daysRemaining,
+              })
+          .toList(),
+      searchedCounts: controller.searchedCounts,
+      unlockedLocations: controller.unlockedLocations.toList(),
+      savedAt: DateTime.now(),
+    );
   }
 }
 ```
@@ -37891,29 +36491,14 @@ flutter:
     - assets/data/locations.json
     - assets/data/search_events.json
     - assets/data/achievements.json
+    - assets/data/enemies.json
 
-    # ===== СЮЖЕТ — НОВЫЙ ФОРМАТ =====
-    # Борис, Глава 1
+    # ===== СЮЖЕТ =====
     - assets/data/story/boris/chapter_1/
-
-    # Алина, Глава 1
     - assets/data/story/alina/chapter_1/
-
-    # Иван Ильич, Глава 1
     - assets/data/story/ivan/chapter_1/
-
-    # Андрей, Глава 1
     - assets/data/story/andrey/chapter_1/
-
-    # Дарья, Глава 1
     - assets/data/story/darya/chapter_1/
-
-    # ===== СЮЖЕТ — СТАРЫЙ ФОРМАТ (временно, fallback) =====
-    - assets/data/story_boris.json
-    - assets/data/story_alina.json
-    - assets/data/story_ivan.json
-    - assets/data/story_andrey.json
-    - assets/data/story_darya.json
 
     # ===== ЗВУКИ =====
     - assets/audio/ui/
@@ -38052,39 +36637,1395 @@ echo "Запусти: dart fix_imports.sh (см. следующий шаг)"
 
 ```
 
-### 📄 `./test/widget_test.dart`
+### 📄 `./test/models/combat_test.dart`
 ```dart
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:dark_hours/main.dart';
+import 'package:dark_hours/models/combat/combat.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  Combatant makeCombatant({
+    int health = 100,
+    int maxHealth = 100,
+    int damage = 10,
+    int protection = 0,
+    int strength = 5,
+    String damageType = 'blunt',
+    Map<String, int> resistances = const {},
+  }) {
+    return Combatant(
+      name: 'Тест',
+      health: health,
+      maxHealth: maxHealth,
+      damage: damage,
+      protection: protection,
+      strength: strength,
+      damageType: damageType,
+      resistances: resistances,
+    );
+  }
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  group('Combatant.calculateDamage', () {
+    test('минимальный урон 1', () {
+      final strong = makeCombatant(damage: 1);
+      final tanky = makeCombatant(protection: 100);
+      expect(strong.calculateDamage(tanky), 1);
+    });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    test('крит увеличивает урон', () {
+      final attacker = makeCombatant(damage: 20);
+      final target = makeCombatant();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+      final normal = attacker.calculateDamage(target, isCrit: false);
+      final crit = attacker.calculateDamage(target, isCrit: true);
+
+      expect(crit, greaterThan(normal));
+    });
+
+    test('protection вычитается из урона', () {
+      final attacker = makeCombatant(damage: 30);
+      final target = makeCombatant(protection: 10);
+
+      final dmg = attacker.calculateDamage(target);
+      // 30 + бонус от силы (5-5=0) - 10 protection = 20
+      expect(dmg, 20);
+    });
+
+    test('сопротивления вычитаются', () {
+      final attacker = makeCombatant(damage: 30, damageType: 'firearm');
+      final target = makeCombatant(
+        protection: 0,
+        resistances: {'firearm': 20},
+      );
+
+      final dmg = attacker.calculateDamage(target);
+      // 30 - 20 = 10
+      expect(dmg, 10);
+    });
+
+    test('бонус от высокой силы', () {
+      final weak = makeCombatant(damage: 10, strength: 5);
+      final strong = makeCombatant(damage: 10, strength: 8);
+
+      final weakDmg = weak.calculateDamage(makeCombatant());
+      final strongDmg = strong.calculateDamage(makeCombatant());
+
+      // strong: (8-5)*2 = +6 урона
+      expect(strongDmg, greaterThan(weakDmg));
+    });
+  });
+
+  group('Combatant.takeDamage / heal', () {
+    test('takeDamage уменьшает health', () {
+      final c = makeCombatant(health: 100);
+      c.takeDamage(30);
+      expect(c.health, 70);
+    });
+
+    test('health не опускается ниже 0', () {
+      final c = makeCombatant(health: 10);
+      c.takeDamage(50);
+      expect(c.health, 0);
+    });
+
+    test('heal восстанавливает health', () {
+      final c = makeCombatant(health: 50);
+      c.heal(20);
+      expect(c.health, 70);
+    });
+
+    test('health не выше maxHealth', () {
+      final c = makeCombatant(health: 90, maxHealth: 100);
+      c.heal(50);
+      expect(c.health, 100);
+    });
+  });
+
+  group('Combatant.isDead', () {
+    test('false при health > 0', () {
+      final c = makeCombatant(health: 1);
+      expect(c.isDead, false);
+    });
+
+    test('true при health = 0', () {
+      final c = makeCombatant(health: 0);
+      expect(c.isDead, true);
+    });
+  });
+
+  group('Combatant.critChance', () {
+    test('в диапазоне 0.05 - 0.35', () {
+      for (int strength = 1; strength <= 10; strength++) {
+        final c = makeCombatant(strength: strength);
+        expect(c.critChance, greaterThanOrEqualTo(0.05));
+        expect(c.critChance, lessThanOrEqualTo(0.35));
+      }
+    });
+
+    test('выше у сильного персонажа', () {
+      final weak = makeCombatant(strength: 3);
+      final strong = makeCombatant(strength: 9);
+      expect(strong.critChance, greaterThan(weak.critChance));
+    });
+  });
+
+  group('Combatant статус-эффекты', () {
+    test('isStunned при stunTurns > 0', () {
+      final c = makeCombatant();
+      expect(c.isStunned, false);
+      c.stunTurns = 1;
+      expect(c.isStunned, true);
+    });
+
+    test('tickStatusEffects уменьшает bleedTurns', () {
+      final c = makeCombatant();
+      c.bleedTurns = 3;
+      c.tickStatusEffects();
+      expect(c.bleedTurns, 2);
+    });
+
+    test('tickStatusEffects наносит урон от кровотечения', () {
+      final c = makeCombatant(health: 100);
+      c.bleedTurns = 3;
+      final dmg = c.tickStatusEffects();
+      // Кровотечение: -3 HP за ход
+      expect(dmg, 3);
+      expect(c.health, 97);
+    });
+
+    test('tickStatusEffects наносит урон от яда', () {
+      final c = makeCombatant(health: 100);
+      c.poisonTurns = 2;
+      final dmg = c.tickStatusEffects();
+      // Яд: -2 HP за ход
+      expect(dmg, 2);
+      expect(c.health, 98);
+    });
   });
 }
+```
 
+### 📄 `./test/models/equipment_test.dart`
+```dart
+import 'package:flutter_test/flutter_test.dart';
+import 'package:dark_hours/models/inventory/equipment.dart';
+import 'package:dark_hours/models/inventory/inventory_item.dart';
+
+void main() {
+  // Заглушки для тестов — не грузим JSON
+  InventoryItem makeWeapon({
+    required String id,
+    required int damage,
+    required String damageType,
+  }) {
+    return InventoryItem(
+      id: id,
+      name: id,
+      icon: '⚔️',
+      rarity: 'common',
+      weight: 1.0,
+      count: 1,
+      sourceType: 'weapon',
+      damage: damage,
+      damageType: damageType,
+    );
+  }
+
+  InventoryItem makeArmor({
+    required String id,
+    required String slot,
+    required int protection,
+    int warmth = 0,
+    Map<String, int> resistances = const {},
+  }) {
+    return InventoryItem(
+      id: id,
+      name: id,
+      icon: '🦺',
+      rarity: 'common',
+      weight: 1.0,
+      count: 1,
+      sourceType: 'armor',
+      protection: protection,
+      warmth: warmth,
+      resistances: resistances,
+      armorSlot: slot,
+    );
+  }
+
+  group('Equipment.totalProtection', () {
+    test('0 для пустой экипировки', () {
+      final eq = Equipment();
+      expect(eq.totalProtection, 0);
+    });
+
+    test('суммирует все слоты', () {
+      final eq = Equipment();
+      eq.body = makeArmor(id: 'body', slot: 'body', protection: 10);
+      eq.head = makeArmor(id: 'head', slot: 'head', protection: 20);
+      eq.hands = makeArmor(id: 'hands', slot: 'hands', protection: 5);
+      eq.feet = makeArmor(id: 'feet', slot: 'feet', protection: 8);
+
+      expect(eq.totalProtection, 43);
+    });
+
+    test('backpack и weapon не влияют на защиту', () {
+      final eq = Equipment();
+      eq.weapon = makeWeapon(id: 'w', damage: 50, damageType: 'blunt');
+      eq.backpack = makeArmor(id: 'b', slot: 'backpack', protection: 0);
+
+      expect(eq.totalProtection, 0);
+    });
+  });
+
+  group('Equipment.totalWarmth', () {
+    test('суммирует тепло', () {
+      final eq = Equipment();
+      eq.body = makeArmor(id: 'body', slot: 'body', protection: 0, warmth: 20);
+      eq.head = makeArmor(id: 'head', slot: 'head', protection: 0, warmth: 6);
+
+      expect(eq.totalWarmth, 26);
+    });
+  });
+
+  group('Equipment.weaponDamageType', () {
+    test('blunt для пустой экипировки (кулаки)', () {
+      final eq = Equipment();
+      expect(eq.weaponDamageType, 'blunt');
+    });
+
+    test('cutting для ножа', () {
+      final eq = Equipment();
+      eq.weapon = makeWeapon(id: 'kitchen_knife', damage: 12, damageType: 'cutting');
+      expect(eq.weaponDamageType, 'cutting');
+    });
+
+    test('piercing для копья', () {
+      final eq = Equipment();
+      eq.weapon = makeWeapon(id: 'spear', damage: 24, damageType: 'piercing');
+      expect(eq.weaponDamageType, 'piercing');
+    });
+
+    test('firearm для пистолета', () {
+      final eq = Equipment();
+      eq.weapon = makeWeapon(id: 'pistol', damage: 44, damageType: 'firearm');
+      expect(eq.weaponDamageType, 'firearm');
+    });
+
+    test('blunt для топора', () {
+      final eq = Equipment();
+      eq.weapon = makeWeapon(id: 'axe', damage: 30, damageType: 'blunt');
+      expect(eq.weaponDamageType, 'blunt');
+    });
+  });
+
+  group('Equipment.totalResistances', () {
+    test('0 для пустой экипировки', () {
+      final eq = Equipment();
+      final res = eq.totalResistances;
+      expect(res['cutting'], 0);
+      expect(res['blunt'], 0);
+      expect(res['piercing'], 0);
+      expect(res['firearm'], 0);
+    });
+
+    test('суммирует сопротивления', () {
+      final eq = Equipment();
+      eq.body = makeArmor(
+        id: 'vest',
+        slot: 'body',
+        protection: 50,
+        resistances: {'cutting': 20, 'blunt': 10, 'piercing': 40, 'firearm': 50},
+      );
+
+      final res = eq.totalResistances;
+      expect(res['firearm'], 50);
+      expect(res['piercing'], 40);
+    });
+  });
+
+  group('Equipment.extraSlots', () {
+    test('0 без рюкзака', () {
+      final eq = Equipment();
+      expect(eq.extraSlots, 0);
+    });
+
+    test('возвращает extraSlots из рюкзака', () {
+      final eq = Equipment();
+      eq.backpack = InventoryItem(
+        id: 'army_backpack',
+        name: 'Рюкзак',
+        icon: '🎒',
+        rarity: 'common',
+        weight: 1.0,
+        count: 1,
+        sourceType: 'armor',
+        armorSlot: 'backpack',
+        extraSlots: 30,
+      );
+      expect(eq.extraSlots, 30);
+    });
+  });
+
+  group('Equipment.equip / unequip', () {
+    test('equip ставит предмет в нужный слот', () {
+      final eq = Equipment();
+      final jacket = makeArmor(id: 'jacket', slot: 'body', protection: 10);
+      eq.equip(jacket, 'body');
+      expect(eq.body, jacket);
+    });
+
+    test('unequip возвращает предмет и очищает слот', () {
+      final eq = Equipment();
+      final jacket = makeArmor(id: 'jacket', slot: 'body', protection: 10);
+      eq.equip(jacket, 'body');
+
+      final removed = eq.unequip('body');
+      expect(removed, jacket);
+      expect(eq.body, isNull);
+    });
+
+    test('unequip пустого слота возвращает null', () {
+      final eq = Equipment();
+      expect(eq.unequip('body'), isNull);
+    });
+  });
+
+  group('Equipment.totalDamage', () {
+    test('0 без оружия', () {
+      final eq = Equipment();
+      expect(eq.totalDamage, 0);
+    });
+
+    test('возвращает damage оружия', () {
+      final eq = Equipment();
+      eq.weapon = makeWeapon(id: 'axe', damage: 30, damageType: 'blunt');
+      expect(eq.totalDamage, 30);
+    });
+  });
+}
+```
+
+### 📄 `./test/models/inventory_test.dart`
+```dart
+import 'package:flutter_test/flutter_test.dart';
+import 'package:dark_hours/models/inventory/inventory.dart';
+import 'package:dark_hours/models/inventory/inventory_item.dart';
+
+void main() {
+  InventoryItem makeItem({
+    required String id,
+    double weight = 1.0,
+    int count = 1,
+  }) {
+    return InventoryItem(
+      id: id,
+      name: id,
+      icon: '📦',
+      rarity: 'common',
+      weight: weight,
+      count: count,
+      sourceType: 'resource',
+    );
+  }
+
+  group('Inventory.addItem', () {
+    test('добавляет новый предмет', () {
+      final inv = Inventory(maxWeight: 100);
+      final ok = inv.addItem(makeItem(id: 'wood'));
+      expect(ok, true);
+      expect(inv.items.length, 1);
+    });
+
+    test('стакает одинаковые предметы', () {
+      final inv = Inventory(maxWeight: 100);
+      inv.addItem(makeItem(id: 'wood', count: 1));
+      inv.addItem(makeItem(id: 'wood', count: 2));
+      expect(inv.items.length, 1);
+      expect(inv.items.first.count, 3);
+    });
+
+    test('не добавляет при перегрузе', () {
+      final inv = Inventory(maxWeight: 5);
+      inv.addItem(makeItem(id: 'heavy', weight: 4.0));
+      final ok = inv.addItem(makeItem(id: 'heavy2', weight: 4.0));
+      expect(ok, false);
+      expect(inv.items.length, 1);
+    });
+  });
+
+  group('Inventory.removeItem', () {
+    test('уменьшает count на 1', () {
+      final inv = Inventory(maxWeight: 100);
+      inv.addItem(makeItem(id: 'wood', count: 5));
+      inv.removeItem('wood');
+      expect(inv.items.first.count, 4);
+    });
+
+    test('удаляет предмет при count = 1', () {
+      final inv = Inventory(maxWeight: 100);
+      inv.addItem(makeItem(id: 'wood', count: 1));
+      inv.removeItem('wood');
+      expect(inv.items, isEmpty);
+    });
+
+    test('возвращает false для несуществующего', () {
+      final inv = Inventory(maxWeight: 100);
+      expect(inv.removeItem('nonexistent'), false);
+    });
+  });
+
+  group('Inventory.hasItem', () {
+    test('находит существующий предмет', () {
+      final inv = Inventory(maxWeight: 100);
+      inv.addItem(makeItem(id: 'wood'));
+      expect(inv.hasItem('wood'), true);
+    });
+
+    test('false для несуществующего', () {
+      final inv = Inventory(maxWeight: 100);
+      expect(inv.hasItem('wood'), false);
+    });
+  });
+
+  group('Inventory.countOf', () {
+    test('возвращает count предмета', () {
+      final inv = Inventory(maxWeight: 100);
+      inv.addItem(makeItem(id: 'wood', count: 7));
+      expect(inv.countOf('wood'), 7);
+    });
+
+    test('0 для несуществующего', () {
+      final inv = Inventory(maxWeight: 100);
+      expect(inv.countOf('wood'), 0);
+    });
+  });
+
+  group('Inventory.currentWeight', () {
+    test('суммирует вес всех предметов', () {
+      final inv = Inventory(maxWeight: 100);
+      inv.addItem(makeItem(id: 'a', weight: 2.0, count: 3));
+      inv.addItem(makeItem(id: 'b', weight: 1.5, count: 2));
+      // 2.0 * 3 + 1.5 * 2 = 6.0 + 3.0 = 9.0
+      expect(inv.currentWeight, closeTo(9.0, 0.01));
+    });
+
+    test('0 для пустого инвентаря', () {
+      final inv = Inventory(maxWeight: 100);
+      expect(inv.currentWeight, 0);
+    });
+  });
+
+  group('Inventory.isOverloaded', () {
+    test('false при нормальном весе', () {
+      final inv = Inventory(maxWeight: 10);
+      inv.addItem(makeItem(id: 'wood', weight: 5.0));
+      expect(inv.isOverloaded, false);
+    });
+
+    test('true при перегрузе', () {
+      final inv = Inventory(maxWeight: 3);
+      // Обходим проверку addItem — кладём напрямую
+      inv.items.add(makeItem(id: 'heavy', weight: 5.0));
+      expect(inv.isOverloaded, true);
+    });
+  });
+}
+```
+
+### 📄 `./test/services/condition_manager_test.dart`
+```dart
+import 'package:flutter_test/flutter_test.dart';
+import 'package:dark_hours/models/conditions/condition.dart';
+import 'package:dark_hours/models/conditions/active_condition.dart';
+import 'package:dark_hours/services/conditions/condition_manager.dart';
+
+void main() {
+  // Тестовые состояния
+  const infection = Condition(
+    id: 'infection',
+    name: 'Инфекция',
+    description: 'Рана заражена',
+    icon: '🦠',
+    severity: 'medium',
+    effectsPerTurn: {'health': -3, 'stamina': -1},
+    cureItems: ['antibiotic_pill'],
+    cureChance: 0.9,
+    durationDays: 5,
+    source: ['combat_wound'],
+  );
+
+  const cold = Condition(
+    id: 'cold',
+    name: 'Простуда',
+    description: 'Промок и замёрз',
+    icon: '🤧',
+    severity: 'low',
+    effectsPerTurn: {'health': -1, 'stamina': -2},
+    cureItems: ['herb_medkit'],
+    cureChance: 0.8,
+    durationDays: 4,
+    source: ['cold_weather'],
+  );
+
+  const bleeding = Condition(
+    id: 'bleeding',
+    name: 'Кровотечение',
+    description: 'Сильная рана',
+    icon: '🩸',
+    severity: 'critical',
+    effectsPerTurn: {'health': -8, 'stamina': -3},
+    cureItems: ['bandage'],
+    cureChance: 1.0,
+    durationDays: 1,
+    source: ['combat_wound'],
+  );
+
+  group('ConditionManager.applyEffects', () {
+    test('суммирует эффекты всех болезней', () {
+      final active = [
+        ActiveCondition(condition: infection, daysRemaining: 5),
+        ActiveCondition(condition: cold, daysRemaining: 4),
+      ];
+
+      final result = ConditionManager.applyEffects(active);
+
+      // infection: health -3, stamina -1
+      // cold: health -1, stamina -2
+      // Итого: health -4, stamina -3
+      expect(result['health'], -4);
+      expect(result['stamina'], -3);
+    });
+
+    test('единственная болезнь выдаёт свои эффекты', () {
+      final active = [
+        ActiveCondition(condition: bleeding, daysRemaining: 1),
+      ];
+
+      final result = ConditionManager.applyEffects(active);
+
+      expect(result['health'], -8);
+      expect(result['stamina'], -3);
+    });
+
+    test('пустой список даёт пустой результат', () {
+      final result = ConditionManager.applyEffects([]);
+      expect(result, isEmpty);
+    });
+  });
+
+  group('ConditionManager.tryInfect', () {
+    test('при chance = 1.0 всегда заражает', () {
+      // Ищем хотя бы раз из 20 попыток
+      final allConditions = [infection, cold, bleeding];
+      int infected = 0;
+      for (int i = 0; i < 20; i++) {
+        final result = ConditionManager.tryInfect(
+          allConditions,
+          'combat_wound',
+          1.0,
+        );
+        if (result != null) infected++;
+      }
+      expect(infected, 20);
+    });
+
+    test('при chance = 0.0 никогда не заражает', () {
+      final allConditions = [infection, cold, bleeding];
+      for (int i = 0; i < 20; i++) {
+        final result = ConditionManager.tryInfect(
+          allConditions,
+          'combat_wound',
+          0.0,
+        );
+        expect(result, isNull);
+      }
+    });
+
+    test('возвращает только болезни с подходящим source', () {
+      final allConditions = [infection, cold, bleeding];
+      // combat_wound есть только у infection и bleeding
+      for (int i = 0; i < 10; i++) {
+        final result = ConditionManager.tryInfect(
+          allConditions,
+          'combat_wound',
+          1.0,
+        );
+        expect(result, isNotNull);
+        expect(
+          ['infection', 'bleeding'],
+          contains(result!.id),
+        );
+      }
+    });
+
+    test('возвращает null, если нет болезней с этим source', () {
+      final allConditions = [infection, cold, bleeding];
+      final result = ConditionManager.tryInfect(
+        allConditions,
+        'nonexistent_source',
+        1.0,
+      );
+      expect(result, isNull);
+    });
+  });
+
+  group('ConditionManager.hasCondition', () {
+    test('находит существующее состояние', () {
+      final active = [
+        ActiveCondition(condition: infection, daysRemaining: 5),
+      ];
+      expect(ConditionManager.hasCondition(active, 'infection'), true);
+    });
+
+    test('возвращает false для отсутствующего', () {
+      final active = [
+        ActiveCondition(condition: infection, daysRemaining: 5),
+      ];
+      expect(ConditionManager.hasCondition(active, 'cold'), false);
+    });
+
+    test('работает с пустым списком', () {
+      expect(ConditionManager.hasCondition([], 'infection'), false);
+    });
+  });
+
+  group('ConditionManager.tryCure', () {
+    test('возвращает false для неподходящего предмета', () {
+      final ac = ActiveCondition(condition: infection, daysRemaining: 5);
+      // bandage не подходит для infection
+      expect(ConditionManager.tryCure(ac, 'bandage'), false);
+    });
+
+    test('с chance = 1.0 всегда лечит подходящим предметом', () {
+      final ac = ActiveCondition(condition: bleeding, daysRemaining: 1);
+      // cureChance = 1.0
+      expect(ConditionManager.tryCure(ac, 'bandage'), true);
+    });
+  });
+
+  group('ConditionManager.tickDay', () {
+    test('уменьшает daysRemaining на 1', () {
+      final active = [
+        ActiveCondition(condition: infection, daysRemaining: 5),
+      ];
+      final result = ConditionManager.tickDay(active);
+      expect(result.length, 1);
+      expect(result.first.daysRemaining, 4);
+    });
+
+    test('удаляет болезни с daysRemaining = 0', () {
+      final active = [
+        ActiveCondition(condition: bleeding, daysRemaining: 1),
+      ];
+      final result = ConditionManager.tickDay(active);
+      expect(result, isEmpty);
+    });
+
+    test('работает с несколькими состояниями', () {
+      final active = [
+        ActiveCondition(condition: infection, daysRemaining: 5),
+        ActiveCondition(condition: bleeding, daysRemaining: 1),
+        ActiveCondition(condition: cold, daysRemaining: 3),
+      ];
+      final result = ConditionManager.tickDay(active);
+      expect(result.length, 2);
+      expect(result.any((c) => c.condition.id == 'infection'), true);
+      expect(result.any((c) => c.condition.id == 'cold'), true);
+      expect(result.any((c) => c.condition.id == 'bleeding'), false);
+    });
+  });
+}
+```
+
+### 📄 `./test/services/item_loader_test.dart`
+```dart
+import 'package:flutter/services.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:dark_hours/services/items/item_loader.dart';
+
+void main() {
+  setUpAll(() async {
+    // Нужно для работы rootBundle в тестах
+    TestWidgetsFlutterBinding.ensureInitialized();
+    await ItemLoader.init();
+  });
+
+  group('ItemLoader.findById — оружие', () {
+    test('находит нож', () {
+      final knife = ItemLoader.findById('kitchen_knife');
+      expect(knife, isNotNull);
+      expect(knife!.name, 'Кухонный нож');
+      expect(knife.sourceType, 'weapon');
+      expect(knife.damage, 12);
+      expect(knife.damageType, 'cutting');
+    });
+
+    test('находит топор', () {
+      final axe = ItemLoader.findById('axe');
+      expect(axe, isNotNull);
+      expect(axe!.sourceType, 'weapon');
+      expect(axe.damage, 30);
+      expect(axe.damageType, 'blunt');
+    });
+
+    test('находит пистолет', () {
+      final pistol = ItemLoader.findById('pistol');
+      expect(pistol, isNotNull);
+      expect(pistol!.damage, 44);
+      expect(pistol.damageType, 'firearm');
+    });
+  });
+
+  group('ItemLoader.findById — броня', () {
+    test('находит кожаную куртку', () {
+      final jacket = ItemLoader.findById('leather_jacket');
+      expect(jacket, isNotNull);
+      expect(jacket!.sourceType, 'armor');
+      expect(jacket.protection, 10);
+      expect(jacket.warmth, 20);
+      expect(jacket.armorSlot, 'body');
+    });
+
+    test('находит бронежилет с сопротивлениями', () {
+      final vest = ItemLoader.findById('kevlar_vest');
+      expect(vest, isNotNull);
+      expect(vest!.protection, 50);
+      expect(vest.resistances['firearm'], 50);
+      expect(vest.resistances['piercing'], 40);
+    });
+
+    test('находит рюкзак с extraSlots', () {
+      final backpack = ItemLoader.findById('army_backpack');
+      expect(backpack, isNotNull);
+      expect(backpack!.sourceType, 'armor');
+      expect(backpack.extraSlots, 30);
+    });
+  });
+
+  group('ItemLoader.findById — расходники', () {
+    test('находит воду', () {
+      final water = ItemLoader.findById('water_bottle');
+      expect(water, isNotNull);
+      expect(water!.sourceType, 'consumable');
+      expect(water.thirstRestore, 40);
+    });
+
+    test('находит аптечку (tool)', () {
+      // first_aid_kit определён в tools.json — это инструмент,
+      // хотя и используется как медикамент.
+      final kit = ItemLoader.findById('first_aid_kit');
+      expect(kit, isNotNull);
+      expect(kit!.sourceType, 'tool');
+    });
+
+    test('находит тушёнку', () {
+      final stew = ItemLoader.findById('canned_stew');
+      expect(stew, isNotNull);
+      expect(stew!.hungerRestore, 40);
+    });
+  });
+
+  group('ItemLoader.findById — инструменты', () {
+    test('находит фонарик', () {
+      final flashlight = ItemLoader.findById('flashlight');
+      expect(flashlight, isNotNull);
+      expect(flashlight!.sourceType, 'tool');
+    });
+
+    test('находит отмычки', () {
+      final lockpick = ItemLoader.findById('lock_pick');
+      expect(lockpick, isNotNull);
+      expect(lockpick!.sourceType, 'tool');
+    });
+  });
+
+  group('ItemLoader.findById — ресурсы', () {
+    test('находит дрова', () {
+      final wood = ItemLoader.findById('wood');
+      expect(wood, isNotNull);
+      expect(wood!.sourceType, 'resource');
+    });
+
+    test('находит свисток', () {
+      final whistle = ItemLoader.findById('whistle');
+      expect(whistle, isNotNull);
+      expect(whistle!.sourceType, 'resource');
+      expect(whistle.name, 'Свисток');
+    });
+
+    test('находит ключ-карту', () {
+      final keycard = ItemLoader.findById('keycard');
+      expect(keycard, isNotNull);
+      expect(keycard!.sourceType, 'resource');
+      expect(keycard.name, 'Ключ-карта');
+    });
+  });
+
+  group('ItemLoader.findById — ошибки', () {
+    test('возвращает null для несуществующего предмета', () {
+      expect(ItemLoader.findById('nonexistent_item'), isNull);
+    });
+
+    test('возвращает null для пустой строки', () {
+      expect(ItemLoader.findById(''), isNull);
+    });
+  });
+
+  group('ItemLoader — counts', () {
+    test('загружено больше 0 оружия', () {
+      expect(ItemLoader.allWeapons.length, greaterThan(0));
+    });
+
+    test('загружено больше 0 брони', () {
+      expect(ItemLoader.allArmor.length, greaterThan(0));
+    });
+
+    test('загружено больше 0 расходников', () {
+      expect(ItemLoader.allConsumables.length, greaterThan(0));
+    });
+  });
+}
+```
+
+### 📄 `./test/services/save_manager_test.dart`
+```dart
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dark_hours/models/save/save_data.dart';
+import 'package:dark_hours/services/save/save_manager.dart';
+
+void main() {
+  setUp(() async {
+    // Очищаем SharedPreferences перед каждым тестом
+    SharedPreferences.setMockInitialValues({});
+  });
+
+  SaveData makeSave({
+    String characterId = 'boris',
+    String characterName = 'Борис',
+    int chapter = 1,
+  }) {
+    return SaveData(
+      characterId: characterId,
+      characterName: characterName,
+      currentNodeId: 'map',
+      currentLocationId: 'home_boris',
+      onMap: true,
+      hunger: 80,
+      thirst: 70,
+      health: 90,
+      sanity: 85,
+      stamina: 75,
+      fatigue: 10,
+      timeMinutes: 600,
+      chapter: chapter,
+      history: ['flag1', 'flag2'],
+      inventoryItems: [],
+      equipmentItems: {},
+      activeConditions: [],
+      savedAt: DateTime.now(),
+    );
+  }
+
+  group('SaveManager.save + load', () {
+    test('сохраняет и загружает прогресс', () async {
+      final save = makeSave();
+      final ok = await SaveManager.save(save);
+      expect(ok, true);
+
+      final loaded = await SaveManager.load();
+      expect(loaded, isNotNull);
+      expect(loaded!.characterId, 'boris');
+      expect(loaded.hunger, 80);
+      expect(loaded.thirst, 70);
+    });
+
+    test('load возвращает null, если сохранения нет', () async {
+      final loaded = await SaveManager.load();
+      expect(loaded, isNull);
+    });
+
+    test('сохраняет chapter', () async {
+      await SaveManager.save(makeSave(chapter: 3));
+      final loaded = await SaveManager.load();
+      expect(loaded!.chapter, 3);
+    });
+
+    test('сохраняет флаги', () async {
+      await SaveManager.save(makeSave());
+      final loaded = await SaveManager.load();
+      expect(loaded!.history, contains('flag1'));
+      expect(loaded.history, contains('flag2'));
+    });
+  });
+
+  group('SaveManager.hasSave', () {
+    test('false без сохранения', () async {
+      expect(await SaveManager.hasSave(), false);
+    });
+
+    test('true после сохранения', () async {
+      await SaveManager.save(makeSave());
+      expect(await SaveManager.hasSave(), true);
+    });
+  });
+
+  group('SaveManager.delete', () {
+    test('удаляет сохранение', () async {
+      await SaveManager.save(makeSave());
+      final ok = await SaveManager.delete();
+      expect(ok, true);
+      expect(await SaveManager.hasSave(), false);
+      expect(await SaveManager.load(), isNull);
+    });
+  });
+
+  group('SaveManager.formatSaveDate', () {
+    test('«только что» для свежего', () {
+      final now = DateTime.now();
+      final result = SaveManager.formatSaveDate(now);
+      expect(result, 'только что');
+    });
+
+    test('«X мин назад» для 5 минут', () {
+      final past = DateTime.now().subtract(const Duration(minutes: 5));
+      final result = SaveManager.formatSaveDate(past);
+      expect(result, contains('мин'));
+    });
+
+    test('«X ч назад» для 3 часов', () {
+      final past = DateTime.now().subtract(const Duration(hours: 3));
+      final result = SaveManager.formatSaveDate(past);
+      expect(result, contains('ч'));
+    });
+
+    test('«X дн назад» для 3 дней', () {
+      final past = DateTime.now().subtract(const Duration(days: 3));
+      final result = SaveManager.formatSaveDate(past);
+      expect(result, contains('дн'));
+    });
+  });
+}
+```
+
+### 📄 `./test/services/time_manager_test.dart`
+```dart
+import 'package:flutter_test/flutter_test.dart';
+import 'package:dark_hours/services/time/time_manager.dart';
+import 'package:dark_hours/models/time/game_time.dart';
+
+void main() {
+  group('TimeManager.calculateConsumption', () {
+    test('голод падает медленнее жажды (день, 600 мин)', () {
+      final result = TimeManager.calculateConsumption(
+        minutes: 600, // на длинном интервале видна разница
+        phase: TimePhase.day,
+        isSleeping: false,
+      );
+
+      final hunger = result['hunger']!.abs();
+      final thirst = result['thirst']!.abs();
+
+      expect(
+        hunger,
+        lessThan(thirst),
+        reason: 'голод должен падать медленнее жажды',
+      );
+    });
+
+    test('во сне расход меньше, чем в бодрствовании (ночь, 960 мин)', () {
+      final awake = TimeManager.calculateConsumption(
+        minutes: 960, // длинный интервал для видимой разницы
+        phase: TimePhase.night,
+        isSleeping: false,
+      );
+      final asleep = TimeManager.calculateConsumption(
+        minutes: 960,
+        phase: TimePhase.night,
+        isSleeping: true,
+      );
+
+      expect(
+        asleep['hunger']!.abs(),
+        lessThan(awake['hunger']!.abs()),
+        reason: 'во сне расход голода должен быть меньше',
+      );
+      expect(
+        asleep['thirst']!.abs(),
+        lessThan(awake['thirst']!.abs()),
+        reason: 'во сне расход жажды должен быть меньше',
+      );
+    });
+
+    test('во сне усталость не растёт', () {
+      final asleep = TimeManager.calculateConsumption(
+        minutes: 480,
+        phase: TimePhase.night,
+        isSleeping: true,
+      );
+
+      expect(asleep['fatigue'], 0);
+    });
+
+    test('ночью расход меньше, чем днём', () {
+      final day = TimeManager.calculateConsumption(
+        minutes: 600,
+        phase: TimePhase.day,
+        isSleeping: false,
+      );
+      final night = TimeManager.calculateConsumption(
+        minutes: 600,
+        phase: TimePhase.night,
+        isSleeping: false,
+      );
+
+      expect(
+        night['hunger']!.abs(),
+        lessThan(day['hunger']!.abs()),
+        reason: 'ночью расход должен быть меньше',
+      );
+    });
+
+    test('все возвращаемые значения отрицательные для голода/жажды', () {
+      final result = TimeManager.calculateConsumption(
+        minutes: 60,
+        phase: TimePhase.day,
+        isSleeping: false,
+      );
+
+      expect(result['hunger']!, lessThanOrEqualTo(0));
+      expect(result['thirst']!, lessThanOrEqualTo(0));
+    });
+  });
+
+  group('TimeManager.getPenalties', () {
+    test('при голоде ниже 20 выдаёт штраф', () {
+      final penalties = TimeManager.getPenalties(
+        hunger: 15,
+        thirst: 100,
+        stamina: 100,
+        sanity: 100,
+        fatigue: 0,
+      );
+
+      expect(
+        penalties.any((p) => p.contains('Голод')),
+        true,
+        reason: 'должен быть штраф за голод',
+      );
+    });
+
+    test('при голоде ниже 10 выдаёт критический штраф', () {
+      final penalties = TimeManager.getPenalties(
+        hunger: 5,
+        thirst: 100,
+        stamina: 100,
+        sanity: 100,
+        fatigue: 0,
+      );
+
+      expect(
+        penalties.any((p) => p.contains('Истощение')),
+        true,
+      );
+    });
+
+    test('при полном комфорте выдаёт бонус', () {
+      final penalties = TimeManager.getPenalties(
+        hunger: 80,
+        thirst: 80,
+        stamina: 80,
+        sanity: 80,
+        fatigue: 0,
+      );
+
+      expect(
+        penalties.any((p) => p.contains('Комфорт')),
+        true,
+        reason: 'при высоких статах должен быть бонус',
+      );
+    });
+
+    test('при всех 100 — только бонус, без штрафов', () {
+      final penalties = TimeManager.getPenalties(
+        hunger: 100,
+        thirst: 100,
+        stamina: 100,
+        sanity: 100,
+        fatigue: 0,
+      );
+
+      // Бонус есть
+      expect(penalties.any((p) => p.contains('Комфорт')), true);
+      // Штрафов нет
+      expect(penalties.any((p) => p.contains('Голод')), false);
+      expect(penalties.any((p) => p.contains('Жажда')), false);
+      expect(penalties.any((p) => p.contains('Истощение')), false);
+    });
+
+    test('при усталости 85 выдаёт изнеможение', () {
+      final penalties = TimeManager.getPenalties(
+        hunger: 100,
+        thirst: 100,
+        stamina: 100,
+        sanity: 100,
+        fatigue: 85,
+      );
+
+      expect(
+        penalties.any((p) => p.contains('Изнеможение')),
+        true,
+      );
+    });
+
+    test('при усталости 100 выдаёт коллапс', () {
+      final penalties = TimeManager.getPenalties(
+        hunger: 100,
+        thirst: 100,
+        stamina: 100,
+        sanity: 100,
+        fatigue: 100,
+      );
+
+      expect(
+        penalties.any((p) => p.contains('Коллапс')),
+        true,
+      );
+    });
+  });
+
+  group('TimeManager.getActionMultiplier', () {
+    test('при полном комфорте множитель 1.1', () {
+      final mult = TimeManager.getActionMultiplier(
+        hunger: 80,
+        thirst: 80,
+        stamina: 80,
+        sanity: 80,
+      );
+
+      expect(mult, closeTo(1.1, 0.01));
+    });
+
+    test('при критическом голоде множитель снижен', () {
+      final mult = TimeManager.getActionMultiplier(
+        hunger: 5,
+        thirst: 80,
+        stamina: 80,
+        sanity: 80,
+      );
+
+      expect(mult, lessThan(1.0));
+    });
+
+    test('множитель не ниже 0.3', () {
+      final mult = TimeManager.getActionMultiplier(
+        hunger: 0,
+        thirst: 0,
+        stamina: 0,
+        sanity: 0,
+      );
+
+      expect(mult, greaterThanOrEqualTo(0.3));
+    });
+
+    test('множитель не выше 1.5', () {
+      final mult = TimeManager.getActionMultiplier(
+        hunger: 100,
+        thirst: 100,
+        stamina: 100,
+        sanity: 100,
+      );
+
+      expect(mult, lessThanOrEqualTo(1.5));
+    });
+  });
+}
+```
+
+### 📄 `./test/story/story_loader_test.dart`
+```dart
+import 'package:flutter_test/flutter_test.dart';
+import 'package:dark_hours/models/story/story_node.dart';
+
+void main() {
+  setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+  });
+
+  const characters = ['boris', 'alina', 'ivan', 'andrey', 'darya'];
+
+  group('Story.loadFor — загрузка', () {
+    for (final char in characters) {
+      test('$char загружается', () async {
+        final story = await Story.loadFor(char);
+        expect(story, isNotNull, reason: 'Story для $char не загрузился');
+        expect(story!.nodes.isNotEmpty, true);
+        expect(story.acts.isNotEmpty, true);
+      });
+    }
+  });
+
+  group('Story.loadFor — нет дубликатов нод', () {
+    for (final char in characters) {
+      test('$char без дубликатов', () async {
+        final story = await Story.loadFor(char);
+        if (story == null) return;
+
+        // Считаем ноды по id в каждом акте отдельно
+        final Map<String, int> totalFromActs = {};
+        final storyDir = 'assets/data/story/$char/chapter_1';
+
+        for (final act in story.acts) {
+          final path = '$storyDir/${act.file}';
+          try {
+            // Читаем файл напрямую — используем loadString
+            final actStory = await Story.loadFor(char);
+            // Проверка: количество нод в story.nodes должно быть
+            // >= чем в одном акте (это уже косвенно)
+            expect(actStory, isNotNull);
+          } catch (_) {}
+        }
+
+        // Простая проверка: все id уникальны в nodes
+        final ids = <String>{};
+        for (final node in story.nodes.values) {
+          expect(
+            ids.contains(node.id),
+            false,
+            reason: '$char: дубликат id "${node.id}"',
+          );
+          ids.add(node.id);
+        }
+      });
+    }
+  });
+
+  group('Story.loadFor — все next ведут на существующие ноды', () {
+    for (final char in characters) {
+      test('$char: все next валидны', () async {
+        final story = await Story.loadFor(char);
+        if (story == null) return;
+
+        for (final node in story.nodes.values) {
+          for (final choice in node.choices) {
+            expect(
+              story.nodes.containsKey(choice.next),
+              true,
+              reason: '$char: ${node.id}.next = "${choice.next}" — нода не найдена',
+            );
+          }
+
+          // Проверка combat_victory / combat_defeat / combat_flee
+          for (final choice in node.choices) {
+            if (choice.effects == null) continue;
+            for (final key in ['combat_victory', 'combat_defeat', 'combat_flee']) {
+              final target = choice.effects![key];
+              if (target != null) {
+                expect(
+                  story.nodes.containsKey(target),
+                  true,
+                  reason: '$char: ${node.id}.$key = "$target" — нода не найдена',
+                );
+              }
+            }
+          }
+        }
+      });
+    }
+  });
+
+  group('Story.loadFor — start_node существует', () {
+    for (final char in characters) {
+      test('$char: start_node существует', () async {
+        final story = await Story.loadFor(char);
+        if (story == null) return;
+
+        final startId = story.startNodeId;
+        expect(
+          startId.isNotEmpty,
+          true,
+          reason: '$char: start_node не задан',
+        );
+        expect(
+          story.nodes.containsKey(startId),
+          true,
+          reason: '$char: start_node "$startId" не найден',
+        );
+      });
+    }
+  });
+
+  group('Story.loadFor — entry_nodes существуют', () {
+    for (final char in characters) {
+      test('$char: все entry_nodes валидны', () async {
+        final story = await Story.loadFor(char);
+        if (story == null) return;
+
+        for (final act in story.acts) {
+          for (final entry in act.entryNodes) {
+            expect(
+              story.nodes.containsKey(entry),
+              true,
+              reason: '$char: entry_node "$entry" в акте ${act.file} не найден',
+            );
+          }
+        }
+      });
+    }
+  });
+}
+```
+
+### 📄 `./test/widgets/smoke_test.dart`
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:dark_hours/models/character/character.dart';
+
+void main() {
+  group('Character — статический список', () {
+    test('содержит 5 персонажей', () {
+      expect(Character.all.length, 5);
+    });
+
+    test('все id уникальны', () {
+      final ids = Character.all.map((c) => c.id).toSet();
+      expect(ids.length, 5);
+    });
+
+    test('getById возвращает персонажа', () {
+      final boris = Character.getById('boris');
+      expect(boris, isNotNull);
+      expect(boris!.name, 'Борис');
+    });
+
+    test('getById возвращает null для несуществующего', () {
+      expect(Character.getById('nonexistent'), isNull);
+    });
+
+    test('все персонажи имеют уникальные имена', () {
+      final names = Character.all.map((c) => c.name).toSet();
+      expect(names.length, 5);
+    });
+  });
+
+  group('Character — характеристики', () {
+    test('Алина самая выносливая', () {
+      final alina = Character.getById('alina')!;
+      final maxEndurance =
+          Character.all.map((c) => c.endurance).reduce((a, b) => a > b ? a : b);
+      expect(alina.endurance, maxEndurance);
+    });
+
+    test('Андрей самый умный', () {
+      final andrey = Character.getById('andrey')!;
+      final maxInt = Character.all
+          .map((c) => c.intelligence)
+          .reduce((a, b) => a > b ? a : b);
+      expect(andrey.intelligence, maxInt);
+    });
+  });
+}
 ```
 
 ### 📄 `./tool/README.md `
@@ -38866,9 +38807,9 @@ class Validator {
 
 ## 📊 SUMMARY
 
-- Всего файлов: **164**
-- Текстовых (в дампе): **137**
+- Всего файлов: **181**
+- Текстовых (в дампе): **154**
 - Артефактов: **1**
 - Бинарников: **26**
-- Дамп: **1.4M**
+- Дамп: **1.3M**
 

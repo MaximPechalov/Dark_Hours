@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:dark_hours/models/inventory/equipment.dart';
 import 'package:dark_hours/models/inventory/inventory_item.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
-import 'package:dark_hours/widgets/panels/inventory_panel.dart' show ItemDetailsSheet;
+import 'package:dark_hours/widgets/panels/inventory_panel.dart'
+    show ItemDetailsSheet;
 
 class EquipmentPanel extends StatelessWidget {
   final Equipment equipment;
@@ -45,14 +46,14 @@ class EquipmentPanel extends StatelessWidget {
         children: [
           // Заголовок
           Row(
-            children: [
-              const Icon(
+            children: const [
+              Icon(
                 Icons.shield_outlined,
                 color: Color.fromARGB(255, 200, 180, 100),
                 size: 22,
               ),
-              const SizedBox(width: 8),
-              const Text(
+              SizedBox(width: 8),
+              Text(
                 'ЭКИПИРОВКА',
                 style: TextStyle(
                   color: Color.fromARGB(255, 200, 180, 100),
@@ -66,55 +67,19 @@ class EquipmentPanel extends StatelessWidget {
           const SizedBox(height: 12),
 
           // Итоговые характеристики
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 25, 25, 25),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: const Color.fromARGB(255, 200, 180, 100)
-                    .withOpacity(0.3),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildStatSummary(
-                  '⚔️',
-                  '${equipment.totalDamage}',
-                  'Урон',
-                  Colors.red[400]!,
-                ),
-                _buildStatSummary(
-                  '🛡️',
-                  '${equipment.totalProtection}',
-                  'Защита',
-                  Colors.blue[400]!,
-                ),
-                _buildStatSummary(
-                  '🔥',
-                  '${equipment.totalWarmth}',
-                  'Тепло',
-                  Colors.orange[400]!,
-                ),
-                _buildStatSummary(
-                  '🎒',
-                  '+${equipment.extraSlots}',
-                  'Слоты',
-                  Colors.teal[300]!,
-                ),
-              ],
-            ),
-          ),
+          _buildSummaryCard(),
           const SizedBox(height: 16),
 
           // Слоты экипировки
           _buildSlot(context, 'weapon', 'Оружие', Icons.gavel, equipment.weapon),
           _buildSlot(context, 'head', 'Голова', Icons.face, equipment.head),
           _buildSlot(context, 'body', 'Тело', Icons.checkroom, equipment.body),
-          _buildSlot(context, 'hands', 'Руки', Icons.back_hand, equipment.hands),
-          _buildSlot(context, 'feet', 'Ноги', Icons.directions_walk, equipment.feet),
-          _buildSlot(context, 'backpack', 'Рюкзак', Icons.backpack, equipment.backpack),
+          _buildSlot(
+              context, 'hands', 'Руки', Icons.back_hand, equipment.hands),
+          _buildSlot(
+              context, 'feet', 'Ноги', Icons.directions_walk, equipment.feet),
+          _buildSlot(context, 'backpack', 'Рюкзак', Icons.backpack,
+              equipment.backpack),
 
           const SizedBox(height: 10),
         ],
@@ -122,7 +87,59 @@ class EquipmentPanel extends StatelessWidget {
     );
   }
 
-  Widget _buildStatSummary(String icon, String value, String label, Color color) {
+  // ═══════════════════════════════════════════════════════════
+  // ИТОГОВЫЕ ХАРАКТЕРИСТИКИ
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildSummaryCard() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 25, 25, 25),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: const Color.fromARGB(255, 200, 180, 100)
+              .withValues(alpha: 0.3),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildStatSummary(
+            '⚔️',
+            '${equipment.totalDamage}',
+            'Урон',
+            Colors.red[400]!,
+          ),
+          _buildStatSummary(
+            '🛡️',
+            '${equipment.totalProtection}',
+            'Защита',
+            Colors.blue[400]!,
+          ),
+          _buildStatSummary(
+            '🔥',
+            '${equipment.totalWarmth}',
+            'Тепло',
+            Colors.orange[400]!,
+          ),
+          _buildStatSummary(
+            '🎒',
+            '+${equipment.extraSlots}',
+            'Слоты',
+            Colors.teal[300]!,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatSummary(
+    String icon,
+    String value,
+    String label,
+    Color color,
+  ) {
     return Column(
       children: [
         Text(icon, style: const TextStyle(fontSize: 18)),
@@ -146,6 +163,10 @@ class EquipmentPanel extends StatelessWidget {
     );
   }
 
+  // ═══════════════════════════════════════════════════════════
+  // СЛОТЫ ЭКИПИРОВКИ
+  // ═══════════════════════════════════════════════════════════
+
   Widget _buildSlot(
     BuildContext context,
     String slotKey,
@@ -154,9 +175,8 @@ class EquipmentPanel extends StatelessWidget {
     InventoryItem? item,
   ) {
     final isEmpty = item == null;
-    final rarityColor = isEmpty
-        ? Colors.grey[700]!
-        : _rarityColor(item.rarity);
+    final rarityColor =
+        isEmpty ? Colors.grey[700]! : _rarityColor(item.rarity);
 
     final content = Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -165,7 +185,7 @@ class EquipmentPanel extends StatelessWidget {
         color: const Color.fromARGB(255, 25, 25, 25),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: rarityColor.withOpacity(isEmpty ? 0.2 : 0.5),
+          color: rarityColor.withValues(alpha: isEmpty ? 0.2 : 0.5),
           width: 1,
         ),
       ),
@@ -203,7 +223,7 @@ class EquipmentPanel extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        item!.icon,
+                        item.icon,
                         style: const TextStyle(fontSize: 16),
                       ),
                       const SizedBox(width: 6),

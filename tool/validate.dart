@@ -224,7 +224,6 @@ class Validator {
     }
 
     final acts = (meta['acts'] as List? ?? []).cast<Map<String, dynamic>>();
-    final endings = (meta['endings'] as List? ?? []).cast<Map<String, dynamic>>();
     final startNode = meta['acts']?[0]?['start_node'] as String?;
 
     // ═══════ 2. Загружаем все акты ═══════

@@ -31,6 +31,7 @@ flutter:
     - assets/data/locations.json
     - assets/data/search_events.json
     - assets/data/achievements.json
+    - assets/data/enemies.json
 
     # ===== СЮЖЕТ =====
     - assets/data/story/boris/chapter_1/

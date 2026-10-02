@@ -25,20 +25,6 @@ void main() {
         final story = await Story.loadFor(char);
         if (story == null) return;
 
-        // Считаем ноды по id в каждом акте отдельно
-        final Map<String, int> totalFromActs = {};
-        final storyDir = 'assets/data/story/$char/chapter_1';
-
-        for (final act in story.acts) {
-          final path = '$storyDir/${act.file}';
-          try {
-            // Читаем файл напрямую — используем loadString
-            final actStory = await Story.loadFor(char);
-            // Проверка: количество нод в story.nodes должно быть
-            // >= чем в одном акте (это уже косвенно)
-            expect(actStory, isNotNull);
-          } catch (_) {}
-        }
 
         // Простая проверка: все id уникальны в nodes
         final ids = <String>{};

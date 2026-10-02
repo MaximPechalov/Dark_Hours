@@ -20,7 +20,6 @@ class ShakeWidget extends StatefulWidget {
 class _ShakeWidgetState extends State<ShakeWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  final Random _rng = Random();
 
   @override
   void initState() {

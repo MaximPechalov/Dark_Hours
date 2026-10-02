@@ -1,0 +1,241 @@
+{
+  "enemies": [
+    {
+      "id": "looter_common",
+      "name": "Мародёр",
+      "description": "Обычный горожанин, который решил выжить любой ценой.",
+      "category": "human",
+      "health": 25,
+      "damage": 8,
+      "protection": 1,
+      "strength": 5,
+      "damageType": "blunt",
+      "abilities": []
+    },
+    {
+      "id": "looter_armed",
+      "name": "Вооружённый мародёр",
+      "description": "У него есть нож, и он готов им воспользоваться.",
+      "category": "human",
+      "health": 40,
+      "damage": 14,
+      "protection": 4,
+      "strength": 7,
+      "damageType": "cutting",
+      "abilities": [
+        {
+          "id": "poison",
+          "name": "Отравленный клинок",
+          "description": "Клинок смазан ядом",
+          "chance": 0.3,
+          "effect": "poison"
+        }
+      ]
+    },
+    {
+      "id": "bandit",
+      "name": "Бандит",
+      "description": "Опытный боец. Быстрый, сильный, безжалостный.",
+      "category": "human",
+      "health": 55,
+      "damage": 18,
+      "protection": 6,
+      "strength": 8,
+      "damageType": "blunt",
+      "abilities": [
+        {
+          "id": "stun",
+          "name": "Оглушающий удар",
+          "description": "Удар в голову",
+          "chance": 0.25,
+          "effect": "skip_turn"
+        },
+        {
+          "id": "bleed",
+          "name": "Рваная рана",
+          "description": "Глубокий порез",
+          "chance": 0.2,
+          "effect": "bleeding"
+        }
+      ]
+    },
+    {
+      "id": "bandit_leader",
+      "name": "Главарь банды",
+      "description": "Роман. Бывший военный. У него пистолет и холодная голова.",
+      "category": "human",
+      "health": 75,
+      "damage": 22,
+      "protection": 8,
+      "strength": 9,
+      "damageType": "firearm",
+      "abilities": [
+        {
+          "id": "stun",
+          "name": "Прицельный выстрел",
+          "description": "Стреляет точно в цель",
+          "chance": 0.35,
+          "effect": "skip_turn"
+        },
+        {
+          "id": "bleed",
+          "name": "Огнестрельная рана",
+          "description": "Пуля оставляет глубокую рану",
+          "chance": 0.4,
+          "effect": "bleeding"
+        }
+      ]
+    },
+    {
+      "id": "looter_desperate",
+      "name": "Отчаявшийся",
+      "description": "Он не хочет драться. Но если прижмёт — будет драться насмерть.",
+      "category": "human",
+      "health": 30,
+      "damage": 10,
+      "protection": 2,
+      "strength": 5,
+      "damageType": "blunt",
+      "abilities": [
+        {
+          "id": "stun",
+          "name": "Удар в голову",
+          "description": "Действует инстинктивно",
+          "chance": 0.2,
+          "effect": "skip_turn"
+        }
+      ]
+    },
+    {
+      "id": "ex_soldier",
+      "name": "Дезертир",
+      "description": "Бывший военный. Один, без части, без цели. Опасен.",
+      "category": "human",
+      "health": 65,
+      "damage": 20,
+      "protection": 7,
+      "strength": 8,
+      "damageType": "firearm",
+      "abilities": [
+        {
+          "id": "stun",
+          "name": "Точный выстрел",
+          "description": "Стреляет как учили",
+          "chance": 0.3,
+          "effect": "skip_turn"
+        }
+      ]
+    },
+    {
+      "id": "dog_stray",
+      "name": "Бродячая собака",
+      "description": "Одичавшая, голодная. Одна не страшна, но их всегда несколько.",
+      "category": "animal",
+      "health": 20,
+      "damage": 8,
+      "protection": 0,
+      "strength": 4,
+      "damageType": "cutting",
+      "abilities": [
+        {
+          "id": "bleed",
+          "name": "Рваная рана",
+          "description": "Укус оставляет глубокую рану",
+          "chance": 0.3,
+          "effect": "bleeding"
+        }
+      ]
+    },
+    {
+      "id": "wolf",
+      "name": "Волк",
+      "description": "Хищник. Охотится в одиночку или в стае. Быстрый и опасный.",
+      "category": "animal",
+      "health": 30,
+      "damage": 12,
+      "protection": 1,
+      "strength": 6,
+      "damageType": "cutting",
+      "abilities": [
+        {
+          "id": "bleed",
+          "name": "Рваная рана",
+          "description": "Клыки оставляют глубокие порезы",
+          "chance": 0.35,
+          "effect": "bleeding"
+        }
+      ]
+    },
+    {
+      "id": "boar",
+      "name": "Кабан",
+      "description": "Огромный, злой, с клыками. Атакует, если чувствует угрозу.",
+      "category": "animal",
+      "health": 45,
+      "damage": 16,
+      "protection": 3,
+      "strength": 7,
+      "damageType": "piercing",
+      "abilities": [
+        {
+          "id": "stun",
+          "name": "Удар клыками",
+          "description": "Сбивает с ног",
+          "chance": 0.3,
+          "effect": "skip_turn"
+        }
+      ]
+    },
+    {
+      "id": "bear",
+      "name": "Медведь",
+      "description": "Хозяин леса. Огромный, сильный. Лучше не встречаться.",
+      "category": "animal",
+      "health": 90,
+      "damage": 25,
+      "protection": 5,
+      "strength": 9,
+      "damageType": "blunt",
+      "abilities": [
+        {
+          "id": "stun",
+          "name": "Удар лапой",
+          "description": "Сбивает с ног",
+          "chance": 0.4,
+          "effect": "skip_turn"
+        },
+        {
+          "id": "bleed",
+          "name": "Рваная рана",
+          "description": "Когти оставляют глубокие порезы",
+          "chance": 0.3,
+          "effect": "bleeding"
+        }
+      ]
+    },
+    {
+      "id": "fox",
+      "name": "Лиса",
+      "description": "Не опасна. Но укусить может. И убежать с добычей — тоже.",
+      "category": "animal",
+      "health": 12,
+      "damage": 5,
+      "protection": 0,
+      "strength": 3,
+      "damageType": "cutting",
+      "abilities": []
+    },
+    {
+      "id": "crow",
+      "name": "Ворон",
+      "description": "Птица. Не убивает. Но может выклевать глаза раненому.",
+      "category": "animal",
+      "health": 8,
+      "damage": 3,
+      "protection": 0,
+      "strength": 2,
+      "damageType": "piercing",
+      "abilities": []
+    }
+  ]
+}
