@@ -1,0 +1,72 @@
+{
+  "locations": [
+    {
+      "id": "forest_hut",
+      "name": "Лесная сторожка",
+      "scouted_name": "Домик в лесу",
+      "description": "Заброшенный дом лесника. Тихое место. Печка, дрова, старая книга на столе.",
+      "scouted_description": "Маленький домик среди деревьев. Дымка из трубы?",
+      "type": "safe_house",
+      "region": "forest",
+      "danger_level": 2,
+      "search_time": 30,
+      "max_searches": 3,
+      "loot_pool": ["wood", "mushrooms", "berries", "raw_meat"],
+      "enemies": ["dog_stray"],
+      "connections": [
+        { "id": "forest_path", "minutes": 15 },
+        { "id": "gas_station", "minutes": 45 }
+      ],
+      "icon": "🏚️",
+      "repeatable": true,
+      "mapPosition": { "x": 0.20, "y": 0.50 },
+      "map_zone": "forest"
+    },
+    {
+      "id": "forest_path",
+      "name": "Лесная тропа",
+      "scouted_name": "Тропа в лесу",
+      "description": "Густой лес. Тихо. Птицы, ручей, следы зверей. Иногда — следы людей.",
+      "scouted_description": "Узкая тропа уходит в чащу. Следы зверей, может и людей.",
+      "type": "forest",
+      "region": "forest",
+      "danger_level": 3,
+      "search_time": 45,
+      "max_searches": 6,
+      "loot_pool": ["wood", "mushrooms", "berries", "raw_meat", "feathers"],
+      "enemies": ["fox", "dog_stray", "wolf", "boar"],
+      "connections": [
+        { "id": "forest_hut", "minutes": 15 },
+        { "id": "highway_entrance", "minutes": 60 },
+        { "id": "forest_cache", "minutes": 30 }
+      ],
+      "icon": "🌲",
+      "repeatable": true,
+      "mapPosition": { "x": 0.30, "y": 0.55 },
+      "map_zone": "forest"
+    },
+    {
+      "id": "forest_cache",
+      "name": "Лесной схрон",
+      "scouted_name": "Что-то под корнями",
+      "description": "Старый тайник под корнями дерева. Кто-то спрятал здесь то, что считал важным.",
+      "scouted_description": "Под большим деревом — что-то закопано. Следы свежие.",
+      "type": "hidden",
+      "region": "forest",
+      "danger_level": 2,
+      "search_time": 30,
+      "max_searches": 2,
+      "loot_pool": ["hunting_knife", "raw_meat", "mre", "water_bottle", "bandage"],
+      "enemies": ["wolf"],
+      "connections": [
+        { "id": "forest_path", "minutes": 30 }
+      ],
+      "icon": "🔓",
+      "repeatable": true,
+      "hidden": true,
+      "unlocked_by": "forest_path",
+      "mapPosition": { "x": 0.10, "y": 0.45 },
+      "map_zone": "forest"
+    }
+  ]
+}

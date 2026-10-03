@@ -1,0 +1,51 @@
+{
+  "locations": [
+    {
+      "id": "tunnel_entrance",
+      "name": "Вход в тоннель",
+      "scouted_name": "Тёмный проход под землёй",
+      "description": "Технический тоннель. Тёмный, сырой. Короткий путь — но туда лучше не ходить одному.",
+      "scouted_description": "Круглый люк в земле. Тянет сыростью. Внизу — темнота.",
+      "type": "tunnel",
+      "region": "underground",
+      "danger_level": 6,
+      "search_time": 60,
+      "max_searches": 4,
+      "loot_pool": ["flashlight", "crowbar", "rope", "wood"],
+      "enemies": [],
+      "connections": [
+        { "id": "home_boris", "minutes": 5 },
+        { "id": "warehouse", "minutes": 15 },
+        { "id": "tunnel_dead_end", "minutes": 40 }
+      ],
+      "icon": "🕳️",
+      "repeatable": true,
+      "risk": "dirty_water",
+      "mapPosition": { "x": 0.10, "y": 0.92 },
+      "map_zone": "underground"
+    },
+    {
+      "id": "tunnel_dead_end",
+      "name": "Тупик в тоннеле",
+      "scouted_name": "Ниша в стене",
+      "description": "Скрытая ниша за обвалившейся кладкой. Кто-то оборудовал здесь место для хранения.",
+      "scouted_description": "За обвалом — узкий проход. Свежие следы.",
+      "type": "hidden",
+      "region": "underground",
+      "danger_level": 4,
+      "search_time": 40,
+      "max_searches": 3,
+      "loot_pool": ["tool_kit", "battery", "battery", "duct_tape", "wire"],
+      "enemies": [],
+      "connections": [
+        { "id": "tunnel_entrance", "minutes": 40 }
+      ],
+      "icon": "🔓",
+      "repeatable": true,
+      "hidden": true,
+      "unlocked_by": "tunnel_entrance",
+      "mapPosition": { "x": 0.05, "y": 0.98 },
+      "map_zone": "underground"
+    }
+  ]
+}

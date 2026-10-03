@@ -1,0 +1,226 @@
+{
+  "locations": [
+    {
+      "id": "home_boris",
+      "name": "Подвал Бориса",
+      "scouted_name": "Подвал в старом доме",
+      "description": "Твой дом. Бетонные стены, старый матрас, тёплый чайник. Здесь безопасно. Но пусто.",
+      "scouted_description": "Спуск в подвал. Ты знаешь это место.",
+      "type": "safe_house",
+      "region": "city_south",
+      "danger_level": 0,
+      "search_time": 30,
+      "max_searches": 3,
+      "loot_pool": ["canned_stew", "water_bottle", "cloth"],
+      "enemies": [],
+      "connections": [
+        { "id": "street_south", "minutes": 10 },
+        { "id": "tunnel_entrance", "minutes": 5 }
+      ],
+      "icon": "🏠",
+      "repeatable": true,
+      "is_start": true,
+      "mapPosition": { "x": 0.20, "y": 0.88 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "street_south",
+      "name": "Южная улица",
+      "scouted_name": "Улица на юге",
+      "description": "Пустая улица. Следы мародёров, брошенные машины, ветер гонит мусор по асфальту.",
+      "scouted_description": "Ты видишь улицу. Машины, следы. Где-то в глубине — движение.",
+      "type": "street",
+      "region": "city_south",
+      "danger_level": 3,
+      "search_time": 15,
+      "max_searches": 3,
+      "loot_pool": ["bandage", "crackers", "cloth", "nails"],
+      "enemies": ["looter_common"],
+      "connections": [
+        { "id": "home_boris", "minutes": 10 },
+        { "id": "supermarket", "minutes": 15 },
+        { "id": "pharmacy", "minutes": 10 },
+        { "id": "gas_station", "minutes": 20 }
+      ],
+      "icon": "🛣️",
+      "repeatable": true,
+      "mapPosition": { "x": 0.35, "y": 0.82 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "supermarket",
+      "name": "Супермаркет «Магнит»",
+      "scouted_name": "Большой магазин",
+      "description": "Разграблен, но в подсобке может остаться еда. Или кто-то, кто её охраняет.",
+      "scouted_description": "Огромное здание с разбитыми витринами. Кто-то внутри.",
+      "type": "shop",
+      "region": "city_south",
+      "danger_level": 6,
+      "search_time": 45,
+      "max_searches": 5,
+      "loot_pool": ["canned_stew", "water_bottle", "crackers", "chocolate", "dog_food"],
+      "enemies": ["looter_common", "looter_armed"],
+      "connections": [
+        { "id": "street_south", "minutes": 15 },
+        { "id": "parking", "minutes": 10 },
+        { "id": "supermarket_basement", "minutes": 5 }
+      ],
+      "icon": "🏪",
+      "repeatable": true,
+      "story_node": "boris_ch2_supermarket",
+      "story_condition": {
+        "chapter": 2,
+        "character": "boris",
+        "once": true
+      },
+      "mapPosition": { "x": 0.60, "y": 0.82 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "pharmacy",
+      "name": "Аптека «Ригла»",
+      "scouted_name": "Аптека",
+      "description": "Лекарства — валюта будущего. Очередь давно разбежалась, но кто-то ещё остался внутри.",
+      "scouted_description": "Аптека на углу. Вывеска тускло светится. Внутри — тени.",
+      "type": "shop",
+      "region": "city_south",
+      "danger_level": 7,
+      "search_time": 30,
+      "max_searches": 4,
+      "loot_pool": ["bandage", "painkiller_pill", "antibiotic_pill", "first_aid_kit"],
+      "enemies": ["looter_armed"],
+      "connections": [
+        { "id": "street_south", "minutes": 10 },
+        { "id": "hospital", "minutes": 30 }
+      ],
+      "icon": "💊",
+      "repeatable": true,
+      "story_node": "darya_ch2_pharmacy",
+      "story_condition": {
+        "chapter": 2,
+        "character": "darya",
+        "once": true
+      },
+      "mapPosition": { "x": 0.50, "y": 0.75 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "gas_station",
+      "name": "Заправка",
+      "scouted_name": "Заправка",
+      "description": "Бензин, инструменты, брошенные машины. Здесь пахнет не только топливом.",
+      "scouted_description": "Заправка на выезде из города. Машины, канистры. Пахнет бензином.",
+      "type": "industrial",
+      "region": "city_south",
+      "danger_level": 4,
+      "search_time": 20,
+      "max_searches": 4,
+      "loot_pool": ["fuel_can", "tool_kit", "wire", "duct_tape"],
+      "enemies": [],
+      "connections": [
+        { "id": "street_south", "minutes": 20 },
+        { "id": "highway_entrance", "minutes": 30 }
+      ],
+      "icon": "⛽",
+      "repeatable": true,
+      "story_node": "andrey_ch2_gas_station",
+      "story_condition": {
+        "chapter": 2,
+        "character": "andrey",
+        "once": true
+      },
+      "mapPosition": { "x": 0.75, "y": 0.88 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "parking",
+      "name": "Парковка ТЦ",
+      "scouted_name": "Парковка у торгового центра",
+      "description": "Брошенные машины. Можно найти инструменты, топливо. Или чьи-то вещи.",
+      "scouted_description": "Много машин. Некоторые открыты. Следы шин уходят в темноту.",
+      "type": "industrial",
+      "region": "city_south",
+      "danger_level": 5,
+      "search_time": 25,
+      "max_searches": 4,
+      "loot_pool": ["metal_scrap", "wire", "fuel_can", "battery"],
+      "enemies": ["looter_common"],
+      "connections": [
+        { "id": "supermarket", "minutes": 10 }
+      ],
+      "icon": "🅿️",
+      "repeatable": true,
+      "mapPosition": { "x": 0.80, "y": 0.75 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "warehouse",
+      "name": "Продуктовый склад",
+      "scouted_name": "Большое здание с воротами",
+      "description": "Логистический центр. Запасы еды, но мародёры повсюду. Кто-то занял это место до тебя.",
+      "scouted_description": "Складские ворота. Высокие стены. Кто-то ходит внутри.",
+      "type": "shop",
+      "region": "city_south",
+      "danger_level": 8,
+      "search_time": 60,
+      "max_searches": 5,
+      "loot_pool": ["canned_stew", "canned_stew", "water_bottle", "crackers", "chocolate", "mre"],
+      "enemies": ["looter_common", "looter_armed"],
+      "connections": [
+        { "id": "tunnel_entrance", "minutes": 15 },
+        { "id": "street_south", "minutes": 25 },
+        { "id": "rooftop_warehouse", "minutes": 10 }
+      ],
+      "icon": "📦",
+      "repeatable": true,
+      "mapPosition": { "x": 0.15, "y": 0.75 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "supermarket_basement",
+      "name": "Подвал «Магнита»",
+      "scouted_name": "Тёмный проход под магазином",
+      "description": "Тёмное помещение за обвалившейся стеной. Пахнет сыростью и чем-то съестным.",
+      "scouted_description": "Тёмный проход. Сыро. Кто-то здесь был.",
+      "type": "hidden",
+      "region": "city_south",
+      "danger_level": 3,
+      "search_time": 40,
+      "max_searches": 3,
+      "loot_pool": ["water_bottle", "canned_stew", "canned_stew", "crackers", "first_aid_kit"],
+      "enemies": [],
+      "connections": [
+        { "id": "supermarket", "minutes": 5 }
+      ],
+      "icon": "🔓",
+      "repeatable": true,
+      "hidden": true,
+      "unlocked_by": "supermarket",
+      "mapPosition": { "x": 0.65, "y": 0.90 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "rooftop_warehouse",
+      "name": "Чердак склада",
+      "scouted_name": "Крыша склада",
+      "description": "Технический этаж на крыше склада. Пыльный, но сухой. Здесь кто-то хранил запасы.",
+      "scouted_description": "Чердак на складе. Пыль, ящики. Тишина.",
+      "type": "hidden",
+      "region": "city_south",
+      "danger_level": 3,
+      "search_time": 35,
+      "max_searches": 3,
+      "loot_pool": ["mre", "water_bottle", "bandage", "army_boots", "kevlar_vest"],
+      "enemies": [],
+      "connections": [
+        { "id": "warehouse", "minutes": 10 }
+      ],
+      "icon": "🔓",
+      "repeatable": true,
+      "hidden": true,
+      "unlocked_by": "warehouse",
+      "mapPosition": { "x": 0.10, "y": 0.68 },
+      "map_zone": "city_south"
+    }
+  ]
+}

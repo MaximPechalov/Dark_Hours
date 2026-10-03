@@ -2,24 +2,9 @@
 //
 // Валидатор JSON-файлов проекта «Тёмные часы».
 // Запуск: dart run tool/validate.dart
-//
-// Проверяет:
-// - Синтаксис JSON
-// - Уникальность id в сюжете
-// - Все next/entry_nodes/end_nodes ведут к существующим нодам
-// - Все ссылки на предметы (items) существуют
-// - Все ссылки на локации (locations) существуют
-// - Все ссылки на рецепты, условия, search_events существуют
-// - Обязательные поля на месте
-//
-// Возвращает exit code 1, если есть ошибки (для CI).
 
 import 'dart:convert';
 import 'dart:io';
-
-// ═══════════════════════════════════════════════════════════
-// ГЛАВНАЯ ФУНКЦИЯ
-// ═══════════════════════════════════════════════════════════
 
 void main(List<String> args) {
   print('');
@@ -28,7 +13,6 @@ void main(List<String> args) {
 
   final validator = Validator();
 
-  // ═══════════ 1. Загружаем справочники ═══════════
   print('');
   print('📚 Загрузка справочников...');
   print('─' * 60);
@@ -41,59 +25,45 @@ void main(List<String> args) {
   print('  ✅ Локаций: ${validator.locationIds.length}');
   print('  ✅ Состояний: ${validator.conditionIds.length}');
 
-  // ═══════════ 2. Валидация сюжета ═══════════
   print('');
   print('📖 Сюжет');
   print('─' * 60);
-
   validator.validateAllStories();
 
-  // ═══════════ 3. Валидация локаций ═══════════
   print('');
   print('🗺️  Локации');
   print('─' * 60);
-
   validator.validateLocations();
 
-  // ═══════════ 4. Валидация рецептов ═══════════
   print('');
   print('🔨 Рецепты');
   print('─' * 60);
-
   validator.validateRecipes();
 
-  // ═══════════ 5. Валидация условий ═══════════
   print('');
   print('🦠 Состояния');
   print('─' * 60);
-
   validator.validateConditions();
 
-  // ═══════════ 6. Валидация search_events ═══════════
   print('');
   print('🎲 События поиска');
   print('─' * 60);
-
   validator.validateSearchEvents();
 
-  // ═══════════ 7. Валидация достижений ═══════════
   print('');
   print('🏆 Достижения');
   print('─' * 60);
-
   validator.validateAchievements();
 
-  // ═══════════ 8. Итог ═══════════
   print('');
   print('═' * 60);
   print('🎯 Итог');
   print('─' * 60);
-
   print('  📄 Файлов проверено: ${validator.filesChecked}');
   print('  ${validator.errorCount == 0 ? "✅" : "❌"} Ошибок: ${validator.errorCount}');
   print('  ${validator.warningCount == 0 ? "✅" : "⚠️ "} Предупреждений: ${validator.warningCount}');
-
   print('');
+
   if (validator.errorCount > 0) {
     print('❌ Валидация провалена. Исправь ошибки выше.');
     exit(1);
@@ -103,24 +73,17 @@ void main(List<String> args) {
   }
 }
 
-// ═══════════════════════════════════════════════════════════
-// ВАЛИДАТОР
-// ═══════════════════════════════════════════════════════════
-
 class Validator {
-  // Справочники
   final Set<String> itemIds = {};
   final Set<String> locationIds = {};
   final Set<String> conditionIds = {};
 
-  // Счётчики
   int filesChecked = 0;
   int errorCount = 0;
   int warningCount = 0;
 
   // ═══════════ Загрузка справочников ═══════════
 
-  /// Загружает все id предметов из weapons, tools, consumables, armor, resources
   void loadItemIds() {
     _loadIdsFromFile('assets/data/weapons.json', 'weapons', itemIds);
     _loadIdsFromFile('assets/data/tools.json', 'tools', itemIds);
@@ -128,43 +91,44 @@ class Validator {
     _loadIdsFromFile('assets/data/armor.json', 'armor', itemIds);
     _loadIdsFromFile('assets/data/resources.json', 'resources', itemIds);
 
-    // Дополнительные id предметов, которые крафтятся (molotov, torch, spear и т.п.)
     itemIds.addAll([
-      'molotov',
-      'torch',
-      'spear',
-      'fishing_rod',
-      'trap_snare',
-      'water_filter',
-      'key',
-      'note',
-      'photo',
-      'binoculars',
-      'ammo_box',
-      '9mm',
-      '357',
-      'shotgun_shell',
-      '762',
-      'pipe_bullet',
-      'arrow',
-      'bolt',
-      'flare',
-      'ammo',
+      'molotov', 'torch', 'spear', 'fishing_rod', 'trap_snare',
+      'water_filter', 'key', 'note', 'photo', 'binoculars',
+      'ammo_box', '9mm', '357', 'shotgun_shell', '762',
+      'pipe_bullet', 'arrow', 'bolt', 'flare', 'ammo',
       'lock_pick_crafted',
     ]);
   }
 
-  /// Загружает id всех локаций
+  /// Загружает ID локаций из **всех** файлов в папке.
   void loadLocationIds() {
-    _loadIdsFromFile('assets/data/locations.json', 'locations', locationIds);
+    final dir = Directory('assets/data/locations');
+    if (!dir.existsSync()) {
+      _error('Папка assets/data/locations не найдена');
+      return;
+    }
+
+    final files = dir
+        .listSync()
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.json'))
+        .toList()
+      ..sort((a, b) => a.path.compareTo(b.path));
+
+    if (files.isEmpty) {
+      _error('assets/data/locations: нет JSON-файлов');
+      return;
+    }
+
+    for (final file in files) {
+      _loadIdsFromFile(file.path, 'locations', locationIds);
+    }
   }
 
-  /// Загружает id всех состояний
   void loadConditionIds() {
     _loadIdsFromFile('assets/data/conditions.json', 'conditions', conditionIds);
   }
 
-  /// Универсальный загрузчик id из JSON-файла
   void _loadIdsFromFile(String path, String key, Set<String> target) {
     try {
       final file = File(path);
@@ -188,9 +152,129 @@ class Validator {
     }
   }
 
+  // ═══════════ Валидация локаций ═══════════
+
+  void validateLocations() {
+    final dir = Directory('assets/data/locations');
+    if (!dir.existsSync()) {
+      _error('Папка assets/data/locations не найдена');
+      return;
+    }
+
+    final files = dir
+        .listSync()
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.json'))
+        .toList()
+      ..sort((a, b) => a.path.compareTo(b.path));
+
+    int totalLocations = 0;
+    int totalErrors = 0;
+
+    for (final file in files) {
+      try {
+        final content = file.readAsStringSync();
+        final json = jsonDecode(content) as Map<String, dynamic>;
+        final locations = (json['locations'] as List).cast<Map<String, dynamic>>();
+
+        filesChecked++;
+        final fileName = file.path.split('/').last;
+
+        for (final loc in locations) {
+          totalLocations++;
+          final id = loc['id'] as String? ?? '<без id>';
+
+          // connections
+          final connections = (loc['connections'] as List? ?? []);
+          for (final conn in connections) {
+            String? target;
+            if (conn is String) {
+              target = conn;
+              _warn('$fileName/$id: connections — строка вместо объекта');
+            } else if (conn is Map) {
+              target = conn['id'] as String?;
+              if (conn['minutes'] == null) {
+                _warn('$fileName/$id: connections.$target без minutes');
+              }
+            }
+
+            if (target != null && !locationIds.contains(target)) {
+              _error('$fileName/$id: connections → "$target" не найдена');
+              totalErrors++;
+            }
+          }
+
+          // loot_pool
+          final lootPool = (loc['loot_pool'] as List? ?? []).cast<String>();
+          for (final item in lootPool) {
+            if (!itemIds.contains(item)) {
+              _warn('$fileName/$id: loot_pool → "$item" не найден');
+            }
+          }
+
+          // unlocked_by
+          final unlockedBy = loc['unlocked_by'] as String?;
+          if (unlockedBy != null && !locationIds.contains(unlockedBy)) {
+            _error('$fileName/$id: unlocked_by → "$unlockedBy" не найдена');
+            totalErrors++;
+          }
+
+          // mapPosition
+          if (loc['mapPosition'] == null) {
+            _warn('$fileName/$id: нет mapPosition');
+          } else {
+            final pos = loc['mapPosition'] as Map;
+            if (pos['x'] == null || pos['y'] == null) {
+              _error('$fileName/$id: mapPosition без x или y');
+              totalErrors++;
+            }
+          }
+
+          // map_zone
+          if (loc['map_zone'] == null) {
+            _warn('$fileName/$id: нет map_zone');
+          }
+
+          // scouted_name / scouted_description
+          if (loc['scouted_name'] == null) {
+            _warn('$fileName/$id: нет scouted_name');
+          }
+
+          // search_events
+          final events = (loc['search_events'] as List? ?? [])
+              .cast<Map<String, dynamic>>();
+          for (int i = 0; i < events.length; i++) {
+            final effect = events[i]['effect'] as Map<String, dynamic>?;
+            if (effect == null) continue;
+
+            final unlock = effect['unlock_location'] as String?;
+            if (unlock != null && unlock != 'auto' && !locationIds.contains(unlock)) {
+              _error('$fileName/$id: search_events[$i].unlock_location = "$unlock" не найдена');
+              totalErrors++;
+            }
+
+            final loot = (effect['random_loot'] as List? ?? []).cast<String>();
+            for (final item in loot) {
+              if (!itemIds.contains(item)) {
+                _warn('$fileName/$id: search_events[$i].random_loot → "$item" не найден');
+              }
+            }
+          }
+        }
+      } catch (e) {
+        _error('Ошибка парсинга ${file.path}: $e');
+      }
+    }
+
+    if (totalErrors == 0) {
+      print('  ✅ $totalLocations локаций в ${files.length} файлах, все ссылки валидны');
+    } else {
+      print('  ❌ $totalLocations локаций, $totalErrors ошибок');
+    }
+  }
+
   // ═══════════ Валидация сюжета ═══════════
 
-  /// Проходит по всем персонажам и главам сюжета
   void validateAllStories() {
     const characters = ['boris', 'alina', 'ivan', 'andrey', 'darya'];
 
@@ -205,9 +289,7 @@ class Validator {
     }
   }
 
-  /// Валидация одной главы одного персонажа
   void _validateChapter(String character, Directory dir) {
-    // ═══════ 1. Загружаем meta.json ═══════
     final metaFile = File('${dir.path}/meta.json');
     if (!metaFile.existsSync()) {
       _error('Нет meta.json в ${dir.path}');
@@ -226,9 +308,8 @@ class Validator {
     final acts = (meta['acts'] as List? ?? []).cast<Map<String, dynamic>>();
     final startNode = meta['acts']?[0]?['start_node'] as String?;
 
-    // ═══════ 2. Загружаем все акты ═══════
     final Map<String, Map<String, dynamic>> allNodes = {};
-    final Map<String, String> nodeToFile = {}; // id → файл (для диагностики)
+    final Map<String, String> nodeToFile = {};
 
     for (final act in acts) {
       final fileName = act['file'] as String?;
@@ -272,30 +353,21 @@ class Validator {
       }
     }
 
-    // ═══════ 3. Проверяем ссылки ═══════
     int errorBefore = errorCount;
 
-    // 3.1 start_node
     if (startNode != null && !allNodes.containsKey(startNode)) {
-      _error(
-        '$character: start_node "$startNode" не найден среди нод',
-      );
+      _error('$character: start_node "$startNode" не найден среди нод');
     }
 
-    // 3.2 entry_nodes из актов
     for (final act in acts) {
       final entryNodes = (act['entry_nodes'] as List? ?? []).cast<String>();
       for (final entry in entryNodes) {
         if (!allNodes.containsKey(entry)) {
-          _error(
-            '$character/${act['file']}: entry_node "$entry" не найден',
-          );
+          _error('$character/${act['file']}: entry_node "$entry" не найден');
         }
       }
     }
 
-    // 3.3 end_nodes из meta
-    // (может быть в meta как end_nodes верхнего уровня или в acts)
     final endNodes = (meta['end_nodes'] as List? ?? []).cast<String>();
     for (final end in endNodes) {
       if (!allNodes.containsKey(end)) {
@@ -303,56 +375,39 @@ class Validator {
       }
     }
 
-    // 3.4 Все next в choices + combat_victory/defeat/flee
     for (final entry in allNodes.entries) {
       final id = entry.key;
       final node = entry.value;
 
-      // Обязательные поля
-      if (node['title'] == null) {
-        _error('$character/$id: нет поля "title"');
-      }
-      if (node['text'] == null) {
-        _error('$character/$id: нет поля "text"');
-      }
+      if (node['title'] == null) _error('$character/$id: нет поля "title"');
+      if (node['text'] == null) _error('$character/$id: нет поля "text"');
 
       final choices = (node['choices'] as List? ?? []).cast<Map<String, dynamic>>();
 
       for (int i = 0; i < choices.length; i++) {
         final choice = choices[i];
 
-        // next
         final next = choice['next'] as String?;
         if (next == null) {
           _error('$character/$id: choice[$i] без поля "next"');
         } else if (!allNodes.containsKey(next)) {
-          _error(
-            '$character/$id: choice[$i].next = "$next" → нода не найдена',
-          );
+          _error('$character/$id: choice[$i].next = "$next" → нода не найдена');
         }
 
-        // combat_*
         final effects = choice['effects'] as Map<String, dynamic>?;
         if (effects != null) {
           for (final key in ['combat_victory', 'combat_defeat', 'combat_flee']) {
             final target = effects[key] as String?;
             if (target != null && !allNodes.containsKey(target)) {
-              _error(
-                '$character/$id: choice[$i].effects.$key = '
-                '"$target" → нода не найдена',
-              );
+              _error('$character/$id: choice[$i].effects.$key = "$target" → нода не найдена');
             }
           }
 
-          // inventory_add — проверяем, что предметы существуют
           final addIds = effects['inventory_add'] as List?;
           if (addIds != null) {
             for (final itemId in addIds.cast<String>()) {
               if (!itemIds.contains(itemId)) {
-                _warn(
-                  '$character/$id: choice[$i].effects.inventory_add '
-                  '"$itemId" → предмет не найден в справочнике',
-                );
+                _warn('$character/$id: choice[$i].effects.inventory_add "$itemId" → предмет не найден');
               }
             }
           }
@@ -361,144 +416,39 @@ class Validator {
           if (removeIds != null) {
             for (final itemId in removeIds.cast<String>()) {
               if (!itemIds.contains(itemId)) {
-                _warn(
-                  '$character/$id: choice[$i].effects.inventory_remove '
-                  '"$itemId" → предмет не найден',
-                );
+                _warn('$character/$id: choice[$i].effects.inventory_remove "$itemId" → предмет не найден');
               }
             }
           }
         }
 
-        // requires
         final requires = choice['requires'] as Map<String, dynamic>?;
         if (requires != null) {
           final hasItem = requires['has_item'] as String?;
           if (hasItem != null && !itemIds.contains(hasItem)) {
-            _error(
-              '$character/$id: choice[$i].requires.has_item = '
-              '"$hasItem" → предмет не найден',
-            );
+            _error('$character/$id: choice[$i].requires.has_item = "$hasItem" → предмет не найден');
           }
           final notItem = requires['not_item'] as String?;
           if (notItem != null && !itemIds.contains(notItem)) {
-            _warn(
-              '$character/$id: choice[$i].requires.not_item = '
-              '"$notItem" → предмет не найден',
-            );
+            _warn('$character/$id: choice[$i].requires.not_item = "$notItem" → предмет не найден');
           }
         }
       }
 
-      // Проверка: если нода не END_ и не act_X_end, но без choices — это ошибка
       if (choices.isEmpty) {
         final isEnd = id.startsWith('END_');
         final isActEnd = id.endsWith('_end');
         if (!isEnd && !isActEnd) {
-          _warn(
-            '$character/$id: нет choices, но id не END_* и не *_end',
-          );
+          _warn('$character/$id: нет choices, но id не END_* и не *_end');
         }
       }
     }
 
-    // ═══════ 4. Вывод ═══════
     final chapterErrors = errorCount - errorBefore;
     if (chapterErrors == 0) {
-      print(
-        '  ✅ $character/chapter_1 — ${allNodes.length} нод, '
-        '${acts.length} актов',
-      );
+      print('  ✅ $character/chapter_1 — ${allNodes.length} нод, ${acts.length} актов');
     } else {
-      print(
-        '  ❌ $character/chapter_1 — $chapterErrors ошибок '
-        '(нод: ${allNodes.length})',
-      );
-    }
-  }
-
-  // ═══════════ Валидация локаций ═══════════
-
-  void validateLocations() {
-    final file = File('assets/data/locations.json');
-    if (!file.existsSync()) {
-      _error('locations.json не найден');
-      return;
-    }
-
-    Map<String, dynamic> json;
-    try {
-      json = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
-      filesChecked++;
-    } catch (e) {
-      _error('Ошибка парсинга locations.json: $e');
-      return;
-    }
-
-    final locations = (json['locations'] as List).cast<Map<String, dynamic>>();
-    int errors = 0;
-
-    for (final loc in locations) {
-      final id = loc['id'] as String? ?? '<без id>';
-      int locErrors = 0;
-
-      // connections
-      final connections = (loc['connections'] as List? ?? []).cast<String>();
-      for (final target in connections) {
-        if (!locationIds.contains(target)) {
-          _error('Локация "$id": connections → "$target" не найдена');
-          locErrors++;
-        }
-      }
-
-      // loot_pool
-      final lootPool = (loc['loot_pool'] as List? ?? []).cast<String>();
-      for (final item in lootPool) {
-        if (!itemIds.contains(item)) {
-          _warn('Локация "$id": loot_pool → "$item" не найден');
-        }
-      }
-
-      // unlocked_by
-      final unlockedBy = loc['unlocked_by'] as String?;
-      if (unlockedBy != null && !locationIds.contains(unlockedBy)) {
-        _error('Локация "$id": unlocked_by → "$unlockedBy" не найдена');
-        locErrors++;
-      }
-
-      // search_events
-      final events = (loc['search_events'] as List? ?? []).cast<Map<String, dynamic>>();
-      for (int i = 0; i < events.length; i++) {
-        final effect = events[i]['effect'] as Map<String, dynamic>?;
-        if (effect == null) continue;
-
-        final unlock = effect['unlock_location'] as String?;
-        if (unlock != null && unlock != 'auto' && !locationIds.contains(unlock)) {
-          _error(
-            'Локация "$id": search_events[$i].unlock_location = '
-            '"$unlock" не найдена',
-          );
-          locErrors++;
-        }
-
-        final loot = (effect['random_loot'] as List? ?? []).cast<String>();
-        for (final item in loot) {
-          if (!itemIds.contains(item)) {
-            _warn(
-              'Локация "$id": search_events[$i].random_loot → '
-              '"$item" не найден',
-            );
-          }
-        }
-      }
-
-      if (locErrors > 0) errors += locErrors;
-    }
-
-    if (errors == 0) {
-      print('  ✅ ${locations.length} локаций, все ссылки валидны');
-    } else {
-      print('  ❌ ${locations.length} локаций, $errors ошибок');
+      print('  ❌ $character/chapter_1 — $chapterErrors ошибок (нод: ${allNodes.length})');
     }
   }
 
@@ -527,13 +477,10 @@ class Validator {
       final id = recipe['id'] as String? ?? '<без id>';
       final resultId = recipe['result_id'] as String?;
 
-      // result_id не обязателен быть в справочнике (может крафтиться)
-      // но предупредим, если неизвестен
       if (resultId != null && !itemIds.contains(resultId)) {
         _warn('Рецепт "$id": result_id "$resultId" не в справочнике');
       }
 
-      // ingredients
       final ingredients =
           (recipe['ingredients'] as List? ?? []).cast<Map<String, dynamic>>();
       for (int i = 0; i < ingredients.length; i++) {
@@ -554,8 +501,6 @@ class Validator {
       print('  ❌ ${recipes.length} рецептов, $errors ошибок');
     }
   }
-
-  // ═══════════ Валидация условий ═══════════
 
   void validateConditions() {
     final file = File('assets/data/conditions.json');
@@ -593,8 +538,6 @@ class Validator {
       print('  ❌ ${conditions.length} состояний, $errors ошибок');
     }
   }
-
-  // ═══════════ Валидация search_events ═══════════
 
   void validateSearchEvents() {
     final file = File('assets/data/search_events.json');
@@ -650,8 +593,6 @@ class Validator {
     }
   }
 
-  // ═══════════ Валидация достижений ═══════════
-
   void validateAchievements() {
     final file = File('assets/data/achievements.json');
     if (!file.existsSync()) {
@@ -687,10 +628,7 @@ class Validator {
 
       final category = ach['category'] as String?;
       if (category != null && !validCategories.contains(category)) {
-        _warn(
-          'Достижение "$id": неизвестная категория "$category" '
-          '(допустимые: ${validCategories.join(", ")})',
-        );
+        _warn('Достижение "$id": неизвестная категория "$category"');
       }
     }
 
@@ -700,8 +638,6 @@ class Validator {
       print('  ❌ ${achievements.length} достижений, $errors ошибок');
     }
   }
-
-  // ═══════════ Утилиты ═══════════
 
   void _error(String message) {
     print('  ❌ $message');

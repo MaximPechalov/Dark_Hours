@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:dark_hours/models/world/search_event.dart';
 import 'package:dark_hours/models/world/map_position.dart';
@@ -44,10 +45,7 @@ class Location {
   final int maxSearches;
   final List<String> lootPool;
   final List<String> enemies;
-
-  /// Соединения с другими локациями (с временем в пути).
   final List<Connection> connections;
-
   final String icon;
   final bool repeatable;
   final bool isStart;
@@ -55,28 +53,12 @@ class Location {
   final bool hidden;
   final String? unlockedBy;
   final String? risk;
-
-  /// Позиция локации на карте.
   final MapPosition mapPosition;
-
-  /// Название зоны.
   final String? mapZone;
-
-  /// Название локации, как её видит разведчик (может быть неточным).
-  ///
-  /// Если `null` — используется `name`.
   final String? scoutedName;
-
-  /// Описание локации, как её видит разведчик (неполное, с догадками).
-  ///
-  /// Если `null` — используется `description`.
   final String? scoutedDescription;
-
-  // Сюжетные триггеры
   final String? storyNode;
   final StoryCondition? storyCondition;
-
-  // Уникальные события поиска
   final List<SearchEvent> searchEvents;
 
   const Location({
@@ -115,7 +97,7 @@ class Location {
       );
     }
 
-    // Парсим connections — поддерживаем оба формата (строки и объекты).
+    // Парсим connections — поддерживаем оба формата.
     final rawConnections = json['connections'] as List? ?? [];
     final parsedConnections = rawConnections.map((c) {
       if (c is String) {
@@ -165,13 +147,9 @@ class Location {
   // ХЕЛПЕРЫ
   // ═══════════════════════════════════════════════════════════
 
-  /// Список ID соседей (для быстрых проверок).
   List<String> get connectionIds =>
       connections.map((c) => c.targetId).toList();
 
-  /// Сколько минут идти до указанной локации.
-  ///
-  /// Возвращает `null`, если локация не соседняя.
   int? connectionMinutesTo(String targetId) {
     for (final c in connections) {
       if (c.targetId == targetId) return c.minutes;
@@ -179,17 +157,12 @@ class Location {
     return null;
   }
 
-  /// Является ли локация соседней.
   bool isConnectedTo(String targetId) {
     return connections.any((c) => c.targetId == targetId);
   }
 
-  /// Название для разведки (fallback на `name`).
   String get displayScoutedName => scoutedName ?? name;
-
-  /// Описание для разведки (fallback на `description`).
-  String get displayScoutedDescription =>
-      scoutedDescription ?? description;
+  String get displayScoutedDescription => scoutedDescription ?? description;
 
   // ═══════════════════════════════════════════════════════════
   // ГЕТТЕРЫ
@@ -211,7 +184,6 @@ class Location {
     return 'Смертельно';
   }
 
-  /// Проверка: сработает ли сюжетный триггер в этой локации.
   bool canTriggerStory({
     required int currentChapter,
     required String currentCharacter,
@@ -236,14 +208,76 @@ class Location {
     return true;
   }
 
+  // ═══════════════════════════════════════════════════════════
+  // ЗАГРУЗКА — ИЗ ПАПКИ assets/data/locations/
+  // ═══════════════════════════════════════════════════════════
+
+  /// Загружает локации из **всех** JSON-файлов в `assets/data/locations/`.
   static Future<List<Location>> loadAll() async {
     try {
-      final String jsonString =
-          await rootBundle.loadString('assets/data/locations.json');
-      final Map<String, dynamic> jsonMap = json.decode(jsonString);
-      final List<dynamic> list = jsonMap['locations'];
-      return list.map((json) => Location.fromJson(json)).toList();
-    } catch (e) {
+      // Получаем список всех файлов в assets/data/locations/
+      final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+
+      final locationFiles = manifest
+          .listAssets()
+          .where((path) =>
+              path.startsWith('assets/data/locations/') &&
+              path.endsWith('.json'))
+          .toList()
+        ..sort(); // Сортировка для предсказуемого порядка
+
+      if (locationFiles.isEmpty) {
+        debugPrint('⚠️ Location.loadAll: нет файлов локаций');
+        return [];
+      }
+
+      debugPrint('📍 Location.loadAll: найдено ${locationFiles.length} файлов');
+
+      final allLocations = <Location>[];
+      final seenIds = <String>{};
+
+      for (final path in locationFiles) {
+        try {
+          final jsonString = await rootBundle.loadString(path);
+          final jsonMap = json.decode(jsonString) as Map<String, dynamic>;
+          final list = jsonMap['locations'] as List? ?? [];
+
+          int added = 0;
+          int duplicates = 0;
+
+          for (final json in list) {
+            final loc = Location.fromJson(
+              Map<String, dynamic>.from(json),
+            );
+
+            if (seenIds.contains(loc.id)) {
+              duplicates++;
+              debugPrint(
+                '  ❌ ДУБЛИКАТ: ${loc.id} в $path',
+              );
+              continue;
+            }
+
+            seenIds.add(loc.id);
+            allLocations.add(loc);
+            added++;
+          }
+
+          final dupText = duplicates > 0 ? ' (дубликатов: $duplicates)' : '';
+          debugPrint('  ✅ $path: $added локаций$dupText');
+        } catch (e, stackTrace) {
+          debugPrint('  ❌ Ошибка загрузки $path: $e');
+          debugPrint('$stackTrace');
+        }
+      }
+
+      debugPrint(
+        '📍 Location.loadAll: всего загружено ${allLocations.length} локаций',
+      );
+      return allLocations;
+    } catch (e, stackTrace) {
+      debugPrint('❌ Location.loadAll: критическая ошибка: $e');
+      debugPrint('$stackTrace');
       return [];
     }
   }

@@ -1,0 +1,151 @@
+{
+  "locations": [
+    {
+      "id": "hospital",
+      "name": "Городская больница",
+      "scouted_name": "Большое серое здание",
+      "description": "Медикаменты. Но темнота и следы чужой паники. Иди осторожно.",
+      "scouted_description": "Огромное здание. Много окон. Некоторые разбиты. Кто-то ходит по коридорам.",
+      "type": "medical",
+      "region": "city_center",
+      "danger_level": 9,
+      "search_time": 60,
+      "max_searches": 5,
+      "loot_pool": ["antibiotic_pill", "bandage", "painkiller_pill", "first_aid_kit", "splint"],
+      "enemies": ["looter_armed", "bandit", "looter_common"],
+      "connections": [
+        { "id": "pharmacy", "minutes": 30 },
+        { "id": "street_center", "minutes": 15 },
+        { "id": "hospital_morgue", "minutes": 10 }
+      ],
+      "icon": "🏥",
+      "repeatable": true,
+      "risk": "hospital_basement",
+      "story_node": "ivan_ch2_hospital",
+      "story_condition": {
+        "chapter": 2,
+        "character": "ivan",
+        "once": true
+      },
+      "mapPosition": { "x": 0.55, "y": 0.55 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "street_center",
+      "name": "Центральная улица",
+      "scouted_name": "Широкая улица",
+      "description": "Эпицентр хаоса. Банды мародёров, разбитые витрины, отдалённые крики.",
+      "scouted_description": "Главная улица города. Витрины разбиты. Слышны крики.",
+      "type": "street",
+      "region": "city_center",
+      "danger_level": 8,
+      "search_time": 20,
+      "max_searches": 3,
+      "loot_pool": ["crackers", "cloth", "metal_scrap"],
+      "enemies": ["looter_armed", "bandit"],
+      "connections": [
+        { "id": "hospital", "minutes": 15 },
+        { "id": "police_station", "minutes": 20 },
+        { "id": "office_tower", "minutes": 15 }
+      ],
+      "icon": "🛣️",
+      "repeatable": true,
+      "mapPosition": { "x": 0.70, "y": 0.58 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "police_station",
+      "name": "Отделение полиции",
+      "scouted_name": "Здание с флагом",
+      "description": "Оружие, броня. Но и люди с оружием. Кто-то занял здание ещё в первый день.",
+      "scouted_description": "Здание с флагом на фасаде. Похоже на полицию. Забаррикадировано.",
+      "type": "military",
+      "region": "city_center",
+      "danger_level": 9,
+      "search_time": 45,
+      "max_searches": 4,
+      "loot_pool": ["pistol", "9mm", "kevlar_vest", "army_helmet", "ammo_box"],
+      "enemies": ["bandit", "looter_armed"],
+      "connections": [
+        { "id": "street_center", "minutes": 20 }
+      ],
+      "icon": "🚔",
+      "repeatable": true,
+      "story_node": "alina_ch2_police",
+      "story_condition": {
+        "chapter": 2,
+        "character": "alina",
+        "once": true
+      },
+      "mapPosition": { "x": 0.85, "y": 0.55 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "office_tower",
+      "name": "Бизнес-центр",
+      "scouted_name": "Высотное здание",
+      "description": "Техника, серверные, старые карты. Всё, что нужно для информации.",
+      "scouted_description": "Высотка с тёмными окнами. Внутри — слабый свет. Кто-то работает.",
+      "type": "industrial",
+      "region": "city_center",
+      "danger_level": 5,
+      "search_time": 40,
+      "max_searches": 4,
+      "loot_pool": ["electronics", "battery", "map", "radio"],
+      "enemies": ["looter_common"],
+      "connections": [
+        { "id": "street_center", "minutes": 15 },
+        { "id": "rooftop", "minutes": 20 }
+      ],
+      "icon": "🏢",
+      "repeatable": true,
+      "mapPosition": { "x": 0.80, "y": 0.68 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "rooftop",
+      "name": "Крыши",
+      "scouted_name": "Крыша высотки",
+      "description": "Обзор на весь район. Ветер, холод. И опасность упасть — если не смотреть под ноги.",
+      "scouted_description": "Верх высотки. Ветер. Обзор — на весь город.",
+      "type": "rooftop",
+      "region": "city_center",
+      "danger_level": 4,
+      "search_time": 30,
+      "max_searches": 3,
+      "loot_pool": ["rope", "binoculars", "flint"],
+      "enemies": [],
+      "connections": [
+        { "id": "office_tower", "minutes": 20 }
+      ],
+      "icon": "🌃",
+      "repeatable": true,
+      "risk": "fall",
+      "mapPosition": { "x": 0.90, "y": 0.65 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "hospital_morgue",
+      "name": "Морг больницы",
+      "scouted_name": "Холодный подвал",
+      "description": "Холодное помещение в подвале. Тишина. Металлические ящики, часть — пустые.",
+      "scouted_description": "Подвал. Холодно. Ящики вдоль стен.",
+      "type": "hidden",
+      "region": "city_center",
+      "danger_level": 5,
+      "search_time": 45,
+      "max_searches": 3,
+      "loot_pool": ["antibiotic_pill", "antibiotic_pill", "painkiller_pill", "first_aid_kit", "splint"],
+      "enemies": [],
+      "connections": [
+        { "id": "hospital", "minutes": 10 }
+      ],
+      "icon": "🔓",
+      "repeatable": true,
+      "hidden": true,
+      "unlocked_by": "hospital",
+      "mapPosition": { "x": 0.50, "y": 0.65 },
+      "map_zone": "city_center"
+    }
+  ]
+}

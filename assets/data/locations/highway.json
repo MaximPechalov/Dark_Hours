@@ -1,0 +1,49 @@
+{
+  "locations": [
+    {
+      "id": "highway_entrance",
+      "name": "Выезд на трассу",
+      "scouted_name": "Дорога из города",
+      "description": "Начало пути на север. Пустая дорога, брошенные машины. Засады каждые несколько часов.",
+      "scouted_description": "Пустая дорога. Машины. Следы колёс уходят вдаль.",
+      "type": "highway",
+      "region": "highway",
+      "danger_level": 7,
+      "search_time": 15,
+      "max_searches": 2,
+      "loot_pool": ["fuel_can", "crackers"],
+      "enemies": ["bandit", "looter_armed", "dog_stray"],
+      "connections": [
+        { "id": "gas_station", "minutes": 30 },
+        { "id": "forest_path", "minutes": 60 },
+        { "id": "checkpoint", "minutes": 90 }
+      ],
+      "icon": "🛤️",
+      "repeatable": true,
+      "mapPosition": { "x": 0.50, "y": 0.30 },
+      "map_zone": "highway"
+    },
+    {
+      "id": "checkpoint",
+      "name": "Блокпост",
+      "scouted_name": "Блокпост на дороге",
+      "description": "Военный блокпост. Возможно, здесь ещё есть выжившие военные. Или то, что от них осталось.",
+      "scouted_description": "Бетонные блоки, мешки. Кто-то наблюдает из укрытия.",
+      "type": "military",
+      "region": "highway",
+      "danger_level": 6,
+      "search_time": 30,
+      "max_searches": 4,
+      "loot_pool": ["mre", "water_bottle", "ammo_box", "army_backpack"],
+      "enemies": ["bandit", "ex_soldier", "looter_armed"],
+      "connections": [
+        { "id": "highway_entrance", "minutes": 90 },
+        { "id": "north_station", "minutes": 120 }
+      ],
+      "icon": "🛑",
+      "repeatable": true,
+      "mapPosition": { "x": 0.50, "y": 0.20 },
+      "map_zone": "highway"
+    }
+  ]
+}
