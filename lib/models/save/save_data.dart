@@ -25,8 +25,11 @@ class SaveData {
   // НОВЫЕ ПОЛЯ — ИССЛЕДОВАНИЕ
   // ═══════════════════════════════════════════════════════════
 
-  /// Разведанные локации (видел снаружи, знаешь название + приблизительное описание).
+  /// Разведанные локации (знаешь название + общее описание).
   final Set<String> scoutedLocations;
+
+  /// Локации с уточнённым состоянием (разведка дала детали).
+  final Set<String> detailedLocations;
 
   /// Открытые регионы (был здесь, знаешь силуэты, зоны).
   final Set<String> discoveredRegions;
@@ -54,11 +57,13 @@ class SaveData {
     Map<String, int>? searchedCounts,
     List<String>? unlockedLocations,
     Set<String>? scoutedLocations,
+    Set<String>? detailedLocations,
     Set<String>? discoveredRegions,
     required this.savedAt,
   })  : searchedCounts = searchedCounts ?? {},
         unlockedLocations = unlockedLocations ?? [],
         scoutedLocations = scoutedLocations ?? {},
+        detailedLocations = detailedLocations ?? {},
         discoveredRegions = discoveredRegions ?? {};
 
   Map<String, dynamic> toJson() {
@@ -83,6 +88,7 @@ class SaveData {
       'searchedCounts': searchedCounts,
       'unlockedLocations': unlockedLocations,
       'scoutedLocations': scoutedLocations.toList(),
+      'detailedLocations': detailedLocations.toList(),
       'discoveredRegions': discoveredRegions.toList(),
       'savedAt': savedAt.toIso8601String(),
     };
@@ -121,6 +127,9 @@ class SaveData {
           : [],
       scoutedLocations: json['scoutedLocations'] != null
           ? Set<String>.from(json['scoutedLocations'])
+          : {},
+      detailedLocations: json['detailedLocations'] != null
+          ? Set<String>.from(json['detailedLocations'])
           : {},
       discoveredRegions: json['discoveredRegions'] != null
           ? Set<String>.from(json['discoveredRegions'])

@@ -61,6 +61,12 @@ class Location {
   final StoryCondition? storyCondition;
   final List<SearchEvent> searchEvents;
 
+  /// Глава, с которой эта локация становится доступной.
+  ///
+  /// По умолчанию 1 — доступна с начала игры.
+  /// Локации с `availableFromChapter > текущая глава` — **скрыты**.
+  final int availableFromChapter;
+
   const Location({
     required this.id,
     required this.name,
@@ -87,6 +93,7 @@ class Location {
     this.storyNode,
     this.storyCondition,
     this.searchEvents = const [],
+    this.availableFromChapter = 1,
   });
 
   factory Location.fromJson(Map<String, dynamic> json) {
@@ -97,7 +104,6 @@ class Location {
       );
     }
 
-    // Парсим connections — поддерживаем оба формата.
     final rawConnections = json['connections'] as List? ?? [];
     final parsedConnections = rawConnections.map((c) {
       if (c is String) {
@@ -140,6 +146,7 @@ class Location {
       searchEvents: (json['search_events'] as List? ?? [])
           .map((e) => SearchEvent.fromJson(Map<String, dynamic>.from(e)))
           .toList(),
+      availableFromChapter: json['is_available_from_chapter'] ?? 1,
     );
   }
 
@@ -161,8 +168,19 @@ class Location {
     return connections.any((c) => c.targetId == targetId);
   }
 
+  /// Базовое разведанное имя (видно сразу после старта).
   String get displayScoutedName => scoutedName ?? name;
+
+  /// Базовое разведанное описание (видно сразу после старта).
   String get displayScoutedDescription => scoutedDescription ?? description;
+
+  /// Полное описание локации (после посещения).
+  String get displayFullDescription => description;
+
+  /// Доступна ли эта локация в текущей главе.
+  bool isAvailableAt(int chapter) {
+    return availableFromChapter <= chapter;
+  }
 
   // ═══════════════════════════════════════════════════════════
   // ГЕТТЕРЫ
@@ -209,13 +227,11 @@ class Location {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // ЗАГРУЗКА — ИЗ ПАПКИ assets/data/locations/
+  // ЗАГРУЗКА
   // ═══════════════════════════════════════════════════════════
 
-  /// Загружает локации из **всех** JSON-файлов в `assets/data/locations/`.
   static Future<List<Location>> loadAll() async {
     try {
-      // Получаем список всех файлов в assets/data/locations/
       final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
 
       final locationFiles = manifest
@@ -224,7 +240,7 @@ class Location {
               path.startsWith('assets/data/locations/') &&
               path.endsWith('.json'))
           .toList()
-        ..sort(); // Сортировка для предсказуемого порядка
+        ..sort();
 
       if (locationFiles.isEmpty) {
         debugPrint('⚠️ Location.loadAll: нет файлов локаций');
@@ -252,9 +268,7 @@ class Location {
 
             if (seenIds.contains(loc.id)) {
               duplicates++;
-              debugPrint(
-                '  ❌ ДУБЛИКАТ: ${loc.id} в $path',
-              );
+              debugPrint('  ❌ ДУБЛИКАТ: ${loc.id} в $path');
               continue;
             }
 

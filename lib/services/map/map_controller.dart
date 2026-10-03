@@ -63,14 +63,18 @@ class MapController extends ChangeNotifier {
   final Map<String, int> searchedCounts = {};
   final Set<String> unlockedLocations = {};
 
-  // ═══════════════════════════════════════════════════════════
-  // ИССЛЕДОВАНИЕ
-  // ═══════════════════════════════════════════════════════════
-
-  /// Разведанные локации — игрок знает их существование, но не был там.
+  /// Разведанные локации — игрок знает их название, иконку, общее описание.
+  ///
+  /// Все локации стартового региона попадают сюда сразу при старте.
+  /// Скрытые (`hidden`) локации попадают только через `unlockLocation`.
   final Set<String> scoutedLocations = {};
 
-  /// Открытые регионы — игрок знает зоны (city_south, forest, ...).
+  /// Локации с уточнённым состоянием — игрок знает, что там СЕЙЧАС.
+  ///
+  /// Заполняется через `scoutDetails()` — разведку состояния.
+  final Set<String> detailedLocations = {};
+
+  /// Открытые регионы.
   final Set<String> discoveredRegions = {};
 
   final RunTracker tracker = RunTracker();
@@ -153,19 +157,13 @@ class MapController extends ChangeNotifier {
 
     gameTime = GameTime(totalMinutes: GameConstants.startTimeMinutes);
 
-    // Стартовая локация — сразу разведана и посещена.
-    scoutedLocations.add(startLoc.id);
-    discoverRegion(startLoc.region);
+    // НОВАЯ ЛОГИКА: все локации стартового региона разведаны сразу.
+    // Игрок живёт в этом городе — он знает, где что.
+    _scoutRegionLocations(locations, startLoc.region);
 
-    // Соседи стартовой — автоматически разведаны.
-    for (final conn in startLoc.connections) {
-      scoutedLocations.add(conn.targetId);
-      final target = map!.getById(conn.targetId);
-      if (target != null) {
-        // Регион соседа тоже известен (частично).
-        discoverRegion(target.region);
-      }
-    }
+    // Стартовая локация — ещё и посещена (полное описание).
+    // Остальные — только scouted (краткое описание).
+    discoverRegion(startLoc.region);
   }
 
   void _restoreFromSave(SaveData s, List<Location> locations) {
@@ -186,26 +184,14 @@ class MapController extends ChangeNotifier {
     unlockedLocations.clear();
     unlockedLocations.addAll(s.unlockedLocations);
 
-    // Восстанавливаем исследование
     scoutedLocations.clear();
     scoutedLocations.addAll(s.scoutedLocations);
 
+    detailedLocations.clear();
+    detailedLocations.addAll(s.detailedLocations);
+
     discoveredRegions.clear();
     discoveredRegions.addAll(s.discoveredRegions);
-
-    // Миграция: если сохранение старое и полей нет — 
-    // добавляем стартовую локацию в scouted/discovered.
-    if (scoutedLocations.isEmpty) {
-      final startLoc = locations.firstWhere(
-        (l) => l.isStart,
-        orElse: () => locations.first,
-      );
-      scoutedLocations.add(startLoc.id);
-      discoverRegion(startLoc.region);
-      for (final conn in startLoc.connections) {
-        scoutedLocations.add(conn.targetId);
-      }
-    }
 
     inventory.items.clear();
     for (final itemJson in s.inventoryItems) {
@@ -245,30 +231,58 @@ class MapController extends ChangeNotifier {
       currentLocationId: startLoc.id,
       visitedLocations: {startLoc.id},
     );
+
+    // МИГРАЦИЯ: если старые сохранения без scoutedLocations —
+    // разведать все локации текущего региона.
+    if (scoutedLocations.isEmpty) {
+      _scoutRegionLocations(locations, startLoc.region);
+      discoverRegion(startLoc.region);
+    }
+
+    // МИГРАЦИЯ: если в сохранении нет detailedLocations — оставить пустым.
+    // Игроку придётся разведывать заново.
+  }
+
+  /// Разведать все локации указанного региона (кроме скрытых).
+  void _scoutRegionLocations(List<Location> locations, String region) {
+    for (final loc in locations) {
+      if (loc.region != region) continue;
+      if (loc.hidden) continue;
+      if (!loc.isAvailableAt(chapter)) continue;
+
+      scoutedLocations.add(loc.id);
+    }
   }
 
   // ═══════════════════════════════════════════════════════════
-  // ИССЛЕДОВАНИЕ — ПУБЛИЧНЫЙ API
+  // ИССЛЕДОВАНИЕ
   // ═══════════════════════════════════════════════════════════
 
-  /// Разведана ли локация.
+  /// Знает ли игрок о существовании локации (базовое знание).
   bool isScouted(String locationId) {
     return scoutedLocations.contains(locationId);
   }
 
-  /// Посещена ли локация.
+  /// Знает ли игрок текущее состояние локации (детальная разведка).
+  bool hasDetails(String locationId) {
+    return detailedLocations.contains(locationId);
+  }
+
   bool isVisited(String locationId) {
     return map?.visitedLocations.contains(locationId) ?? false;
   }
 
-  /// Открыт ли регион.
   bool isRegionDiscovered(String region) {
     return discoveredRegions.contains(region);
   }
 
-  /// Разведать локацию (без посещения).
+  /// Разведать локацию — узнать о её существовании.
   ///
-  /// Регион разведанной локации тоже открывается.
+  /// Теперь используется только для:
+  /// - Соседей из соседних регионов (при переходе).
+  /// - Скрытых локаций (при разведке скрытых).
+  ///
+  /// Все локации текущего региона уже разведаны при старте.
   void scoutLocation(String locationId) {
     if (scoutedLocations.contains(locationId)) return;
     scoutedLocations.add(locationId);
@@ -281,7 +295,26 @@ class MapController extends ChangeNotifier {
     refresh();
   }
 
-  /// Разведать несколько локаций сразу.
+  /// Разведать состояние локации — узнать, что там СЕЙЧАС.
+  ///
+  /// Это НЕ открывает локацию. Локация уже должна быть scouted.
+  /// Даёт: количество врагов, наличие лута, состояние здания.
+  bool scoutDetails(String locationId) {
+    // Разведать детали можно только у известной локации.
+    if (!scoutedLocations.contains(locationId)) return false;
+
+    // Если детали уже есть — не тратим ресурсы.
+    if (detailedLocations.contains(locationId)) return false;
+
+    detailedLocations.add(locationId);
+    refresh();
+    return true;
+  }
+
+  /// Разведать все локации указанного региона.
+  ///
+  /// Используется при переходе в новый регион — игрок сразу
+  /// видит все локации региона, но без деталей.
   void scoutAll(Iterable<String> locationIds) {
     bool changed = false;
     for (final id in locationIds) {
@@ -296,14 +329,12 @@ class MapController extends ChangeNotifier {
     if (changed) refresh();
   }
 
-  /// Открыть регион.
   void discoverRegion(String region) {
     if (discoveredRegions.add(region)) {
       refresh();
     }
   }
 
-  /// Прямая установка (для тестов / загрузки).
   @visibleForTesting
   void setScouted(Set<String> ids) {
     scoutedLocations
@@ -312,7 +343,14 @@ class MapController extends ChangeNotifier {
     refresh();
   }
 
-  /// Прямая установка (для тестов).
+  @visibleForTesting
+  void setDetailed(Set<String> ids) {
+    detailedLocations
+      ..clear()
+      ..addAll(ids);
+    refresh();
+  }
+
   @visibleForTesting
   void setDiscoveredRegions(Set<String> regions) {
     discoveredRegions
@@ -322,7 +360,7 @@ class MapController extends ChangeNotifier {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // ПУБЛИЧНЫЙ API ДЛЯ МЕНЕДЖЕРОВ
+  // ПУБЛИЧНЫЙ API
   // ═══════════════════════════════════════════════════════════
 
   void refresh() {
@@ -562,7 +600,6 @@ class MapController extends ChangeNotifier {
 
   void unlockLocation(String locationId) {
     unlockedLocations.add(locationId);
-    // Открытая локация — сразу разведана.
     scoutedLocations.add(locationId);
     final loc = map?.getById(locationId);
     if (loc != null) discoverRegion(loc.region);
@@ -622,6 +659,7 @@ class MapController extends ChangeNotifier {
       searchedCounts: searchedCounts,
       unlockedLocations: unlockedLocations.toList(),
       scoutedLocations: scoutedLocations,
+      detailedLocations: detailedLocations,
       discoveredRegions: discoveredRegions,
       savedAt: DateTime.now(),
     );
@@ -679,6 +717,9 @@ class MapController extends ChangeNotifier {
     scoutedLocations.clear();
     scoutedLocations.addAll(save.scoutedLocations);
 
+    detailedLocations.clear();
+    detailedLocations.addAll(save.detailedLocations);
+
     discoveredRegions.clear();
     discoveredRegions.addAll(save.discoveredRegions);
 
@@ -720,18 +761,9 @@ class MapController extends ChangeNotifier {
 
     gameTime = GameTime(totalMinutes: startTimeMinutes);
 
-    // Стартовая — разведана.
-    scoutedLocations.add(startLoc.id);
+    // НОВАЯ ЛОГИКА: разведать все локации стартового региона.
+    _scoutRegionLocations(locations, startLoc.region);
     discoveredRegions.add(startLoc.region);
-
-    // Соседи стартовой — тоже разведаны.
-    for (final conn in startLoc.connections) {
-      scoutedLocations.add(conn.targetId);
-      final target = map!.getById(conn.targetId);
-      if (target != null) {
-        discoveredRegions.add(target.region);
-      }
-    }
 
     isLoading = false;
     refresh();

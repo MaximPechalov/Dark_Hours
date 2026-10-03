@@ -11,16 +11,34 @@
       "danger_level": 7,
       "search_time": 20,
       "max_searches": 2,
-      "loot_pool": ["mre", "water_bottle", "bandage", "radio"],
-      "enemies": ["ex_soldier", "bandit"],
+      "loot_pool": [
+        "mre",
+        "water_bottle",
+        "bandage",
+        "radio"
+      ],
+      "enemies": [
+        "ex_soldier",
+        "bandit"
+      ],
       "connections": [
-        { "id": "bridge_north", "minutes": 60 },
-        { "id": "station_gate", "minutes": 30 }
+        {
+          "id": "bridge_north",
+          "minutes": 60
+        },
+        {
+          "id": "station_gate",
+          "minutes": 30
+        }
       ],
       "icon": "🚧",
       "repeatable": true,
-      "mapPosition": { "x": 0.50, "y": 0.14 },
-      "map_zone": "north"
+      "mapPosition": {
+        "x": 0.5,
+        "y": 0.14
+      },
+      "map_zone": "north",
+      "is_available_from_chapter": 4
     },
     {
       "id": "station_gate",
@@ -33,17 +51,34 @@
       "danger_level": 6,
       "search_time": 15,
       "max_searches": 2,
-      "loot_pool": ["water_bottle", "crackers", "bandage"],
+      "loot_pool": [
+        "water_bottle",
+        "crackers",
+        "bandage"
+      ],
       "enemies": [],
       "connections": [
-        { "id": "station_outer", "minutes": 30 },
-        { "id": "watchtower", "minutes": 20 },
-        { "id": "north_station", "minutes": 15 }
+        {
+          "id": "station_outer",
+          "minutes": 30
+        },
+        {
+          "id": "watchtower",
+          "minutes": 20
+        },
+        {
+          "id": "north_station",
+          "minutes": 15
+        }
       ],
       "icon": "🚪",
       "repeatable": true,
-      "mapPosition": { "x": 0.50, "y": 0.11 },
-      "map_zone": "north"
+      "mapPosition": {
+        "x": 0.5,
+        "y": 0.11
+      },
+      "map_zone": "north",
+      "is_available_from_chapter": 4
     },
     {
       "id": "watchtower",
@@ -56,17 +91,34 @@
       "danger_level": 5,
       "search_time": 25,
       "max_searches": 3,
-      "loot_pool": ["binoculars", "radio", "mre", "bandage"],
-      "enemies": ["ex_soldier"],
+      "loot_pool": [
+        "binoculars",
+        "radio",
+        "mre",
+        "bandage"
+      ],
+      "enemies": [
+        "ex_soldier"
+      ],
       "connections": [
-        { "id": "station_gate", "minutes": 20 },
-        { "id": "north_station", "minutes": 15 }
+        {
+          "id": "station_gate",
+          "minutes": 20
+        },
+        {
+          "id": "north_station",
+          "minutes": 15
+        }
       ],
       "icon": "🗼",
       "repeatable": true,
       "risk": "fall",
-      "mapPosition": { "x": 0.35, "y": 0.06 },
-      "map_zone": "north"
+      "mapPosition": {
+        "x": 0.35,
+        "y": 0.06
+      },
+      "map_zone": "north",
+      "is_available_from_chapter": 4
     },
     {
       "id": "north_station",
@@ -82,15 +134,28 @@
       "loot_pool": [],
       "enemies": [],
       "connections": [
-        { "id": "station_gate", "minutes": 15 },
-        { "id": "watchtower", "minutes": 15 },
-        { "id": "bridge_north", "minutes": 60 }
+        {
+          "id": "station_gate",
+          "minutes": 15
+        },
+        {
+          "id": "watchtower",
+          "minutes": 15
+        },
+        {
+          "id": "bridge_north",
+          "minutes": 60
+        }
       ],
       "icon": "🏭",
       "repeatable": false,
       "is_final": true,
-      "mapPosition": { "x": 0.50, "y": 0.03 },
-      "map_zone": "north"
+      "mapPosition": {
+        "x": 0.5,
+        "y": 0.03
+      },
+      "map_zone": "north",
+      "is_available_from_chapter": 4
     }
   ]
 }

@@ -44,6 +44,42 @@ void main() {
     repeatable: true,
   );
 
+  /// Локация из другого региона — не должна попасть в scouted.
+  final forestLocation = Location(
+    id: 'forest',
+    name: 'Лес',
+    description: 'Лес',
+    type: 'forest',
+    region: 'forest',
+    dangerLevel: 2,
+    searchTime: 20,
+    maxSearches: 3,
+    lootPool: [],
+    enemies: [],
+    connections: conns(['home']),
+    icon: '🌲',
+    repeatable: true,
+  );
+
+  /// Скрытая локация — не должна попасть в scouted при старте.
+  final hiddenLocation = Location(
+    id: 'secret',
+    name: 'Секрет',
+    description: 'Скрытая',
+    type: 'hidden',
+    region: 'city',
+    dangerLevel: 3,
+    searchTime: 30,
+    maxSearches: 3,
+    lootPool: [],
+    enemies: [],
+    connections: conns(['home']),
+    icon: '🔓',
+    repeatable: true,
+    hidden: true,
+    unlockedBy: 'home',
+  );
+
   const infectionCondition = Condition(
     id: 'infection',
     name: 'Инфекция',
@@ -147,7 +183,6 @@ void main() {
 
     test('устанавливает характеристики персонажа из GameConstants', () {
       final c = makeController(characterId: 'boris');
-      // Борис: intelligence: 5, strength: 7
       expect(c.intelligence, 5);
       expect(c.strength, 7);
     });
@@ -158,6 +193,186 @@ void main() {
         () => c.initForTest(locations: []),
         throwsArgumentError,
       );
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // НОВАЯ ЛОГИКА РАЗВЕДКИ
+  // ═══════════════════════════════════════════════════════════
+
+  group('MapController — авторазведка при старте', () {
+    test('все локации стартового региона — scouted', () {
+      final c = makeController();
+      expect(c.isScouted('home'), true);
+      expect(c.isScouted('street'), true);
+    });
+
+    test('скрытые локации НЕ попадают в scouted при старте', () {
+      final c = makeController(
+        locations: [homeLocation, streetLocation, hiddenLocation],
+      );
+      expect(c.isScouted('home'), true);
+      expect(c.isScouted('street'), true);
+      expect(c.isScouted('secret'), false);
+    });
+
+    test('локации другого региона НЕ попадают в scouted при старте', () {
+      final c = makeController(
+        locations: [homeLocation, streetLocation, forestLocation],
+      );
+      expect(c.isScouted('home'), true);
+      expect(c.isScouted('street'), true);
+      expect(c.isScouted('forest'), false);
+    });
+
+    test('detailedLocations пуст при старте', () {
+      final c = makeController();
+      expect(c.detailedLocations, isEmpty);
+    });
+
+    test('hasDetails возвращает false при старте', () {
+      final c = makeController();
+      expect(c.hasDetails('home'), false);
+      expect(c.hasDetails('street'), false);
+    });
+
+    test('стартовый регион добавляется в discoveredRegions', () {
+      final c = makeController();
+      expect(c.isRegionDiscovered('city'), true);
+    });
+  });
+
+  group('MapController.scoutLocation', () {
+    test('добавляет новую локацию в scouted', () {
+      final c = makeController(
+        locations: [homeLocation, streetLocation, forestLocation],
+      );
+      expect(c.isScouted('forest'), false);
+
+      c.scoutLocation('forest');
+
+      expect(c.isScouted('forest'), true);
+    });
+
+    test('не дублирует уже разведанные локации', () {
+      final c = makeController();
+      final countBefore = c.scoutedLocations.length;
+      c.scoutLocation('home');
+      expect(c.scoutedLocations.length, countBefore);
+    });
+
+    test('разведывает регион локации', () {
+      final c = makeController(
+        locations: [homeLocation, streetLocation, forestLocation],
+      );
+      expect(c.isRegionDiscovered('forest'), false);
+
+      c.scoutLocation('forest');
+
+      expect(c.isRegionDiscovered('forest'), true);
+    });
+  });
+
+  group('MapController.scoutDetails', () {
+    test('возвращает true для scouted-локации', () {
+      final c = makeController();
+      expect(c.isScouted('street'), true);
+
+      final ok = c.scoutDetails('street');
+
+      expect(ok, true);
+      expect(c.hasDetails('street'), true);
+    });
+
+    test('возвращает false для локации НЕ в scouted', () {
+      final c = makeController(
+        locations: [homeLocation, streetLocation, hiddenLocation],
+      );
+      expect(c.isScouted('secret'), false);
+
+      final ok = c.scoutDetails('secret');
+
+      expect(ok, false);
+      expect(c.hasDetails('secret'), false);
+    });
+
+    test('возвращает false при повторной разведке', () {
+      final c = makeController();
+
+      final first = c.scoutDetails('street');
+      final second = c.scoutDetails('street');
+
+      expect(first, true);
+      expect(second, false);
+    });
+
+    test('добавляет локацию в detailedLocations', () {
+      final c = makeController();
+      expect(c.detailedLocations.contains('street'), false);
+
+      c.scoutDetails('street');
+
+      expect(c.detailedLocations.contains('street'), true);
+    });
+
+    test('вызывает notifyListeners при успехе', () {
+      final c = makeController();
+      int notifyCount = 0;
+      c.addListener(() => notifyCount++);
+
+      c.scoutDetails('street');
+
+      expect(notifyCount, greaterThan(0));
+    });
+
+    test('НЕ вызывает notifyListeners при повторной разведке', () {
+      final c = makeController();
+      c.scoutDetails('street'); // первый раз
+
+      int notifyCount = 0;
+      c.addListener(() => notifyCount++);
+
+      c.scoutDetails('street'); // второй раз — не должно
+
+      expect(notifyCount, 0);
+    });
+  });
+
+  group('MapController.hasDetails', () {
+    test('false для неразведанной локации', () {
+      final c = makeController();
+      expect(c.hasDetails('street'), false);
+    });
+
+    test('true после scoutDetails', () {
+      final c = makeController();
+      c.scoutDetails('street');
+      expect(c.hasDetails('street'), true);
+    });
+
+    test('false для несуществующей локации', () {
+      final c = makeController();
+      expect(c.hasDetails('nonexistent'), false);
+    });
+  });
+
+  group('MapController.setDetailed — тестовый хелпер', () {
+    test('устанавливает detailedLocations', () {
+      final c = makeController();
+      c.setDetailed({'street', 'home'});
+      expect(c.hasDetails('street'), true);
+      expect(c.hasDetails('home'), true);
+    });
+
+    test('очищает предыдущие значения', () {
+      final c = makeController();
+      c.scoutDetails('street');
+      expect(c.hasDetails('street'), true);
+
+      c.setDetailed({'home'});
+
+      expect(c.hasDetails('street'), false);
+      expect(c.hasDetails('home'), true);
     });
   });
 
@@ -248,7 +463,7 @@ void main() {
       final c = makeController();
       c.setHunger(100);
       c.setThirst(100);
-      await c.advanceTime(600); // 10 часов — гарантированно видно расход
+      await c.advanceTime(600);
       expect(c.hunger, lessThan(100));
       expect(c.thirst, lessThan(100));
     });
@@ -270,7 +485,7 @@ void main() {
     test('тик активных условий снижает health', () async {
       final c = makeController();
       c.setHealth(100);
-      c.addCondition(infectionCondition); // -3 health за тик
+      c.addCondition(infectionCondition);
       await c.advanceTime(60);
       expect(c.health, lessThan(100));
     });
@@ -315,14 +530,12 @@ void main() {
       final c = makeController();
       c.addCondition(infectionCondition);
       final ac = c.activeConditions.first;
-      // bandage не подходит для infection
       final cured = c.tryCureCondition(ac, 'bandage');
       expect(cured, false);
       expect(c.activeConditions.length, 1);
     });
 
     test('возвращает true для подходящего (cureChance = 1.0)', () {
-      // Используем условие с гарантированным лечением
       const guaranteedCure = Condition(
         id: 'bleeding',
         name: 'Кровотечение',
@@ -503,11 +716,17 @@ void main() {
       expect(c.hasFlag('test_flag'), true);
     });
 
-    test('unlockLocation добавляет локацию в открытые', () {
-      final c = makeController();
-      expect(c.isLocationUnlocked('hidden1'), false);
-      c.unlockLocation('hidden1');
-      expect(c.isLocationUnlocked('hidden1'), true);
+    test('unlockLocation добавляет локацию в открытые + scouted', () {
+      final c = makeController(
+        locations: [homeLocation, streetLocation, hiddenLocation],
+      );
+      expect(c.isLocationUnlocked('secret'), false);
+      expect(c.isScouted('secret'), false);
+
+      c.unlockLocation('secret');
+
+      expect(c.isLocationUnlocked('secret'), true);
+      expect(c.isScouted('secret'), true);
     });
 
     test('incrementSearchCount увеличивает счётчик', () {
@@ -553,10 +772,19 @@ void main() {
       c.setFlag('x');
       expect(notifyCount, 1);
     });
+
+    test('scoutDetails вызывает notifyListeners при успехе', () {
+      final c = makeController();
+      int notifyCount = 0;
+      c.addListener(() => notifyCount++);
+
+      c.scoutDetails('street');
+      expect(notifyCount, 1);
+    });
   });
 
   // ═══════════════════════════════════════════════════════════
-  // ГЛАВНАЯ ПРОВЕРКА: initForTest + все справочники
+  // КОМПЛЕКСНЫЕ ПРОВЕРКИ
   // ═══════════════════════════════════════════════════════════
 
   group('MapController — комплексные проверки', () {
@@ -573,7 +801,6 @@ void main() {
 
     test('gameTime доступно сразу после initForTest', () {
       final c = makeController();
-      // startTimeMinutes = 8 * 60 = 480
       expect(c.gameTime.totalMinutes, 480);
       expect(c.gameTime.day, 1);
     });
@@ -582,9 +809,25 @@ void main() {
       final c = MapController(characterId: 'boris', characterName: 'Борис');
       c.initForTest(
         locations: [homeLocation, streetLocation],
-        startTimeMinutes: 600, // 10:00
+        startTimeMinutes: 600,
       );
       expect(c.gameTime.totalMinutes, 600);
+    });
+
+    test('полный цикл: старт → разведка деталей → hasDetails', () {
+      final c = makeController();
+
+      // Старт: все локации scouted, но без деталей.
+      expect(c.isScouted('street'), true);
+      expect(c.hasDetails('street'), false);
+
+      // Разведка деталей.
+      final ok = c.scoutDetails('street');
+
+      // Проверка.
+      expect(ok, true);
+      expect(c.hasDetails('street'), true);
+      expect(c.detailedLocations.length, 1);
     });
   });
 }

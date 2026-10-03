@@ -23,7 +23,8 @@
       "icon": "🕳️",
       "repeatable": true,
       "risk": "dirty_water",
-      "mapPosition": { "x": 0.10, "y": 0.92 },
+      "is_available_from_chapter": 2,
+      "mapPosition": { "x": 0.50, "y": 0.15 },
       "map_zone": "underground"
     },
     {
@@ -46,7 +47,8 @@
       "repeatable": true,
       "hidden": true,
       "unlocked_by": "tunnel_entrance",
-      "mapPosition": { "x": 0.05, "y": 0.98 },
+      "is_available_from_chapter": 2,
+      "mapPosition": { "x": 0.20, "y": 0.15 },
       "map_zone": "underground"
     },
     {
@@ -70,7 +72,8 @@
       ],
       "icon": "🚉",
       "repeatable": true,
-      "mapPosition": { "x": 0.30, "y": 0.88 },
+      "is_available_from_chapter": 2,
+      "mapPosition": { "x": 0.20, "y": 0.45 },
       "map_zone": "underground"
     },
     {
@@ -95,7 +98,8 @@
       "icon": "🚇",
       "repeatable": true,
       "risk": "dirty_water",
-      "mapPosition": { "x": 0.45, "y": 0.85 },
+      "is_available_from_chapter": 2,
+      "mapPosition": { "x": 0.50, "y": 0.45 },
       "map_zone": "underground"
     },
     {
@@ -117,7 +121,8 @@
       ],
       "icon": "🛡️",
       "repeatable": true,
-      "mapPosition": { "x": 0.55, "y": 0.75 },
+      "is_available_from_chapter": 2,
+      "mapPosition": { "x": 0.78, "y": 0.42 },
       "map_zone": "underground"
     },
     {
@@ -141,7 +146,8 @@
       "icon": "🚰",
       "repeatable": true,
       "risk": "dirty_water",
-      "mapPosition": { "x": 0.70, "y": 0.80 },
+      "is_available_from_chapter": 2,
+      "mapPosition": { "x": 0.50, "y": 0.78 },
       "map_zone": "underground"
     },
     {
@@ -163,7 +169,8 @@
       ],
       "icon": "🔥",
       "repeatable": true,
-      "mapPosition": { "x": 0.20, "y": 0.72 },
+      "is_available_from_chapter": 2,
+      "mapPosition": { "x": 0.12, "y": 0.60 },
       "map_zone": "underground"
     },
     {
@@ -185,7 +192,8 @@
       ],
       "icon": "🏪",
       "repeatable": true,
-      "mapPosition": { "x": 0.15, "y": 0.62 },
+      "is_available_from_chapter": 2,
+      "mapPosition": { "x": 0.15, "y": 0.80 },
       "map_zone": "underground"
     }
   ]

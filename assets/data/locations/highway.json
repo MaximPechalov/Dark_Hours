@@ -11,21 +11,53 @@
       "danger_level": 7,
       "search_time": 15,
       "max_searches": 2,
-      "loot_pool": ["fuel_can", "crackers"],
-      "enemies": ["bandit", "looter_armed", "dog_stray"],
+      "loot_pool": [
+        "fuel_can",
+        "crackers"
+      ],
+      "enemies": [
+        "bandit",
+        "looter_armed",
+        "dog_stray"
+      ],
       "connections": [
-        { "id": "gas_station", "minutes": 30 },
-        { "id": "forest_path", "minutes": 60 },
-        { "id": "checkpoint", "minutes": 90 },
-        { "id": "gas_station_north", "minutes": 45 },
-        { "id": "road_cafe", "minutes": 30 },
-        { "id": "bus_station", "minutes": 60 },
-        { "id": "forest_river", "minutes": 45 }
+        {
+          "id": "gas_station",
+          "minutes": 30
+        },
+        {
+          "id": "forest_path",
+          "minutes": 60
+        },
+        {
+          "id": "checkpoint",
+          "minutes": 90
+        },
+        {
+          "id": "gas_station_north",
+          "minutes": 45
+        },
+        {
+          "id": "road_cafe",
+          "minutes": 30
+        },
+        {
+          "id": "bus_station",
+          "minutes": 60
+        },
+        {
+          "id": "forest_river",
+          "minutes": 45
+        }
       ],
       "icon": "🛤️",
       "repeatable": true,
-      "mapPosition": { "x": 0.50, "y": 0.30 },
-      "map_zone": "highway"
+      "mapPosition": {
+        "x": 0.5,
+        "y": 0.3
+      },
+      "map_zone": "highway",
+      "is_available_from_chapter": 2
     },
     {
       "id": "checkpoint",
@@ -38,18 +70,43 @@
       "danger_level": 6,
       "search_time": 30,
       "max_searches": 4,
-      "loot_pool": ["mre", "water_bottle", "ammo_box", "army_backpack"],
-      "enemies": ["bandit", "ex_soldier", "looter_armed"],
+      "loot_pool": [
+        "mre",
+        "water_bottle",
+        "ammo_box",
+        "army_backpack"
+      ],
+      "enemies": [
+        "bandit",
+        "ex_soldier",
+        "looter_armed"
+      ],
       "connections": [
-        { "id": "highway_entrance", "minutes": 90 },
-        { "id": "north_station", "minutes": 120 },
-        { "id": "abandoned_convoy", "minutes": 45 },
-        { "id": "roadblock", "minutes": 30 }
+        {
+          "id": "highway_entrance",
+          "minutes": 90
+        },
+        {
+          "id": "north_station",
+          "minutes": 120
+        },
+        {
+          "id": "abandoned_convoy",
+          "minutes": 45
+        },
+        {
+          "id": "roadblock",
+          "minutes": 30
+        }
       ],
       "icon": "🛑",
       "repeatable": true,
-      "mapPosition": { "x": 0.50, "y": 0.20 },
-      "map_zone": "highway"
+      "mapPosition": {
+        "x": 0.5,
+        "y": 0.2
+      },
+      "map_zone": "highway",
+      "is_available_from_chapter": 2
     },
     {
       "id": "gas_station_north",
@@ -62,16 +119,36 @@
       "danger_level": 5,
       "search_time": 25,
       "max_searches": 4,
-      "loot_pool": ["fuel_can", "fuel_can", "crackers", "water_bottle", "tool_kit", "wire"],
-      "enemies": ["looter_common", "dog_stray"],
+      "loot_pool": [
+        "fuel_can",
+        "fuel_can",
+        "crackers",
+        "water_bottle",
+        "tool_kit",
+        "wire"
+      ],
+      "enemies": [
+        "looter_common",
+        "dog_stray"
+      ],
       "connections": [
-        { "id": "highway_entrance", "minutes": 45 },
-        { "id": "bridge_north", "minutes": 60 }
+        {
+          "id": "highway_entrance",
+          "minutes": 45
+        },
+        {
+          "id": "bridge_north",
+          "minutes": 60
+        }
       ],
       "icon": "⛽",
       "repeatable": true,
-      "mapPosition": { "x": 0.30, "y": 0.25 },
-      "map_zone": "highway"
+      "mapPosition": {
+        "x": 0.3,
+        "y": 0.25
+      },
+      "map_zone": "highway",
+      "is_available_from_chapter": 2
     },
     {
       "id": "road_cafe",
@@ -84,16 +161,35 @@
       "danger_level": 4,
       "search_time": 30,
       "max_searches": 4,
-      "loot_pool": ["canned_stew", "crackers", "chocolate", "water_bottle", "cigarette", "coffee"],
-      "enemies": ["looter_common"],
+      "loot_pool": [
+        "canned_stew",
+        "crackers",
+        "chocolate",
+        "water_bottle",
+        "cigarette",
+        "coffee"
+      ],
+      "enemies": [
+        "looter_common"
+      ],
       "connections": [
-        { "id": "highway_entrance", "minutes": 30 },
-        { "id": "bus_station", "minutes": 40 }
+        {
+          "id": "highway_entrance",
+          "minutes": 30
+        },
+        {
+          "id": "bus_station",
+          "minutes": 40
+        }
       ],
       "icon": "🍽️",
       "repeatable": true,
-      "mapPosition": { "x": 0.65, "y": 0.28 },
-      "map_zone": "highway"
+      "mapPosition": {
+        "x": 0.65,
+        "y": 0.28
+      },
+      "map_zone": "highway",
+      "is_available_from_chapter": 2
     },
     {
       "id": "bus_station",
@@ -106,17 +202,41 @@
       "danger_level": 5,
       "search_time": 35,
       "max_searches": 4,
-      "loot_pool": ["map", "map", "radio", "battery", "crackers", "water_bottle"],
-      "enemies": ["looter_common", "looter_armed", "dog_stray"],
+      "loot_pool": [
+        "map",
+        "map",
+        "radio",
+        "battery",
+        "crackers",
+        "water_bottle"
+      ],
+      "enemies": [
+        "looter_common",
+        "looter_armed",
+        "dog_stray"
+      ],
       "connections": [
-        { "id": "highway_entrance", "minutes": 60 },
-        { "id": "road_cafe", "minutes": 40 },
-        { "id": "abandoned_convoy", "minutes": 45 }
+        {
+          "id": "highway_entrance",
+          "minutes": 60
+        },
+        {
+          "id": "road_cafe",
+          "minutes": 40
+        },
+        {
+          "id": "abandoned_convoy",
+          "minutes": 45
+        }
       ],
       "icon": "🚌",
       "repeatable": true,
-      "mapPosition": { "x": 0.75, "y": 0.35 },
-      "map_zone": "highway"
+      "mapPosition": {
+        "x": 0.75,
+        "y": 0.35
+      },
+      "map_zone": "highway",
+      "is_available_from_chapter": 2
     },
     {
       "id": "abandoned_convoy",
@@ -129,17 +249,41 @@
       "danger_level": 7,
       "search_time": 40,
       "max_searches": 5,
-      "loot_pool": ["mre", "ammo_box", "pistol", "kevlar_vest", "army_helmet", "9mm", "first_aid_kit"],
-      "enemies": ["bandit", "ex_soldier"],
+      "loot_pool": [
+        "mre",
+        "ammo_box",
+        "pistol",
+        "kevlar_vest",
+        "army_helmet",
+        "9mm",
+        "first_aid_kit"
+      ],
+      "enemies": [
+        "bandit",
+        "ex_soldier"
+      ],
       "connections": [
-        { "id": "bus_station", "minutes": 45 },
-        { "id": "checkpoint", "minutes": 45 },
-        { "id": "bridge_north", "minutes": 30 }
+        {
+          "id": "bus_station",
+          "minutes": 45
+        },
+        {
+          "id": "checkpoint",
+          "minutes": 45
+        },
+        {
+          "id": "bridge_north",
+          "minutes": 30
+        }
       ],
       "icon": "🚛",
       "repeatable": true,
-      "mapPosition": { "x": 0.80, "y": 0.20 },
-      "map_zone": "highway"
+      "mapPosition": {
+        "x": 0.8,
+        "y": 0.2
+      },
+      "map_zone": "highway",
+      "is_available_from_chapter": 2
     },
     {
       "id": "bridge_north",
@@ -152,18 +296,43 @@
       "danger_level": 6,
       "search_time": 20,
       "max_searches": 3,
-      "loot_pool": ["fuel_can", "crackers", "water_bottle", "rope"],
-      "enemies": ["bandit", "looter_armed", "ex_soldier"],
+      "loot_pool": [
+        "fuel_can",
+        "crackers",
+        "water_bottle",
+        "rope"
+      ],
+      "enemies": [
+        "bandit",
+        "looter_armed",
+        "ex_soldier"
+      ],
       "connections": [
-        { "id": "gas_station_north", "minutes": 60 },
-        { "id": "abandoned_convoy", "minutes": 30 },
-        { "id": "roadblock", "minutes": 45 },
-        { "id": "north_station", "minutes": 60 }
+        {
+          "id": "gas_station_north",
+          "minutes": 60
+        },
+        {
+          "id": "abandoned_convoy",
+          "minutes": 30
+        },
+        {
+          "id": "roadblock",
+          "minutes": 45
+        },
+        {
+          "id": "north_station",
+          "minutes": 60
+        }
       ],
       "icon": "🌉",
       "repeatable": true,
-      "mapPosition": { "x": 0.35, "y": 0.12 },
-      "map_zone": "highway"
+      "mapPosition": {
+        "x": 0.35,
+        "y": 0.12
+      },
+      "map_zone": "highway",
+      "is_available_from_chapter": 2
     },
     {
       "id": "roadblock",
@@ -176,16 +345,37 @@
       "danger_level": 8,
       "search_time": 30,
       "max_searches": 4,
-      "loot_pool": ["ammo_box", "mre", "water_bottle", "kevlar_vest", "army_helmet", "radio"],
-      "enemies": ["ex_soldier", "bandit", "bandit_leader"],
+      "loot_pool": [
+        "ammo_box",
+        "mre",
+        "water_bottle",
+        "kevlar_vest",
+        "army_helmet",
+        "radio"
+      ],
+      "enemies": [
+        "ex_soldier",
+        "bandit",
+        "bandit_leader"
+      ],
       "connections": [
-        { "id": "checkpoint", "minutes": 30 },
-        { "id": "bridge_north", "minutes": 45 }
+        {
+          "id": "checkpoint",
+          "minutes": 30
+        },
+        {
+          "id": "bridge_north",
+          "minutes": 45
+        }
       ],
       "icon": "🚧",
       "repeatable": true,
-      "mapPosition": { "x": 0.50, "y": 0.12 },
-      "map_zone": "highway"
+      "mapPosition": {
+        "x": 0.5,
+        "y": 0.12
+      },
+      "map_zone": "highway",
+      "is_available_from_chapter": 2
     }
   ]
 }

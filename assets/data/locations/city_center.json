@@ -28,7 +28,7 @@
         "character": "ivan",
         "once": true
       },
-      "mapPosition": { "x": 0.55, "y": 0.55 },
+      "mapPosition": { "x": 0.15, "y": 0.15 },
       "map_zone": "city_center"
     },
     {
@@ -51,11 +51,12 @@
         { "id": "library", "minutes": 10 },
         { "id": "theater", "minutes": 15 },
         { "id": "cafe_center", "minutes": 10 },
-        { "id": "church", "minutes": 20 }
+        { "id": "church", "minutes": 20 },
+        { "id": "bank", "minutes": 12 }
       ],
       "icon": "🛣️",
       "repeatable": true,
-      "mapPosition": { "x": 0.70, "y": 0.58 },
+      "mapPosition": { "x": 0.34, "y": 0.30 },
       "map_zone": "city_center"
     },
     {
@@ -72,7 +73,8 @@
       "loot_pool": ["pistol", "9mm", "kevlar_vest", "army_helmet", "ammo_box"],
       "enemies": ["bandit", "looter_armed"],
       "connections": [
-        { "id": "street_center", "minutes": 20 }
+        { "id": "street_center", "minutes": 20 },
+        { "id": "city_hall", "minutes": 15 }
       ],
       "icon": "🚔",
       "repeatable": true,
@@ -82,7 +84,7 @@
         "character": "alina",
         "once": true
       },
-      "mapPosition": { "x": 0.85, "y": 0.55 },
+      "mapPosition": { "x": 0.85, "y": 0.15 },
       "map_zone": "city_center"
     },
     {
@@ -105,7 +107,7 @@
       ],
       "icon": "🏢",
       "repeatable": true,
-      "mapPosition": { "x": 0.80, "y": 0.68 },
+      "mapPosition": { "x": 0.75, "y": 0.50 },
       "map_zone": "city_center"
     },
     {
@@ -127,7 +129,7 @@
       "icon": "🌃",
       "repeatable": true,
       "risk": "fall",
-      "mapPosition": { "x": 0.90, "y": 0.65 },
+      "mapPosition": { "x": 0.80, "y": 0.55 },
       "map_zone": "city_center"
     },
     {
@@ -150,7 +152,7 @@
       "repeatable": true,
       "hidden": true,
       "unlocked_by": "hospital",
-      "mapPosition": { "x": 0.50, "y": 0.65 },
+      "mapPosition": { "x": 0.20, "y": 0.20 },
       "map_zone": "city_center"
     },
     {
@@ -172,7 +174,7 @@
       ],
       "icon": "📚",
       "repeatable": true,
-      "mapPosition": { "x": 0.62, "y": 0.50 },
+      "mapPosition": { "x": 0.15, "y": 0.40 },
       "map_zone": "city_center"
     },
     {
@@ -190,11 +192,12 @@
       "enemies": ["looter_common", "looter_desperate"],
       "connections": [
         { "id": "street_center", "minutes": 15 },
-        { "id": "university", "minutes": 20 }
+        { "id": "university", "minutes": 20 },
+        { "id": "gym", "minutes": 10 }
       ],
       "icon": "🎭",
       "repeatable": true,
-      "mapPosition": { "x": 0.60, "y": 0.42 },
+      "mapPosition": { "x": 0.15, "y": 0.55 },
       "map_zone": "city_center"
     },
     {
@@ -212,11 +215,12 @@
       "enemies": ["looter_common", "looter_armed"],
       "connections": [
         { "id": "library", "minutes": 15 },
-        { "id": "university", "minutes": 20 }
+        { "id": "university", "minutes": 20 },
+        { "id": "planetarium", "minutes": 10 }
       ],
       "icon": "🏛️",
       "repeatable": true,
-      "mapPosition": { "x": 0.70, "y": 0.42 },
+      "mapPosition": { "x": 0.50, "y": 0.42 },
       "map_zone": "city_center"
     },
     {
@@ -235,11 +239,12 @@
       "connections": [
         { "id": "church", "minutes": 20 },
         { "id": "theater", "minutes": 25 },
-        { "id": "rooftop_center", "minutes": 30 }
+        { "id": "rooftop_center", "minutes": 30 },
+        { "id": "zoo", "minutes": 25 }
       ],
       "icon": "🌳",
       "repeatable": true,
-      "mapPosition": { "x": 0.50, "y": 0.45 },
+      "mapPosition": { "x": 0.15, "y": 0.50 },
       "map_zone": "city_center"
     },
     {
@@ -257,11 +262,12 @@
       "enemies": ["looter_common"],
       "connections": [
         { "id": "street_center", "minutes": 10 },
-        { "id": "metro_station_center", "minutes": 15 }
+        { "id": "metro_station_center", "minutes": 15 },
+        { "id": "gym", "minutes": 10 }
       ],
       "icon": "☕",
       "repeatable": true,
-      "mapPosition": { "x": 0.75, "y": 0.50 },
+      "mapPosition": { "x": 0.40, "y": 0.40 },
       "map_zone": "city_center"
     },
     {
@@ -284,7 +290,7 @@
       "icon": "🚇",
       "repeatable": true,
       "risk": "dirty_water",
-      "mapPosition": { "x": 0.85, "y": 0.45 },
+      "mapPosition": { "x": 0.50, "y": 0.65 },
       "map_zone": "city_center"
     },
     {
@@ -302,11 +308,12 @@
       "enemies": ["looter_common", "looter_armed"],
       "connections": [
         { "id": "theater", "minutes": 20 },
-        { "id": "museum", "minutes": 20 }
+        { "id": "museum", "minutes": 20 },
+        { "id": "planetarium", "minutes": 15 }
       ],
       "icon": "🎓",
       "repeatable": true,
-      "mapPosition": { "x": 0.65, "y": 0.35 },
+      "mapPosition": { "x": 0.85, "y": 0.50 },
       "map_zone": "city_center"
     },
     {
@@ -328,7 +335,7 @@
       ],
       "icon": "⛪",
       "repeatable": true,
-      "mapPosition": { "x": 0.55, "y": 0.32 },
+      "mapPosition": { "x": 0.15, "y": 0.75 },
       "map_zone": "city_center"
     },
     {
@@ -351,7 +358,116 @@
       "icon": "📡",
       "repeatable": true,
       "risk": "fall",
-      "mapPosition": { "x": 0.90, "y": 0.35 },
+      "mapPosition": { "x": 0.85, "y": 0.65 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "city_hall",
+      "name": "Мэрия",
+      "scouted_name": "Большое здание с колоннами",
+      "description": "Городская мэрия. Кабинеты, архив, документы. Здесь можно найти карты города, планы эвакуации, списки выживших.",
+      "scouted_description": "Большое административное здание. Колонны. Флаги. Внутри тихо.",
+      "type": "government",
+      "region": "city_center",
+      "danger_level": 5,
+      "search_time": 50,
+      "max_searches": 5,
+      "loot_pool": ["map", "map", "electronics", "radio", "cloth", "canned_stew"],
+      "enemies": ["looter_common", "looter_armed"],
+      "connections": [
+        { "id": "police_station", "minutes": 15 },
+        { "id": "bank", "minutes": 10 }
+      ],
+      "icon": "🏛️",
+      "repeatable": true,
+      "mapPosition": { "x": 0.50, "y": 0.15 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "bank",
+      "name": "Банк «Столичный»",
+      "scouted_name": "Здание с решётками",
+      "description": "Банк с сейфами. Деньги давно никому не нужны, но внутри могут быть более ценные вещи — оружие, документы, запасы.",
+      "scouted_description": "Банк с высокими решётками. Двери заперты. Следы попыток взлома.",
+      "type": "bank",
+      "region": "city_center",
+      "danger_level": 7,
+      "search_time": 50,
+      "max_searches": 3,
+      "loot_pool": ["pistol", "9mm", "kevlar_vest", "radio", "map", "chocolate"],
+      "enemies": ["bandit", "looter_armed"],
+      "connections": [
+        { "id": "street_center", "minutes": 12 },
+        { "id": "city_hall", "minutes": 10 }
+      ],
+      "icon": "🏦",
+      "repeatable": true,
+      "mapPosition": { "x": 0.50, "y": 0.75 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "zoo",
+      "name": "Городской зоопарк",
+      "scouted_name": "Огороженная территория с вольерами",
+      "description": "Зоопарк. Клетки разбиты, вольеры открыты. Некоторые животные погибли. Некоторые — выжили и одичали.",
+      "scouted_description": "Большая огороженная территория. Слышны звуки животных. Опасно.",
+      "type": "zoo",
+      "region": "city_center",
+      "danger_level": 8,
+      "search_time": 60,
+      "max_searches": 5,
+      "loot_pool": ["raw_meat", "leather", "bandage", "first_aid_kit", "herb_medkit", "hunting_knife"],
+      "enemies": ["wolf", "boar", "bear"],
+      "connections": [
+        { "id": "park_center", "minutes": 25 }
+      ],
+      "icon": "🦁",
+      "repeatable": true,
+      "mapPosition": { "x": 0.05, "y": 0.40 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "planetarium",
+      "name": "Планетарий",
+      "scouted_name": "Здание с куполом",
+      "description": "Планетарий. Купол, проектор, звёздные карты. Тишина и покой. Здесь можно найти карты звёздного неба — полезно для ориентирования.",
+      "scouted_description": "Здание с куполом. Внутри темно. Что-то блестит.",
+      "type": "culture",
+      "region": "city_center",
+      "danger_level": 4,
+      "search_time": 40,
+      "max_searches": 3,
+      "loot_pool": ["map", "binoculars", "cloth", "crackers", "chocolate"],
+      "enemies": ["looter_common"],
+      "connections": [
+        { "id": "museum", "minutes": 10 },
+        { "id": "university", "minutes": 15 }
+      ],
+      "icon": "🪐",
+      "repeatable": true,
+      "mapPosition": { "x": 0.85, "y": 0.35 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "gym",
+      "name": "Спортзал «Атлет»",
+      "scouted_name": "Здание с рекламой",
+      "description": "Спортзал. Тренажёры, гантели, боксёрская груша. В подсобке — спортивное питание и протеиновые батончики.",
+      "scouted_description": "Здание с вывеской и рисунком штанги. Внутри — тренажёры.",
+      "type": "gym",
+      "region": "city_center",
+      "danger_level": 4,
+      "search_time": 35,
+      "max_searches": 4,
+      "loot_pool": ["crackers", "chocolate", "water_bottle", "cloth", "brass_knuckles", "bandage"],
+      "enemies": ["looter_common"],
+      "connections": [
+        { "id": "theater", "minutes": 10 },
+        { "id": "cafe_center", "minutes": 10 }
+      ],
+      "icon": "🏋️",
+      "repeatable": true,
+      "mapPosition": { "x": 0.85, "y": 0.75 },
       "map_zone": "city_center"
     }
   ]

@@ -20,7 +20,7 @@
       "icon": "🏠",
       "repeatable": true,
       "is_start": true,
-      "mapPosition": { "x": 0.20, "y": 0.88 },
+      "mapPosition": { "x": 0.12, "y": 0.85 },
       "map_zone": "city_south"
     },
     {
@@ -43,11 +43,13 @@
         { "id": "gas_station", "minutes": 20 },
         { "id": "school_south", "minutes": 15 },
         { "id": "park_south", "minutes": 15 },
-        { "id": "clinic_south", "minutes": 20 }
+        { "id": "clinic_south", "minutes": 20 },
+        { "id": "kindergarten", "minutes": 10 },
+        { "id": "pizzeria", "minutes": 8 }
       ],
       "icon": "🛣️",
       "repeatable": true,
-      "mapPosition": { "x": 0.35, "y": 0.82 },
+      "mapPosition": { "x": 0.32, "y": 0.50 },
       "map_zone": "city_south"
     },
     {
@@ -76,7 +78,7 @@
         "character": "boris",
         "once": true
       },
-      "mapPosition": { "x": 0.60, "y": 0.82 },
+      "mapPosition": { "x": 0.50, "y": 0.50 },
       "map_zone": "city_south"
     },
     {
@@ -105,7 +107,7 @@
         "character": "darya",
         "once": true
       },
-      "mapPosition": { "x": 0.50, "y": 0.75 },
+      "mapPosition": { "x": 0.45, "y": 0.30 },
       "map_zone": "city_south"
     },
     {
@@ -134,7 +136,7 @@
         "character": "andrey",
         "once": true
       },
-      "mapPosition": { "x": 0.75, "y": 0.88 },
+      "mapPosition": { "x": 0.80, "y": 0.75 },
       "map_zone": "city_south"
     },
     {
@@ -156,7 +158,7 @@
       ],
       "icon": "🅿️",
       "repeatable": true,
-      "mapPosition": { "x": 0.80, "y": 0.75 },
+      "mapPosition": { "x": 0.85, "y": 0.45 },
       "map_zone": "city_south"
     },
     {
@@ -203,7 +205,7 @@
       "repeatable": true,
       "hidden": true,
       "unlocked_by": "supermarket",
-      "mapPosition": { "x": 0.65, "y": 0.90 },
+      "mapPosition": { "x": 0.55, "y": 0.55 },
       "map_zone": "city_south"
     },
     {
@@ -226,7 +228,7 @@
       "repeatable": true,
       "hidden": true,
       "unlocked_by": "warehouse",
-      "mapPosition": { "x": 0.10, "y": 0.68 },
+      "mapPosition": { "x": 0.10, "y": 0.70 },
       "map_zone": "city_south"
     },
     {
@@ -244,11 +246,12 @@
       "enemies": ["looter_common", "dog_stray"],
       "connections": [
         { "id": "street_south", "minutes": 15 },
-        { "id": "pharmacy", "minutes": 5 }
+        { "id": "pharmacy", "minutes": 5 },
+        { "id": "fire_station", "minutes": 10 }
       ],
       "icon": "🏫",
       "repeatable": true,
-      "mapPosition": { "x": 0.48, "y": 0.80 },
+      "mapPosition": { "x": 0.50, "y": 0.15 },
       "map_zone": "city_south"
     },
     {
@@ -267,11 +270,14 @@
       "connections": [
         { "id": "street_south", "minutes": 15 },
         { "id": "forest_hut", "minutes": 30 },
-        { "id": "clinic_south", "minutes": 20 }
+        { "id": "clinic_south", "minutes": 20 },
+        { "id": "fire_station", "minutes": 15 },
+        { "id": "kindergarten", "minutes": 12 },
+        { "id": "small_church", "minutes": 10 }
       ],
       "icon": "🌳",
       "repeatable": true,
-      "mapPosition": { "x": 0.35, "y": 0.68 },
+      "mapPosition": { "x": 0.20, "y": 0.48 },
       "map_zone": "city_south"
     },
     {
@@ -294,7 +300,7 @@
       "icon": "🏗️",
       "repeatable": true,
       "risk": "fall",
-      "mapPosition": { "x": 0.10, "y": 0.85 },
+      "mapPosition": { "x": 0.15, "y": 0.60 },
       "map_zone": "city_south"
     },
     {
@@ -316,7 +322,7 @@
       ],
       "icon": "🏥",
       "repeatable": true,
-      "mapPosition": { "x": 0.55, "y": 0.68 },
+      "mapPosition": { "x": 0.85, "y": 0.15 },
       "map_zone": "city_south"
     },
     {
@@ -339,7 +345,7 @@
       ],
       "icon": "🔧",
       "repeatable": true,
-      "mapPosition": { "x": 0.88, "y": 0.82 },
+      "mapPosition": { "x": 0.85, "y": 0.85 },
       "map_zone": "city_south"
     },
     {
@@ -362,7 +368,97 @@
       ],
       "icon": "🗑️",
       "repeatable": true,
-      "mapPosition": { "x": 0.05, "y": 0.78 },
+      "mapPosition": { "x": 0.05, "y": 0.95 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "fire_station",
+      "name": "Пожарная часть №3",
+      "scouted_name": "Здание с воротами и красной вывеской",
+      "description": "Пожарная часть. В гараже — машина, инструменты, снаряжение. Внутри — караульное помещение, кухня, склад.",
+      "scouted_description": "Красное здание с широкими воротами. Внутри темно.",
+      "type": "fire_station",
+      "region": "city_south",
+      "danger_level": 4,
+      "search_time": 40,
+      "max_searches": 4,
+      "loot_pool": ["fire_axe", "tool_kit", "rope", "cloth", "leather_jacket", "bandage"],
+      "enemies": ["looter_common"],
+      "connections": [
+        { "id": "school_south", "minutes": 10 },
+        { "id": "park_south", "minutes": 15 },
+        { "id": "kindergarten", "minutes": 15 }
+      ],
+      "icon": "🚒",
+      "repeatable": true,
+      "mapPosition": { "x": 0.20, "y": 0.20 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "kindergarten",
+      "name": "Детский сад «Солнышко»",
+      "scouted_name": "Здание с разноцветным забором",
+      "description": "Детский сад. Маленькие стульчики, рисунки на стенах, игрушки. Кто-то оставил здесь всё — и очень торопился.",
+      "scouted_description": "Маленькое здание с рисунками на заборе. Тишина.",
+      "type": "school",
+      "region": "city_south",
+      "danger_level": 3,
+      "search_time": 35,
+      "max_searches": 4,
+      "loot_pool": ["canned_stew", "crackers", "water_bottle", "cloth", "chocolate", "bandage"],
+      "enemies": [],
+      "connections": [
+        { "id": "street_south", "minutes": 10 },
+        { "id": "park_south", "minutes": 12 },
+        { "id": "fire_station", "minutes": 15 }
+      ],
+      "icon": "🧒",
+      "repeatable": true,
+      "mapPosition": { "x": 0.15, "y": 0.40 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "pizzeria",
+      "name": "Пиццерия «Уголок»",
+      "scouted_name": "Маленькое кафе",
+      "description": "Маленькая пиццерия на главной улице. Печь ещё цела, тесто и мука — в подсобке. Здесь можно поесть и согреться.",
+      "scouted_description": "Кафе с вывеской. Пахнет едой. Тёплый свет из окна.",
+      "type": "shop",
+      "region": "city_south",
+      "danger_level": 3,
+      "search_time": 25,
+      "max_searches": 4,
+      "loot_pool": ["crackers", "chocolate", "water_bottle", "cloth", "canned_stew"],
+      "enemies": ["looter_common"],
+      "connections": [
+        { "id": "street_south", "minutes": 8 },
+        { "id": "pharmacy", "minutes": 10 }
+      ],
+      "icon": "🍕",
+      "repeatable": true,
+      "mapPosition": { "x": 0.55, "y": 0.45 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "small_church",
+      "name": "Часовня Св. Анны",
+      "scouted_name": "Маленькое здание с крестом",
+      "description": "Маленькая часовня в парке. Деревянные скамьи, свечи, тишина. Психика восстанавливается — но ненадолго.",
+      "scouted_description": "Часовня в глубине парка. Свечи внутри. Тишина.",
+      "type": "chapel",
+      "region": "city_south",
+      "danger_level": 2,
+      "search_time": 25,
+      "max_searches": 3,
+      "loot_pool": ["cloth", "crackers", "water_bottle", "herb_medkit"],
+      "enemies": [],
+      "connections": [
+        { "id": "park_south", "minutes": 10 },
+        { "id": "clinic_south", "minutes": 15 }
+      ],
+      "icon": "⛪",
+      "repeatable": true,
+      "mapPosition": { "x": 0.25, "y": 0.55 },
       "map_zone": "city_south"
     }
   ]

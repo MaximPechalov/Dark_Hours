@@ -1,8 +1,8 @@
 # PROJECT DUMP
 
-**Generated:** Sat Oct  3 10:01:52 UTC 2026
+**Generated:** Sat Oct  3 13:36:16 UTC 2026
 **Root:** /workspaces/Dark_Hours
-**Files:** 193
+**Files:** 212
 
 ## 📁 STRUCTURE
 
@@ -61,7 +61,12 @@
 ./assets/data/conditions.json
 ./assets/data/consumables.json
 ./assets/data/enemies.json
-./assets/data/locations.json
+./assets/data/locations/city_center.json
+./assets/data/locations/city_south.json
+./assets/data/locations/forest.json
+./assets/data/locations/highway.json
+./assets/data/locations/north.json
+./assets/data/locations/underground.json
 ./assets/data/recipes.json
 ./assets/data/resources.json
 ./assets/data/search_events.json
@@ -122,8 +127,12 @@
 ./lib/models/time/game_time.dart
 ./lib/models/time/rest_action.dart
 ./lib/models/world/connection.dart
+./lib/models/world/layouts/city_center_layout.dart
+./lib/models/world/layouts/city_south_layout.dart
+./lib/models/world/layouts/underground_layout.dart
 ./lib/models/world/location.dart
 ./lib/models/world/map_position.dart
+./lib/models/world/region_layout.dart
 ./lib/models/world/search_event.dart
 ./lib/models/world/world_map.dart
 ./lib/screens/extra/achievements_screen.dart
@@ -141,6 +150,7 @@
 ./lib/screens/gameplay/widgets/map_player_marker.dart
 ./lib/screens/gameplay/widgets/map_status_bar.dart
 ./lib/screens/gameplay/widgets/map_zone_painter.dart
+./lib/screens/gameplay/widgets/region_map_painter.dart
 ./lib/screens/main/character_select_screen.dart
 ./lib/screens/main/death_screen.dart
 ./lib/screens/main/settings_screen.dart
@@ -180,6 +190,7 @@
 ./lib/widgets/panels/inventory_panel.dart
 ./lib/widgets/panels/penalties_panel.dart
 ./lib/widgets/panels/rest_panel.dart
+./mark_future_chapters.sh
 ./pubspec.lock
 ./pubspec.yaml
 ./test/_helpers/test_fixtures.dart
@@ -197,16 +208,24 @@
 ./test/services/save_manager_test.dart
 ./test/services/time_manager_test.dart
 ./test/story/story_loader_test.dart
+./test/widget_test.dart
 ./test/widgets/smoke_test.dart
 ./tool/README.md 
 ./tool/validate.dart
+./web/favicon.png
+./web/icons/Icon-192.png
+./web/icons/Icon-512.png
+./web/icons/Icon-maskable-192.png
+./web/icons/Icon-maskable-512.png
+./web/index.html
+./web/manifest.json
 ```
 
 ## 📄 TEXT FILES
 
 ### 📄 `./.flutter-plugins-dependencies`
 ```
-{"info":"This is a generated file; do not edit or check into version control.","plugins":{"ios":[{"name":"audioplayers_darwin","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_darwin-6.5.0/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_foundation-2.6.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.7/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false}],"android":[{"name":"audioplayers_android","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_android-5.3.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni-1.0.3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni_flutter","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni_flutter-1.0.3/","native_build":true,"dependencies":["jni"],"dev_dependency":false},{"name":"path_provider_android","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_android-2.3.1/","native_build":false,"dependencies":["jni","jni_flutter"],"dev_dependency":false},{"name":"shared_preferences_android","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.28/","native_build":true,"dependencies":[],"dev_dependency":false}],"macos":[{"name":"audioplayers_darwin","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_darwin-6.5.0/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_foundation-2.6.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.7/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false}],"linux":[{"name":"audioplayers_linux","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_linux-4.3.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni-1.0.3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_linux","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.2/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_linux","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_linux-2.4.1/","native_build":false,"dependencies":["path_provider_linux"],"dev_dependency":false}],"windows":[{"name":"audioplayers_windows","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_windows-4.4.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni-1.0.3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_windows","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_windows","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_windows-2.4.1/","native_build":false,"dependencies":["path_provider_windows"],"dev_dependency":false}],"web":[{"name":"audioplayers_web","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_web-5.3.0/","dependencies":[],"dev_dependency":false},{"name":"shared_preferences_web","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_web-2.4.3/","dependencies":[],"dev_dependency":false}]},"dependencyGraph":[{"name":"audioplayers","dependencies":["audioplayers_android","audioplayers_darwin","audioplayers_linux","audioplayers_web","audioplayers_windows","path_provider"]},{"name":"audioplayers_android","dependencies":[]},{"name":"audioplayers_darwin","dependencies":[]},{"name":"audioplayers_linux","dependencies":[]},{"name":"audioplayers_web","dependencies":[]},{"name":"audioplayers_windows","dependencies":[]},{"name":"jni","dependencies":[]},{"name":"jni_flutter","dependencies":["jni"]},{"name":"path_provider","dependencies":["path_provider_android","path_provider_foundation","path_provider_linux","path_provider_windows"]},{"name":"path_provider_android","dependencies":["jni","jni_flutter"]},{"name":"path_provider_foundation","dependencies":[]},{"name":"path_provider_linux","dependencies":[]},{"name":"path_provider_windows","dependencies":[]},{"name":"shared_preferences","dependencies":["shared_preferences_android","shared_preferences_foundation","shared_preferences_linux","shared_preferences_web","shared_preferences_windows"]},{"name":"shared_preferences_android","dependencies":[]},{"name":"shared_preferences_foundation","dependencies":[]},{"name":"shared_preferences_linux","dependencies":["path_provider_linux"]},{"name":"shared_preferences_web","dependencies":[]},{"name":"shared_preferences_windows","dependencies":["path_provider_windows"]}],"date_created":"2026-10-02 15:39:33.806343","version":"3.47.6","swift_package_manager_enabled":{"ios":false,"macos":false}}
+{"info":"This is a generated file; do not edit or check into version control.","plugins":{"ios":[{"name":"audioplayers_darwin","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_darwin-6.5.0/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_foundation-2.6.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.7/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false}],"android":[{"name":"audioplayers_android","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_android-5.3.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni-1.1.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni_flutter","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni_flutter-1.0.3/","native_build":true,"dependencies":["jni"],"dev_dependency":false},{"name":"path_provider_android","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_android-2.3.1/","native_build":false,"dependencies":["jni","jni_flutter"],"dev_dependency":false},{"name":"shared_preferences_android","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.28/","native_build":true,"dependencies":[],"dev_dependency":false}],"macos":[{"name":"audioplayers_darwin","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_darwin-6.5.0/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_foundation-2.6.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.7/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false}],"linux":[{"name":"audioplayers_linux","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_linux-4.3.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni-1.1.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_linux","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.2/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_linux","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_linux-2.4.1/","native_build":false,"dependencies":["path_provider_linux"],"dev_dependency":false}],"windows":[{"name":"audioplayers_windows","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_windows-4.4.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni-1.1.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_windows","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_windows","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_windows-2.4.1/","native_build":false,"dependencies":["path_provider_windows"],"dev_dependency":false}],"web":[{"name":"audioplayers_web","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_web-5.3.0/","dependencies":[],"dev_dependency":false},{"name":"shared_preferences_web","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_web-2.4.3/","dependencies":[],"dev_dependency":false}]},"dependencyGraph":[{"name":"audioplayers","dependencies":["audioplayers_android","audioplayers_darwin","audioplayers_linux","audioplayers_web","audioplayers_windows","path_provider"]},{"name":"audioplayers_android","dependencies":[]},{"name":"audioplayers_darwin","dependencies":[]},{"name":"audioplayers_linux","dependencies":[]},{"name":"audioplayers_web","dependencies":[]},{"name":"audioplayers_windows","dependencies":[]},{"name":"jni","dependencies":[]},{"name":"jni_flutter","dependencies":["jni"]},{"name":"path_provider","dependencies":["path_provider_android","path_provider_foundation","path_provider_linux","path_provider_windows"]},{"name":"path_provider_android","dependencies":["jni","jni_flutter"]},{"name":"path_provider_foundation","dependencies":[]},{"name":"path_provider_linux","dependencies":[]},{"name":"path_provider_windows","dependencies":[]},{"name":"shared_preferences","dependencies":["shared_preferences_android","shared_preferences_foundation","shared_preferences_linux","shared_preferences_web","shared_preferences_windows"]},{"name":"shared_preferences_android","dependencies":[]},{"name":"shared_preferences_foundation","dependencies":[]},{"name":"shared_preferences_linux","dependencies":["path_provider_linux"]},{"name":"shared_preferences_web","dependencies":[]},{"name":"shared_preferences_windows","dependencies":["path_provider_windows"]}],"date_created":"2026-10-03 12:25:25.214774","version":"3.47.6","swift_package_manager_enabled":{"ios":false,"macos":false}}
 ```
 
 ### 📄 `./.github/workflows/build-apk.yml`
@@ -362,7 +381,7 @@ migration:
     - platform: root
       create_revision: 5fc346839b5d0eef006ed8404392afb4dfae428d
       base_revision: 5fc346839b5d0eef006ed8404392afb4dfae428d
-    - platform: android
+    - platform: web
       create_revision: 5fc346839b5d0eef006ed8404392afb4dfae428d
       base_revision: 5fc346839b5d0eef006ed8404392afb4dfae428d
 
@@ -417,6 +436,7 @@ analyzer:
   exclude:
     - build/**
     - android/**
+    - web/**
 
 linter:
   # The lint rules applied to this project can be customized in the
@@ -2322,175 +2342,16 @@ include(":app")
 }
 ```
 
-### 📄 `./assets/data/locations.json`
+### 📄 `./assets/data/locations/city_center.json`
 ```json
 {
   "locations": [
     {
-      "id": "home_boris",
-      "name": "Подвал Бориса",
-      "description": "Твой дом. Бетонные стены, старый матрас, тёплый чайник. Здесь безопасно. Но пусто.",
-      "type": "safe_house",
-      "region": "city_south",
-      "danger_level": 0,
-      "search_time": 30,
-      "max_searches": 3,
-      "loot_pool": ["canned_stew", "water_bottle", "cloth"],
-      "enemies": [],
-      "connections": ["street_south", "tunnel_entrance"],
-      "icon": "🏠",
-      "repeatable": true,
-      "is_start": true,
-      "story_node": null,
-      "mapPosition": { "x": 0.20, "y": 0.88 },
-      "map_zone": "city_south"
-    },
-    {
-      "id": "street_south",
-      "name": "Южная улица",
-      "description": "Пустая улица. Следы мародёров, брошенные машины, ветер гонит мусор по асфальту.",
-      "type": "street",
-      "region": "city_south",
-      "danger_level": 3,
-      "search_time": 15,
-      "max_searches": 3,
-      "loot_pool": ["bandage", "crackers", "cloth", "nails"],
-      "enemies": ["looter_common"],
-      "connections": ["home_boris", "supermarket", "pharmacy", "gas_station"],
-      "icon": "🛣️",
-      "repeatable": true,
-      "story_node": null,
-      "mapPosition": { "x": 0.35, "y": 0.82 },
-      "map_zone": "city_south"
-    },
-    {
-      "id": "supermarket",
-      "name": "Супермаркет «Магнит»",
-      "description": "Разграблен, но в подсобке может остаться еда. Или кто-то, кто её охраняет.",
-      "type": "shop",
-      "region": "city_south",
-      "danger_level": 6,
-      "search_time": 45,
-      "max_searches": 5,
-      "loot_pool": ["canned_stew", "water_bottle", "crackers", "chocolate", "dog_food"],
-      "enemies": ["looter_common", "looter_armed"],
-      "connections": ["street_south", "parking", "supermarket_basement"],
-      "icon": "🏪",
-      "repeatable": true,
-      "story_node": "boris_ch2_supermarket",
-      "story_condition": {
-        "chapter": 2,
-        "character": "boris",
-        "once": true
-      },
-      "mapPosition": { "x": 0.60, "y": 0.82 },
-      "map_zone": "city_south"
-    },
-    {
-      "id": "pharmacy",
-      "name": "Аптека «Ригла»",
-      "description": "Лекарства — валюта будущего. Очередь давно разбежалась, но кто-то ещё остался внутри.",
-      "type": "shop",
-      "region": "city_south",
-      "danger_level": 7,
-      "search_time": 30,
-      "max_searches": 4,
-      "loot_pool": ["bandage", "painkiller_pill", "antibiotic_pill", "first_aid_kit"],
-      "enemies": ["looter_armed"],
-      "connections": ["street_south", "hospital"],
-      "icon": "💊",
-      "repeatable": true,
-      "story_node": "darya_ch2_pharmacy",
-      "story_condition": {
-        "chapter": 2,
-        "character": "darya",
-        "once": true
-      },
-      "mapPosition": { "x": 0.50, "y": 0.75 },
-      "map_zone": "city_south"
-    },
-    {
-      "id": "gas_station",
-      "name": "Заправка",
-      "description": "Бензин, инструменты, брошенные машины. Здесь пахнет не только топливом.",
-      "type": "industrial",
-      "region": "city_south",
-      "danger_level": 4,
-      "search_time": 20,
-      "max_searches": 4,
-      "loot_pool": ["fuel_can", "tool_kit", "wire", "duct_tape"],
-      "enemies": [],
-      "connections": ["street_south", "highway_entrance"],
-      "icon": "⛽",
-      "repeatable": true,
-      "story_node": "andrey_ch2_gas_station",
-      "story_condition": {
-        "chapter": 2,
-        "character": "andrey",
-        "once": true
-      },
-      "mapPosition": { "x": 0.75, "y": 0.88 },
-      "map_zone": "city_south"
-    },
-    {
-      "id": "parking",
-      "name": "Парковка ТЦ",
-      "description": "Брошенные машины. Можно найти инструменты, топливо. Или чьи-то вещи.",
-      "type": "industrial",
-      "region": "city_south",
-      "danger_level": 5,
-      "search_time": 25,
-      "max_searches": 4,
-      "loot_pool": ["metal_scrap", "wire", "fuel_can", "battery"],
-      "enemies": ["looter_common"],
-      "connections": ["supermarket"],
-      "icon": "🅿️",
-      "repeatable": true,
-      "story_node": null,
-      "mapPosition": { "x": 0.80, "y": 0.75 },
-      "map_zone": "city_south"
-    },
-    {
-      "id": "tunnel_entrance",
-      "name": "Вход в тоннель",
-      "description": "Технический тоннель. Тёмный, сырой. Короткий путь — но туда лучше не ходить одному.",
-      "type": "tunnel",
-      "region": "underground",
-      "danger_level": 6,
-      "search_time": 60,
-      "max_searches": 4,
-      "loot_pool": ["flashlight", "crowbar", "rope", "wood"],
-      "enemies": [],
-      "connections": ["home_boris", "warehouse", "tunnel_dead_end"],
-      "icon": "🕳️",
-      "repeatable": true,
-      "risk": "dirty_water",
-      "story_node": null,
-      "mapPosition": { "x": 0.10, "y": 0.92 },
-      "map_zone": "underground"
-    },
-    {
-      "id": "warehouse",
-      "name": "Продуктовый склад",
-      "description": "Логистический центр. Запасы еды, но мародёры повсюду. Кто-то занял это место до тебя.",
-      "type": "shop",
-      "region": "city_south",
-      "danger_level": 8,
-      "search_time": 60,
-      "max_searches": 5,
-      "loot_pool": ["canned_stew", "canned_stew", "water_bottle", "crackers", "chocolate", "mre"],
-      "enemies": ["looter_common", "looter_armed"],
-      "connections": ["tunnel_entrance", "street_south", "rooftop_warehouse"],
-      "icon": "📦",
-      "repeatable": true,
-      "story_node": null,
-      "mapPosition": { "x": 0.15, "y": 0.75 },
-      "map_zone": "city_south"
-    },
-    {
       "id": "hospital",
       "name": "Городская больница",
+      "scouted_name": "Большое серое здание",
       "description": "Медикаменты. Но темнота и следы чужой паники. Иди осторожно.",
+      "scouted_description": "Огромное здание. Много окон. Некоторые разбиты. Кто-то ходит по коридорам.",
       "type": "medical",
       "region": "city_center",
       "danger_level": 9,
@@ -2498,7 +2359,12 @@ include(":app")
       "max_searches": 5,
       "loot_pool": ["antibiotic_pill", "bandage", "painkiller_pill", "first_aid_kit", "splint"],
       "enemies": ["looter_armed", "bandit", "looter_common"],
-      "connections": ["pharmacy", "street_center", "hospital_morgue"],
+      "connections": [
+        { "id": "pharmacy", "minutes": 30 },
+        { "id": "street_center", "minutes": 15 },
+        { "id": "hospital_morgue", "minutes": 10 },
+        { "id": "clinic_south", "minutes": 20 }
+      ],
       "icon": "🏥",
       "repeatable": true,
       "risk": "hospital_basement",
@@ -2508,13 +2374,15 @@ include(":app")
         "character": "ivan",
         "once": true
       },
-      "mapPosition": { "x": 0.55, "y": 0.55 },
+      "mapPosition": { "x": 0.15, "y": 0.15 },
       "map_zone": "city_center"
     },
     {
       "id": "street_center",
       "name": "Центральная улица",
+      "scouted_name": "Широкая улица",
       "description": "Эпицентр хаоса. Банды мародёров, разбитые витрины, отдалённые крики.",
+      "scouted_description": "Главная улица города. Витрины разбиты. Слышны крики.",
       "type": "street",
       "region": "city_center",
       "danger_level": 8,
@@ -2522,17 +2390,27 @@ include(":app")
       "max_searches": 3,
       "loot_pool": ["crackers", "cloth", "metal_scrap"],
       "enemies": ["looter_armed", "bandit"],
-      "connections": ["hospital", "police_station", "office_tower"],
+      "connections": [
+        { "id": "hospital", "minutes": 15 },
+        { "id": "police_station", "minutes": 20 },
+        { "id": "office_tower", "minutes": 15 },
+        { "id": "library", "minutes": 10 },
+        { "id": "theater", "minutes": 15 },
+        { "id": "cafe_center", "minutes": 10 },
+        { "id": "church", "minutes": 20 },
+        { "id": "bank", "minutes": 12 }
+      ],
       "icon": "🛣️",
       "repeatable": true,
-      "story_node": null,
-      "mapPosition": { "x": 0.70, "y": 0.58 },
+      "mapPosition": { "x": 0.34, "y": 0.30 },
       "map_zone": "city_center"
     },
     {
       "id": "police_station",
       "name": "Отделение полиции",
+      "scouted_name": "Здание с флагом",
       "description": "Оружие, броня. Но и люди с оружием. Кто-то занял здание ещё в первый день.",
+      "scouted_description": "Здание с флагом на фасаде. Похоже на полицию. Забаррикадировано.",
       "type": "military",
       "region": "city_center",
       "danger_level": 9,
@@ -2540,7 +2418,10 @@ include(":app")
       "max_searches": 4,
       "loot_pool": ["pistol", "9mm", "kevlar_vest", "army_helmet", "ammo_box"],
       "enemies": ["bandit", "looter_armed"],
-      "connections": ["street_center"],
+      "connections": [
+        { "id": "street_center", "minutes": 20 },
+        { "id": "city_hall", "minutes": 15 }
+      ],
       "icon": "🚔",
       "repeatable": true,
       "story_node": "alina_ch2_police",
@@ -2549,13 +2430,15 @@ include(":app")
         "character": "alina",
         "once": true
       },
-      "mapPosition": { "x": 0.85, "y": 0.55 },
+      "mapPosition": { "x": 0.85, "y": 0.15 },
       "map_zone": "city_center"
     },
     {
       "id": "office_tower",
       "name": "Бизнес-центр",
+      "scouted_name": "Высотное здание",
       "description": "Техника, серверные, старые карты. Всё, что нужно для информации.",
+      "scouted_description": "Высотка с тёмными окнами. Внутри — слабый свет. Кто-то работает.",
       "type": "industrial",
       "region": "city_center",
       "danger_level": 5,
@@ -2563,17 +2446,22 @@ include(":app")
       "max_searches": 4,
       "loot_pool": ["electronics", "battery", "map", "radio"],
       "enemies": ["looter_common"],
-      "connections": ["street_center", "rooftop"],
+      "connections": [
+        { "id": "street_center", "minutes": 15 },
+        { "id": "rooftop", "minutes": 20 },
+        { "id": "rooftop_center", "minutes": 15 }
+      ],
       "icon": "🏢",
       "repeatable": true,
-      "story_node": null,
-      "mapPosition": { "x": 0.80, "y": 0.68 },
+      "mapPosition": { "x": 0.75, "y": 0.50 },
       "map_zone": "city_center"
     },
     {
       "id": "rooftop",
       "name": "Крыши",
+      "scouted_name": "Крыша высотки",
       "description": "Обзор на весь район. Ветер, холод. И опасность упасть — если не смотреть под ноги.",
+      "scouted_description": "Верх высотки. Ветер. Обзор — на весь город.",
       "type": "rooftop",
       "region": "city_center",
       "danger_level": 4,
@@ -2581,130 +2469,21 @@ include(":app")
       "max_searches": 3,
       "loot_pool": ["rope", "binoculars", "flint"],
       "enemies": [],
-      "connections": ["office_tower"],
+      "connections": [
+        { "id": "office_tower", "minutes": 20 }
+      ],
       "icon": "🌃",
       "repeatable": true,
       "risk": "fall",
-      "story_node": null,
-      "mapPosition": { "x": 0.90, "y": 0.65 },
+      "mapPosition": { "x": 0.80, "y": 0.55 },
       "map_zone": "city_center"
-    },
-    {
-      "id": "forest_hut",
-      "name": "Лесная сторожка",
-      "description": "Заброшенный дом лесника. Тихое место. Печка, дрова, старая книга на столе.",
-      "type": "safe_house",
-      "region": "forest",
-      "danger_level": 2,
-      "search_time": 30,
-      "max_searches": 3,
-      "loot_pool": ["wood", "mushrooms", "berries", "raw_meat"],
-      "enemies": ["dog_stray"],
-      "connections": ["forest_path", "gas_station"],
-      "icon": "🏚️",
-      "repeatable": true,
-      "story_node": null,
-      "mapPosition": { "x": 0.20, "y": 0.50 },
-      "map_zone": "forest"
-    },
-    {
-      "id": "forest_path",
-      "name": "Лесная тропа",
-      "description": "Густой лес. Тихо. Птицы, ручей, следы зверей. Иногда — следы людей.",
-      "type": "forest",
-      "region": "forest",
-      "danger_level": 3,
-      "search_time": 45,
-      "max_searches": 6,
-      "loot_pool": ["wood", "mushrooms", "berries", "raw_meat", "feathers"],
-      "enemies": ["fox", "dog_stray", "wolf", "boar"],
-      "connections": ["forest_hut", "highway_entrance", "forest_cache"],
-      "icon": "🌲",
-      "repeatable": true,
-      "story_node": null,
-      "mapPosition": { "x": 0.30, "y": 0.55 },
-      "map_zone": "forest"
-    },
-    {
-      "id": "highway_entrance",
-      "name": "Выезд на трассу",
-      "description": "Начало пути на север. Пустая дорога, брошенные машины. Засады каждые несколько часов.",
-      "type": "highway",
-      "region": "highway",
-      "danger_level": 7,
-      "search_time": 15,
-      "max_searches": 2,
-      "loot_pool": ["fuel_can", "crackers"],
-      "enemies": ["bandit", "looter_armed", "dog_stray"],
-      "connections": ["gas_station", "forest_path", "checkpoint"],
-      "icon": "🛤️",
-      "repeatable": true,
-      "story_node": null,
-      "mapPosition": { "x": 0.50, "y": 0.30 },
-      "map_zone": "highway"
-    },
-    {
-      "id": "checkpoint",
-      "name": "Блокпост",
-      "description": "Военный блокпост. Возможно, здесь ещё есть выжившие военные. Или то, что от них осталось.",
-      "type": "military",
-      "region": "highway",
-      "danger_level": 6,
-      "search_time": 30,
-      "max_searches": 4,
-      "loot_pool": ["mre", "water_bottle", "ammo_box", "army_backpack"],
-      "enemies": ["bandit", "ex_soldier", "looter_armed"],
-      "connections": ["highway_entrance", "north_station"],
-      "icon": "🛑",
-      "repeatable": true,
-      "story_node": null,
-      "mapPosition": { "x": 0.50, "y": 0.20 },
-      "map_zone": "highway"
-    },
-    {
-      "id": "north_station",
-      "name": "Северная станция",
-      "description": "Финальная цель. Геотермальная станция. Тепло, свет, люди. Надежда.",
-      "type": "goal",
-      "region": "north",
-      "danger_level": 10,
-      "search_time": 0,
-      "max_searches": 0,
-      "loot_pool": [],
-      "enemies": [],
-      "connections": ["checkpoint"],
-      "icon": "🏭",
-      "repeatable": false,
-      "is_final": true,
-      "story_node": null,
-      "mapPosition": { "x": 0.50, "y": 0.08 },
-      "map_zone": "north"
-    },
-
-    {
-      "id": "supermarket_basement",
-      "name": "Подвал «Магнита»",
-      "description": "Тёмное помещение за обвалившейся стеной. Пахнет сыростью и чем-то съестным.",
-      "type": "hidden",
-      "region": "city_south",
-      "danger_level": 3,
-      "search_time": 40,
-      "max_searches": 3,
-      "loot_pool": ["water_bottle", "canned_stew", "canned_stew", "crackers", "first_aid_kit"],
-      "enemies": [],
-      "connections": ["supermarket"],
-      "icon": "🔓",
-      "repeatable": true,
-      "hidden": true,
-      "unlocked_by": "supermarket",
-      "story_node": null,
-      "mapPosition": { "x": 0.65, "y": 0.90 },
-      "map_zone": "city_south"
     },
     {
       "id": "hospital_morgue",
       "name": "Морг больницы",
+      "scouted_name": "Холодный подвал",
       "description": "Холодное помещение в подвале. Тишина. Металлические ящики, часть — пустые.",
+      "scouted_description": "Подвал. Холодно. Ящики вдоль стен.",
       "type": "hidden",
       "region": "city_center",
       "danger_level": 5,
@@ -2712,59 +2491,553 @@ include(":app")
       "max_searches": 3,
       "loot_pool": ["antibiotic_pill", "antibiotic_pill", "painkiller_pill", "first_aid_kit", "splint"],
       "enemies": [],
-      "connections": ["hospital"],
+      "connections": [
+        { "id": "hospital", "minutes": 10 }
+      ],
       "icon": "🔓",
       "repeatable": true,
       "hidden": true,
       "unlocked_by": "hospital",
-      "story_node": null,
+      "mapPosition": { "x": 0.20, "y": 0.20 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "library",
+      "name": "Библиотека им. Ленина",
+      "scouted_name": "Большое здание с колоннами",
+      "description": "Старая библиотека. Тысячи книг. Среди них — карты города, медицинские справочники, старые журналы. Здесь можно найти то, что спасёт жизнь.",
+      "scouted_description": "Классическое здание с колоннами. Тишина. Внутри — книги до потолка.",
+      "type": "library",
+      "region": "city_center",
+      "danger_level": 3,
+      "search_time": 45,
+      "max_searches": 5,
+      "loot_pool": ["map", "binoculars", "cloth", "electronics", "herb_medkit"],
+      "enemies": ["looter_common"],
+      "connections": [
+        { "id": "street_center", "minutes": 10 },
+        { "id": "museum", "minutes": 15 }
+      ],
+      "icon": "📚",
+      "repeatable": true,
+      "mapPosition": { "x": 0.15, "y": 0.40 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "theater",
+      "name": "Драматический театр",
+      "scouted_name": "Здание с афишами",
+      "description": "Старый театр. Сцена, зал, костюмерные. Пахнет пылью и бархатом. Кто-то жил здесь — или всё ещё живёт.",
+      "scouted_description": "Театр с высокими колоннами. Афиши выцвели. Внутри темно, но не пусто.",
+      "type": "theater",
+      "region": "city_center",
+      "danger_level": 4,
+      "search_time": 40,
+      "max_searches": 4,
+      "loot_pool": ["cloth", "leather_jacket", "crackers", "chocolate", "painkiller_pill"],
+      "enemies": ["looter_common", "looter_desperate"],
+      "connections": [
+        { "id": "street_center", "minutes": 15 },
+        { "id": "university", "minutes": 20 },
+        { "id": "gym", "minutes": 10 }
+      ],
+      "icon": "🎭",
+      "repeatable": true,
+      "mapPosition": { "x": 0.15, "y": 0.55 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "museum",
+      "name": "Краеведческий музей",
+      "scouted_name": "Здание с башней",
+      "description": "Старый музей. Экспонаты — оружие, монеты, документы. Кто-то разбил витрины, но часть экспонатов уцелела.",
+      "scouted_description": "Здание с башней. Разбитые витрины. Что-то блестит внутри.",
+      "type": "museum",
+      "region": "city_center",
+      "danger_level": 5,
+      "search_time": 40,
+      "max_searches": 4,
+      "loot_pool": ["hunting_knife", "pistol", "kevlar_vest", "electronics", "tool_kit"],
+      "enemies": ["looter_common", "looter_armed"],
+      "connections": [
+        { "id": "library", "minutes": 15 },
+        { "id": "university", "minutes": 20 },
+        { "id": "planetarium", "minutes": 10 }
+      ],
+      "icon": "🏛️",
+      "repeatable": true,
+      "mapPosition": { "x": 0.50, "y": 0.42 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "park_center",
+      "name": "Центральный парк",
+      "scouted_name": "Большой зелёный массив",
+      "description": "Центральный парк города. Озёра, аллеи, старые дубы. Тихое место, но ночью здесь небезопасно.",
+      "scouted_description": "Огромный парк. Пруды, дорожки, деревья. Тишина — слишком тихая.",
+      "type": "park",
+      "region": "city_center",
+      "danger_level": 4,
+      "search_time": 40,
+      "max_searches": 5,
+      "loot_pool": ["wood", "mushrooms", "berries", "cloth", "crackers"],
+      "enemies": ["dog_stray", "looter_common", "boar"],
+      "connections": [
+        { "id": "church", "minutes": 20 },
+        { "id": "theater", "minutes": 25 },
+        { "id": "rooftop_center", "minutes": 30 },
+        { "id": "zoo", "minutes": 25 }
+      ],
+      "icon": "🌳",
+      "repeatable": true,
+      "mapPosition": { "x": 0.15, "y": 0.50 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "cafe_center",
+      "name": "Кафе «У фонтана»",
+      "scouted_name": "Угловое кафе",
+      "description": "Маленькое кафе. Ещё пахнет кофе. В подсобке — запас зёрен и сахара. Для Андрея — золото.",
+      "scouted_description": "Кафе на углу. Пахнет кофе. Тёплый свет из окна.",
+      "type": "shop",
+      "region": "city_center",
+      "danger_level": 3,
+      "search_time": 30,
+      "max_searches": 4,
+      "loot_pool": ["crackers", "chocolate", "water_bottle", "cloth", "cigarette"],
+      "enemies": ["looter_common"],
+      "connections": [
+        { "id": "street_center", "minutes": 10 },
+        { "id": "metro_station_center", "minutes": 15 },
+        { "id": "gym", "minutes": 10 }
+      ],
+      "icon": "☕",
+      "repeatable": true,
+      "mapPosition": { "x": 0.40, "y": 0.40 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "metro_station_center",
+      "name": "Метро «Площадь Революции»",
+      "scouted_name": "Вход в метро",
+      "description": "Станция метро в центре. Спуск в темноту. Через тоннели можно попасть в другие районы — если не боишься темноты.",
+      "scouted_description": "Круглый вход с буквой «М». Внутри темно. Тянет холодом из глубины.",
+      "type": "metro",
+      "region": "city_center",
+      "danger_level": 6,
+      "search_time": 45,
+      "max_searches": 3,
+      "loot_pool": ["flashlight", "battery", "rope", "map"],
+      "enemies": ["looter_common", "dog_stray"],
+      "connections": [
+        { "id": "cafe_center", "minutes": 15 },
+        { "id": "tunnel_entrance", "minutes": 30 }
+      ],
+      "icon": "🚇",
+      "repeatable": true,
+      "risk": "dirty_water",
       "mapPosition": { "x": 0.50, "y": 0.65 },
       "map_zone": "city_center"
     },
     {
-      "id": "forest_cache",
-      "name": "Лесной схрон",
-      "description": "Старый тайник под корнями дерева. Кто-то спрятал здесь то, что считал важным.",
-      "type": "hidden",
-      "region": "forest",
-      "danger_level": 2,
-      "search_time": 30,
-      "max_searches": 2,
-      "loot_pool": ["hunting_knife", "raw_meat", "mre", "water_bottle", "bandage"],
-      "enemies": ["wolf"],
-      "connections": ["forest_path"],
-      "icon": "🔓",
+      "id": "university",
+      "name": "Университет",
+      "scouted_name": "Большой кампус",
+      "description": "Университетский кампус. Аудитории, лаборатории, библиотека. В лабораториях — химикаты и оборудование.",
+      "scouted_description": "Комплекс зданий. Флаг над главным. Кто-то оставил оборудование.",
+      "type": "university",
+      "region": "city_center",
+      "danger_level": 5,
+      "search_time": 50,
+      "max_searches": 5,
+      "loot_pool": ["electronics", "antibiotic_pill", "bandage", "tool_kit", "cloth", "map"],
+      "enemies": ["looter_common", "looter_armed"],
+      "connections": [
+        { "id": "theater", "minutes": 20 },
+        { "id": "museum", "minutes": 20 },
+        { "id": "planetarium", "minutes": 15 }
+      ],
+      "icon": "🎓",
       "repeatable": true,
-      "hidden": true,
-      "unlocked_by": "forest_path",
-      "story_node": null,
-      "mapPosition": { "x": 0.10, "y": 0.45 },
-      "map_zone": "forest"
+      "mapPosition": { "x": 0.85, "y": 0.50 },
+      "map_zone": "city_center"
     },
     {
-      "id": "tunnel_dead_end",
-      "name": "Тупик в тоннеле",
-      "description": "Скрытая ниша за обвалившейся кладкой. Кто-то оборудовал здесь место для хранения.",
-      "type": "hidden",
-      "region": "underground",
+      "id": "church",
+      "name": "Церковь Св. Николая",
+      "scouted_name": "Здание с куполом",
+      "description": "Старая церковь. Внутри — люди. Настоящие люди, не мародёры. Они не пускают чужих, но могут помочь — за услугу.",
+      "scouted_description": "Церковь с золотым куполом. Свет внутри. Кто-то поёт.",
+      "type": "church",
+      "region": "city_center",
+      "danger_level": 3,
+      "search_time": 30,
+      "max_searches": 3,
+      "loot_pool": ["canned_stew", "water_bottle", "bandage", "cloth", "crackers"],
+      "enemies": [],
+      "connections": [
+        { "id": "street_center", "minutes": 20 },
+        { "id": "park_center", "minutes": 20 }
+      ],
+      "icon": "⛪",
+      "repeatable": true,
+      "mapPosition": { "x": 0.15, "y": 0.75 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "rooftop_center",
+      "name": "Крыша офиса",
+      "scouted_name": "Крыша высокого дома",
+      "description": "Плоская крыша офисного здания. Обзор на весь район. Здесь стоит старый радиомаяк — можно попробовать подать сигнал.",
+      "scouted_description": "Крыша высокого здания. Ветер. Вдали видна антенна.",
+      "type": "rooftop",
+      "region": "city_center",
+      "danger_level": 5,
+      "search_time": 35,
+      "max_searches": 3,
+      "loot_pool": ["binoculars", "radio", "battery", "electronics", "rope"],
+      "enemies": ["looter_common"],
+      "connections": [
+        { "id": "office_tower", "minutes": 15 },
+        { "id": "park_center", "minutes": 30 }
+      ],
+      "icon": "📡",
+      "repeatable": true,
+      "risk": "fall",
+      "mapPosition": { "x": 0.85, "y": 0.65 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "city_hall",
+      "name": "Мэрия",
+      "scouted_name": "Большое здание с колоннами",
+      "description": "Городская мэрия. Кабинеты, архив, документы. Здесь можно найти карты города, планы эвакуации, списки выживших.",
+      "scouted_description": "Большое административное здание. Колонны. Флаги. Внутри тихо.",
+      "type": "government",
+      "region": "city_center",
+      "danger_level": 5,
+      "search_time": 50,
+      "max_searches": 5,
+      "loot_pool": ["map", "map", "electronics", "radio", "cloth", "canned_stew"],
+      "enemies": ["looter_common", "looter_armed"],
+      "connections": [
+        { "id": "police_station", "minutes": 15 },
+        { "id": "bank", "minutes": 10 }
+      ],
+      "icon": "🏛️",
+      "repeatable": true,
+      "mapPosition": { "x": 0.50, "y": 0.15 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "bank",
+      "name": "Банк «Столичный»",
+      "scouted_name": "Здание с решётками",
+      "description": "Банк с сейфами. Деньги давно никому не нужны, но внутри могут быть более ценные вещи — оружие, документы, запасы.",
+      "scouted_description": "Банк с высокими решётками. Двери заперты. Следы попыток взлома.",
+      "type": "bank",
+      "region": "city_center",
+      "danger_level": 7,
+      "search_time": 50,
+      "max_searches": 3,
+      "loot_pool": ["pistol", "9mm", "kevlar_vest", "radio", "map", "chocolate"],
+      "enemies": ["bandit", "looter_armed"],
+      "connections": [
+        { "id": "street_center", "minutes": 12 },
+        { "id": "city_hall", "minutes": 10 }
+      ],
+      "icon": "🏦",
+      "repeatable": true,
+      "mapPosition": { "x": 0.50, "y": 0.75 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "zoo",
+      "name": "Городской зоопарк",
+      "scouted_name": "Огороженная территория с вольерами",
+      "description": "Зоопарк. Клетки разбиты, вольеры открыты. Некоторые животные погибли. Некоторые — выжили и одичали.",
+      "scouted_description": "Большая огороженная территория. Слышны звуки животных. Опасно.",
+      "type": "zoo",
+      "region": "city_center",
+      "danger_level": 8,
+      "search_time": 60,
+      "max_searches": 5,
+      "loot_pool": ["raw_meat", "leather", "bandage", "first_aid_kit", "herb_medkit", "hunting_knife"],
+      "enemies": ["wolf", "boar", "bear"],
+      "connections": [
+        { "id": "park_center", "minutes": 25 }
+      ],
+      "icon": "🦁",
+      "repeatable": true,
+      "mapPosition": { "x": 0.05, "y": 0.40 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "planetarium",
+      "name": "Планетарий",
+      "scouted_name": "Здание с куполом",
+      "description": "Планетарий. Купол, проектор, звёздные карты. Тишина и покой. Здесь можно найти карты звёздного неба — полезно для ориентирования.",
+      "scouted_description": "Здание с куполом. Внутри темно. Что-то блестит.",
+      "type": "culture",
+      "region": "city_center",
       "danger_level": 4,
       "search_time": 40,
       "max_searches": 3,
-      "loot_pool": ["tool_kit", "battery", "battery", "duct_tape", "wire"],
+      "loot_pool": ["map", "binoculars", "cloth", "crackers", "chocolate"],
+      "enemies": ["looter_common"],
+      "connections": [
+        { "id": "museum", "minutes": 10 },
+        { "id": "university", "minutes": 15 }
+      ],
+      "icon": "🪐",
+      "repeatable": true,
+      "mapPosition": { "x": 0.85, "y": 0.35 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "gym",
+      "name": "Спортзал «Атлет»",
+      "scouted_name": "Здание с рекламой",
+      "description": "Спортзал. Тренажёры, гантели, боксёрская груша. В подсобке — спортивное питание и протеиновые батончики.",
+      "scouted_description": "Здание с вывеской и рисунком штанги. Внутри — тренажёры.",
+      "type": "gym",
+      "region": "city_center",
+      "danger_level": 4,
+      "search_time": 35,
+      "max_searches": 4,
+      "loot_pool": ["crackers", "chocolate", "water_bottle", "cloth", "brass_knuckles", "bandage"],
+      "enemies": ["looter_common"],
+      "connections": [
+        { "id": "theater", "minutes": 10 },
+        { "id": "cafe_center", "minutes": 10 }
+      ],
+      "icon": "🏋️",
+      "repeatable": true,
+      "mapPosition": { "x": 0.85, "y": 0.75 },
+      "map_zone": "city_center"
+    }
+  ]
+}
+```
+
+### 📄 `./assets/data/locations/city_south.json`
+```json
+{
+  "locations": [
+    {
+      "id": "home_boris",
+      "name": "Подвал Бориса",
+      "scouted_name": "Подвал в старом доме",
+      "description": "Твой дом. Бетонные стены, старый матрас, тёплый чайник. Здесь безопасно. Но пусто.",
+      "scouted_description": "Спуск в подвал. Ты знаешь это место.",
+      "type": "safe_house",
+      "region": "city_south",
+      "danger_level": 0,
+      "search_time": 30,
+      "max_searches": 3,
+      "loot_pool": ["canned_stew", "water_bottle", "cloth"],
       "enemies": [],
-      "connections": ["tunnel_entrance"],
+      "connections": [
+        { "id": "street_south", "minutes": 10 },
+        { "id": "tunnel_entrance", "minutes": 5 }
+      ],
+      "icon": "🏠",
+      "repeatable": true,
+      "is_start": true,
+      "mapPosition": { "x": 0.12, "y": 0.85 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "street_south",
+      "name": "Южная улица",
+      "scouted_name": "Улица на юге",
+      "description": "Пустая улица. Следы мародёров, брошенные машины, ветер гонит мусор по асфальту.",
+      "scouted_description": "Ты видишь улицу. Машины, следы. Где-то в глубине — движение.",
+      "type": "street",
+      "region": "city_south",
+      "danger_level": 3,
+      "search_time": 15,
+      "max_searches": 3,
+      "loot_pool": ["bandage", "crackers", "cloth", "nails"],
+      "enemies": ["looter_common"],
+      "connections": [
+        { "id": "home_boris", "minutes": 10 },
+        { "id": "supermarket", "minutes": 15 },
+        { "id": "pharmacy", "minutes": 10 },
+        { "id": "gas_station", "minutes": 20 },
+        { "id": "school_south", "minutes": 15 },
+        { "id": "park_south", "minutes": 15 },
+        { "id": "clinic_south", "minutes": 20 },
+        { "id": "kindergarten", "minutes": 10 },
+        { "id": "pizzeria", "minutes": 8 }
+      ],
+      "icon": "🛣️",
+      "repeatable": true,
+      "mapPosition": { "x": 0.32, "y": 0.50 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "supermarket",
+      "name": "Супермаркет «Магнит»",
+      "scouted_name": "Большой магазин",
+      "description": "Разграблен, но в подсобке может остаться еда. Или кто-то, кто её охраняет.",
+      "scouted_description": "Огромное здание с разбитыми витринами. Кто-то внутри.",
+      "type": "shop",
+      "region": "city_south",
+      "danger_level": 6,
+      "search_time": 45,
+      "max_searches": 5,
+      "loot_pool": ["canned_stew", "water_bottle", "crackers", "chocolate", "dog_food"],
+      "enemies": ["looter_common", "looter_armed"],
+      "connections": [
+        { "id": "street_south", "minutes": 15 },
+        { "id": "parking", "minutes": 10 },
+        { "id": "supermarket_basement", "minutes": 5 }
+      ],
+      "icon": "🏪",
+      "repeatable": true,
+      "story_node": "boris_ch2_supermarket",
+      "story_condition": {
+        "chapter": 2,
+        "character": "boris",
+        "once": true
+      },
+      "mapPosition": { "x": 0.50, "y": 0.50 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "pharmacy",
+      "name": "Аптека «Ригла»",
+      "scouted_name": "Аптека",
+      "description": "Лекарства — валюта будущего. Очередь давно разбежалась, но кто-то ещё остался внутри.",
+      "scouted_description": "Аптека на углу. Вывеска тускло светится. Внутри — тени.",
+      "type": "shop",
+      "region": "city_south",
+      "danger_level": 7,
+      "search_time": 30,
+      "max_searches": 4,
+      "loot_pool": ["bandage", "painkiller_pill", "antibiotic_pill", "first_aid_kit"],
+      "enemies": ["looter_armed"],
+      "connections": [
+        { "id": "street_south", "minutes": 10 },
+        { "id": "hospital", "minutes": 30 },
+        { "id": "school_south", "minutes": 5 }
+      ],
+      "icon": "💊",
+      "repeatable": true,
+      "story_node": "darya_ch2_pharmacy",
+      "story_condition": {
+        "chapter": 2,
+        "character": "darya",
+        "once": true
+      },
+      "mapPosition": { "x": 0.45, "y": 0.30 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "gas_station",
+      "name": "Заправка",
+      "scouted_name": "Заправка",
+      "description": "Бензин, инструменты, брошенные машины. Здесь пахнет не только топливом.",
+      "scouted_description": "Заправка на выезде из города. Машины, канистры. Пахнет бензином.",
+      "type": "industrial",
+      "region": "city_south",
+      "danger_level": 4,
+      "search_time": 20,
+      "max_searches": 4,
+      "loot_pool": ["fuel_can", "tool_kit", "wire", "duct_tape"],
+      "enemies": [],
+      "connections": [
+        { "id": "street_south", "minutes": 20 },
+        { "id": "highway_entrance", "minutes": 30 },
+        { "id": "old_garage", "minutes": 15 }
+      ],
+      "icon": "⛽",
+      "repeatable": true,
+      "story_node": "andrey_ch2_gas_station",
+      "story_condition": {
+        "chapter": 2,
+        "character": "andrey",
+        "once": true
+      },
+      "mapPosition": { "x": 0.80, "y": 0.75 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "parking",
+      "name": "Парковка ТЦ",
+      "scouted_name": "Парковка у торгового центра",
+      "description": "Брошенные машины. Можно найти инструменты, топливо. Или чьи-то вещи.",
+      "scouted_description": "Много машин. Некоторые открыты. Следы шин уходят в темноту.",
+      "type": "industrial",
+      "region": "city_south",
+      "danger_level": 5,
+      "search_time": 25,
+      "max_searches": 4,
+      "loot_pool": ["metal_scrap", "wire", "fuel_can", "battery"],
+      "enemies": ["looter_common"],
+      "connections": [
+        { "id": "supermarket", "minutes": 10 },
+        { "id": "old_garage", "minutes": 20 }
+      ],
+      "icon": "🅿️",
+      "repeatable": true,
+      "mapPosition": { "x": 0.85, "y": 0.45 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "warehouse",
+      "name": "Продуктовый склад",
+      "scouted_name": "Большое здание с воротами",
+      "description": "Логистический центр. Запасы еды, но мародёры повсюду. Кто-то занял это место до тебя.",
+      "scouted_description": "Складские ворота. Высокие стены. Кто-то ходит внутри.",
+      "type": "shop",
+      "region": "city_south",
+      "danger_level": 8,
+      "search_time": 60,
+      "max_searches": 5,
+      "loot_pool": ["canned_stew", "canned_stew", "water_bottle", "crackers", "chocolate", "mre"],
+      "enemies": ["looter_common", "looter_armed"],
+      "connections": [
+        { "id": "tunnel_entrance", "minutes": 15 },
+        { "id": "street_south", "minutes": 25 },
+        { "id": "rooftop_warehouse", "minutes": 10 },
+        { "id": "construction_site", "minutes": 10 }
+      ],
+      "icon": "📦",
+      "repeatable": true,
+      "mapPosition": { "x": 0.15, "y": 0.75 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "supermarket_basement",
+      "name": "Подвал «Магнита»",
+      "scouted_name": "Тёмный проход под магазином",
+      "description": "Тёмное помещение за обвалившейся стеной. Пахнет сыростью и чем-то съестным.",
+      "scouted_description": "Тёмный проход. Сыро. Кто-то здесь был.",
+      "type": "hidden",
+      "region": "city_south",
+      "danger_level": 3,
+      "search_time": 40,
+      "max_searches": 3,
+      "loot_pool": ["water_bottle", "canned_stew", "canned_stew", "crackers", "first_aid_kit"],
+      "enemies": [],
+      "connections": [
+        { "id": "supermarket", "minutes": 5 }
+      ],
       "icon": "🔓",
       "repeatable": true,
       "hidden": true,
-      "unlocked_by": "tunnel_entrance",
-      "story_node": null,
-      "mapPosition": { "x": 0.05, "y": 0.98 },
-      "map_zone": "underground"
+      "unlocked_by": "supermarket",
+      "mapPosition": { "x": 0.55, "y": 0.55 },
+      "map_zone": "city_south"
     },
     {
       "id": "rooftop_warehouse",
       "name": "Чердак склада",
+      "scouted_name": "Крыша склада",
       "description": "Технический этаж на крыше склада. Пыльный, но сухой. Здесь кто-то хранил запасы.",
+      "scouted_description": "Чердак на складе. Пыль, ящики. Тишина.",
       "type": "hidden",
       "region": "city_south",
       "danger_level": 3,
@@ -2772,14 +3045,1440 @@ include(":app")
       "max_searches": 3,
       "loot_pool": ["mre", "water_bottle", "bandage", "army_boots", "kevlar_vest"],
       "enemies": [],
-      "connections": ["warehouse"],
+      "connections": [
+        { "id": "warehouse", "minutes": 10 }
+      ],
       "icon": "🔓",
       "repeatable": true,
       "hidden": true,
       "unlocked_by": "warehouse",
-      "story_node": null,
-      "mapPosition": { "x": 0.10, "y": 0.68 },
+      "mapPosition": { "x": 0.10, "y": 0.70 },
       "map_zone": "city_south"
+    },
+    {
+      "id": "school_south",
+      "name": "Школа №15",
+      "scouted_name": "Здание за забором",
+      "description": "Трёхэтажное здание. В коридорах — тишина. В классах — парты, разбитые окна. В спортзале что-то шевелится.",
+      "scouted_description": "Длинное здание с высокими окнами. Похоже на школу. Кто-то двигается за стеклом.",
+      "type": "school",
+      "region": "city_south",
+      "danger_level": 4,
+      "search_time": 45,
+      "max_searches": 5,
+      "loot_pool": ["canned_stew", "crackers", "water_bottle", "bandage", "tool_kit", "chocolate"],
+      "enemies": ["looter_common", "dog_stray"],
+      "connections": [
+        { "id": "street_south", "minutes": 15 },
+        { "id": "pharmacy", "minutes": 5 },
+        { "id": "fire_station", "minutes": 10 }
+      ],
+      "icon": "🏫",
+      "repeatable": true,
+      "mapPosition": { "x": 0.50, "y": 0.15 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "park_south",
+      "name": "Южный парк",
+      "scouted_name": "Зелёный островок",
+      "description": "Городской парк. Пруды, лавочки, старые деревья. Тихо — но ночью здесь кто-то ходит.",
+      "scouted_description": "Деревья, лавочки. Сквозь листву просвечивает вода. Тишина.",
+      "type": "park",
+      "region": "city_south",
+      "danger_level": 3,
+      "search_time": 30,
+      "max_searches": 4,
+      "loot_pool": ["wood", "mushrooms", "berries", "cloth"],
+      "enemies": ["dog_stray", "looter_common"],
+      "connections": [
+        { "id": "street_south", "minutes": 15 },
+        { "id": "forest_hut", "minutes": 30 },
+        { "id": "clinic_south", "minutes": 20 },
+        { "id": "fire_station", "minutes": 15 },
+        { "id": "kindergarten", "minutes": 12 },
+        { "id": "small_church", "minutes": 10 }
+      ],
+      "icon": "🌳",
+      "repeatable": true,
+      "mapPosition": { "x": 0.20, "y": 0.48 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "construction_site",
+      "name": "Стройка",
+      "scouted_name": "Недостроенное здание",
+      "description": "Каркас здания, краны, piles of металла. Лестниц нет — только каркас. Опасно, но много инструментов.",
+      "scouted_description": "Каркас недостроенного здания. Краны, лебёдки. Слышен скрип металла.",
+      "type": "industrial",
+      "region": "city_south",
+      "danger_level": 5,
+      "search_time": 40,
+      "max_searches": 4,
+      "loot_pool": ["metal_scrap", "nails", "wire", "tool_kit", "wood", "rope"],
+      "enemies": ["looter_common", "dog_stray"],
+      "connections": [
+        { "id": "warehouse", "minutes": 10 },
+        { "id": "dump_south", "minutes": 20 }
+      ],
+      "icon": "🏗️",
+      "repeatable": true,
+      "risk": "fall",
+      "mapPosition": { "x": 0.15, "y": 0.60 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "clinic_south",
+      "name": "Поликлиника №7",
+      "scouted_name": "Небольшая больница",
+      "description": "Районная поликлиника. Внутри — запах медикаментов и старые карточки. Кто-то оставил в кабинетах всё, что не успел забрать.",
+      "scouted_description": "Двухэтажное здание с вывеской. Фонарь горит. Кто-то внутри.",
+      "type": "medical",
+      "region": "city_south",
+      "danger_level": 6,
+      "search_time": 40,
+      "max_searches": 4,
+      "loot_pool": ["bandage", "painkiller_pill", "antibiotic_pill", "first_aid_kit", "herb_medkit"],
+      "enemies": ["looter_armed", "looter_common"],
+      "connections": [
+        { "id": "street_south", "minutes": 20 },
+        { "id": "park_south", "minutes": 20 }
+      ],
+      "icon": "🏥",
+      "repeatable": true,
+      "mapPosition": { "x": 0.85, "y": 0.15 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "old_garage",
+      "name": "Старый гараж",
+      "scouted_name": "Гараж с машинами",
+      "description": "Ремонтный гараж. Машины, запчасти, инструменты. Пахнет маслом и бензином.",
+      "scouted_description": "Большой гараж. Машины внутри. Кто-то работал здесь недавно.",
+      "type": "industrial",
+      "region": "city_south",
+      "danger_level": 4,
+      "search_time": 30,
+      "max_searches": 4,
+      "loot_pool": ["tool_kit", "metal_scrap", "wire", "duct_tape", "fuel_can"],
+      "enemies": ["looter_common"],
+      "connections": [
+        { "id": "gas_station", "minutes": 15 },
+        { "id": "parking", "minutes": 20 },
+        { "id": "dump_south", "minutes": 25 }
+      ],
+      "icon": "🔧",
+      "repeatable": true,
+      "mapPosition": { "x": 0.85, "y": 0.85 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "dump_south",
+      "name": "Городская свалка",
+      "scouted_name": "Кучи мусора",
+      "description": "Огромная свалка на краю города. Металлолом, старые вещи, крысы. Кто-то здесь живёт — и это не крысы.",
+      "scouted_description": "Кучи мусора. Дым. Запах. Кто-то двигается между холмами.",
+      "type": "dump",
+      "region": "city_south",
+      "danger_level": 3,
+      "search_time": 60,
+      "max_searches": 6,
+      "loot_pool": ["metal_scrap", "nails", "wire", "cloth", "battery", "plastic"],
+      "enemies": ["dog_stray", "looter_desperate"],
+      "connections": [
+        { "id": "construction_site", "minutes": 20 },
+        { "id": "old_garage", "minutes": 25 },
+        { "id": "tunnel_entrance", "minutes": 30 }
+      ],
+      "icon": "🗑️",
+      "repeatable": true,
+      "mapPosition": { "x": 0.05, "y": 0.95 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "fire_station",
+      "name": "Пожарная часть №3",
+      "scouted_name": "Здание с воротами и красной вывеской",
+      "description": "Пожарная часть. В гараже — машина, инструменты, снаряжение. Внутри — караульное помещение, кухня, склад.",
+      "scouted_description": "Красное здание с широкими воротами. Внутри темно.",
+      "type": "fire_station",
+      "region": "city_south",
+      "danger_level": 4,
+      "search_time": 40,
+      "max_searches": 4,
+      "loot_pool": ["fire_axe", "tool_kit", "rope", "cloth", "leather_jacket", "bandage"],
+      "enemies": ["looter_common"],
+      "connections": [
+        { "id": "school_south", "minutes": 10 },
+        { "id": "park_south", "minutes": 15 },
+        { "id": "kindergarten", "minutes": 15 }
+      ],
+      "icon": "🚒",
+      "repeatable": true,
+      "mapPosition": { "x": 0.20, "y": 0.20 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "kindergarten",
+      "name": "Детский сад «Солнышко»",
+      "scouted_name": "Здание с разноцветным забором",
+      "description": "Детский сад. Маленькие стульчики, рисунки на стенах, игрушки. Кто-то оставил здесь всё — и очень торопился.",
+      "scouted_description": "Маленькое здание с рисунками на заборе. Тишина.",
+      "type": "school",
+      "region": "city_south",
+      "danger_level": 3,
+      "search_time": 35,
+      "max_searches": 4,
+      "loot_pool": ["canned_stew", "crackers", "water_bottle", "cloth", "chocolate", "bandage"],
+      "enemies": [],
+      "connections": [
+        { "id": "street_south", "minutes": 10 },
+        { "id": "park_south", "minutes": 12 },
+        { "id": "fire_station", "minutes": 15 }
+      ],
+      "icon": "🧒",
+      "repeatable": true,
+      "mapPosition": { "x": 0.15, "y": 0.40 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "pizzeria",
+      "name": "Пиццерия «Уголок»",
+      "scouted_name": "Маленькое кафе",
+      "description": "Маленькая пиццерия на главной улице. Печь ещё цела, тесто и мука — в подсобке. Здесь можно поесть и согреться.",
+      "scouted_description": "Кафе с вывеской. Пахнет едой. Тёплый свет из окна.",
+      "type": "shop",
+      "region": "city_south",
+      "danger_level": 3,
+      "search_time": 25,
+      "max_searches": 4,
+      "loot_pool": ["crackers", "chocolate", "water_bottle", "cloth", "canned_stew"],
+      "enemies": ["looter_common"],
+      "connections": [
+        { "id": "street_south", "minutes": 8 },
+        { "id": "pharmacy", "minutes": 10 }
+      ],
+      "icon": "🍕",
+      "repeatable": true,
+      "mapPosition": { "x": 0.55, "y": 0.45 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "small_church",
+      "name": "Часовня Св. Анны",
+      "scouted_name": "Маленькое здание с крестом",
+      "description": "Маленькая часовня в парке. Деревянные скамьи, свечи, тишина. Психика восстанавливается — но ненадолго.",
+      "scouted_description": "Часовня в глубине парка. Свечи внутри. Тишина.",
+      "type": "chapel",
+      "region": "city_south",
+      "danger_level": 2,
+      "search_time": 25,
+      "max_searches": 3,
+      "loot_pool": ["cloth", "crackers", "water_bottle", "herb_medkit"],
+      "enemies": [],
+      "connections": [
+        { "id": "park_south", "minutes": 10 },
+        { "id": "clinic_south", "minutes": 15 }
+      ],
+      "icon": "⛪",
+      "repeatable": true,
+      "mapPosition": { "x": 0.25, "y": 0.55 },
+      "map_zone": "city_south"
+    }
+  ]
+}
+```
+
+### 📄 `./assets/data/locations/forest.json`
+```json
+{
+  "locations": [
+    {
+      "id": "forest_hut",
+      "name": "Лесная сторожка",
+      "scouted_name": "Домик в лесу",
+      "description": "Заброшенный дом лесника. Тихое место. Печка, дрова, старая книга на столе.",
+      "scouted_description": "Маленький домик среди деревьев. Дымка из трубы?",
+      "type": "safe_house",
+      "region": "forest",
+      "danger_level": 2,
+      "search_time": 30,
+      "max_searches": 3,
+      "loot_pool": [
+        "wood",
+        "mushrooms",
+        "berries",
+        "raw_meat"
+      ],
+      "enemies": [
+        "dog_stray"
+      ],
+      "connections": [
+        {
+          "id": "forest_path",
+          "minutes": 15
+        },
+        {
+          "id": "gas_station",
+          "minutes": 45
+        },
+        {
+          "id": "forest_clearing",
+          "minutes": 20
+        },
+        {
+          "id": "abandoned_dacha",
+          "minutes": 25
+        }
+      ],
+      "icon": "🏚️",
+      "repeatable": true,
+      "mapPosition": {
+        "x": 0.2,
+        "y": 0.5
+      },
+      "map_zone": "forest",
+      "is_available_from_chapter": 2
+    },
+    {
+      "id": "forest_path",
+      "name": "Лесная тропа",
+      "scouted_name": "Тропа в лесу",
+      "description": "Густой лес. Тихо. Птицы, ручей, следы зверей. Иногда — следы людей.",
+      "scouted_description": "Узкая тропа уходит в чащу. Следы зверей, может и людей.",
+      "type": "forest",
+      "region": "forest",
+      "danger_level": 3,
+      "search_time": 45,
+      "max_searches": 6,
+      "loot_pool": [
+        "wood",
+        "mushrooms",
+        "berries",
+        "raw_meat",
+        "feathers"
+      ],
+      "enemies": [
+        "fox",
+        "dog_stray",
+        "wolf",
+        "boar"
+      ],
+      "connections": [
+        {
+          "id": "forest_hut",
+          "minutes": 15
+        },
+        {
+          "id": "highway_entrance",
+          "minutes": 60
+        },
+        {
+          "id": "forest_cache",
+          "minutes": 30
+        },
+        {
+          "id": "forest_deep",
+          "minutes": 30
+        },
+        {
+          "id": "forest_river",
+          "minutes": 45
+        },
+        {
+          "id": "hunter_camp",
+          "minutes": 25
+        }
+      ],
+      "icon": "🌲",
+      "repeatable": true,
+      "mapPosition": {
+        "x": 0.3,
+        "y": 0.55
+      },
+      "map_zone": "forest",
+      "is_available_from_chapter": 2
+    },
+    {
+      "id": "forest_cache",
+      "name": "Лесной схрон",
+      "scouted_name": "Что-то под корнями",
+      "description": "Старый тайник под корнями дерева. Кто-то спрятал здесь то, что считал важным.",
+      "scouted_description": "Под большим деревом — что-то закопано. Следы свежие.",
+      "type": "hidden",
+      "region": "forest",
+      "danger_level": 2,
+      "search_time": 30,
+      "max_searches": 2,
+      "loot_pool": [
+        "hunting_knife",
+        "raw_meat",
+        "mre",
+        "water_bottle",
+        "bandage"
+      ],
+      "enemies": [
+        "wolf"
+      ],
+      "connections": [
+        {
+          "id": "forest_path",
+          "minutes": 30
+        }
+      ],
+      "icon": "🔓",
+      "repeatable": true,
+      "hidden": true,
+      "unlocked_by": "forest_path",
+      "mapPosition": {
+        "x": 0.1,
+        "y": 0.45
+      },
+      "map_zone": "forest",
+      "is_available_from_chapter": 2
+    },
+    {
+      "id": "forest_deep",
+      "name": "Глубина леса",
+      "scouted_name": "Тёмная чаща",
+      "description": "Настоящая глубина. Свет едва пробивается сквозь кроны. Здесь живут волки и медведи. И что-то ещё, о чём лучше не думать.",
+      "scouted_description": "Чаща. Свет едва проходит. Следы больших зверей. Кто-то следит.",
+      "type": "forest",
+      "region": "forest",
+      "danger_level": 5,
+      "search_time": 50,
+      "max_searches": 6,
+      "loot_pool": [
+        "wood",
+        "mushrooms",
+        "raw_meat",
+        "leather",
+        "feathers",
+        "flint"
+      ],
+      "enemies": [
+        "wolf",
+        "boar",
+        "bear"
+      ],
+      "connections": [
+        {
+          "id": "forest_path",
+          "minutes": 30
+        },
+        {
+          "id": "bear_den",
+          "minutes": 45
+        }
+      ],
+      "icon": "🌲🌲",
+      "repeatable": true,
+      "mapPosition": {
+        "x": 0.2,
+        "y": 0.38
+      },
+      "map_zone": "forest",
+      "is_available_from_chapter": 2
+    },
+    {
+      "id": "forest_river",
+      "name": "Лесная река",
+      "scouted_name": "Река в лесу",
+      "description": "Быстрая река. Чистая вода, рыба, брод. Через реку можно пройти к трассе — сэкономить время.",
+      "scouted_description": "Шум воды. Река блестит между деревьями. Есть брод.",
+      "type": "river",
+      "region": "forest",
+      "danger_level": 3,
+      "search_time": 40,
+      "max_searches": 5,
+      "loot_pool": [
+        "water_bottle",
+        "water_bottle",
+        "raw_meat",
+        "rope"
+      ],
+      "enemies": [
+        "dog_stray",
+        "fox"
+      ],
+      "connections": [
+        {
+          "id": "forest_path",
+          "minutes": 45
+        },
+        {
+          "id": "highway_entrance",
+          "minutes": 45
+        }
+      ],
+      "icon": "🏞️",
+      "repeatable": true,
+      "mapPosition": {
+        "x": 0.42,
+        "y": 0.42
+      },
+      "map_zone": "forest",
+      "is_available_from_chapter": 2
+    },
+    {
+      "id": "hunter_camp",
+      "name": "Лагерь охотников",
+      "scouted_name": "Палатки в лесу",
+      "description": "Старый лагерь охотников. Палатки, костровище, ящики с трофеями. Кто-то жил здесь — и оставил много полезного.",
+      "scouted_description": "Палатки среди деревьев. Костровище. Следы недавние.",
+      "type": "camp",
+      "region": "forest",
+      "danger_level": 4,
+      "search_time": 35,
+      "max_searches": 5,
+      "loot_pool": [
+        "hunting_knife",
+        "pipe_gun",
+        "raw_meat",
+        "leather",
+        "canned_stew",
+        "bandage"
+      ],
+      "enemies": [
+        "looter_common",
+        "dog_stray"
+      ],
+      "connections": [
+        {
+          "id": "forest_path",
+          "minutes": 25
+        },
+        {
+          "id": "forest_deep",
+          "minutes": 30
+        }
+      ],
+      "icon": "🏕️",
+      "repeatable": true,
+      "mapPosition": {
+        "x": 0.35,
+        "y": 0.3
+      },
+      "map_zone": "forest",
+      "is_available_from_chapter": 2
+    },
+    {
+      "id": "abandoned_dacha",
+      "name": "Заброшенная дача",
+      "scouted_name": "Дом за забором",
+      "description": "Двухэтажная дача. Забор покосился, но дом крепкий. Внутри — мебель под чехлами, консервы, дровяной склад.",
+      "scouted_description": "Дом за забором. Окна целы. Возможно — пустой.",
+      "type": "house",
+      "region": "forest",
+      "danger_level": 4,
+      "search_time": 40,
+      "max_searches": 5,
+      "loot_pool": [
+        "canned_stew",
+        "water_bottle",
+        "crackers",
+        "cloth",
+        "tool_kit",
+        "fuel_can"
+      ],
+      "enemies": [
+        "looter_common"
+      ],
+      "connections": [
+        {
+          "id": "forest_hut",
+          "minutes": 25
+        },
+        {
+          "id": "forest_clearing",
+          "minutes": 20
+        },
+        {
+          "id": "old_chapel",
+          "minutes": 30
+        }
+      ],
+      "icon": "🏡",
+      "repeatable": true,
+      "mapPosition": {
+        "x": 0.1,
+        "y": 0.58
+      },
+      "map_zone": "forest",
+      "is_available_from_chapter": 2
+    },
+    {
+      "id": "old_chapel",
+      "name": "Старая часовня",
+      "scouted_name": "Маленькое здание с крестом",
+      "description": "Заброшенная часовня в лесу. Свечи, старые иконы, деревянные скамьи. Здесь тихо. По-настоящему тихо. Психика восстанавливается.",
+      "scouted_description": "Маленькая часовня. Крест на крыше. Тишина.",
+      "type": "chapel",
+      "region": "forest",
+      "danger_level": 2,
+      "search_time": 30,
+      "max_searches": 3,
+      "loot_pool": [
+        "cloth",
+        "crackers",
+        "water_bottle",
+        "herb_medkit"
+      ],
+      "enemies": [],
+      "connections": [
+        {
+          "id": "abandoned_dacha",
+          "minutes": 30
+        },
+        {
+          "id": "forest_clearing",
+          "minutes": 25
+        }
+      ],
+      "icon": "⛪",
+      "repeatable": true,
+      "mapPosition": {
+        "x": 0.05,
+        "y": 0.35
+      },
+      "map_zone": "forest",
+      "is_available_from_chapter": 2
+    },
+    {
+      "id": "forest_clearing",
+      "name": "Лесная поляна",
+      "scouted_name": "Открытая поляна",
+      "description": "Большая поляна в лесу. Трава, цветы, ягоды. Открытое место — видно далеко, но и тебя видно.",
+      "scouted_description": "Поляна среди деревьев. Трава высокая. Видно небо.",
+      "type": "clearing",
+      "region": "forest",
+      "danger_level": 3,
+      "search_time": 25,
+      "max_searches": 4,
+      "loot_pool": [
+        "berries",
+        "mushrooms",
+        "cloth",
+        "wood",
+        "flint"
+      ],
+      "enemies": [
+        "boar",
+        "dog_stray",
+        "fox"
+      ],
+      "connections": [
+        {
+          "id": "forest_hut",
+          "minutes": 20
+        },
+        {
+          "id": "abandoned_dacha",
+          "minutes": 20
+        },
+        {
+          "id": "old_chapel",
+          "minutes": 25
+        }
+      ],
+      "icon": "🌾",
+      "repeatable": true,
+      "mapPosition": {
+        "x": 0.18,
+        "y": 0.62
+      },
+      "map_zone": "forest",
+      "is_available_from_chapter": 2
+    },
+    {
+      "id": "bear_den",
+      "name": "Медвежья берлога",
+      "scouted_name": "Тёмная пещера",
+      "description": "Пещера в глубине леса. Хозяин здесь — медведь. Внутри — кости, шкуры и что-то ценное, что он притащил.",
+      "scouted_description": "Тёмное отверстие в холме. Запах. Кости у входа.",
+      "type": "den",
+      "region": "forest",
+      "danger_level": 9,
+      "search_time": 40,
+      "max_searches": 3,
+      "loot_pool": [
+        "raw_meat",
+        "leather",
+        "hunting_knife",
+        "mre",
+        "kevlar_vest"
+      ],
+      "enemies": [
+        "bear"
+      ],
+      "connections": [
+        {
+          "id": "forest_deep",
+          "minutes": 45
+        }
+      ],
+      "icon": "🐻",
+      "repeatable": true,
+      "mapPosition": {
+        "x": 0.28,
+        "y": 0.2
+      },
+      "map_zone": "forest",
+      "is_available_from_chapter": 2
+    }
+  ]
+}
+```
+
+### 📄 `./assets/data/locations/highway.json`
+```json
+{
+  "locations": [
+    {
+      "id": "highway_entrance",
+      "name": "Выезд на трассу",
+      "scouted_name": "Дорога из города",
+      "description": "Начало пути на север. Пустая дорога, брошенные машины. Засады каждые несколько часов.",
+      "scouted_description": "Пустая дорога. Машины. Следы колёс уходят вдаль.",
+      "type": "highway",
+      "region": "highway",
+      "danger_level": 7,
+      "search_time": 15,
+      "max_searches": 2,
+      "loot_pool": [
+        "fuel_can",
+        "crackers"
+      ],
+      "enemies": [
+        "bandit",
+        "looter_armed",
+        "dog_stray"
+      ],
+      "connections": [
+        {
+          "id": "gas_station",
+          "minutes": 30
+        },
+        {
+          "id": "forest_path",
+          "minutes": 60
+        },
+        {
+          "id": "checkpoint",
+          "minutes": 90
+        },
+        {
+          "id": "gas_station_north",
+          "minutes": 45
+        },
+        {
+          "id": "road_cafe",
+          "minutes": 30
+        },
+        {
+          "id": "bus_station",
+          "minutes": 60
+        },
+        {
+          "id": "forest_river",
+          "minutes": 45
+        }
+      ],
+      "icon": "🛤️",
+      "repeatable": true,
+      "mapPosition": {
+        "x": 0.5,
+        "y": 0.3
+      },
+      "map_zone": "highway",
+      "is_available_from_chapter": 2
+    },
+    {
+      "id": "checkpoint",
+      "name": "Блокпост",
+      "scouted_name": "Блокпост на дороге",
+      "description": "Военный блокпост. Возможно, здесь ещё есть выжившие военные. Или то, что от них осталось.",
+      "scouted_description": "Бетонные блоки, мешки. Кто-то наблюдает из укрытия.",
+      "type": "military",
+      "region": "highway",
+      "danger_level": 6,
+      "search_time": 30,
+      "max_searches": 4,
+      "loot_pool": [
+        "mre",
+        "water_bottle",
+        "ammo_box",
+        "army_backpack"
+      ],
+      "enemies": [
+        "bandit",
+        "ex_soldier",
+        "looter_armed"
+      ],
+      "connections": [
+        {
+          "id": "highway_entrance",
+          "minutes": 90
+        },
+        {
+          "id": "north_station",
+          "minutes": 120
+        },
+        {
+          "id": "abandoned_convoy",
+          "minutes": 45
+        },
+        {
+          "id": "roadblock",
+          "minutes": 30
+        }
+      ],
+      "icon": "🛑",
+      "repeatable": true,
+      "mapPosition": {
+        "x": 0.5,
+        "y": 0.2
+      },
+      "map_zone": "highway",
+      "is_available_from_chapter": 2
+    },
+    {
+      "id": "gas_station_north",
+      "name": "Заправка «Лукойл»",
+      "scouted_name": "Одинокая заправка",
+      "description": "Вторая заправка на трассе. Магазинчик разграблен, но канистры с топливом остались. Здесь можно подготовиться к рывку на север.",
+      "scouted_description": "Заправка сбоку от дороги. Вывеска мигает. Канистры у колонок.",
+      "type": "industrial",
+      "region": "highway",
+      "danger_level": 5,
+      "search_time": 25,
+      "max_searches": 4,
+      "loot_pool": [
+        "fuel_can",
+        "fuel_can",
+        "crackers",
+        "water_bottle",
+        "tool_kit",
+        "wire"
+      ],
+      "enemies": [
+        "looter_common",
+        "dog_stray"
+      ],
+      "connections": [
+        {
+          "id": "highway_entrance",
+          "minutes": 45
+        },
+        {
+          "id": "bridge_north",
+          "minutes": 60
+        }
+      ],
+      "icon": "⛽",
+      "repeatable": true,
+      "mapPosition": {
+        "x": 0.3,
+        "y": 0.25
+      },
+      "map_zone": "highway",
+      "is_available_from_chapter": 2
+    },
+    {
+      "id": "road_cafe",
+      "name": "Придорожное кафе",
+      "scouted_name": "Одинокое кафе",
+      "description": "Придорожное кафе для дальнобойщиков. Внутри — плита, кофе, запас еды. Кто-то жил здесь — или всё ещё живёт.",
+      "scouted_description": "Одноэтажное здание с вывеской. Окна светятся. Пахнет едой.",
+      "type": "shop",
+      "region": "highway",
+      "danger_level": 4,
+      "search_time": 30,
+      "max_searches": 4,
+      "loot_pool": [
+        "canned_stew",
+        "crackers",
+        "chocolate",
+        "water_bottle",
+        "cigarette",
+        "coffee"
+      ],
+      "enemies": [
+        "looter_common"
+      ],
+      "connections": [
+        {
+          "id": "highway_entrance",
+          "minutes": 30
+        },
+        {
+          "id": "bus_station",
+          "minutes": 40
+        }
+      ],
+      "icon": "🍽️",
+      "repeatable": true,
+      "mapPosition": {
+        "x": 0.65,
+        "y": 0.28
+      },
+      "map_zone": "highway",
+      "is_available_from_chapter": 2
+    },
+    {
+      "id": "bus_station",
+      "name": "Автовокзал",
+      "scouted_name": "Транспортный узел",
+      "description": "Автовокзал на выезде из города. Автобусы, расписания, кассы. В диспетчерской — старые карты и схемы. Здесь можно найти путь на север.",
+      "scouted_description": "Большое здание с навесом. Автобусы. Внутри — темно.",
+      "type": "transport",
+      "region": "highway",
+      "danger_level": 5,
+      "search_time": 35,
+      "max_searches": 4,
+      "loot_pool": [
+        "map",
+        "map",
+        "radio",
+        "battery",
+        "crackers",
+        "water_bottle"
+      ],
+      "enemies": [
+        "looter_common",
+        "looter_armed",
+        "dog_stray"
+      ],
+      "connections": [
+        {
+          "id": "highway_entrance",
+          "minutes": 60
+        },
+        {
+          "id": "road_cafe",
+          "minutes": 40
+        },
+        {
+          "id": "abandoned_convoy",
+          "minutes": 45
+        }
+      ],
+      "icon": "🚌",
+      "repeatable": true,
+      "mapPosition": {
+        "x": 0.75,
+        "y": 0.35
+      },
+      "map_zone": "highway",
+      "is_available_from_chapter": 2
+    },
+    {
+      "id": "abandoned_convoy",
+      "name": "Брошенный конвой",
+      "scouted_name": "Военные машины на дороге",
+      "description": "Военный конвой, брошенный посреди трассы. Броневики, грузовики. Кто-то уже был здесь, но многое осталось — военные припасы не для каждого.",
+      "scouted_description": "Колонна военных машин. Двери открыты. Тела? Не видно. Кровь есть.",
+      "type": "military",
+      "region": "highway",
+      "danger_level": 7,
+      "search_time": 40,
+      "max_searches": 5,
+      "loot_pool": [
+        "mre",
+        "ammo_box",
+        "pistol",
+        "kevlar_vest",
+        "army_helmet",
+        "9mm",
+        "first_aid_kit"
+      ],
+      "enemies": [
+        "bandit",
+        "ex_soldier"
+      ],
+      "connections": [
+        {
+          "id": "bus_station",
+          "minutes": 45
+        },
+        {
+          "id": "checkpoint",
+          "minutes": 45
+        },
+        {
+          "id": "bridge_north",
+          "minutes": 30
+        }
+      ],
+      "icon": "🚛",
+      "repeatable": true,
+      "mapPosition": {
+        "x": 0.8,
+        "y": 0.2
+      },
+      "map_zone": "highway",
+      "is_available_from_chapter": 2
+    },
+    {
+      "id": "bridge_north",
+      "name": "Северный мост",
+      "scouted_name": "Мост через реку",
+      "description": "Длинный мост через реку. Ключевая точка на пути к Северу. Здесь всегда кто-то ждёт — либо с открытыми руками, либо с оружием.",
+      "scouted_description": "Мост вдалеке. Машины на нём. Свет в конце. Кто-то ходит.",
+      "type": "bridge",
+      "region": "highway",
+      "danger_level": 6,
+      "search_time": 20,
+      "max_searches": 3,
+      "loot_pool": [
+        "fuel_can",
+        "crackers",
+        "water_bottle",
+        "rope"
+      ],
+      "enemies": [
+        "bandit",
+        "looter_armed",
+        "ex_soldier"
+      ],
+      "connections": [
+        {
+          "id": "gas_station_north",
+          "minutes": 60
+        },
+        {
+          "id": "abandoned_convoy",
+          "minutes": 30
+        },
+        {
+          "id": "roadblock",
+          "minutes": 45
+        },
+        {
+          "id": "north_station",
+          "minutes": 60
+        }
+      ],
+      "icon": "🌉",
+      "repeatable": true,
+      "mapPosition": {
+        "x": 0.35,
+        "y": 0.12
+      },
+      "map_zone": "highway",
+      "is_available_from_chapter": 2
+    },
+    {
+      "id": "roadblock",
+      "name": "Второй блокпост",
+      "scouted_name": "Заграждение из бетона",
+      "description": "Последний фильтр перед Севером. Бетонные плиты, колючая проволока, следы боя. Здесь пропускают не всех — и не всегда живыми.",
+      "scouted_description": "Бетонное заграждение. Проволока. Дым. Очень опасно.",
+      "type": "military",
+      "region": "highway",
+      "danger_level": 8,
+      "search_time": 30,
+      "max_searches": 4,
+      "loot_pool": [
+        "ammo_box",
+        "mre",
+        "water_bottle",
+        "kevlar_vest",
+        "army_helmet",
+        "radio"
+      ],
+      "enemies": [
+        "ex_soldier",
+        "bandit",
+        "bandit_leader"
+      ],
+      "connections": [
+        {
+          "id": "checkpoint",
+          "minutes": 30
+        },
+        {
+          "id": "bridge_north",
+          "minutes": 45
+        }
+      ],
+      "icon": "🚧",
+      "repeatable": true,
+      "mapPosition": {
+        "x": 0.5,
+        "y": 0.12
+      },
+      "map_zone": "highway",
+      "is_available_from_chapter": 2
+    }
+  ]
+}
+```
+
+### 📄 `./assets/data/locations/north.json`
+```json
+{
+  "locations": [
+    {
+      "id": "station_outer",
+      "name": "Внешний периметр",
+      "scouted_name": "Ограда и прожекторы",
+      "description": "Внешний периметр станции. Колючая проволока, бетонные блоки, прожекторы. Здесь проверяют всех, кто приходит с юга. Хорошо одетые проходят, слабые — нет.",
+      "scouted_description": "Стена из бетона. Прожекторы. Кто-то смотрит через прицел.",
+      "type": "military",
+      "region": "north",
+      "danger_level": 7,
+      "search_time": 20,
+      "max_searches": 2,
+      "loot_pool": [
+        "mre",
+        "water_bottle",
+        "bandage",
+        "radio"
+      ],
+      "enemies": [
+        "ex_soldier",
+        "bandit"
+      ],
+      "connections": [
+        {
+          "id": "bridge_north",
+          "minutes": 60
+        },
+        {
+          "id": "station_gate",
+          "minutes": 30
+        }
+      ],
+      "icon": "🚧",
+      "repeatable": true,
+      "mapPosition": {
+        "x": 0.5,
+        "y": 0.14
+      },
+      "map_zone": "north",
+      "is_available_from_chapter": 4
+    },
+    {
+      "id": "station_gate",
+      "name": "Ворота станции",
+      "scouted_name": "Огромные ворота",
+      "description": "Главные ворота геотермальной станции. Металлические створки, будка охраны, очередь выживших. Здесь решается, кто войдёт — и на каких условиях.",
+      "scouted_description": "Высокие ворота из металла. Дым над ними. Очередь людей. Разговор.",
+      "type": "gate",
+      "region": "north",
+      "danger_level": 6,
+      "search_time": 15,
+      "max_searches": 2,
+      "loot_pool": [
+        "water_bottle",
+        "crackers",
+        "bandage"
+      ],
+      "enemies": [],
+      "connections": [
+        {
+          "id": "station_outer",
+          "minutes": 30
+        },
+        {
+          "id": "watchtower",
+          "minutes": 20
+        },
+        {
+          "id": "north_station",
+          "minutes": 15
+        }
+      ],
+      "icon": "🚪",
+      "repeatable": true,
+      "mapPosition": {
+        "x": 0.5,
+        "y": 0.11
+      },
+      "map_zone": "north",
+      "is_available_from_chapter": 4
+    },
+    {
+      "id": "watchtower",
+      "name": "Вышка наблюдения",
+      "scouted_name": "Высокая башня",
+      "description": "Вышка наблюдения на краю периметра. Отсюда видно всю станцию — купола, трубы, движение внизу. Последний обзор перед финалом.",
+      "scouted_description": "Металлическая башня. Прожектор наверху. Кто-то стоит на площадке.",
+      "type": "tower",
+      "region": "north",
+      "danger_level": 5,
+      "search_time": 25,
+      "max_searches": 3,
+      "loot_pool": [
+        "binoculars",
+        "radio",
+        "mre",
+        "bandage"
+      ],
+      "enemies": [
+        "ex_soldier"
+      ],
+      "connections": [
+        {
+          "id": "station_gate",
+          "minutes": 20
+        },
+        {
+          "id": "north_station",
+          "minutes": 15
+        }
+      ],
+      "icon": "🗼",
+      "repeatable": true,
+      "risk": "fall",
+      "mapPosition": {
+        "x": 0.35,
+        "y": 0.06
+      },
+      "map_zone": "north",
+      "is_available_from_chapter": 4
+    },
+    {
+      "id": "north_station",
+      "name": "Северная станция",
+      "scouted_name": "Что-то большое на севере",
+      "description": "Финальная цель. Геотермальная станция. Тепло, свет, люди. Надежда.",
+      "scouted_description": "Издалека видно высокие трубы. Свет. Дым. Значит — живые.",
+      "type": "goal",
+      "region": "north",
+      "danger_level": 10,
+      "search_time": 0,
+      "max_searches": 0,
+      "loot_pool": [],
+      "enemies": [],
+      "connections": [
+        {
+          "id": "station_gate",
+          "minutes": 15
+        },
+        {
+          "id": "watchtower",
+          "minutes": 15
+        },
+        {
+          "id": "bridge_north",
+          "minutes": 60
+        }
+      ],
+      "icon": "🏭",
+      "repeatable": false,
+      "is_final": true,
+      "mapPosition": {
+        "x": 0.5,
+        "y": 0.03
+      },
+      "map_zone": "north",
+      "is_available_from_chapter": 4
+    }
+  ]
+}
+```
+
+### 📄 `./assets/data/locations/underground.json`
+```json
+{
+  "locations": [
+    {
+      "id": "tunnel_entrance",
+      "name": "Вход в тоннель",
+      "scouted_name": "Тёмный проход под землёй",
+      "description": "Технический тоннель. Тёмный, сырой. Короткий путь — но туда лучше не ходить одному.",
+      "scouted_description": "Круглый люк в земле. Тянет сыростью. Внизу — темнота.",
+      "type": "tunnel",
+      "region": "underground",
+      "danger_level": 6,
+      "search_time": 60,
+      "max_searches": 4,
+      "loot_pool": ["flashlight", "crowbar", "rope", "wood"],
+      "enemies": [],
+      "connections": [
+        { "id": "home_boris", "minutes": 5 },
+        { "id": "warehouse", "minutes": 15 },
+        { "id": "tunnel_dead_end", "minutes": 40 },
+        { "id": "metro_platform", "minutes": 30 },
+        { "id": "sewer", "minutes": 20 }
+      ],
+      "icon": "🕳️",
+      "repeatable": true,
+      "risk": "dirty_water",
+      "is_available_from_chapter": 2,
+      "mapPosition": { "x": 0.50, "y": 0.15 },
+      "map_zone": "underground"
+    },
+    {
+      "id": "tunnel_dead_end",
+      "name": "Тупик в тоннеле",
+      "scouted_name": "Ниша в стене",
+      "description": "Скрытая ниша за обвалившейся кладкой. Кто-то оборудовал здесь место для хранения.",
+      "scouted_description": "За обвалом — узкий проход. Свежие следы.",
+      "type": "hidden",
+      "region": "underground",
+      "danger_level": 4,
+      "search_time": 40,
+      "max_searches": 3,
+      "loot_pool": ["tool_kit", "battery", "battery", "duct_tape", "wire"],
+      "enemies": [],
+      "connections": [
+        { "id": "tunnel_entrance", "minutes": 40 }
+      ],
+      "icon": "🔓",
+      "repeatable": true,
+      "hidden": true,
+      "unlocked_by": "tunnel_entrance",
+      "is_available_from_chapter": 2,
+      "mapPosition": { "x": 0.20, "y": 0.15 },
+      "map_zone": "underground"
+    },
+    {
+      "id": "metro_platform",
+      "name": "Платформа метро",
+      "scouted_name": "Большая станция",
+      "description": "Заброшенная платформа метро. Поезда стоят, двери открыты. В вагонах — вещи, которые не успели забрать.",
+      "scouted_description": "Платформа. Поезда. Свет тусклый. В вагонах — тишина.",
+      "type": "metro",
+      "region": "underground",
+      "danger_level": 5,
+      "search_time": 50,
+      "max_searches": 5,
+      "loot_pool": ["flashlight", "battery", "bandage", "canned_stew", "water_bottle", "cloth"],
+      "enemies": ["looter_common", "dog_stray"],
+      "connections": [
+        { "id": "tunnel_entrance", "minutes": 30 },
+        { "id": "metro_tunnel", "minutes": 20 },
+        { "id": "forgotten_shelter", "minutes": 25 },
+        { "id": "metro_station_center", "minutes": 30 }
+      ],
+      "icon": "🚉",
+      "repeatable": true,
+      "is_available_from_chapter": 2,
+      "mapPosition": { "x": 0.20, "y": 0.45 },
+      "map_zone": "underground"
+    },
+    {
+      "id": "metro_tunnel",
+      "name": "Тоннель метро",
+      "scouted_name": "Длинный тёмный тоннель",
+      "description": "Длинный тоннель метро. Рельсы уходят в темноту. Здесь можно попасть в любой район города — если не заблудишься.",
+      "scouted_description": "Тоннель. Рельсы. Темнота. Где-то капает вода.",
+      "type": "tunnel",
+      "region": "underground",
+      "danger_level": 6,
+      "search_time": 60,
+      "max_searches": 6,
+      "loot_pool": ["flashlight", "wire", "battery", "rope", "metal_scrap"],
+      "enemies": ["dog_stray", "looter_desperate"],
+      "connections": [
+        { "id": "metro_platform", "minutes": 20 },
+        { "id": "bunker", "minutes": 40 },
+        { "id": "metro_station_center", "minutes": 60 },
+        { "id": "tunnel_entrance", "minutes": 45 }
+      ],
+      "icon": "🚇",
+      "repeatable": true,
+      "risk": "dirty_water",
+      "is_available_from_chapter": 2,
+      "mapPosition": { "x": 0.50, "y": 0.45 },
+      "map_zone": "underground"
+    },
+    {
+      "id": "bunker",
+      "name": "Старый бункер",
+      "scouted_name": "Железная дверь в скале",
+      "description": "Старый военный бункер. Тяжёлая дверь, кодовый замок, гермозатворы. Внутри — запасы военных, рассчитанные на годы.",
+      "scouted_description": "Железная дверь в стене тоннеля. Кодовый замок. Следы свежие.",
+      "type": "bunker",
+      "region": "underground",
+      "danger_level": 7,
+      "search_time": 60,
+      "max_searches": 5,
+      "loot_pool": ["mre", "pistol", "ammo_box", "kevlar_vest", "army_helmet", "radio", "first_aid_kit"],
+      "enemies": ["ex_soldier", "looter_armed"],
+      "connections": [
+        { "id": "metro_tunnel", "minutes": 40 },
+        { "id": "sewer", "minutes": 50 }
+      ],
+      "icon": "🛡️",
+      "repeatable": true,
+      "is_available_from_chapter": 2,
+      "mapPosition": { "x": 0.78, "y": 0.42 },
+      "map_zone": "underground"
+    },
+    {
+      "id": "sewer",
+      "name": "Канализация",
+      "scouted_name": "Трубы и вода",
+      "description": "Городская канализация. Вода, грязь, крысы. Технический путь между районами — короче, но грязнее.",
+      "scouted_description": "Большая труба. Вода. Запах. Кто-то ходит в темноте.",
+      "type": "sewer",
+      "region": "underground",
+      "danger_level": 4,
+      "search_time": 45,
+      "max_searches": 4,
+      "loot_pool": ["cloth", "rubber", "metal_scrap", "glass", "plastic"],
+      "enemies": ["dog_stray", "fox"],
+      "connections": [
+        { "id": "tunnel_entrance", "minutes": 20 },
+        { "id": "bunker", "minutes": 50 },
+        { "id": "metro_station_center", "minutes": 40 }
+      ],
+      "icon": "🚰",
+      "repeatable": true,
+      "risk": "dirty_water",
+      "is_available_from_chapter": 2,
+      "mapPosition": { "x": 0.50, "y": 0.78 },
+      "map_zone": "underground"
+    },
+    {
+      "id": "forgotten_shelter",
+      "name": "Забытое убежище",
+      "scouted_name": "Тёплый уголок",
+      "description": "Забытое убежище в стороне от тоннелей. Печка, дрова, консервы. Кто-то оставил это место — на всякий случай. Теперь твой черёд.",
+      "scouted_description": "Узкий проход в стене. Свет свечи. Пахнет дровами.",
+      "type": "shelter",
+      "region": "underground",
+      "danger_level": 3,
+      "search_time": 30,
+      "max_searches": 3,
+      "loot_pool": ["canned_stew", "water_bottle", "wood", "cloth", "sleeping_bag"],
+      "enemies": [],
+      "connections": [
+        { "id": "metro_platform", "minutes": 25 },
+        { "id": "underground_market", "minutes": 30 }
+      ],
+      "icon": "🔥",
+      "repeatable": true,
+      "is_available_from_chapter": 2,
+      "mapPosition": { "x": 0.12, "y": 0.60 },
+      "map_zone": "underground"
+    },
+    {
+      "id": "underground_market",
+      "name": "Чёрный рынок",
+      "scouted_name": "Свет и голоса",
+      "description": "Чёрный рынок в подземелье. Здесь торгуют выжившие — оружием, едой, информацией. Не все дружелюбны, но все готовы говорить.",
+      "scouted_description": "Свет в тоннеле. Много голосов. Рынок? Скорее — встреча.",
+      "type": "market",
+      "region": "underground",
+      "danger_level": 5,
+      "search_time": 20,
+      "max_searches": 2,
+      "loot_pool": ["canned_stew", "water_bottle", "bandage", "ammo_box"],
+      "enemies": [],
+      "connections": [
+        { "id": "forgotten_shelter", "minutes": 30 },
+        { "id": "metro_tunnel", "minutes": 40 }
+      ],
+      "icon": "🏪",
+      "repeatable": true,
+      "is_available_from_chapter": 2,
+      "mapPosition": { "x": 0.15, "y": 0.80 },
+      "map_zone": "underground"
     }
   ]
 }
@@ -22243,10 +23942,679 @@ class Connection {
 }
 ```
 
+### 📄 `./lib/models/world/layouts/city_center_layout.dart`
+```dart
+import 'package:flutter/material.dart';
+import 'package:dark_hours/models/world/region_layout.dart';
+
+/// Layout для региона **city_center**.
+///
+/// Центр города — плотная застройка, офисы, площадь, мало зелени.
+class CityCenterLayout {
+  CityCenterLayout._();
+
+  static const String regionId = 'city_center';
+  static const Size logicalSize = Size(800, 1200);
+
+  static final RegionLayout layout = RegionLayout(
+    regionId: regionId,
+    logicalSize: logicalSize,
+    backgroundColor: const Color(0xFF0C0C10),
+    quarterColor: const Color(0xFF1A1A1A),
+    quarters: _quarters,
+    parks: _parks,
+    river: null, // в центре нет реки
+    roads: _roads,
+  );
+
+  // ═══════════════════════════════════════════════════════════
+  // КВАРТАЛЫ
+  // ═══════════════════════════════════════════════════════════
+
+  static final List<Quarter> _quarters = [
+    // ─── Больница (запад, север) ───
+    Quarter(
+      id: 'hospital_block',
+      polygon: const [
+        Offset(0.02, 0.04),
+        Offset(0.28, 0.04),
+        Offset(0.30, 0.18),
+        Offset(0.26, 0.28),
+        Offset(0.02, 0.28),
+      ],
+      type: QuarterType.commercial,
+      buildingsCount: 5,
+      seed: 1100,
+    ),
+
+    // ─── Административный квартал (центр, север) ───
+    Quarter(
+      id: 'gov_block',
+      polygon: const [
+        Offset(0.36, 0.04),
+        Offset(0.62, 0.04),
+        Offset(0.64, 0.18),
+        Offset(0.60, 0.28),
+        Offset(0.34, 0.28),
+      ],
+      type: QuarterType.commercial,
+      buildingsCount: 6,
+      seed: 1200,
+    ),
+
+    // ─── Полиция + мэрия (восток, север) ───
+    Quarter(
+      id: 'police_block',
+      polygon: const [
+        Offset(0.68, 0.04),
+        Offset(0.98, 0.04),
+        Offset(0.98, 0.28),
+        Offset(0.70, 0.28),
+      ],
+      type: QuarterType.industrial,
+      buildingsCount: 5,
+      seed: 1300,
+    ),
+
+    // ─── Библиотека + театр (запад, центр) ───
+    Quarter(
+      id: 'culture_block',
+      polygon: const [
+        Offset(0.02, 0.32),
+        Offset(0.30, 0.32),
+        Offset(0.32, 0.46),
+        Offset(0.28, 0.60),
+        Offset(0.02, 0.60),
+      ],
+      type: QuarterType.commercial,
+      buildingsCount: 6,
+      seed: 1400,
+    ),
+
+    // ─── Центральный квартал — офисы, кафе (центр) ───
+    Quarter(
+      id: 'center_block',
+      polygon: const [
+        Offset(0.36, 0.32),
+        Offset(0.64, 0.32),
+        Offset(0.66, 0.46),
+        Offset(0.62, 0.60),
+        Offset(0.34, 0.60),
+        Offset(0.34, 0.44),
+      ],
+      type: QuarterType.commercial,
+      buildingsCount: 7,
+      seed: 1500,
+    ),
+
+    // ─── Университет + планетарий (восток, центр) ───
+    Quarter(
+      id: 'university_block',
+      polygon: const [
+        Offset(0.70, 0.32),
+        Offset(0.98, 0.32),
+        Offset(0.98, 0.60),
+        Offset(0.68, 0.60),
+        Offset(0.68, 0.46),
+      ],
+      type: QuarterType.commercial,
+      buildingsCount: 6,
+      seed: 1600,
+    ),
+
+    // ─── Церковь + офисы (запад, юг) ───
+    Quarter(
+      id: 'south_west_block',
+      polygon: const [
+        Offset(0.02, 0.64),
+        Offset(0.30, 0.64),
+        Offset(0.32, 0.80),
+        Offset(0.26, 0.92),
+        Offset(0.02, 0.92),
+      ],
+      type: QuarterType.mixed,
+      buildingsCount: 6,
+      seed: 1700,
+    ),
+
+    // ─── Банк + метро (центр, юг) ───
+    Quarter(
+      id: 'bank_block',
+      polygon: const [
+        Offset(0.36, 0.64),
+        Offset(0.64, 0.64),
+        Offset(0.66, 0.78),
+        Offset(0.60, 0.92),
+        Offset(0.34, 0.92),
+      ],
+      type: QuarterType.commercial,
+      buildingsCount: 6,
+      seed: 1800,
+    ),
+
+    // ─── Крыши + спортзал (восток, юг) ───
+    Quarter(
+      id: 'rooftops_block',
+      polygon: const [
+        Offset(0.70, 0.64),
+        Offset(0.98, 0.64),
+        Offset(0.98, 0.92),
+        Offset(0.68, 0.92),
+      ],
+      type: QuarterType.industrial,
+      buildingsCount: 5,
+      seed: 1900,
+    ),
+  ];
+
+  // ═══════════════════════════════════════════════════════════
+  // ПАРКИ
+  // ═══════════════════════════════════════════════════════════
+
+  static final List<Park> _parks = [
+    // Центральный парк — на юго-западе.
+    Park(
+      id: 'park_center',
+      polygon: const [
+        Offset(0.05, 0.42),
+        Offset(0.25, 0.42),
+        Offset(0.27, 0.52),
+        Offset(0.22, 0.60),
+        Offset(0.05, 0.58),
+      ],
+      treesCount: 18,
+      seed: 2000,
+    ),
+  ];
+
+  // ═══════════════════════════════════════════════════════════
+  // ДОРОГИ
+  // ═══════════════════════════════════════════════════════════
+
+  static const List<Road> _roads = [
+    // Главный горизонтальный бульвар (север).
+    Road(
+      path: [
+        Offset(0.00, 0.30),
+        Offset(0.34, 0.30),
+        Offset(0.66, 0.30),
+        Offset(1.00, 0.30),
+      ],
+      isMain: true,
+    ),
+
+    // Второй горизонтальный (центр).
+    Road(
+      path: [
+        Offset(0.00, 0.62),
+        Offset(0.34, 0.62),
+        Offset(0.66, 0.62),
+        Offset(1.00, 0.62),
+      ],
+      isMain: true,
+    ),
+
+    // Главный вертикальный проспект.
+    Road(
+      path: [
+        Offset(0.34, 0.00),
+        Offset(0.34, 0.30),
+        Offset(0.34, 0.62),
+        Offset(0.34, 1.00),
+      ],
+      isMain: true,
+    ),
+
+    // Второй вертикальный (восточнее).
+    Road(
+      path: [
+        Offset(0.66, 0.00),
+        Offset(0.66, 0.30),
+        Offset(0.66, 0.62),
+        Offset(0.66, 1.00),
+      ],
+      isMain: false,
+    ),
+
+    // Диагональная дорога (юго-восток).
+    Road(
+      path: [
+        Offset(0.66, 0.62),
+        Offset(0.80, 0.70),
+        Offset(0.98, 0.82),
+      ],
+      isMain: false,
+    ),
+  ];
+}
+```
+
+### 📄 `./lib/models/world/layouts/city_south_layout.dart`
+```dart
+import 'package:flutter/material.dart';
+import 'package:dark_hours/models/world/region_layout.dart';
+
+/// Layout для региона **city_south**.
+///
+/// Южная часть города — стартовый регион.
+/// Промзона, торговые улицы, жилые кварталы, парк у реки.
+class CitySouthLayout {
+  CitySouthLayout._();
+
+  static const String regionId = 'city_south';
+  static const Size logicalSize = Size(800, 1200);
+
+  /// Регион целиком.
+  static final RegionLayout layout = RegionLayout(
+    regionId: regionId,
+    logicalSize: logicalSize,
+    backgroundColor: const Color(0xFF0A0A0A),
+    quarterColor: const Color(0xFF1A1A1A),
+    quarters: _quarters,
+    parks: _parks,
+    river: _river,
+    roads: _roads,
+  );
+
+  // ═══════════════════════════════════════════════════════════
+  // КВАРТАЛЫ
+  // ═══════════════════════════════════════════════════════════
+
+  static final List<Quarter> _quarters = [
+    // ─── Жилой квартал (запад, север) ───
+    Quarter(
+      id: 'residential_west',
+      polygon: const [
+        Offset(0.02, 0.05),
+        Offset(0.30, 0.05),
+        Offset(0.32, 0.18),
+        Offset(0.28, 0.32),
+        Offset(0.02, 0.30),
+      ],
+      type: QuarterType.residential,
+      buildingsCount: 8,
+      seed: 100,
+    ),
+
+    // ─── Жилой квартал (центр-север) ───
+    Quarter(
+      id: 'residential_center',
+      polygon: const [
+        Offset(0.36, 0.04),
+        Offset(0.62, 0.04),
+        Offset(0.64, 0.20),
+        Offset(0.60, 0.32),
+        Offset(0.34, 0.30),
+        Offset(0.34, 0.10),
+      ],
+      type: QuarterType.residential,
+      buildingsCount: 7,
+      seed: 200,
+    ),
+
+    // ─── Коммерческий квартал (восток, север) ───
+    Quarter(
+      id: 'commercial_east',
+      polygon: const [
+        Offset(0.68, 0.04),
+        Offset(0.97, 0.06),
+        Offset(0.96, 0.28),
+        Offset(0.70, 0.30),
+        Offset(0.68, 0.18),
+      ],
+      type: QuarterType.commercial,
+      buildingsCount: 6,
+      seed: 300,
+    ),
+
+    // ─── Промзона (восток, центр) ───
+    Quarter(
+      id: 'industrial_east',
+      polygon: const [
+        Offset(0.66, 0.36),
+        Offset(0.98, 0.36),
+        Offset(0.98, 0.60),
+        Offset(0.72, 0.62),
+        Offset(0.68, 0.48),
+      ],
+      type: QuarterType.industrial,
+      buildingsCount: 5,
+      seed: 400,
+    ),
+
+    // ─── Коммерческий квартал (центр) ───
+    Quarter(
+      id: 'commercial_center',
+      polygon: const [
+        Offset(0.36, 0.36),
+        Offset(0.60, 0.36),
+        Offset(0.62, 0.48),
+        Offset(0.58, 0.62),
+        Offset(0.34, 0.60),
+        Offset(0.34, 0.44),
+      ],
+      type: QuarterType.commercial,
+      buildingsCount: 6,
+      seed: 500,
+    ),
+
+    // ─── Смешанный квартал (запад, центр) ───
+    Quarter(
+      id: 'mixed_west',
+      polygon: const [
+        Offset(0.02, 0.36),
+        Offset(0.28, 0.36),
+        Offset(0.30, 0.52),
+        Offset(0.26, 0.62),
+        Offset(0.02, 0.60),
+      ],
+      type: QuarterType.mixed,
+      buildingsCount: 6,
+      seed: 600,
+    ),
+
+    // ─── Смешанный квартал (центр-юг) ───
+    Quarter(
+      id: 'mixed_south',
+      polygon: const [
+        Offset(0.34, 0.66),
+        Offset(0.60, 0.66),
+        Offset(0.62, 0.80),
+        Offset(0.58, 0.86),
+        Offset(0.34, 0.86),
+        Offset(0.32, 0.78),
+      ],
+      type: QuarterType.mixed,
+      buildingsCount: 6,
+      seed: 700,
+    ),
+
+    // ─── Промзона (запад, юг) ───
+    Quarter(
+      id: 'industrial_west',
+      polygon: const [
+        Offset(0.02, 0.66),
+        Offset(0.28, 0.66),
+        Offset(0.30, 0.80),
+        Offset(0.24, 0.92),
+        Offset(0.02, 0.92),
+      ],
+      type: QuarterType.industrial,
+      buildingsCount: 5,
+      seed: 800,
+    ),
+
+    // ─── Коммерческий квартал (восток, юг) ───
+    Quarter(
+      id: 'commercial_south',
+      polygon: const [
+        Offset(0.66, 0.66),
+        Offset(0.98, 0.68),
+        Offset(0.96, 0.88),
+        Offset(0.66, 0.88),
+        Offset(0.64, 0.76),
+      ],
+      type: QuarterType.commercial,
+      buildingsCount: 6,
+      seed: 900,
+    ),
+  ];
+
+  // ═══════════════════════════════════════════════════════════
+  // ПАРКИ
+  // ═══════════════════════════════════════════════════════════
+
+  static final List<Park> _parks = [
+    // Южный парк — центрально-западный.
+    Park(
+      id: 'park_south',
+      polygon: const [
+        Offset(0.10, 0.40),
+        Offset(0.28, 0.38),
+        Offset(0.30, 0.50),
+        Offset(0.26, 0.60),
+        Offset(0.08, 0.58),
+      ],
+      treesCount: 25,
+      seed: 1000,
+    ),
+  ];
+
+  // ═══════════════════════════════════════════════════════════
+  // РЕКА
+  // ═══════════════════════════════════════════════════════════
+
+  static const River _river = River(
+    path: [
+      Offset(-0.05, 0.94),
+      Offset(0.15, 0.92),
+      Offset(0.30, 0.95),
+      Offset(0.48, 0.93),
+      Offset(0.65, 0.96),
+      Offset(0.85, 0.94),
+      Offset(1.05, 0.95),
+    ],
+    width: 0.03,
+  );
+
+  // ═══════════════════════════════════════════════════════════
+  // ДОРОГИ
+  // ═══════════════════════════════════════════════════════════
+
+  static const List<Road> _roads = [
+    // Главная горизонтальная — Южная улица.
+    Road(
+      path: [
+        Offset(0.00, 0.33),
+        Offset(0.34, 0.33),
+        Offset(0.64, 0.33),
+        Offset(1.00, 0.33),
+      ],
+      isMain: true,
+    ),
+
+    // Вторая горизонтальная — Центральная.
+    Road(
+      path: [
+        Offset(0.00, 0.64),
+        Offset(0.32, 0.64),
+        Offset(0.62, 0.64),
+        Offset(1.00, 0.65),
+      ],
+      isMain: true,
+    ),
+
+    // Главная вертикальная — через весь регион.
+    Road(
+      path: [
+        Offset(0.32, 0.00),
+        Offset(0.34, 0.33),
+        Offset(0.35, 0.64),
+        Offset(0.33, 1.00),
+      ],
+      isMain: true,
+    ),
+
+    // Вертикальная — восточнее центра.
+    Road(
+      path: [
+        Offset(0.64, 0.00),
+        Offset(0.65, 0.33),
+        Offset(0.64, 0.64),
+        Offset(0.65, 1.00),
+      ],
+      isMain: false,
+    ),
+
+    // Вертикальная — западная.
+    Road(
+      path: [
+        Offset(0.00, 0.30),
+        Offset(0.10, 0.45),
+        Offset(0.00, 0.62),
+      ],
+      isMain: false,
+    ),
+  ];
+}
+```
+
+### 📄 `./lib/models/world/layouts/underground_layout.dart`
+```dart
+import 'package:flutter/material.dart';
+import 'package:dark_hours/models/world/region_layout.dart';
+
+/// Layout для региона **underground**.
+///
+/// Подземелье — тоннели, платформы метро, бункер.
+/// Нет зданий — вместо них «технические зоны».
+class UndergroundLayout {
+  UndergroundLayout._();
+
+  static const String regionId = 'underground';
+  static const Size logicalSize = Size(800, 1200);
+
+  static final RegionLayout layout = RegionLayout(
+    regionId: regionId,
+    logicalSize: logicalSize,
+    backgroundColor: const Color(0xFF050508),
+    quarterColor: const Color(0xFF0E0E14),
+    quarters: _quarters,
+    parks: const [],
+    river: null,
+    roads: _tunnels,
+  );
+
+  // ═══════════════════════════════════════════════════════════
+  // «КВАРТАЛЫ» — технические зоны (визуально — это платформы)
+  // ═══════════════════════════════════════════════════════════
+
+  static final List<Quarter> _quarters = [
+    // Платформа метро (запад, центр).
+    Quarter(
+      id: 'metro_platform_zone',
+      polygon: const [
+        Offset(0.05, 0.35),
+        Offset(0.35, 0.35),
+        Offset(0.38, 0.50),
+        Offset(0.32, 0.62),
+        Offset(0.05, 0.62),
+      ],
+      type: QuarterType.industrial,
+      buildingsCount: 4,
+      seed: 3000,
+    ),
+
+    // Бункер (восток, центр).
+    Quarter(
+      id: 'bunker_zone',
+      polygon: const [
+        Offset(0.62, 0.30),
+        Offset(0.95, 0.30),
+        Offset(0.95, 0.55),
+        Offset(0.60, 0.55),
+      ],
+      type: QuarterType.military,
+      buildingsCount: 3,
+      seed: 3100,
+    ),
+
+    // Тоннельный узел (центр).
+    Quarter(
+      id: 'tunnel_hub_zone',
+      polygon: const [
+        Offset(0.40, 0.35),
+        Offset(0.58, 0.35),
+        Offset(0.60, 0.55),
+        Offset(0.40, 0.55),
+      ],
+      type: QuarterType.industrial,
+      buildingsCount: 2,
+      seed: 3200,
+    ),
+
+    // Канализация (юг).
+    Quarter(
+      id: 'sewer_zone',
+      polygon: const [
+        Offset(0.10, 0.65),
+        Offset(0.90, 0.65),
+        Offset(0.90, 0.92),
+        Offset(0.10, 0.92),
+      ],
+      type: QuarterType.industrial,
+      buildingsCount: 3,
+      seed: 3300,
+    ),
+  ];
+
+  // ═══════════════════════════════════════════════════════════
+  // «ДОРОГИ» — тоннели (изогнутые)
+  // ═══════════════════════════════════════════════════════════
+
+  static const List<Road> _tunnels = [
+    // Главная горизонтальная линия (метро).
+    Road(
+      path: [
+        Offset(0.00, 0.50),
+        Offset(0.20, 0.48),
+        Offset(0.40, 0.50),
+        Offset(0.65, 0.48),
+        Offset(1.00, 0.50),
+      ],
+      isMain: true,
+    ),
+
+    // Вертикальная линия (вентиляция).
+    Road(
+      path: [
+        Offset(0.50, 0.00),
+        Offset(0.48, 0.25),
+        Offset(0.50, 0.50),
+        Offset(0.52, 0.75),
+        Offset(0.50, 1.00),
+      ],
+      isMain: true,
+    ),
+
+    // Ответвление к бункеру.
+    Road(
+      path: [
+        Offset(0.50, 0.50),
+        Offset(0.75, 0.42),
+        Offset(0.85, 0.45),
+      ],
+      isMain: false,
+    ),
+
+    // Ответвление к канализации.
+    Road(
+      path: [
+        Offset(0.50, 0.50),
+        Offset(0.35, 0.70),
+        Offset(0.30, 0.85),
+      ],
+      isMain: false,
+    ),
+
+    // Ответвление к заброшенному тоннелю.
+    Road(
+      path: [
+        Offset(0.00, 0.75),
+        Offset(0.15, 0.80),
+        Offset(0.30, 0.85),
+      ],
+      isMain: false,
+    ),
+  ];
+}
+```
+
 ### 📄 `./lib/models/world/location.dart`
 ```dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:dark_hours/models/world/search_event.dart';
 import 'package:dark_hours/models/world/map_position.dart';
@@ -22291,10 +24659,7 @@ class Location {
   final int maxSearches;
   final List<String> lootPool;
   final List<String> enemies;
-
-  /// Соединения с другими локациями (с временем в пути).
   final List<Connection> connections;
-
   final String icon;
   final bool repeatable;
   final bool isStart;
@@ -22302,29 +24667,19 @@ class Location {
   final bool hidden;
   final String? unlockedBy;
   final String? risk;
-
-  /// Позиция локации на карте.
   final MapPosition mapPosition;
-
-  /// Название зоны.
   final String? mapZone;
-
-  /// Название локации, как её видит разведчик (может быть неточным).
-  ///
-  /// Если `null` — используется `name`.
   final String? scoutedName;
-
-  /// Описание локации, как её видит разведчик (неполное, с догадками).
-  ///
-  /// Если `null` — используется `description`.
   final String? scoutedDescription;
-
-  // Сюжетные триггеры
   final String? storyNode;
   final StoryCondition? storyCondition;
-
-  // Уникальные события поиска
   final List<SearchEvent> searchEvents;
+
+  /// Глава, с которой эта локация становится доступной.
+  ///
+  /// По умолчанию 1 — доступна с начала игры.
+  /// Локации с `availableFromChapter > текущая глава` — **скрыты**.
+  final int availableFromChapter;
 
   const Location({
     required this.id,
@@ -22352,6 +24707,7 @@ class Location {
     this.storyNode,
     this.storyCondition,
     this.searchEvents = const [],
+    this.availableFromChapter = 1,
   });
 
   factory Location.fromJson(Map<String, dynamic> json) {
@@ -22362,7 +24718,6 @@ class Location {
       );
     }
 
-    // Парсим connections — поддерживаем оба формата (строки и объекты).
     final rawConnections = json['connections'] as List? ?? [];
     final parsedConnections = rawConnections.map((c) {
       if (c is String) {
@@ -22405,6 +24760,7 @@ class Location {
       searchEvents: (json['search_events'] as List? ?? [])
           .map((e) => SearchEvent.fromJson(Map<String, dynamic>.from(e)))
           .toList(),
+      availableFromChapter: json['is_available_from_chapter'] ?? 1,
     );
   }
 
@@ -22412,13 +24768,9 @@ class Location {
   // ХЕЛПЕРЫ
   // ═══════════════════════════════════════════════════════════
 
-  /// Список ID соседей (для быстрых проверок).
   List<String> get connectionIds =>
       connections.map((c) => c.targetId).toList();
 
-  /// Сколько минут идти до указанной локации.
-  ///
-  /// Возвращает `null`, если локация не соседняя.
   int? connectionMinutesTo(String targetId) {
     for (final c in connections) {
       if (c.targetId == targetId) return c.minutes;
@@ -22426,17 +24778,17 @@ class Location {
     return null;
   }
 
-  /// Является ли локация соседней.
   bool isConnectedTo(String targetId) {
     return connections.any((c) => c.targetId == targetId);
   }
 
-  /// Название для разведки (fallback на `name`).
   String get displayScoutedName => scoutedName ?? name;
+  String get displayScoutedDescription => scoutedDescription ?? description;
 
-  /// Описание для разведки (fallback на `description`).
-  String get displayScoutedDescription =>
-      scoutedDescription ?? description;
+  /// Доступна ли эта локация в текущей главе.
+  bool isAvailableAt(int chapter) {
+    return availableFromChapter <= chapter;
+  }
 
   // ═══════════════════════════════════════════════════════════
   // ГЕТТЕРЫ
@@ -22458,7 +24810,6 @@ class Location {
     return 'Смертельно';
   }
 
-  /// Проверка: сработает ли сюжетный триггер в этой локации.
   bool canTriggerStory({
     required int currentChapter,
     required String currentCharacter,
@@ -22483,14 +24834,72 @@ class Location {
     return true;
   }
 
+  // ═══════════════════════════════════════════════════════════
+  // ЗАГРУЗКА
+  // ═══════════════════════════════════════════════════════════
+
   static Future<List<Location>> loadAll() async {
     try {
-      final String jsonString =
-          await rootBundle.loadString('assets/data/locations.json');
-      final Map<String, dynamic> jsonMap = json.decode(jsonString);
-      final List<dynamic> list = jsonMap['locations'];
-      return list.map((json) => Location.fromJson(json)).toList();
-    } catch (e) {
+      final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+
+      final locationFiles = manifest
+          .listAssets()
+          .where((path) =>
+              path.startsWith('assets/data/locations/') &&
+              path.endsWith('.json'))
+          .toList()
+        ..sort();
+
+      if (locationFiles.isEmpty) {
+        debugPrint('⚠️ Location.loadAll: нет файлов локаций');
+        return [];
+      }
+
+      debugPrint('📍 Location.loadAll: найдено ${locationFiles.length} файлов');
+
+      final allLocations = <Location>[];
+      final seenIds = <String>{};
+
+      for (final path in locationFiles) {
+        try {
+          final jsonString = await rootBundle.loadString(path);
+          final jsonMap = json.decode(jsonString) as Map<String, dynamic>;
+          final list = jsonMap['locations'] as List? ?? [];
+
+          int added = 0;
+          int duplicates = 0;
+
+          for (final json in list) {
+            final loc = Location.fromJson(
+              Map<String, dynamic>.from(json),
+            );
+
+            if (seenIds.contains(loc.id)) {
+              duplicates++;
+              debugPrint('  ❌ ДУБЛИКАТ: ${loc.id} в $path');
+              continue;
+            }
+
+            seenIds.add(loc.id);
+            allLocations.add(loc);
+            added++;
+          }
+
+          final dupText = duplicates > 0 ? ' (дубликатов: $duplicates)' : '';
+          debugPrint('  ✅ $path: $added локаций$dupText');
+        } catch (e, stackTrace) {
+          debugPrint('  ❌ Ошибка загрузки $path: $e');
+          debugPrint('$stackTrace');
+        }
+      }
+
+      debugPrint(
+        '📍 Location.loadAll: всего загружено ${allLocations.length} локаций',
+      );
+      return allLocations;
+    } catch (e, stackTrace) {
+      debugPrint('❌ Location.loadAll: критическая ошибка: $e');
+      debugPrint('$stackTrace');
       return [];
     }
   }
@@ -22555,6 +24964,259 @@ class MapPosition {
 
   @override
   int get hashCode => Object.hash(x, y);
+}
+```
+
+### 📄 `./lib/models/world/region_layout.dart`
+```dart
+import 'dart:math' as math;
+import 'package:flutter/material.dart';
+
+/// Тип квартала — влияет на стиль зданий.
+enum QuarterType {
+  /// Жилой — дома, пятиэтажки.
+  residential,
+
+  /// Коммерческий — магазины, офисы, кафе.
+  commercial,
+
+  /// Промышленный — ангары, склады, заводы.
+  industrial,
+
+  /// Смешанный — всё подряд.
+  mixed,
+
+  /// Военный — бункеры, КПП (для underground).
+  military,
+}
+
+/// Квартал — полигон с зданиями внутри.
+class Quarter {
+  final String id;
+  final List<Offset> polygon;
+  final QuarterType type;
+
+  /// Сколько зданий внутри квартала.
+  final int buildingsCount;
+
+  /// Seed для генерации зданий (детерминированный).
+  final int seed;
+
+  const Quarter({
+    required this.id,
+    required this.polygon,
+    this.type = QuarterType.residential,
+    this.buildingsCount = 6,
+    this.seed = 0,
+  });
+
+  /// Проверка: точка внутри полигона (ray casting).
+  bool contains(Offset point) {
+    int crossings = 0;
+    for (int i = 0; i < polygon.length; i++) {
+      final a = polygon[i];
+      final b = polygon[(i + 1) % polygon.length];
+
+      if (((a.dy > point.dy) != (b.dy > point.dy)) &&
+          (point.dx <
+              (b.dx - a.dx) * (point.dy - a.dy) / (b.dy - a.dy) + a.dx)) {
+        crossings++;
+      }
+    }
+    return crossings % 2 == 1;
+  }
+}
+
+/// Парк — зелёная зона с деревьями.
+class Park {
+  final String id;
+  final List<Offset> polygon;
+  final int treesCount;
+  final int seed;
+
+  const Park({
+    required this.id,
+    required this.polygon,
+    this.treesCount = 20,
+    this.seed = 0,
+  });
+
+  bool contains(Offset point) {
+    int crossings = 0;
+    for (int i = 0; i < polygon.length; i++) {
+      final a = polygon[i];
+      final b = polygon[(i + 1) % polygon.length];
+
+      if (((a.dy > point.dy) != (b.dy > point.dy)) &&
+          (point.dx <
+              (b.dx - a.dx) * (point.dy - a.dy) / (b.dy - a.dy) + a.dx)) {
+        crossings++;
+      }
+    }
+    return crossings % 2 == 1;
+  }
+}
+
+/// Река — извилистая линия с шириной.
+class River {
+  /// Точки кривой (по ним рисуем Безье).
+  final List<Offset> path;
+
+  /// Ширина в логических единицах.
+  final double width;
+
+  const River({
+    required this.path,
+    this.width = 0.04,
+  });
+}
+
+/// Дорога — линия между кварталами.
+class Road {
+  final List<Offset> path;
+
+  /// Главная дорога (толще, светлее).
+  final bool isMain;
+
+  const Road({
+    required this.path,
+    this.isMain = false,
+  });
+}
+
+/// Сгенерированное здание внутри квартала.
+class Building {
+  final Rect rect;
+  final double height; // «высота» = размер крыши
+  final bool hasChimney;
+  final Color color;
+
+  const Building({
+    required this.rect,
+    required this.height,
+    this.hasChimney = false,
+    this.color = const Color(0xFFFFFFFF),
+  });
+}
+
+/// Весь layout одного региона.
+class RegionLayout {
+  final String regionId;
+  final Size logicalSize;
+  final List<Quarter> quarters;
+  final List<Park> parks;
+  final River? river;
+  final List<Road> roads;
+
+  /// Цвет фона региона.
+  final Color backgroundColor;
+
+  /// Цвет кварталов (базовый).
+  final Color quarterColor;
+
+  const RegionLayout({
+    required this.regionId,
+    this.logicalSize = const Size(800, 1200),
+    required this.quarters,
+    this.parks = const [],
+    this.river,
+    this.roads = const [],
+    this.backgroundColor = const Color(0xFF0A0A0A),
+    this.quarterColor = const Color(0xFF1A1A1A),
+  });
+
+  /// Сгенерировать здания внутри квартала (детерминированно по seed).
+  List<Building> generateBuildings(Quarter quarter) {
+    final rng = math.Random(quarter.seed);
+
+    // Bounding box квартала.
+    double minX = double.infinity;
+    double maxX = -double.infinity;
+    double minY = double.infinity;
+    double maxY = -double.infinity;
+
+    for (final p in quarter.polygon) {
+      minX = math.min(minX, p.dx);
+      maxX = math.max(maxX, p.dx);
+      minY = math.min(minY, p.dy);
+      maxY = math.max(maxY, p.dy);
+    }
+
+    final buildings = <Building>[];
+    int attempts = 0;
+
+    // Стиль зданий — по типу квартала.
+    double minSize;
+    double maxSize;
+    double maxHeight;
+    Color baseColor;
+
+    switch (quarter.type) {
+      case QuarterType.residential:
+        minSize = 0.015;
+        maxSize = 0.035;
+        maxHeight = 0.02;
+        baseColor = const Color(0xFF2A2A2A);
+        break;
+      case QuarterType.commercial:
+        minSize = 0.02;
+        maxSize = 0.05;
+        maxHeight = 0.04;
+        baseColor = const Color(0xFF303030);
+        break;
+      case QuarterType.industrial:
+        minSize = 0.03;
+        maxSize = 0.07;
+        maxHeight = 0.03;
+        baseColor = const Color(0xFF282828);
+        break;
+      case QuarterType.mixed:
+        minSize = 0.015;
+        maxSize = 0.05;
+        maxHeight = 0.035;
+        baseColor = const Color(0xFF2E2E2E);
+        break;
+      case QuarterType.military:
+        minSize = 0.04;
+        maxSize = 0.08;
+        maxHeight = 0.025;
+        baseColor = const Color(0xFF202028);
+        break;
+    }
+
+    while (buildings.length < quarter.buildingsCount && attempts < 200) {
+      attempts++;
+
+      final w = minSize + rng.nextDouble() * (maxSize - minSize);
+      final h = minSize + rng.nextDouble() * (maxSize - minSize);
+      final x = minX + rng.nextDouble() * (maxX - minX - w);
+      final y = minY + rng.nextDouble() * (maxY - minY - h);
+
+      final rect = Rect.fromLTWH(x, y, w, h);
+
+      // Центр здания должен быть внутри квартала.
+      if (!quarter.contains(rect.center)) continue;
+
+      // Не пересекаться с существующими.
+      bool overlaps = false;
+      for (final b in buildings) {
+        if (b.rect.overlaps(rect.inflate(0.005))) {
+          overlaps = true;
+          break;
+        }
+      }
+      if (overlaps) continue;
+
+      buildings.add(Building(
+        rect: rect,
+        height: maxHeight * (0.4 + rng.nextDouble() * 0.6),
+        hasChimney: rng.nextDouble() < 0.15,
+        color: baseColor,
+      ));
+    }
+
+    return buildings;
+  }
 }
 ```
 
@@ -25203,6 +27865,7 @@ import 'package:dark_hours/services/audio/audio_service.dart';
 
 import 'package:dark_hours/models/world/location.dart';
 import 'package:dark_hours/models/world/map_position.dart';
+import 'package:dark_hours/models/world/region_layout.dart';
 import 'package:dark_hours/models/items/recipe.dart';
 import 'package:dark_hours/models/inventory/inventory_item.dart';
 import 'package:dark_hours/models/time/rest_action.dart';
@@ -25218,11 +27881,14 @@ import 'package:dark_hours/widgets/effects/shimmer_button.dart';
 
 import 'package:dark_hours/screens/gameplay/widgets/map_status_bar.dart';
 import 'package:dark_hours/screens/gameplay/widgets/map_current_location.dart';
-import 'package:dark_hours/screens/gameplay/widgets/map_zone_painter.dart';
 import 'package:dark_hours/screens/gameplay/widgets/map_edge_painter.dart';
 import 'package:dark_hours/screens/gameplay/widgets/map_node.dart';
 import 'package:dark_hours/screens/gameplay/widgets/map_player_marker.dart';
 import 'package:dark_hours/screens/gameplay/widgets/map_info_sheet.dart';
+import 'package:dark_hours/screens/gameplay/widgets/region_map_painter.dart';
+
+import 'package:dark_hours/models/world/layouts/city_south_layout.dart';
+import 'package:dark_hours/models/world/layouts/city_center_layout.dart';
 
 class MapScreen extends StatefulWidget {
   final String characterId;
@@ -25253,10 +27919,12 @@ class _MapScreenState extends State<MapScreen>
   double _markerRotation = 0.0;
   bool _isMoving = false;
 
+  Location? _selectedLocation;
+
   Size _viewportSize = const Size(400, 600);
 
-  static const double _mapWidth = 1200.0;
-  static const double _mapHeight = 1600.0;
+  static const double _mapWidth = 800.0;
+  static const double _mapHeight = 1200.0;
 
   @override
   void initState() {
@@ -25340,10 +28008,6 @@ class _MapScreenState extends State<MapScreen>
     await DeathManager.showDeathScreenIfNeeded(context, _controller);
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // ПЕРЕХОД
-  // ═══════════════════════════════════════════════════════════
-
   Future<void> _moveTo(String locationId) async {
     final target = _controller.map?.getById(locationId);
     if (target != null) {
@@ -25361,6 +28025,8 @@ class _MapScreenState extends State<MapScreen>
         if (mounted) _centerOnLocation(newLoc);
       });
     }
+
+    _selectedLocation = null;
 
     if (DeathManager.checkDeath(_controller)) {
       await _handleDeath();
@@ -25406,38 +28072,62 @@ class _MapScreenState extends State<MapScreen>
   }
 
   // ═══════════════════════════════════════════════════════════
-  // РАЗВЕДКА
+  // ТАП НА ЛОКАЦИЮ
   // ═══════════════════════════════════════════════════════════
 
-  /// Разведать округу.
-  ///
-  /// Тратит 30 минут + 10 стамины + 5 усталости.
-  /// Открывает 1-3 соседние локации как scouted.
-  Future<void> _scout() async {
-    AudioService.playClick();
+  void _onNodeTap(Location loc) {
+    AudioService.playTap();
 
     final current = _controller.currentLocation;
     if (current == null) return;
 
-    // Проверка: есть ли что разведывать?
-    final unknownNeighbors = current.connectionIds.where((id) {
-      return !_controller.isScouted(id);
-    }).toList();
+    if (loc.id == current.id) return;
 
-    if (unknownNeighbors.isEmpty) {
-      AudioService.playError();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('🔭 Все соседние места уже разведаны'),
-          backgroundColor: Colors.grey,
-        ),
-      );
-      return;
+    setState(() {
+      _selectedLocation = loc;
+    });
+
+    _showLocationMenu(loc);
+  }
+
+  Future<void> _showLocationMenu(Location loc) async {
+    final current = _controller.currentLocation;
+    if (current == null) return;
+
+    final isNeighbor = current.isConnectedTo(loc.id);
+    final canMove = isNeighbor && loc.isAvailableAt(_controller.chapter);
+    final canScout = !_controller.isScouted(loc.id) &&
+        !_controller.map!.visitedLocations.contains(loc.id);
+
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => MapInfoSheet(
+        location: loc,
+        canMove: canMove,
+        canScout: canScout,
+        isBorder: loc.region != current.region,
+        travelMinutes:
+            isNeighbor ? current.connectionMinutesTo(loc.id) : null,
+        isVisited: _controller.map!.visitedLocations.contains(loc.id),
+        isScouted: _controller.isScouted(loc.id),
+        onMove: canMove ? () => _moveTo(loc.id) : null,
+        onScout: canScout ? () => _scoutSingle(loc.id) : null,
+      ),
+    );
+
+    if (mounted) {
+      setState(() {
+        _selectedLocation = null;
+      });
     }
+  }
 
-    // Стоимость
+  Future<void> _scoutSingle(String locationId) async {
     if (_controller.stamina < 10) {
       AudioService.playError();
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('❌ Слишком устал для разведки'),
@@ -25450,52 +28140,148 @@ class _MapScreenState extends State<MapScreen>
     _controller.setStamina(_controller.stamina - 10);
     _controller.setFatigue(_controller.fatigue + 5);
 
-    // Бросок: сколько локаций разведаем?
+    _controller.scoutAll([locationId]);
+
+    await _controller.advanceTime(30);
+    await _controller.save();
+
+    if (!mounted) return;
+
+    AudioService.playSuccess();
+    final loc = _controller.map?.getById(locationId);
+    if (loc != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('🔭 Разведано: ${loc.displayScoutedName}'),
+          backgroundColor: const Color.fromARGB(255, 100, 130, 180),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+
+    setState(() {});
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // МАССОВАЯ РАЗВЕДКА
+  // ═══════════════════════════════════════════════════════════
+
+  /// Кандидаты для разведки — соседи соседей (2-й уровень).
+  List<Location> _getScoutCandidates(Location current) {
+    final result = <Location>[];
+    final seen = <String>{current.id};
+
+    for (final connId in current.connectionIds) {
+      final neighbor = _controller.map?.getById(connId);
+      if (neighbor == null) continue;
+      if (!neighbor.isAvailableAt(_controller.chapter)) continue;
+      if (neighbor.hidden && !_controller.isLocationUnlocked(neighbor.id)) {
+        continue;
+      }
+      if (neighbor.region != current.region) continue;
+
+      if (seen.contains(neighbor.id)) continue;
+      seen.add(neighbor.id);
+
+      for (final connId2 in neighbor.connectionIds) {
+        final target = _controller.map?.getById(connId2);
+        if (target == null) continue;
+        if (!target.isAvailableAt(_controller.chapter)) continue;
+        if (target.hidden && !_controller.isLocationUnlocked(target.id)) {
+          continue;
+        }
+        if (target.region != current.region) continue;
+
+        if (seen.contains(target.id)) continue;
+        seen.add(target.id);
+
+        if (!_controller.isScouted(target.id) &&
+            !_controller.map!.visitedLocations.contains(target.id)) {
+          result.add(target);
+        }
+      }
+    }
+
+    return result;
+  }
+
+  bool _canScout(Location current) {
+    final unknown = _getScoutCandidates(current);
+    return unknown.isNotEmpty && _controller.stamina >= 10;
+  }
+
+  Future<void> _scout() async {
+    AudioService.playClick();
+
+    final current = _controller.currentLocation;
+    if (current == null) return;
+
+    final candidates = _getScoutCandidates(current);
+
+    if (candidates.isEmpty) {
+      AudioService.playError();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('🔭 Больше нечего разведывать поблизости'),
+          backgroundColor: Colors.grey,
+        ),
+      );
+      return;
+    }
+
+    if (_controller.stamina < 10) {
+      AudioService.playError();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('❌ Слишком устал для разведки'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    _controller.setStamina(_controller.stamina - 10);
+    _controller.setFatigue(_controller.fatigue + 5);
+
     final rng = math.Random();
     final roll = rng.nextInt(100);
 
     int count;
     String mood;
     if (roll < 15) {
-      // Провал
       count = 0;
       mood = 'Ты вглядываешься в темноту. Ничего не видно.';
     } else if (roll < 55) {
-      // 1 локация
       count = 1;
       mood = 'Сквозь туман различаешь силуэт...';
     } else if (roll < 85) {
-      // 2 локации
       count = 2;
       mood = 'Ты видишь несколько очертаний впереди...';
     } else {
-      // 3 локации (удача)
       count = 3;
       mood = 'С высоты ты видишь многое...';
     }
 
-    // Разведываем
     final scoutedList = <String>[];
-    unknownNeighbors.shuffle(rng);
-    for (int i = 0; i < count && i < unknownNeighbors.length; i++) {
-      scoutedList.add(unknownNeighbors[i]);
+    candidates.shuffle(rng);
+    for (int i = 0; i < count && i < candidates.length; i++) {
+      scoutedList.add(candidates[i].id);
     }
 
     _controller.scoutAll(scoutedList);
 
-    // Время
     await _controller.advanceTime(30);
     await _controller.save();
 
     if (!mounted) return;
 
-    // Показать результат
     await _showScoutResult(mood, scoutedList);
 
     if (mounted) setState(() {});
   }
 
-  /// Показать модалку с результатом разведки.
   Future<void> _showScoutResult(String mood, List<String> scoutedIds) async {
     if (!mounted) return;
 
@@ -25541,8 +28327,7 @@ class _MapScreenState extends State<MapScreen>
                 ),
               ),
               const SizedBox(height: 20),
-
-              if (locations.isEmpty) ...[
+              if (locations.isEmpty)
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
@@ -25553,8 +28338,8 @@ class _MapScreenState extends State<MapScreen>
                     'Ничего нового.',
                     style: TextStyle(color: Colors.grey, fontSize: 13),
                   ),
-                ),
-              ] else ...[
+                )
+              else ...[
                 const Text(
                   'Обнаружено:',
                   style: TextStyle(
@@ -25614,10 +28399,7 @@ class _MapScreenState extends State<MapScreen>
       ),
       child: Row(
         children: [
-          Text(
-            loc.icon,
-            style: const TextStyle(fontSize: 28),
-          ),
+          Text(loc.icon, style: const TextStyle(fontSize: 28)),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -25701,24 +28483,6 @@ class _MapScreenState extends State<MapScreen>
   Future<void> _checkStoryTrigger() async {
     await StoryTriggerManager.checkTrigger(context, _controller);
     if (mounted) setState(() {});
-  }
-
-  void _showLocationInfo(Location loc) {
-    AudioService.playTap();
-
-    final current = _controller.currentLocation;
-    final canMove = current != null && current.isConnectedTo(loc.id);
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (_) => MapInfoSheet(
-        location: loc,
-        canMove: canMove,
-        onMove: canMove ? () => _moveTo(loc.id) : null,
-      ),
-    );
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -25937,7 +28701,14 @@ class _MapScreenState extends State<MapScreen>
   // ═══════════════════════════════════════════════════════════
 
   NodeState _nodeState(Location loc) {
-    if (loc.id == _controller.currentLocation?.id) {
+    if (!loc.isAvailableAt(_controller.chapter)) {
+      return NodeState.hidden;
+    }
+
+    final current = _controller.currentLocation;
+    if (current == null) return NodeState.hidden;
+
+    if (loc.id == current.id) {
       return NodeState.current;
     }
 
@@ -25945,17 +28716,25 @@ class _MapScreenState extends State<MapScreen>
       return NodeState.hidden;
     }
 
-    final isNeighbor = _controller.currentLocation?.connectionIds
-            .contains(loc.id) ??
-        false;
-
-    // Если локация не разведана и не соседняя — скрыта.
-    if (!_controller.isScouted(loc.id) && !isNeighbor) {
+    // Локация в другом регионе — не показываем на карте.
+    if (loc.region != current.region) {
       return NodeState.hidden;
     }
 
-    if (isNeighbor) return NodeState.neighbor;
-    return NodeState.visited;
+    final isNeighbor = current.connectionIds.contains(loc.id);
+
+    if (isNeighbor) {
+      return NodeState.neighbor;
+    }
+
+    if (_controller.map!.visitedLocations.contains(loc.id)) {
+      return NodeState.visited;
+    }
+    if (_controller.isScouted(loc.id)) {
+      return NodeState.visited;
+    }
+
+    return NodeState.hidden;
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -26053,30 +28832,47 @@ class _MapScreenState extends State<MapScreen>
     final map = _controller.map!;
     final current = _controller.currentLocation!;
 
-    final edges = buildEdges(
-      locations: map.locations,
-      visited: map.visitedLocations,
-      scouted: _controller.scoutedLocations,
-      unlocked: _controller.unlockedLocations,
-      currentLocationId: current.id,
-    );
+    final regionId = current.region;
+    final layout = _getLayoutForRegion(regionId);
 
-    final visibleNodes = map.locations
+    // Только локации текущего региона.
+    final regionLocations = map.locations
+        .where((l) =>
+            l.region == regionId && l.isAvailableAt(_controller.chapter))
+        .toList();
+
+    final visibleNodes = regionLocations
         .where((loc) => _nodeState(loc) != NodeState.hidden)
         .toList();
+
+    // Ребро к выбранной локации.
+    MapEdge? selectedEdge;
+    if (_selectedLocation != null) {
+      final isNeighbor = current.isConnectedTo(_selectedLocation!.id);
+      if (isNeighbor) {
+        final minutes = current.connectionMinutesTo(_selectedLocation!.id);
+        if (minutes != null) {
+          selectedEdge = MapEdge(
+            from: current.mapPosition,
+            to: _selectedLocation!.mapPosition,
+            minutes: minutes,
+          );
+        }
+      }
+    }
 
     return Stack(
       children: [
         Positioned.fill(
           child: CustomPaint(
-            painter: MapZonePainter(
-              logicalSize: const Size(_mapWidth, _mapHeight),
-            ),
+            painter: layout != null
+                ? RegionMapPainter(layout: layout)
+                : null,
           ),
         ),
         Positioned.fill(
           child: CustomPaint(
-            painter: MapEdgePainter(edges: edges),
+            painter: MapEdgePainter(edge: selectedEdge),
           ),
         ),
         ...visibleNodes.map((loc) {
@@ -26090,13 +28886,8 @@ class _MapScreenState extends State<MapScreen>
             child: MapNode(
               location: loc,
               state: state,
-              onTap: () {
-                if (state == NodeState.neighbor) {
-                  _moveTo(loc.id);
-                } else if (state == NodeState.visited) {
-                  _showLocationInfo(loc);
-                }
-              },
+              isSelected: _selectedLocation?.id == loc.id,
+              onTap: () => _onNodeTap(loc),
             ),
           );
         }),
@@ -26112,6 +28903,17 @@ class _MapScreenState extends State<MapScreen>
         ),
       ],
     );
+  }
+
+  RegionLayout? _getLayoutForRegion(String regionId) {
+    switch (regionId) {
+      case 'city_south':
+        return CitySouthLayout.layout;
+      case 'city_center':
+        return CityCenterLayout.layout;
+      default:
+        return CitySouthLayout.layout;
+    }
   }
 
   Widget _buildBottomPanel(Location current) {
@@ -26153,9 +28955,11 @@ class _MapScreenState extends State<MapScreen>
           Navigator.pop(context);
         },
       ),
-      title: const Text(
-        'КАРТА',
-        style: TextStyle(
+      title: Text(
+        _controller.currentLocation?.region == 'underground'
+            ? 'ПОДЗЕМЕЛЬЕ'
+            : 'КАРТА',
+        style: const TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,
           letterSpacing: 4.0,
@@ -26233,9 +29037,16 @@ class _MapScreenState extends State<MapScreen>
       widgets.add(const SizedBox(height: 8));
     }
 
-    // Кнопка разведки — если есть что разведывать.
+    // Разведка.
     if (_canScout(current)) {
       widgets.add(_buildScoutButton());
+      widgets.add(const SizedBox(height: 8));
+    }
+
+    // Кнопки перехода в другие регионы.
+    final borderLocations = _getBorderLocations(current);
+    for (final border in borderLocations) {
+      widgets.add(_buildBorderButton(border));
       widgets.add(const SizedBox(height: 8));
     }
 
@@ -26250,16 +29061,81 @@ class _MapScreenState extends State<MapScreen>
     return widgets;
   }
 
+  List<Location> _getBorderLocations(Location current) {
+    final result = <Location>[];
+    for (final connId in current.connectionIds) {
+      final target = _controller.map?.getById(connId);
+      if (target == null) continue;
+      if (target.region == current.region) continue;
+      if (!target.isAvailableAt(_controller.chapter)) continue;
+      if (target.hidden && !_controller.isLocationUnlocked(target.id)) {
+        continue;
+      }
+      result.add(target);
+    }
+    return result;
+  }
+
+  Widget _buildBorderButton(Location border) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          AudioService.playClick();
+          _showLocationMenu(border);
+        },
+        icon: const Icon(Icons.exit_to_app, size: 18),
+        label: Text(
+          '🚪  ВЫЙТИ: ${border.displayScoutedName}',
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color.fromARGB(255, 150, 80, 40),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScoutButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: _scout,
+        icon: const Icon(Icons.visibility_outlined, size: 18),
+        label: const Text(
+          '🔭  РАЗВЕДАТЬ ОКРУГУ (30 мин)',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color.fromARGB(255, 100, 130, 180),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+    );
+  }
+
   bool _canSearch(Location loc) {
     return loc.maxSearches > 0 ||
         loc.lootPool.isNotEmpty ||
         loc.enemies.isNotEmpty ||
         loc.risk != null;
-  }
-
-  bool _canScout(Location loc) {
-    // Есть ли неизвестные соседи?
-    return loc.connectionIds.any((id) => !_controller.isScouted(id));
   }
 
   bool _hasStoryTrigger(Location loc) {
@@ -26302,32 +29178,6 @@ class _MapScreenState extends State<MapScreen>
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildScoutButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        onPressed: _scout,
-        icon: const Icon(Icons.visibility_outlined, size: 18),
-        label: const Text(
-          '🔭  РАЗВЕДАТЬ ОКРУГУ (30 мин)',
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.5,
-          ),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color.fromARGB(255, 100, 130, 180),
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 12),
           shape: RoundedRectangleBorder(
@@ -27803,98 +30653,56 @@ class MapCurrentLocation extends StatelessWidget {
 ```dart
 import 'package:flutter/material.dart';
 
-import 'package:dark_hours/models/world/location.dart';
 import 'package:dark_hours/models/world/map_position.dart';
 
-/// Одна линия между двумя локациями.
+/// Одно ребро для отрисовки — к выбранной локации.
 class MapEdge {
   final MapPosition from;
   final MapPosition to;
-  final bool isHighlighted;
-  final bool isVisited;
-  final bool isScouted;
   final int minutes;
 
   const MapEdge({
     required this.from,
     required this.to,
-    this.isHighlighted = false,
-    this.isVisited = false,
-    this.isScouted = false,
-    this.minutes = 20,
+    required this.minutes,
   });
 }
 
-/// Рисует все рёбра между локациями.
+/// Рисует **одно** ребро между текущей и выбранной локацией.
+///
+/// Если `edge == null` — ничего не рисуется.
+/// Это убирает визуальный шум от множества рёбер.
 class MapEdgePainter extends CustomPainter {
-  final List<MapEdge> edges;
+  final MapEdge? edge;
 
-  const MapEdgePainter({required this.edges});
+  const MapEdgePainter({this.edge});
 
   @override
   void paint(Canvas canvas, Size size) {
-    // Сначала рисуем обычные рёбра (фон).
-    for (final edge in edges.where((e) => !e.isHighlighted)) {
-      _drawEdge(canvas, size, edge);
-    }
-    // Потом highlighted (поверх).
-    for (final edge in edges.where((e) => e.isHighlighted)) {
-      _drawEdge(canvas, size, edge);
-    }
-  }
+    if (edge == null) return;
 
-  void _drawEdge(Canvas canvas, Size size, MapEdge edge) {
     final start = Offset(
-      edge.from.x * size.width,
-      edge.from.y * size.height,
+      edge!.from.x * size.width,
+      edge!.from.y * size.height,
     );
     final end = Offset(
-      edge.to.x * size.width,
-      edge.to.y * size.height,
+      edge!.to.x * size.width,
+      edge!.to.y * size.height,
     );
 
-    Color color;
-    double width;
-    bool dashed;
-
-    if (edge.isHighlighted) {
-      color = const Color(0xFFC8B464);
-      width = 2.5;
-      dashed = true;
-    } else if (edge.isVisited) {
-      color = Colors.white.withValues(alpha: 0.35);
-      width = 1.2;
-      dashed = false;
-    } else if (edge.isScouted) {
-      // Разведано, но не посещено — очень тусклая
-      color = Colors.white.withValues(alpha: 0.12);
-      width = 0.8;
-      dashed = true;
-    } else {
-      // Не разведано — не рисуем.
-      return;
-    }
-
+    // Пунктирная золотая линия.
     final paint = Paint()
-      ..color = color
-      ..strokeWidth = width
+      ..color = const Color(0xFFC8B464)
+      ..strokeWidth = 2.5
       ..strokeCap = StrokeCap.round;
 
-    if (dashed) {
-      _drawDashedLine(canvas, start, end, paint);
-    } else {
-      canvas.drawLine(start, end, paint);
-    }
+    _drawDashedLine(canvas, start, end, paint);
 
-    // Бусины на посещённых рёбрах
-    if (edge.isVisited || edge.isHighlighted) {
-      _drawBeads(canvas, start, end, color);
-    }
+    // Точки-бусины.
+    _drawBeads(canvas, start, end, const Color(0xFFC8B464));
 
-    // Время перехода — маленький бейдж по центру (только для highlighted)
-    if (edge.isHighlighted) {
-      _drawTimeBadge(canvas, start, end, edge.minutes);
-    }
+    // Бейдж с временем в середине.
+    _drawTimeBadge(canvas, start, end, edge!.minutes);
   }
 
   void _drawDashedLine(Canvas canvas, Offset start, Offset end, Paint paint) {
@@ -27926,11 +30734,10 @@ class MapEdgePainter extends CustomPainter {
 
     for (final t in [0.25, 0.5, 0.75]) {
       final pos = start + direction * (total * t);
-      canvas.drawCircle(pos, 2.0, beadPaint);
+      canvas.drawCircle(pos, 2.5, beadPaint);
     }
   }
 
-  /// Бейдж с временем перехода в центре ребра.
   void _drawTimeBadge(Canvas canvas, Offset start, Offset end, int minutes) {
     final center = Offset(
       (start.dx + end.dx) / 2,
@@ -27938,7 +30745,7 @@ class MapEdgePainter extends CustomPainter {
     );
 
     final text = minutes < 60
-        ? '$minutes м'
+        ? '$minutes мин'
         : '${minutes ~/ 60}ч ${minutes % 60}м';
 
     final textPainter = TextPainter(
@@ -27946,36 +30753,35 @@ class MapEdgePainter extends CustomPainter {
         text: text,
         style: const TextStyle(
           color: Color(0xFFC8B464),
-          fontSize: 9,
+          fontSize: 11,
           fontWeight: FontWeight.bold,
           shadows: [
-            Shadow(color: Colors.black, blurRadius: 3),
+            Shadow(color: Colors.black, blurRadius: 4),
           ],
         ),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
 
-    // Фон бейджа
     final bgRect = Rect.fromCenter(
       center: center,
-      width: textPainter.width + 8,
-      height: textPainter.height + 4,
+      width: textPainter.width + 12,
+      height: textPainter.height + 6,
     );
 
     final bgPaint = Paint()
-      ..color = const Color(0xFF141414).withValues(alpha: 0.9);
+      ..color = const Color(0xFF141414).withValues(alpha: 0.95);
     canvas.drawRRect(
-      RRect.fromRectAndRadius(bgRect, const Radius.circular(3)),
+      RRect.fromRectAndRadius(bgRect, const Radius.circular(4)),
       bgPaint,
     );
 
     final borderPaint = Paint()
-      ..color = const Color(0xFFC8B464).withValues(alpha: 0.5)
+      ..color = const Color(0xFFC8B464).withValues(alpha: 0.7)
       ..strokeWidth = 1.0
       ..style = PaintingStyle.stroke;
     canvas.drawRRect(
-      RRect.fromRectAndRadius(bgRect, const Radius.circular(3)),
+      RRect.fromRectAndRadius(bgRect, const Radius.circular(4)),
       borderPaint,
     );
 
@@ -27990,80 +30796,8 @@ class MapEdgePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant MapEdgePainter oldDelegate) {
-    return oldDelegate.edges != edges;
+    return oldDelegate.edge != edge;
   }
-}
-
-/// Хелпер: собрать рёбра из списка локаций.
-///
-/// Правила (Fog of War):
-/// - Рисуем ребро только если **обе** локации scouted или visited.
-/// - Hidden локации — пропускаем, пока не открыты.
-/// - Не дублируем: если A→B и B→A — рисуем один раз.
-/// - Highlighted — рёбра текущей локации с её соседями.
-List<MapEdge> buildEdges({
-  required List<Location> locations,
-  required Set<String> visited,
-  required Set<String> scouted,
-  required Set<String> unlocked,
-  required String currentLocationId,
-}) {
-  final byId = <String, Location>{
-    for (final loc in locations) loc.id: loc,
-  };
-
-  final currentLoc = byId[currentLocationId];
-  final currentNeighbors = <String>{
-    if (currentLoc != null) ...currentLoc.connectionIds,
-  };
-
-  final edges = <MapEdge>[];
-  final seen = <String>{};
-
-  for (final loc in locations) {
-    // Не рисуем рёбра от локаций, о которых игрок не знает.
-    final locKnown = scouted.contains(loc.id) || visited.contains(loc.id);
-    if (!locKnown) continue;
-
-    for (final conn in loc.connections) {
-      final target = byId[conn.targetId];
-      if (target == null) continue;
-
-      // Скрытая и неоткрытая — пропускаем.
-      if (target.hidden && !unlocked.contains(target.id)) continue;
-      if (loc.hidden && !unlocked.contains(loc.id)) continue;
-
-      // Обе локации должны быть известны.
-      final targetKnown =
-          scouted.contains(target.id) || visited.contains(target.id);
-      if (!targetKnown) continue;
-
-      // Дедупликация.
-      final key = [loc.id, target.id]..sort();
-      final keyStr = key.join('|');
-      if (seen.contains(keyStr)) continue;
-      seen.add(keyStr);
-
-      // Highlighted — если ребро касается текущей.
-      final touchesCurrent =
-          loc.id == currentLocationId || target.id == currentLocationId;
-
-      final isDirectNeighbor = touchesCurrent &&
-          (currentNeighbors.contains(loc.id) ||
-              currentNeighbors.contains(target.id));
-
-      edges.add(MapEdge(
-        from: loc.mapPosition,
-        to: target.mapPosition,
-        isHighlighted: isDirectNeighbor,
-        isVisited: visited.contains(loc.id) && visited.contains(target.id),
-        isScouted: scouted.contains(loc.id) || scouted.contains(target.id),
-        minutes: conn.minutes,
-      ));
-    }
-  }
-
-  return edges;
 }
 ```
 
@@ -28074,21 +30808,39 @@ import 'package:flutter/material.dart';
 import 'package:dark_hours/models/world/location.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
 
-/// Модалка с информацией о локации (для клика по посещённой).
+/// Модалка с информацией о локации.
 class MapInfoSheet extends StatelessWidget {
   final Location location;
-  final VoidCallback? onMove;
   final bool canMove;
+  final bool canScout;
+  final bool isBorder;
+  final int? travelMinutes;
+  final bool isVisited;
+  final bool isScouted;
+  final VoidCallback? onMove;
+  final VoidCallback? onScout;
 
   const MapInfoSheet({
     super.key,
     required this.location,
-    this.onMove,
     this.canMove = false,
+    this.canScout = false,
+    this.isBorder = false,
+    this.travelMinutes,
+    this.isVisited = false,
+    this.isScouted = false,
+    this.onMove,
+    this.onScout,
   });
 
   @override
   Widget build(BuildContext context) {
+    final showFull = isVisited;
+    final name = showFull ? location.name : location.displayScoutedName;
+    final description = showFull
+        ? location.description
+        : location.displayScoutedDescription;
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(
@@ -28100,7 +30852,6 @@ class MapInfoSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Заголовок
             Row(
               children: [
                 Container(
@@ -28124,7 +30875,7 @@ class MapInfoSheet extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        location.name,
+                        name,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 20,
@@ -28132,26 +30883,7 @@ class MapInfoSheet extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Text(
-                            '⚠️ ${location.dangerName}',
-                            style: TextStyle(
-                              color: location.dangerColor,
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '📍 ${location.mapZone ?? location.region}',
-                            style: TextStyle(
-                              color: Colors.grey[500],
-                              fontSize: 11,
-                            ),
-                          ),
-                        ],
-                      ),
+                      _buildStatusRow(),
                     ],
                   ),
                 ),
@@ -28159,58 +30891,101 @@ class MapInfoSheet extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Описание
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 20, 20, 20),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: Colors.grey[850]!,
+                  color: isVisited
+                      ? Colors.grey[850]!
+                      : const Color(0xFFC8B464).withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
-              child: Text(
-                location.description,
-                style: TextStyle(
-                  color: Colors.grey[300],
-                  fontSize: 13,
-                  height: 1.5,
-                  fontStyle: FontStyle.italic,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (!isVisited)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.visibility_outlined,
+                            size: 12,
+                            color: const Color(0xFFC8B464)
+                                .withValues(alpha: 0.7),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'ПРЕДПОЛОЖЕНИЕ',
+                            style: TextStyle(
+                              color: const Color(0xFFC8B464)
+                                  .withValues(alpha: 0.7),
+                              fontSize: 9,
+                              letterSpacing: 2.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  Text(
+                    description,
+                    style: TextStyle(
+                      color: isVisited ? Colors.grey[300] : Colors.grey[400],
+                      fontSize: 13,
+                      height: 1.5,
+                      fontStyle:
+                          isVisited ? FontStyle.normal : FontStyle.italic,
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 16),
 
-            // Статы
-            Wrap(
-              spacing: 8,
-              runSpacing: 6,
-              children: [
-                _chip('⚠️ Опасность ${location.dangerLevel}', location.dangerColor),
-                if (location.searchTime > 0)
-                  _chip(
-                    '⏱️ ${location.searchTime} мин',
-                    Colors.blue[400]!,
-                  ),
-                if (location.enemies.isNotEmpty)
-                  _chip(
-                    '👥 ${location.enemies.length}',
-                    Colors.red[400]!,
-                  ),
-                if (location.lootPool.isNotEmpty)
-                  _chip(
-                    '🎁 ${location.lootPool.length}',
-                    Colors.green[400]!,
-                  ),
-                if (location.risk != null)
-                  _chip('☣️ Опасность', Colors.deepOrange[400]!),
-              ],
-            ),
-            const SizedBox(height: 24),
+            if (isVisited) ...[
+              _buildStatsChips(),
+              const SizedBox(height: 20),
+            ],
 
-            // Кнопка перемещения (если это сосед)
-            if (canMove && onMove != null)
+            if (canMove && travelMinutes != null) ...[
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFC8B464).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: const Color(0xFFC8B464).withValues(alpha: 0.4),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.directions_walk,
+                      color: Color(0xFFC8B464),
+                      size: 18,
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Время в пути: ${_formatTime(travelMinutes!)}',
+                      style: const TextStyle(
+                        color: Color(0xFFC8B464),
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            if (canMove && onMove != null) ...[
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
@@ -28221,7 +30996,7 @@ class MapInfoSheet extends StatelessWidget {
                   },
                   icon: const Icon(Icons.arrow_forward, size: 18),
                   label: const Text(
-                    'ПЕРЕЙТИ СЮДА',
+                    'ПЕРЕЙТИ',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -28238,7 +31013,41 @@ class MapInfoSheet extends StatelessWidget {
                   ),
                 ),
               ),
-            const SizedBox(height: 8),
+              const SizedBox(height: 8),
+            ],
+
+            if (canScout && !isVisited && onScout != null) ...[
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    AudioService.playClick();
+                    Navigator.pop(context);
+                    onScout!();
+                  },
+                  icon: const Icon(Icons.visibility_outlined, size: 18),
+                  label: const Text(
+                    '🔭  РАЗВЕДАТЬ (30 мин)',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        const Color.fromARGB(255, 100, 130, 180),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+
             SizedBox(
               width: double.infinity,
               child: TextButton(
@@ -28262,6 +31071,86 @@ class MapInfoSheet extends StatelessWidget {
     );
   }
 
+  Widget _buildStatusRow() {
+    final status = _getStatus();
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          decoration: BoxDecoration(
+            color: status.color.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(color: status.color, width: 1),
+          ),
+          child: Text(
+            status.label,
+            style: TextStyle(
+              color: status.color,
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.5,
+            ),
+          ),
+        ),
+        if (location.mapZone != null) ...[
+          const SizedBox(width: 8),
+          Text(
+            '📍 ${location.mapZone}',
+            style: TextStyle(
+              color: Colors.grey[500],
+              fontSize: 10,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  _LocationStatus _getStatus() {
+    if (canMove) {
+      return _LocationStatus(
+        label: isBorder ? 'ЗА ГРАНИЦЕЙ' : 'ДОСТУПНА',
+        color: isBorder
+            ? const Color(0xFFFF8040)
+            : const Color(0xFFC8B464),
+      );
+    }
+    if (isVisited) {
+      return const _LocationStatus(
+        label: 'ИЗВЕСТНА',
+        color: Color(0xFF888888),
+      );
+    }
+    if (isScouted) {
+      return const _LocationStatus(
+        label: 'РАЗВЕДАНА',
+        color: Color(0xFF5F8FBF),
+      );
+    }
+    return const _LocationStatus(
+      label: 'НЕИЗВЕСТНА',
+      color: Color(0xFF666666),
+    );
+  }
+
+  Widget _buildStatsChips() {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 6,
+      children: [
+        _chip('⚠️ ${location.dangerName}', location.dangerColor),
+        if (location.searchTime > 0)
+          _chip('⏱️ ${location.searchTime} мин', Colors.blue[400]!),
+        if (location.enemies.isNotEmpty)
+          _chip('👥 ${location.enemies.length}', Colors.red[400]!),
+        if (location.lootPool.isNotEmpty)
+          _chip('🎁 ${location.lootPool.length}', Colors.green[400]!),
+        if (location.risk != null)
+          _chip('☣️ Опасность', Colors.deepOrange[400]!),
+      ],
+    );
+  }
+
   Widget _chip(String text, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -28280,6 +31169,21 @@ class MapInfoSheet extends StatelessWidget {
       ),
     );
   }
+
+  String _formatTime(int minutes) {
+    if (minutes < 60) return '$minutes мин';
+    final h = minutes ~/ 60;
+    final m = minutes % 60;
+    if (m == 0) return '${h}ч';
+    return '${h}ч ${m}м';
+  }
+}
+
+class _LocationStatus {
+  final String label;
+  final Color color;
+
+  const _LocationStatus({required this.label, required this.color});
 }
 ```
 
@@ -28524,6 +31428,7 @@ enum NodeState {
 class MapNode extends StatelessWidget {
   final Location location;
   final NodeState state;
+  final bool isSelected;
   final VoidCallback? onTap;
 
   static const double nodeSize = 56.0;
@@ -28533,14 +31438,13 @@ class MapNode extends StatelessWidget {
     super.key,
     required this.location,
     required this.state,
+    this.isSelected = false,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isTappable = state == NodeState.current ||
-        state == NodeState.neighbor ||
-        state == NodeState.visited;
+    final isTappable = state != NodeState.hidden;
 
     return GestureDetector(
       onTap: isTappable ? onTap : null,
@@ -28557,6 +31461,7 @@ class MapNode extends StatelessWidget {
                 alignment: Alignment.center,
                 children: [
                   if (state == NodeState.current) _buildPulse(),
+                  if (isSelected && state != NodeState.current) _buildSelectedPulse(),
                   _buildCircle(),
                   _buildIcon(),
                 ],
@@ -28593,6 +31498,29 @@ class MapNode extends StatelessWidget {
     );
   }
 
+  /// Пульсация выбранной локации.
+  Widget _buildSelectedPulse() {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 1200),
+      curve: Curves.easeInOut,
+      builder: (context, value, child) {
+        return Container(
+          width: nodeSize + 14 * value,
+          height: nodeSize + 14 * value,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: const Color(0xFFFFD070)
+                  .withValues(alpha: (1.0 - value) * 0.6),
+              width: 1.5,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   /// Основной кружок с обводкой.
   Widget _buildCircle() {
     final fillColor = _getFillColor();
@@ -28606,17 +31534,41 @@ class MapNode extends StatelessWidget {
         shape: BoxShape.circle,
         color: fillColor,
         border: Border.all(color: borderColor, width: borderWidth),
-        boxShadow: state == NodeState.current
-            ? [
-                BoxShadow(
-                  color: const Color(0xFFC8B464).withValues(alpha: 0.5),
-                  blurRadius: 14,
-                  spreadRadius: 3,
-                ),
-              ]
-            : null,
+        boxShadow: _getBoxShadows(),
       ),
     );
+  }
+
+  /// Тени (для текущей / выбранной).
+  List<BoxShadow>? _getBoxShadows() {
+    if (state == NodeState.current) {
+      return [
+        BoxShadow(
+          color: const Color(0xFFC8B464).withValues(alpha: 0.5),
+          blurRadius: 14,
+          spreadRadius: 3,
+        ),
+      ];
+    }
+    if (isSelected) {
+      return [
+        BoxShadow(
+          color: const Color(0xFFFFD070).withValues(alpha: 0.6),
+          blurRadius: 16,
+          spreadRadius: 4,
+        ),
+      ];
+    }
+    if (state == NodeState.neighbor) {
+      return [
+        BoxShadow(
+          color: const Color(0xFFC8B464).withValues(alpha: 0.2),
+          blurRadius: 8,
+          spreadRadius: 1,
+        ),
+      ];
+    }
+    return null;
   }
 
   /// Цвет заливки — по danger_level.
@@ -28627,18 +31579,22 @@ class MapNode extends StatelessWidget {
 
     // visited — по уровню опасности
     final danger = location.dangerLevel;
-    if (location.isFinal) return const Color(0xFF3A2E10); // Северная станция
-    if (danger <= 2) return const Color(0xFF142018); // безопасно — зелёный
-    if (danger <= 5) return const Color(0xFF201814); // средне — тёплый
-    if (danger <= 8) return const Color(0xFF201010); // опасно — красный
-    return const Color(0xFF251010); // смертельно — тёмно-красный
+    if (location.isFinal) return const Color(0xFF3A2E10);
+    if (danger <= 2) return const Color(0xFF142018);
+    if (danger <= 5) return const Color(0xFF201814);
+    if (danger <= 8) return const Color(0xFF201010);
+    return const Color(0xFF251010);
   }
 
   /// Цвет обводки.
   Color _getBorderColor() {
+    if (isSelected && state != NodeState.current) {
+      return const Color(0xFFFFD070);
+    }
+
     switch (state) {
       case NodeState.current:
-        return const Color(0xFFC8B464); // золотой
+        return const Color(0xFFC8B464);
       case NodeState.neighbor:
         return const Color(0xFFC8B464).withValues(alpha: 0.75);
       case NodeState.visited:
@@ -28646,7 +31602,7 @@ class MapNode extends StatelessWidget {
           return const Color(0xFFC8B464).withValues(alpha: 0.6);
         }
         if (location.hidden) {
-          return const Color(0xFF8844FF).withValues(alpha: 0.6); // скрытая
+          return const Color(0xFF8844FF).withValues(alpha: 0.6);
         }
         return Colors.white.withValues(alpha: 0.4);
       case NodeState.hidden:
@@ -28656,6 +31612,8 @@ class MapNode extends StatelessWidget {
 
   /// Толщина обводки.
   double _getBorderWidth() {
+    if (isSelected && state != NodeState.current) return 2.5;
+
     switch (state) {
       case NodeState.current:
         return 2.5;
@@ -28670,16 +31628,12 @@ class MapNode extends StatelessWidget {
 
   /// Иконка внутри кружка.
   Widget _buildIcon() {
-    final opacity = state == NodeState.visited ? 0.7 : 1.0;
+    final opacity = state == NodeState.visited && !isSelected ? 0.6 : 1.0;
 
-    // Финальная станция — особый значок
     if (location.isFinal) {
       return Opacity(
         opacity: opacity,
-        child: const Text(
-          '⭐',
-          style: TextStyle(fontSize: 26),
-        ),
+        child: const Text('⭐', style: TextStyle(fontSize: 26)),
       );
     }
 
@@ -28692,33 +31646,44 @@ class MapNode extends StatelessWidget {
     );
   }
 
-  /// Подпись локации под кружком.
+  /// Подпись локации.
   Widget _buildLabel() {
     final Color textColor;
     final FontWeight weight;
 
-    switch (state) {
-      case NodeState.current:
-        textColor = const Color(0xFFC8B464);
-        weight = FontWeight.bold;
-        break;
-      case NodeState.neighbor:
-        textColor = const Color(0xFFC8B464).withValues(alpha: 0.9);
-        weight = FontWeight.w600;
-        break;
-      case NodeState.visited:
-        textColor = Colors.white.withValues(alpha: 0.55);
-        weight = FontWeight.normal;
-        break;
-      case NodeState.hidden:
-        return const SizedBox.shrink();
+    if (isSelected) {
+      textColor = const Color(0xFFFFD070);
+      weight = FontWeight.bold;
+    } else {
+      switch (state) {
+        case NodeState.current:
+          textColor = const Color(0xFFC8B464);
+          weight = FontWeight.bold;
+          break;
+        case NodeState.neighbor:
+          textColor = const Color(0xFFC8B464).withValues(alpha: 0.9);
+          weight = FontWeight.w600;
+          break;
+        case NodeState.visited:
+          textColor = Colors.white.withValues(alpha: 0.5);
+          weight = FontWeight.normal;
+          break;
+        case NodeState.hidden:
+          return const SizedBox.shrink();
+      }
     }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.6),
+        color: Colors.black.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(3),
+        border: isSelected
+            ? Border.all(
+                color: const Color(0xFFFFD070).withValues(alpha: 0.6),
+                width: 1,
+              )
+            : null,
       ),
       child: Text(
         location.name,
@@ -28729,10 +31694,7 @@ class MapNode extends StatelessWidget {
           letterSpacing: 0.2,
           height: 1.1,
           shadows: const [
-            Shadow(
-              color: Colors.black,
-              blurRadius: 2,
-            ),
+            Shadow(color: Colors.black, blurRadius: 2),
           ],
         ),
         textAlign: TextAlign.center,
@@ -29066,7 +32028,7 @@ class MapStatusBar extends StatelessWidget {
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
-/// Цвета зон на карте.
+/// Цвета зон.
 const Map<String, Color> kZoneColors = {
   'city_south': Color(0x1AFFA500),
   'city_center': Color(0x1AFF4444),
@@ -29086,35 +32048,46 @@ const Map<String, String> kZoneNames = {
   'underground': 'ТОННЕЛИ',
 };
 
-/// Прямоугольники зон в логических координатах.
+/// Прямоугольники зон (логические координаты).
 const Map<String, Rect> kZoneRects = {
   'north': Rect.fromLTWH(0.0, 0.0, 1.0, 0.15),
   'highway': Rect.fromLTWH(0.0, 0.15, 1.0, 0.20),
   'forest': Rect.fromLTWH(0.0, 0.35, 0.45, 0.35),
   'city_center': Rect.fromLTWH(0.45, 0.35, 0.55, 0.35),
   'city_south': Rect.fromLTWH(0.0, 0.70, 1.0, 0.30),
+  'underground': Rect.fromLTWH(0.0, 0.85, 1.0, 0.15),
 };
 
-/// Рисует зоны, сетку и силуэты на фоне карты.
+/// Рисует зоны, сетку и силуэты.
+///
+/// Отображает **только открытые регионы**.
 class MapZonePainter extends CustomPainter {
   final Size logicalSize;
 
+  /// Открытые регионы (из MapController.discoveredRegions).
+  final Set<String> discoveredRegions;
 
-  const MapZonePainter({required this.logicalSize});
+  const MapZonePainter({
+    required this.logicalSize,
+    required this.discoveredRegions,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     _drawBackground(canvas, size);
     _drawGrid(canvas, size);
-    _drawZones(canvas, size);
-    _drawCitySilhouettes(canvas, size);
-    _drawForestSilhouettes(canvas, size);
-    _drawHighwaySilhouettes(canvas, size);
-    _drawNorthSilhouettes(canvas, size);
-    _drawUndergroundSilhouettes(canvas, size);
+
+    // Рисуем только открытые регионы.
+    for (final zoneId in discoveredRegions) {
+      final rect = kZoneRects[zoneId];
+      if (rect == null) continue;
+
+      _drawZone(canvas, size, zoneId, rect);
+      _drawZoneSilhouettes(canvas, size, zoneId, rect);
+    }
   }
 
-  /// Градиентный фон — не чистый чёрный, а с оттенком.
+  /// Градиентный фон.
   void _drawBackground(Canvas canvas, Size size) {
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
 
@@ -29123,9 +32096,9 @@ class MapZonePainter extends CustomPainter {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          Color(0xFF0E0E14), // север — синеватый
-          Color(0xFF0A0A0A), // середина — почти чёрный
-          Color(0xFF100C08), // юг — тёплый
+          Color(0xFF0E0E14),
+          Color(0xFF0A0A0A),
+          Color(0xFF100C08),
         ],
         stops: [0.0, 0.5, 1.0],
       ).createShader(rect);
@@ -29133,7 +32106,7 @@ class MapZonePainter extends CustomPainter {
     canvas.drawRect(rect, paint);
   }
 
-  /// Сетка «миллиметровка».
+  /// Сетка.
   void _drawGrid(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = const Color(0x0AFFFFFF)
@@ -29148,39 +32121,34 @@ class MapZonePainter extends CustomPainter {
     }
   }
 
-  /// Цветные зоны с подписями.
-  void _drawZones(Canvas canvas, Size size) {
-    for (final entry in kZoneRects.entries) {
-      final zoneId = entry.key;
-      final rect = entry.value;
-      final color = kZoneColors[zoneId] ?? Colors.transparent;
+  /// Цветная зона с подписью.
+  void _drawZone(Canvas canvas, Size size, String zoneId, Rect rect) {
+    final color = kZoneColors[zoneId] ?? Colors.transparent;
 
-      final pxRect = Rect.fromLTWH(
-        rect.left * size.width,
-        rect.top * size.height,
-        rect.width * size.width,
-        rect.height * size.height,
-      );
+    final pxRect = Rect.fromLTWH(
+      rect.left * size.width,
+      rect.top * size.height,
+      rect.width * size.width,
+      rect.height * size.height,
+    );
 
-      final fillPaint = Paint()..color = color;
-      canvas.drawRect(pxRect, fillPaint);
+    final fillPaint = Paint()..color = color;
+    canvas.drawRect(pxRect, fillPaint);
 
-      final borderPaint = Paint()
-        ..color = color.withValues(alpha: 0.5)
-        ..strokeWidth = 1.0
-        ..style = PaintingStyle.stroke;
-      canvas.drawRect(pxRect, borderPaint);
+    final borderPaint = Paint()
+      ..color = color.withValues(alpha: 0.5)
+      ..strokeWidth = 1.0
+      ..style = PaintingStyle.stroke;
+    canvas.drawRect(pxRect, borderPaint);
 
-      _drawZoneLabel(
-        canvas,
-        pxRect.topLeft + const Offset(10, 10),
-        kZoneNames[zoneId] ?? zoneId.toUpperCase(),
-        color.withValues(alpha: 0.9),
-      );
-    }
+    _drawZoneLabel(
+      canvas,
+      pxRect.topLeft + const Offset(10, 10),
+      kZoneNames[zoneId] ?? zoneId.toUpperCase(),
+      color.withValues(alpha: 0.9),
+    );
   }
 
-  /// Подпись зоны.
   void _drawZoneLabel(Canvas canvas, Offset offset, String text, Color color) {
     final textPainter = TextPainter(
       text: TextSpan(
@@ -29198,36 +32166,54 @@ class MapZonePainter extends CustomPainter {
     textPainter.paint(canvas, offset);
   }
 
-  /// Силуэты зданий в городских зонах.
-  void _drawCitySilhouettes(Canvas canvas, Size size) {
-    // city_south — дома
-    _drawBuildingRow(
-      canvas,
-      size,
-      Rect.fromLTWH(0.0, 0.70, 1.0, 0.30),
-      baseAlpha: 0.08,
-      seed: 100,
-    );
-    // city_center — небоскрёбы (выше)
-    _drawBuildingRow(
-      canvas,
-      size,
-      Rect.fromLTWH(0.45, 0.35, 0.55, 0.35),
-      baseAlpha: 0.10,
-      seed: 200,
-      heightFactor: 1.6,
-    );
-  }
-
-  /// Ряд зданий — прямоугольники разной высоты.
-  void _drawBuildingRow(
+  /// Силуэты для каждого открытого региона.
+  void _drawZoneSilhouettes(
     Canvas canvas,
     Size size,
+    String zoneId,
     Rect zone,
-    {required double baseAlpha,
-    required int seed,
-    double heightFactor = 1.0}
   ) {
+    switch (zoneId) {
+      case 'city_south':
+        _drawCitySilhouettes(canvas, size, zone, baseAlpha: 0.08, seed: 100);
+        break;
+      case 'city_center':
+        _drawCitySilhouettes(
+          canvas,
+          size,
+          zone,
+          baseAlpha: 0.10,
+          seed: 200,
+          heightFactor: 1.6,
+        );
+        break;
+      case 'forest':
+        _drawForestSilhouettes(canvas, size, zone);
+        break;
+      case 'highway':
+        _drawHighwaySilhouettes(canvas, size, zone);
+        break;
+      case 'north':
+        _drawNorthSilhouettes(canvas, size, zone);
+        break;
+      case 'underground':
+        _drawUndergroundSilhouettes(canvas, size);
+        break;
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // СИЛУЭТЫ
+  // ═══════════════════════════════════════════════════════════
+
+  void _drawCitySilhouettes(
+    Canvas canvas,
+    Size size,
+    Rect zone, {
+    required double baseAlpha,
+    required int seed,
+    double heightFactor = 1.0,
+  }) {
     final rng = math.Random(seed);
     final zoneRect = Rect.fromLTWH(
       zone.left * size.width,
@@ -29239,7 +32225,6 @@ class MapZonePainter extends CustomPainter {
     final paint = Paint()
       ..color = Colors.white.withValues(alpha: baseAlpha);
 
-    // Ряд зданий внизу зоны
     const buildingCount = 8;
     final buildingWidth = zoneRect.width / buildingCount;
 
@@ -29249,13 +32234,8 @@ class MapZonePainter extends CustomPainter {
       final by = zoneRect.bottom - h;
       final bw = buildingWidth - 8;
 
-      // Тело здания
-      canvas.drawRect(
-        Rect.fromLTWH(bx, by, bw, h),
-        paint,
-      );
+      canvas.drawRect(Rect.fromLTWH(bx, by, bw, h), paint);
 
-      // Окна (вертикальные полоски)
       final windowPaint = Paint()
         ..color = Colors.white.withValues(alpha: baseAlpha * 1.5);
       final windowRows = (h / 8).floor();
@@ -29263,14 +32243,9 @@ class MapZonePainter extends CustomPainter {
 
       for (int wr = 0; wr < windowRows; wr++) {
         for (int wc = 0; wc < windowCols; wc++) {
-          if (rng.nextDouble() > 0.4) continue; // не все окна горят
+          if (rng.nextDouble() > 0.4) continue;
           canvas.drawRect(
-            Rect.fromLTWH(
-              bx + 4 + wc * 6,
-              by + 4 + wr * 8,
-              2,
-              3,
-            ),
+            Rect.fromLTWH(bx + 4 + wc * 6, by + 4 + wr * 8, 2, 3),
             windowPaint,
           );
         }
@@ -29278,11 +32253,8 @@ class MapZonePainter extends CustomPainter {
     }
   }
 
-  /// Силуэты ёлок в лесу.
-  void _drawForestSilhouettes(Canvas canvas, Size size) {
-    const zone = Rect.fromLTWH(0.0, 0.35, 0.45, 0.35);
+  void _drawForestSilhouettes(Canvas canvas, Size size, Rect zone) {
     final rng = math.Random(300);
-
     final zoneRect = Rect.fromLTWH(
       zone.left * size.width,
       zone.top * size.height,
@@ -29294,19 +32266,15 @@ class MapZonePainter extends CustomPainter {
       ..color = Colors.white.withValues(alpha: 0.10)
       ..style = PaintingStyle.fill;
 
-    // Много ёлок разного размера
     for (int i = 0; i < 40; i++) {
       final x = zoneRect.left + rng.nextDouble() * zoneRect.width;
       final y = zoneRect.top + rng.nextDouble() * zoneRect.height;
       final h = 12 + rng.nextDouble() * 12;
-
       _drawTree(canvas, Offset(x, y), h, paint);
     }
   }
 
-  /// Одна ёлка (три треугольника).
   void _drawTree(Canvas canvas, Offset center, double h, Paint paint) {
-    // Верхний треугольник
     final path1 = Path()
       ..moveTo(center.dx, center.dy - h)
       ..lineTo(center.dx - h * 0.4, center.dy - h * 0.4)
@@ -29314,7 +32282,6 @@ class MapZonePainter extends CustomPainter {
       ..close();
     canvas.drawPath(path1, paint);
 
-    // Средний
     final path2 = Path()
       ..moveTo(center.dx, center.dy - h * 0.7)
       ..lineTo(center.dx - h * 0.5, center.dy - h * 0.1)
@@ -29322,7 +32289,6 @@ class MapZonePainter extends CustomPainter {
       ..close();
     canvas.drawPath(path2, paint);
 
-    // Нижний
     final path3 = Path()
       ..moveTo(center.dx, center.dy - h * 0.4)
       ..lineTo(center.dx - h * 0.6, center.dy + h * 0.3)
@@ -29331,9 +32297,7 @@ class MapZonePainter extends CustomPainter {
     canvas.drawPath(path3, paint);
   }
 
-  /// Разметка на трассе.
-  void _drawHighwaySilhouettes(Canvas canvas, Size size) {
-    const zone = Rect.fromLTWH(0.0, 0.15, 1.0, 0.20);
+  void _drawHighwaySilhouettes(Canvas canvas, Size size, Rect zone) {
     final zoneRect = Rect.fromLTWH(
       zone.left * size.width,
       zone.top * size.height,
@@ -29341,7 +32305,6 @@ class MapZonePainter extends CustomPainter {
       zone.height * size.height,
     );
 
-    // Дорога — широкая полоса
     final roadPaint = Paint()
       ..color = Colors.white.withValues(alpha: 0.06);
     canvas.drawRect(
@@ -29354,7 +32317,6 @@ class MapZonePainter extends CustomPainter {
       roadPaint,
     );
 
-    // Пунктирная разметка
     final dashPaint = Paint()
       ..color = Colors.white.withValues(alpha: 0.12)
       ..strokeWidth = 1.0;
@@ -29367,23 +32329,17 @@ class MapZonePainter extends CustomPainter {
       );
     }
 
-    // Разбитые машины — маленькие прямоугольники
     final rng = math.Random(400);
     final carPaint = Paint()
       ..color = Colors.white.withValues(alpha: 0.08);
     for (int i = 0; i < 6; i++) {
       final cx = zoneRect.left + rng.nextDouble() * zoneRect.width;
       final cy = zoneRect.center.dy - 25 + rng.nextDouble() * 50;
-      canvas.drawRect(
-        Rect.fromLTWH(cx, cy, 14, 6),
-        carPaint,
-      );
+      canvas.drawRect(Rect.fromLTWH(cx, cy, 14, 6), carPaint);
     }
   }
 
-  /// Радио-башня в зоне north.
-  void _drawNorthSilhouettes(Canvas canvas, Size size) {
-    const zone = Rect.fromLTWH(0.0, 0.0, 1.0, 0.15);
+  void _drawNorthSilhouettes(Canvas canvas, Size size, Rect zone) {
     final zoneRect = Rect.fromLTWH(
       zone.left * size.width,
       zone.top * size.height,
@@ -29396,64 +32352,37 @@ class MapZonePainter extends CustomPainter {
       ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke;
 
-    // Башня по центру
     final cx = zoneRect.center.dx;
     final baseY = zoneRect.bottom - 10;
     final topY = zoneRect.top + 20;
 
-    // Основание
-    canvas.drawLine(
-      Offset(cx - 20, baseY),
-      Offset(cx - 5, topY),
-      paint,
-    );
-    canvas.drawLine(
-      Offset(cx + 20, baseY),
-      Offset(cx + 5, topY),
-      paint,
-    );
+    canvas.drawLine(Offset(cx - 20, baseY), Offset(cx - 5, topY), paint);
+    canvas.drawLine(Offset(cx + 20, baseY), Offset(cx + 5, topY), paint);
 
-    // Перекладины
     for (int i = 0; i < 5; i++) {
       final t = i / 5.0;
       final y = baseY - (baseY - topY) * t;
       final width = 20 - t * 15;
-      canvas.drawLine(
-        Offset(cx - width, y),
-        Offset(cx + width, y),
-        paint,
-      );
+      canvas.drawLine(Offset(cx - width, y), Offset(cx + width, y), paint);
     }
 
-    // Антенна
-    canvas.drawLine(
-      Offset(cx, topY),
-      Offset(cx, topY - 15),
-      paint,
-    );
+    canvas.drawLine(Offset(cx, topY), Offset(cx, topY - 15), paint);
 
-    // Сигнал — круги
     final signalPaint = Paint()
       ..color = Colors.white.withValues(alpha: 0.08)
       ..strokeWidth = 1.0
       ..style = PaintingStyle.stroke;
     for (int i = 1; i <= 3; i++) {
-      canvas.drawCircle(
-        Offset(cx, topY - 15),
-        8.0 * i,
-        signalPaint,
-      );
+      canvas.drawCircle(Offset(cx, topY - 15), 8.0 * i, signalPaint);
     }
   }
 
-  /// Линии тоннелей в underground.
   void _drawUndergroundSilhouettes(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = Colors.white.withValues(alpha: 0.06)
       ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke;
 
-    // Несколько тоннельных линий
     final paths = [
       Path()
         ..moveTo(0, size.height * 0.92)
@@ -29463,8 +32392,8 @@ class MapZonePainter extends CustomPainter {
         ..moveTo(size.width * 0.05, size.height * 0.95)
         ..lineTo(size.width * 0.15, size.height * 0.98),
       Path()
-        ..moveTo(size.width * 0.5, size.height * 0.55)
-        ..lineTo(size.width * 0.6, size.height * 0.5),
+        ..moveTo(size.width * 0.5, size.height * 0.88)
+        ..lineTo(size.width * 0.6, size.height * 0.95),
     ];
 
     for (final path in paths) {
@@ -29474,7 +32403,414 @@ class MapZonePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant MapZonePainter oldDelegate) {
-    return oldDelegate.logicalSize != logicalSize;
+    return oldDelegate.logicalSize != logicalSize ||
+        oldDelegate.discoveredRegions != discoveredRegions;
+  }
+}
+```
+
+### 📄 `./lib/screens/gameplay/widgets/region_map_painter.dart`
+```dart
+import 'dart:math' as math;
+import 'package:flutter/material.dart';
+import 'package:dark_hours/models/world/region_layout.dart';
+
+/// Рисует схематичную карту региона.
+///
+/// Слои (снизу вверх):
+/// 1. Фон (градиент).
+/// 2. Река.
+/// 3. Кварталы (полигоны).
+/// 4. Здания (процедурно внутри кварталов).
+/// 5. Парки (зелёные зоны + деревья).
+/// 6. Дороги.
+class RegionMapPainter extends CustomPainter {
+  final RegionLayout layout;
+
+  /// Кеш зданий — чтобы не генерировать каждый кадр.
+  final Map<String, List<Building>> _buildingCache = {};
+
+  RegionMapPainter({required this.layout});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    _drawBackground(canvas, size);
+    _drawRiver(canvas, size);
+    _drawQuarters(canvas, size);
+    _drawBuildings(canvas, size);
+    _drawParks(canvas, size);
+    _drawRoads(canvas, size);
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ФОН
+  // ═══════════════════════════════════════════════════════════
+
+  void _drawBackground(Canvas canvas, Size size) {
+    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
+
+    final paint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          layout.backgroundColor,
+          const Color(0xFF0E0E12),
+          layout.backgroundColor,
+        ],
+        stops: const [0.0, 0.5, 1.0],
+      ).createShader(rect);
+
+    canvas.drawRect(rect, paint);
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // РЕКА
+  // ═══════════════════════════════════════════════════════════
+
+  void _drawRiver(Canvas canvas, Size size) {
+    final river = layout.river;
+    if (river == null || river.path.length < 2) return;
+
+    final path = _smoothPath(river.path, size);
+
+    // Основная вода
+    final waterPaint = Paint()
+      ..color = const Color(0x3F1E4A6E) // синий полупрозрачный
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = river.width * size.width
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    canvas.drawPath(path, waterPaint);
+
+    // Светлая линия сверху
+    final highlightPaint = Paint()
+      ..color = const Color(0x2A5F8FBF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = river.width * size.width * 0.5
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawPath(path, highlightPaint);
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // КВАРТАЛЫ
+  // ═══════════════════════════════════════════════════════════
+
+  void _drawQuarters(Canvas canvas, Size size) {
+    for (final quarter in layout.quarters) {
+      final path = _polygonPath(quarter.polygon, size);
+
+      // Заливка
+      final fillPaint = Paint()
+        ..color = layout.quarterColor
+        ..style = PaintingStyle.fill;
+
+      canvas.drawPath(path, fillPaint);
+
+      // Обводка
+      final borderPaint = Paint()
+        ..color = const Color(0x33FFFFFF)
+        ..strokeWidth = 1.0
+        ..style = PaintingStyle.stroke;
+
+      canvas.drawPath(path, borderPaint);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ЗДАНИЯ
+  // ═══════════════════════════════════════════════════════════
+
+  void _drawBuildings(Canvas canvas, Size size) {
+    for (final quarter in layout.quarters) {
+      // Кеш зданий
+      if (!_buildingCache.containsKey(quarter.id)) {
+        _buildingCache[quarter.id] = layout.generateBuildings(quarter);
+      }
+
+      final buildings = _buildingCache[quarter.id]!;
+
+      for (final building in buildings) {
+        _drawBuilding(canvas, size, building);
+      }
+    }
+  }
+
+  void _drawBuilding(Canvas canvas, Size size, Building building) {
+    // Масштабируем прямоугольник здания
+    final rect = Rect.fromLTWH(
+      building.rect.left * size.width,
+      building.rect.top * size.height,
+      building.rect.width * size.width,
+      building.rect.height * size.height,
+    );
+
+    // Тень (сдвиг вниз-вправо)
+    final shadowRect = rect.translate(2, 2);
+    final shadowPaint = Paint()..color = const Color(0x66000000);
+    canvas.drawRect(shadowRect, shadowPaint);
+
+    // Основной корпус
+    final bodyPaint = Paint()..color = building.color;
+    canvas.drawRect(rect, bodyPaint);
+
+    // Крыша (треугольник сверху)
+    final roofHeight = building.height * size.height;
+    final roofPath = Path()
+      ..moveTo(rect.left, rect.top)
+      ..lineTo(rect.center.dx, rect.top - roofHeight)
+      ..lineTo(rect.right, rect.top)
+      ..close();
+
+    final roofPaint = Paint()
+      ..color = const Color(0xFF444444);
+    canvas.drawPath(roofPath, roofPaint);
+
+    // Обводка корпуса
+    final borderPaint = Paint()
+      ..color = const Color(0x55FFFFFF)
+      ..strokeWidth = 0.8
+      ..style = PaintingStyle.stroke;
+    canvas.drawRect(rect, borderPaint);
+
+    // Окна (пара точек)
+    if (rect.width > 15 && rect.height > 15) {
+      final windowPaint = Paint()..color = const Color(0x55FFD070);
+      const windowSize = 2.0;
+
+      // 2 окна по горизонтали
+      canvas.drawRect(
+        Rect.fromLTWH(
+          rect.left + rect.width * 0.25 - windowSize / 2,
+          rect.top + rect.height * 0.4 - windowSize / 2,
+          windowSize,
+          windowSize,
+        ),
+        windowPaint,
+      );
+      canvas.drawRect(
+        Rect.fromLTWH(
+          rect.left + rect.width * 0.75 - windowSize / 2,
+          rect.top + rect.height * 0.4 - windowSize / 2,
+          windowSize,
+          windowSize,
+        ),
+        windowPaint,
+      );
+    }
+
+    // Труба
+    if (building.hasChimney) {
+      final chimneyRect = Rect.fromLTWH(
+        rect.right - 4,
+        rect.top - roofHeight - 3,
+        2.5,
+        5,
+      );
+      final chimneyPaint = Paint()..color = const Color(0xFF666666);
+      canvas.drawRect(chimneyRect, chimneyPaint);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ПАРКИ
+  // ═══════════════════════════════════════════════════════════
+
+  void _drawParks(Canvas canvas, Size size) {
+    for (final park in layout.parks) {
+      final path = _polygonPath(park.polygon, size);
+
+      // Зелёная заливка
+      final fillPaint = Paint()
+        ..color = const Color(0x1A22AA22)
+        ..style = PaintingStyle.fill;
+      canvas.drawPath(path, fillPaint);
+
+      // Обводка зелёная
+      final borderPaint = Paint()
+        ..color = const Color(0x4022AA22)
+        ..strokeWidth = 1.0
+        ..style = PaintingStyle.stroke;
+      canvas.drawPath(path, borderPaint);
+
+      // Деревья
+      _drawParkTrees(canvas, size, park);
+    }
+  }
+
+  void _drawParkTrees(Canvas canvas, Size size, Park park) {
+    final rng = math.Random(park.seed);
+
+    // Bounding box
+    double minX = double.infinity;
+    double maxX = -double.infinity;
+    double minY = double.infinity;
+    double maxY = -double.infinity;
+
+    for (final p in park.polygon) {
+      minX = math.min(minX, p.dx);
+      maxX = math.max(maxX, p.dx);
+      minY = math.min(minY, p.dy);
+      maxY = math.max(maxY, p.dy);
+    }
+
+    final treePaint = Paint()
+      ..color = const Color(0x33FFFFFF)
+      ..style = PaintingStyle.fill;
+
+    int placed = 0;
+    int attempts = 0;
+
+    while (placed < park.treesCount && attempts < 200) {
+      attempts++;
+
+      final x = minX + rng.nextDouble() * (maxX - minX);
+      final y = minY + rng.nextDouble() * (maxY - minY);
+
+      if (!park.contains(Offset(x, y))) continue;
+
+      _drawTree(
+        canvas,
+        Offset(x * size.width, y * size.height),
+        6 + rng.nextDouble() * 4,
+        treePaint,
+      );
+      placed++;
+    }
+  }
+
+  void _drawTree(Canvas canvas, Offset center, double h, Paint paint) {
+    // Простая ёлка — два треугольника
+    final path = Path()
+      ..moveTo(center.dx, center.dy - h)
+      ..lineTo(center.dx - h * 0.6, center.dy + h * 0.5)
+      ..lineTo(center.dx + h * 0.6, center.dy + h * 0.5)
+      ..close();
+    canvas.drawPath(path, paint);
+
+    // Ствол
+    final trunkPaint = Paint()..color = const Color(0x441A1A1A);
+    canvas.drawRect(
+      Rect.fromLTWH(center.dx - 1, center.dy + h * 0.4, 2, 3),
+      trunkPaint,
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ДОРОГИ
+  // ═══════════════════════════════════════════════════════════
+
+  void _drawRoads(Canvas canvas, Size size) {
+    for (final road in layout.roads) {
+      final path = _smoothPath(road.path, size);
+
+      // Асфальт
+      final roadPaint = Paint()
+        ..color = road.isMain
+            ? const Color(0x33FFFFFF)
+            : const Color(0x1AFFFFFF)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = road.isMain ? 6.0 : 3.0
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round;
+
+      canvas.drawPath(path, roadPaint);
+
+      // Разметка для главных
+      if (road.isMain) {
+        final dashPaint = Paint()
+          ..color = const Color(0x44888844)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.0
+          ..strokeCap = StrokeCap.round;
+
+        _drawDashedPath(canvas, path, dashPaint, dashLength: 8, gapLength: 8);
+      }
+    }
+  }
+
+  void _drawDashedPath(
+    Canvas canvas,
+    Path path,
+    Paint paint, {
+    required double dashLength,
+    required double gapLength,
+  }) {
+    for (final metric in path.computeMetrics()) {
+      double distance = 0;
+      while (distance < metric.length) {
+        final end = (distance + dashLength).clamp(0.0, metric.length);
+        final extract = metric.extractPath(distance, end);
+        canvas.drawPath(extract, paint);
+        distance += dashLength + gapLength;
+      }
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ХЕЛПЕРЫ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Создать Path из полигона (в логических координатах).
+  Path _polygonPath(List<Offset> polygon, Size size) {
+    final path = Path();
+    if (polygon.isEmpty) return path;
+
+    path.moveTo(
+      polygon[0].dx * size.width,
+      polygon[0].dy * size.height,
+    );
+
+    for (int i = 1; i < polygon.length; i++) {
+      path.lineTo(
+        polygon[i].dx * size.width,
+        polygon[i].dy * size.height,
+      );
+    }
+
+    path.close();
+    return path;
+  }
+
+  /// Создать гладкий Path из точек (квадратичная интерполяция).
+  Path _smoothPath(List<Offset> points, Size size) {
+    final path = Path();
+    if (points.isEmpty) return path;
+
+    path.moveTo(
+      points[0].dx * size.width,
+      points[0].dy * size.height,
+    );
+
+    for (int i = 1; i < points.length; i++) {
+      final p = points[i];
+      final prev = points[i - 1];
+
+      final mid = Offset(
+        (p.dx + prev.dx) / 2 * size.width,
+        (p.dy + prev.dy) / 2 * size.height,
+      );
+
+      path.quadraticBezierTo(
+        prev.dx * size.width,
+        prev.dy * size.height,
+        mid.dx,
+        mid.dy,
+      );
+    }
+
+    // Последняя точка
+    final last = points.last;
+    path.lineTo(last.dx * size.width, last.dy * size.height);
+
+    return path;
+  }
+
+  @override
+  bool shouldRepaint(covariant RegionMapPainter oldDelegate) {
+    return oldDelegate.layout != layout;
   }
 }
 ```
@@ -32701,14 +36037,10 @@ class MapController extends ChangeNotifier {
   final Map<String, int> searchedCounts = {};
   final Set<String> unlockedLocations = {};
 
-  // ═══════════════════════════════════════════════════════════
-  // ИССЛЕДОВАНИЕ
-  // ═══════════════════════════════════════════════════════════
-
-  /// Разведанные локации — игрок знает их существование, но не был там.
+  /// Разведанные локации.
   final Set<String> scoutedLocations = {};
 
-  /// Открытые регионы — игрок знает зоны (city_south, forest, ...).
+  /// Открытые регионы.
   final Set<String> discoveredRegions = {};
 
   final RunTracker tracker = RunTracker();
@@ -32791,19 +36123,9 @@ class MapController extends ChangeNotifier {
 
     gameTime = GameTime(totalMinutes: GameConstants.startTimeMinutes);
 
-    // Стартовая локация — сразу разведана и посещена.
+    // ТОЛЬКО стартовая локация разведана. Соседи — нет.
     scoutedLocations.add(startLoc.id);
     discoverRegion(startLoc.region);
-
-    // Соседи стартовой — автоматически разведаны.
-    for (final conn in startLoc.connections) {
-      scoutedLocations.add(conn.targetId);
-      final target = map!.getById(conn.targetId);
-      if (target != null) {
-        // Регион соседа тоже известен (частично).
-        discoverRegion(target.region);
-      }
-    }
   }
 
   void _restoreFromSave(SaveData s, List<Location> locations) {
@@ -32824,15 +36146,13 @@ class MapController extends ChangeNotifier {
     unlockedLocations.clear();
     unlockedLocations.addAll(s.unlockedLocations);
 
-    // Восстанавливаем исследование
     scoutedLocations.clear();
     scoutedLocations.addAll(s.scoutedLocations);
 
     discoveredRegions.clear();
     discoveredRegions.addAll(s.discoveredRegions);
 
-    // Миграция: если сохранение старое и полей нет — 
-    // добавляем стартовую локацию в scouted/discovered.
+    // Миграция: если старые сохранения без scouted — добавляем стартовую.
     if (scoutedLocations.isEmpty) {
       final startLoc = locations.firstWhere(
         (l) => l.isStart,
@@ -32840,9 +36160,6 @@ class MapController extends ChangeNotifier {
       );
       scoutedLocations.add(startLoc.id);
       discoverRegion(startLoc.region);
-      for (final conn in startLoc.connections) {
-        scoutedLocations.add(conn.targetId);
-      }
     }
 
     inventory.items.clear();
@@ -32886,27 +36203,21 @@ class MapController extends ChangeNotifier {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // ИССЛЕДОВАНИЕ — ПУБЛИЧНЫЙ API
+  // ИССЛЕДОВАНИЕ
   // ═══════════════════════════════════════════════════════════
 
-  /// Разведана ли локация.
   bool isScouted(String locationId) {
     return scoutedLocations.contains(locationId);
   }
 
-  /// Посещена ли локация.
   bool isVisited(String locationId) {
     return map?.visitedLocations.contains(locationId) ?? false;
   }
 
-  /// Открыт ли регион.
   bool isRegionDiscovered(String region) {
     return discoveredRegions.contains(region);
   }
 
-  /// Разведать локацию (без посещения).
-  ///
-  /// Регион разведанной локации тоже открывается.
   void scoutLocation(String locationId) {
     if (scoutedLocations.contains(locationId)) return;
     scoutedLocations.add(locationId);
@@ -32919,7 +36230,6 @@ class MapController extends ChangeNotifier {
     refresh();
   }
 
-  /// Разведать несколько локаций сразу.
   void scoutAll(Iterable<String> locationIds) {
     bool changed = false;
     for (final id in locationIds) {
@@ -32934,14 +36244,12 @@ class MapController extends ChangeNotifier {
     if (changed) refresh();
   }
 
-  /// Открыть регион.
   void discoverRegion(String region) {
     if (discoveredRegions.add(region)) {
       refresh();
     }
   }
 
-  /// Прямая установка (для тестов / загрузки).
   @visibleForTesting
   void setScouted(Set<String> ids) {
     scoutedLocations
@@ -32950,7 +36258,6 @@ class MapController extends ChangeNotifier {
     refresh();
   }
 
-  /// Прямая установка (для тестов).
   @visibleForTesting
   void setDiscoveredRegions(Set<String> regions) {
     discoveredRegions
@@ -32960,7 +36267,7 @@ class MapController extends ChangeNotifier {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // ПУБЛИЧНЫЙ API ДЛЯ МЕНЕДЖЕРОВ
+  // ПУБЛИЧНЫЙ API
   // ═══════════════════════════════════════════════════════════
 
   void refresh() {
@@ -33200,7 +36507,6 @@ class MapController extends ChangeNotifier {
 
   void unlockLocation(String locationId) {
     unlockedLocations.add(locationId);
-    // Открытая локация — сразу разведана.
     scoutedLocations.add(locationId);
     final loc = map?.getById(locationId);
     if (loc != null) discoverRegion(loc.region);
@@ -33358,18 +36664,9 @@ class MapController extends ChangeNotifier {
 
     gameTime = GameTime(totalMinutes: startTimeMinutes);
 
-    // Стартовая — разведана.
+    // Стартовая — разведана. Соседи — нет.
     scoutedLocations.add(startLoc.id);
     discoveredRegions.add(startLoc.region);
-
-    // Соседи стартовой — тоже разведаны.
-    for (final conn in startLoc.connections) {
-      scoutedLocations.add(conn.targetId);
-      final target = map!.getById(conn.targetId);
-      if (target != null) {
-        discoveredRegions.add(target.region);
-      }
-    }
 
     isLoading = false;
     refresh();
@@ -33408,11 +36705,11 @@ enum MoveResult {
   notFound,
   hidden,
   notConnected,
+  notAvailableInChapter,
 }
 
 /// Управляет перемещением между локациями.
 class MovementManager {
-  /// Перейти в локацию по ID.
   static Future<bool> move(
     BuildContext context,
     MapController controller,
@@ -33421,6 +36718,17 @@ class MovementManager {
     final validation = validateMove(controller, locationId);
     if (validation != MoveResult.success) {
       debugPrint('⚠️ MovementManager: переход отклонён — $validation');
+
+      // Специальное сообщение для не-доступных в главе
+      if (validation == MoveResult.notAvailableInChapter && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('🚧 Туда пока не пройти. Нужно время.'),
+            backgroundColor: Color.fromARGB(255, 100, 100, 100),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
       return false;
     }
 
@@ -33428,7 +36736,6 @@ class MovementManager {
     final target = map.getById(locationId)!;
     final current = controller.currentLocation;
 
-    // ─── 1. Время перехода из Connection ───
     int travelMinutes = 20;
     if (current != null) {
       final minutes = current.connectionMinutesTo(locationId);
@@ -33437,21 +36744,15 @@ class MovementManager {
       }
     }
 
-    // ─── 2. Расход стамины пропорционально времени ───
-    // 15 мин → 2 стамины, 60 мин → 6, 120 мин → 12, 200 мин → 20 (max).
     final staminaCost = (travelMinutes / 10).round().clamp(2, 20);
     controller.setStamina(controller.stamina - staminaCost);
 
-    // ─── 3. Звук клика ───
     AudioService.playClick();
 
-    // ─── 4. Продвигаем время ───
     await controller.advanceTime(travelMinutes);
 
-    // ─── 5. Меняем локацию ───
     map.moveTo(locationId);
 
-    // ─── 6. Авто-разведка новой локации ───
     controller.scoutLocation(locationId);
     controller.discoverRegion(target.region);
 
@@ -33461,7 +36762,6 @@ class MovementManager {
 
     controller.refresh();
 
-    // ─── 7. Ambience ───
     final ambiencePath = AudioService.ambienceForLocation(
       locationId: target.id,
       type: target.type,
@@ -33472,10 +36772,8 @@ class MovementManager {
       await AudioService.playAmbience(ambiencePath);
     }
 
-    // ─── 8. Автосохранение ───
     await controller.save();
 
-    // ─── 9. Снекбар ───
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -33488,7 +36786,6 @@ class MovementManager {
       );
     }
 
-    // ─── 10. Сюжетный триггер ───
     await StoryTriggerManager.checkTrigger(context, controller);
 
     return true;
@@ -33506,6 +36803,11 @@ class MovementManager {
     final target = map.getById(locationId);
     if (target == null) return MoveResult.notFound;
 
+    // Проверка главы.
+    if (!target.isAvailableAt(controller.chapter)) {
+      return MoveResult.notAvailableInChapter;
+    }
+
     if (target.hidden && !controller.isLocationUnlocked(target.id)) {
       return MoveResult.hidden;
     }
@@ -33518,7 +36820,6 @@ class MovementManager {
     return MoveResult.success;
   }
 
-  /// Получить время перехода (в минутах).
   @visibleForTesting
   static int getTravelTime(MapController controller, String locationId) {
     final current = controller.currentLocation;
@@ -33526,7 +36827,6 @@ class MovementManager {
     return current.connectionMinutesTo(locationId) ?? 20;
   }
 
-  /// Расход стамины на переход.
   @visibleForTesting
   static int computeStaminaCost(int travelMinutes) {
     return (travelMinutes / 10).round().clamp(2, 20);
@@ -38688,6 +41988,86 @@ class RestPanel extends StatelessWidget {
 }
 ```
 
+### 📄 `./mark_future_chapters.sh`
+```bash
+#!/bin/bash
+# mark_future_chapters.sh — помечает регионы как доступные со 2+ главы
+# Запуск из корня: ./mark_future_chapters.sh
+
+set -e
+
+echo "🔧 Помечаем будущие регионы..."
+echo ""
+
+# ═══════════════════════════════════════════════════════════
+# forest, highway, underground → глава 2
+# ═══════════════════════════════════════════════════════════
+
+for file in \
+  "assets/data/locations/forest.json" \
+  "assets/data/locations/highway.json" \
+  "assets/data/locations/underground.json"
+do
+  if [ ! -f "$file" ]; then
+    echo "   ⚠️  $file — не найден"
+    continue
+  fi
+
+  python3 << PYEOF
+import json
+
+path = "$file"
+with open(path, 'r', encoding='utf-8') as f:
+    data = json.load(f)
+
+for loc in data.get('locations', []):
+    loc['is_available_from_chapter'] = 2
+
+with open(path, 'w', encoding='utf-8') as f:
+    json.dump(data, f, ensure_ascii=False, indent=2)
+
+print(f"   ✅ $file")
+PYEOF
+done
+
+echo ""
+
+# ═══════════════════════════════════════════════════════════
+# north → глава 4
+# ═══════════════════════════════════════════════════════════
+
+for file in "assets/data/locations/north.json"
+do
+  if [ ! -f "$file" ]; then
+    echo "   ⚠️  $file — не найден"
+    continue
+  fi
+
+  python3 << PYEOF
+import json
+
+path = "$file"
+with open(path, 'r', encoding='utf-8') as f:
+    data = json.load(f)
+
+for loc in data.get('locations', []):
+    loc['is_available_from_chapter'] = 4
+
+with open(path, 'w', encoding='utf-8') as f:
+    json.dump(data, f, ensure_ascii=False, indent=2)
+
+print(f"   ✅ $file")
+PYEOF
+done
+
+echo ""
+echo "═══════════════════════════════════════════════════════════"
+echo "✅ Патч завершён!"
+echo ""
+echo "Проверь:"
+echo "  dart run tool/validate.dart 2>&1 | tail -10"
+```
+
 ### 📄 `./pubspec.yaml`
 ```yaml
 name: dark_hours
@@ -38720,10 +42100,12 @@ flutter:
     - assets/data/resources.json
     - assets/data/recipes.json
     - assets/data/conditions.json
-    - assets/data/locations.json
     - assets/data/search_events.json
     - assets/data/achievements.json
     - assets/data/enemies.json
+
+    # ===== ЛОКАЦИИ (по регионам) =====
+    - assets/data/locations/
 
     # ===== СЮЖЕТ =====
     - assets/data/story/boris/chapter_1/
@@ -42654,6 +46036,27 @@ void main() {
 }
 ```
 
+### 📄 `./test/widget_test.dart`
+```dart
+import 'package:flutter_test/flutter_test.dart';
+
+import 'package:dark_hours/main.dart';
+
+void main() {
+  group('DarkHoursApp — smoke test', () {
+    testWidgets('приложение запускается и показывает splash', (tester) async {
+      await tester.pumpWidget(const DarkHoursApp());
+      await tester.pump();
+
+      expect(
+        find.text('ТЁМНЫЕ ЧАСЫ'),
+        findsOneWidget,
+      );
+    });
+  });
+}
+```
+
 ### 📄 `./test/widgets/smoke_test.dart`
 ```dart
 import 'package:flutter_test/flutter_test.dart';
@@ -42733,24 +46136,9 @@ dart run tool/validate.dart
 //
 // Валидатор JSON-файлов проекта «Тёмные часы».
 // Запуск: dart run tool/validate.dart
-//
-// Проверяет:
-// - Синтаксис JSON
-// - Уникальность id в сюжете
-// - Все next/entry_nodes/end_nodes ведут к существующим нодам
-// - Все ссылки на предметы (items) существуют
-// - Все ссылки на локации (locations) существуют
-// - Все ссылки на рецепты, условия, search_events существуют
-// - Обязательные поля на месте
-//
-// Возвращает exit code 1, если есть ошибки (для CI).
 
 import 'dart:convert';
 import 'dart:io';
-
-// ═══════════════════════════════════════════════════════════
-// ГЛАВНАЯ ФУНКЦИЯ
-// ═══════════════════════════════════════════════════════════
 
 void main(List<String> args) {
   print('');
@@ -42759,7 +46147,6 @@ void main(List<String> args) {
 
   final validator = Validator();
 
-  // ═══════════ 1. Загружаем справочники ═══════════
   print('');
   print('📚 Загрузка справочников...');
   print('─' * 60);
@@ -42772,59 +46159,45 @@ void main(List<String> args) {
   print('  ✅ Локаций: ${validator.locationIds.length}');
   print('  ✅ Состояний: ${validator.conditionIds.length}');
 
-  // ═══════════ 2. Валидация сюжета ═══════════
   print('');
   print('📖 Сюжет');
   print('─' * 60);
-
   validator.validateAllStories();
 
-  // ═══════════ 3. Валидация локаций ═══════════
   print('');
   print('🗺️  Локации');
   print('─' * 60);
-
   validator.validateLocations();
 
-  // ═══════════ 4. Валидация рецептов ═══════════
   print('');
   print('🔨 Рецепты');
   print('─' * 60);
-
   validator.validateRecipes();
 
-  // ═══════════ 5. Валидация условий ═══════════
   print('');
   print('🦠 Состояния');
   print('─' * 60);
-
   validator.validateConditions();
 
-  // ═══════════ 6. Валидация search_events ═══════════
   print('');
   print('🎲 События поиска');
   print('─' * 60);
-
   validator.validateSearchEvents();
 
-  // ═══════════ 7. Валидация достижений ═══════════
   print('');
   print('🏆 Достижения');
   print('─' * 60);
-
   validator.validateAchievements();
 
-  // ═══════════ 8. Итог ═══════════
   print('');
   print('═' * 60);
   print('🎯 Итог');
   print('─' * 60);
-
   print('  📄 Файлов проверено: ${validator.filesChecked}');
   print('  ${validator.errorCount == 0 ? "✅" : "❌"} Ошибок: ${validator.errorCount}');
   print('  ${validator.warningCount == 0 ? "✅" : "⚠️ "} Предупреждений: ${validator.warningCount}');
-
   print('');
+
   if (validator.errorCount > 0) {
     print('❌ Валидация провалена. Исправь ошибки выше.');
     exit(1);
@@ -42834,24 +46207,17 @@ void main(List<String> args) {
   }
 }
 
-// ═══════════════════════════════════════════════════════════
-// ВАЛИДАТОР
-// ═══════════════════════════════════════════════════════════
-
 class Validator {
-  // Справочники
   final Set<String> itemIds = {};
   final Set<String> locationIds = {};
   final Set<String> conditionIds = {};
 
-  // Счётчики
   int filesChecked = 0;
   int errorCount = 0;
   int warningCount = 0;
 
   // ═══════════ Загрузка справочников ═══════════
 
-  /// Загружает все id предметов из weapons, tools, consumables, armor, resources
   void loadItemIds() {
     _loadIdsFromFile('assets/data/weapons.json', 'weapons', itemIds);
     _loadIdsFromFile('assets/data/tools.json', 'tools', itemIds);
@@ -42859,43 +46225,44 @@ class Validator {
     _loadIdsFromFile('assets/data/armor.json', 'armor', itemIds);
     _loadIdsFromFile('assets/data/resources.json', 'resources', itemIds);
 
-    // Дополнительные id предметов, которые крафтятся (molotov, torch, spear и т.п.)
     itemIds.addAll([
-      'molotov',
-      'torch',
-      'spear',
-      'fishing_rod',
-      'trap_snare',
-      'water_filter',
-      'key',
-      'note',
-      'photo',
-      'binoculars',
-      'ammo_box',
-      '9mm',
-      '357',
-      'shotgun_shell',
-      '762',
-      'pipe_bullet',
-      'arrow',
-      'bolt',
-      'flare',
-      'ammo',
+      'molotov', 'torch', 'spear', 'fishing_rod', 'trap_snare',
+      'water_filter', 'key', 'note', 'photo', 'binoculars',
+      'ammo_box', '9mm', '357', 'shotgun_shell', '762',
+      'pipe_bullet', 'arrow', 'bolt', 'flare', 'ammo',
       'lock_pick_crafted',
     ]);
   }
 
-  /// Загружает id всех локаций
+  /// Загружает ID локаций из **всех** файлов в папке.
   void loadLocationIds() {
-    _loadIdsFromFile('assets/data/locations.json', 'locations', locationIds);
+    final dir = Directory('assets/data/locations');
+    if (!dir.existsSync()) {
+      _error('Папка assets/data/locations не найдена');
+      return;
+    }
+
+    final files = dir
+        .listSync()
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.json'))
+        .toList()
+      ..sort((a, b) => a.path.compareTo(b.path));
+
+    if (files.isEmpty) {
+      _error('assets/data/locations: нет JSON-файлов');
+      return;
+    }
+
+    for (final file in files) {
+      _loadIdsFromFile(file.path, 'locations', locationIds);
+    }
   }
 
-  /// Загружает id всех состояний
   void loadConditionIds() {
     _loadIdsFromFile('assets/data/conditions.json', 'conditions', conditionIds);
   }
 
-  /// Универсальный загрузчик id из JSON-файла
   void _loadIdsFromFile(String path, String key, Set<String> target) {
     try {
       final file = File(path);
@@ -42919,9 +46286,129 @@ class Validator {
     }
   }
 
+  // ═══════════ Валидация локаций ═══════════
+
+  void validateLocations() {
+    final dir = Directory('assets/data/locations');
+    if (!dir.existsSync()) {
+      _error('Папка assets/data/locations не найдена');
+      return;
+    }
+
+    final files = dir
+        .listSync()
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.json'))
+        .toList()
+      ..sort((a, b) => a.path.compareTo(b.path));
+
+    int totalLocations = 0;
+    int totalErrors = 0;
+
+    for (final file in files) {
+      try {
+        final content = file.readAsStringSync();
+        final json = jsonDecode(content) as Map<String, dynamic>;
+        final locations = (json['locations'] as List).cast<Map<String, dynamic>>();
+
+        filesChecked++;
+        final fileName = file.path.split('/').last;
+
+        for (final loc in locations) {
+          totalLocations++;
+          final id = loc['id'] as String? ?? '<без id>';
+
+          // connections
+          final connections = (loc['connections'] as List? ?? []);
+          for (final conn in connections) {
+            String? target;
+            if (conn is String) {
+              target = conn;
+              _warn('$fileName/$id: connections — строка вместо объекта');
+            } else if (conn is Map) {
+              target = conn['id'] as String?;
+              if (conn['minutes'] == null) {
+                _warn('$fileName/$id: connections.$target без minutes');
+              }
+            }
+
+            if (target != null && !locationIds.contains(target)) {
+              _error('$fileName/$id: connections → "$target" не найдена');
+              totalErrors++;
+            }
+          }
+
+          // loot_pool
+          final lootPool = (loc['loot_pool'] as List? ?? []).cast<String>();
+          for (final item in lootPool) {
+            if (!itemIds.contains(item)) {
+              _warn('$fileName/$id: loot_pool → "$item" не найден');
+            }
+          }
+
+          // unlocked_by
+          final unlockedBy = loc['unlocked_by'] as String?;
+          if (unlockedBy != null && !locationIds.contains(unlockedBy)) {
+            _error('$fileName/$id: unlocked_by → "$unlockedBy" не найдена');
+            totalErrors++;
+          }
+
+          // mapPosition
+          if (loc['mapPosition'] == null) {
+            _warn('$fileName/$id: нет mapPosition');
+          } else {
+            final pos = loc['mapPosition'] as Map;
+            if (pos['x'] == null || pos['y'] == null) {
+              _error('$fileName/$id: mapPosition без x или y');
+              totalErrors++;
+            }
+          }
+
+          // map_zone
+          if (loc['map_zone'] == null) {
+            _warn('$fileName/$id: нет map_zone');
+          }
+
+          // scouted_name / scouted_description
+          if (loc['scouted_name'] == null) {
+            _warn('$fileName/$id: нет scouted_name');
+          }
+
+          // search_events
+          final events = (loc['search_events'] as List? ?? [])
+              .cast<Map<String, dynamic>>();
+          for (int i = 0; i < events.length; i++) {
+            final effect = events[i]['effect'] as Map<String, dynamic>?;
+            if (effect == null) continue;
+
+            final unlock = effect['unlock_location'] as String?;
+            if (unlock != null && unlock != 'auto' && !locationIds.contains(unlock)) {
+              _error('$fileName/$id: search_events[$i].unlock_location = "$unlock" не найдена');
+              totalErrors++;
+            }
+
+            final loot = (effect['random_loot'] as List? ?? []).cast<String>();
+            for (final item in loot) {
+              if (!itemIds.contains(item)) {
+                _warn('$fileName/$id: search_events[$i].random_loot → "$item" не найден');
+              }
+            }
+          }
+        }
+      } catch (e) {
+        _error('Ошибка парсинга ${file.path}: $e');
+      }
+    }
+
+    if (totalErrors == 0) {
+      print('  ✅ $totalLocations локаций в ${files.length} файлах, все ссылки валидны');
+    } else {
+      print('  ❌ $totalLocations локаций, $totalErrors ошибок');
+    }
+  }
+
   // ═══════════ Валидация сюжета ═══════════
 
-  /// Проходит по всем персонажам и главам сюжета
   void validateAllStories() {
     const characters = ['boris', 'alina', 'ivan', 'andrey', 'darya'];
 
@@ -42936,9 +46423,7 @@ class Validator {
     }
   }
 
-  /// Валидация одной главы одного персонажа
   void _validateChapter(String character, Directory dir) {
-    // ═══════ 1. Загружаем meta.json ═══════
     final metaFile = File('${dir.path}/meta.json');
     if (!metaFile.existsSync()) {
       _error('Нет meta.json в ${dir.path}');
@@ -42957,9 +46442,8 @@ class Validator {
     final acts = (meta['acts'] as List? ?? []).cast<Map<String, dynamic>>();
     final startNode = meta['acts']?[0]?['start_node'] as String?;
 
-    // ═══════ 2. Загружаем все акты ═══════
     final Map<String, Map<String, dynamic>> allNodes = {};
-    final Map<String, String> nodeToFile = {}; // id → файл (для диагностики)
+    final Map<String, String> nodeToFile = {};
 
     for (final act in acts) {
       final fileName = act['file'] as String?;
@@ -43003,30 +46487,21 @@ class Validator {
       }
     }
 
-    // ═══════ 3. Проверяем ссылки ═══════
     int errorBefore = errorCount;
 
-    // 3.1 start_node
     if (startNode != null && !allNodes.containsKey(startNode)) {
-      _error(
-        '$character: start_node "$startNode" не найден среди нод',
-      );
+      _error('$character: start_node "$startNode" не найден среди нод');
     }
 
-    // 3.2 entry_nodes из актов
     for (final act in acts) {
       final entryNodes = (act['entry_nodes'] as List? ?? []).cast<String>();
       for (final entry in entryNodes) {
         if (!allNodes.containsKey(entry)) {
-          _error(
-            '$character/${act['file']}: entry_node "$entry" не найден',
-          );
+          _error('$character/${act['file']}: entry_node "$entry" не найден');
         }
       }
     }
 
-    // 3.3 end_nodes из meta
-    // (может быть в meta как end_nodes верхнего уровня или в acts)
     final endNodes = (meta['end_nodes'] as List? ?? []).cast<String>();
     for (final end in endNodes) {
       if (!allNodes.containsKey(end)) {
@@ -43034,56 +46509,39 @@ class Validator {
       }
     }
 
-    // 3.4 Все next в choices + combat_victory/defeat/flee
     for (final entry in allNodes.entries) {
       final id = entry.key;
       final node = entry.value;
 
-      // Обязательные поля
-      if (node['title'] == null) {
-        _error('$character/$id: нет поля "title"');
-      }
-      if (node['text'] == null) {
-        _error('$character/$id: нет поля "text"');
-      }
+      if (node['title'] == null) _error('$character/$id: нет поля "title"');
+      if (node['text'] == null) _error('$character/$id: нет поля "text"');
 
       final choices = (node['choices'] as List? ?? []).cast<Map<String, dynamic>>();
 
       for (int i = 0; i < choices.length; i++) {
         final choice = choices[i];
 
-        // next
         final next = choice['next'] as String?;
         if (next == null) {
           _error('$character/$id: choice[$i] без поля "next"');
         } else if (!allNodes.containsKey(next)) {
-          _error(
-            '$character/$id: choice[$i].next = "$next" → нода не найдена',
-          );
+          _error('$character/$id: choice[$i].next = "$next" → нода не найдена');
         }
 
-        // combat_*
         final effects = choice['effects'] as Map<String, dynamic>?;
         if (effects != null) {
           for (final key in ['combat_victory', 'combat_defeat', 'combat_flee']) {
             final target = effects[key] as String?;
             if (target != null && !allNodes.containsKey(target)) {
-              _error(
-                '$character/$id: choice[$i].effects.$key = '
-                '"$target" → нода не найдена',
-              );
+              _error('$character/$id: choice[$i].effects.$key = "$target" → нода не найдена');
             }
           }
 
-          // inventory_add — проверяем, что предметы существуют
           final addIds = effects['inventory_add'] as List?;
           if (addIds != null) {
             for (final itemId in addIds.cast<String>()) {
               if (!itemIds.contains(itemId)) {
-                _warn(
-                  '$character/$id: choice[$i].effects.inventory_add '
-                  '"$itemId" → предмет не найден в справочнике',
-                );
+                _warn('$character/$id: choice[$i].effects.inventory_add "$itemId" → предмет не найден');
               }
             }
           }
@@ -43092,144 +46550,39 @@ class Validator {
           if (removeIds != null) {
             for (final itemId in removeIds.cast<String>()) {
               if (!itemIds.contains(itemId)) {
-                _warn(
-                  '$character/$id: choice[$i].effects.inventory_remove '
-                  '"$itemId" → предмет не найден',
-                );
+                _warn('$character/$id: choice[$i].effects.inventory_remove "$itemId" → предмет не найден');
               }
             }
           }
         }
 
-        // requires
         final requires = choice['requires'] as Map<String, dynamic>?;
         if (requires != null) {
           final hasItem = requires['has_item'] as String?;
           if (hasItem != null && !itemIds.contains(hasItem)) {
-            _error(
-              '$character/$id: choice[$i].requires.has_item = '
-              '"$hasItem" → предмет не найден',
-            );
+            _error('$character/$id: choice[$i].requires.has_item = "$hasItem" → предмет не найден');
           }
           final notItem = requires['not_item'] as String?;
           if (notItem != null && !itemIds.contains(notItem)) {
-            _warn(
-              '$character/$id: choice[$i].requires.not_item = '
-              '"$notItem" → предмет не найден',
-            );
+            _warn('$character/$id: choice[$i].requires.not_item = "$notItem" → предмет не найден');
           }
         }
       }
 
-      // Проверка: если нода не END_ и не act_X_end, но без choices — это ошибка
       if (choices.isEmpty) {
         final isEnd = id.startsWith('END_');
         final isActEnd = id.endsWith('_end');
         if (!isEnd && !isActEnd) {
-          _warn(
-            '$character/$id: нет choices, но id не END_* и не *_end',
-          );
+          _warn('$character/$id: нет choices, но id не END_* и не *_end');
         }
       }
     }
 
-    // ═══════ 4. Вывод ═══════
     final chapterErrors = errorCount - errorBefore;
     if (chapterErrors == 0) {
-      print(
-        '  ✅ $character/chapter_1 — ${allNodes.length} нод, '
-        '${acts.length} актов',
-      );
+      print('  ✅ $character/chapter_1 — ${allNodes.length} нод, ${acts.length} актов');
     } else {
-      print(
-        '  ❌ $character/chapter_1 — $chapterErrors ошибок '
-        '(нод: ${allNodes.length})',
-      );
-    }
-  }
-
-  // ═══════════ Валидация локаций ═══════════
-
-  void validateLocations() {
-    final file = File('assets/data/locations.json');
-    if (!file.existsSync()) {
-      _error('locations.json не найден');
-      return;
-    }
-
-    Map<String, dynamic> json;
-    try {
-      json = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
-      filesChecked++;
-    } catch (e) {
-      _error('Ошибка парсинга locations.json: $e');
-      return;
-    }
-
-    final locations = (json['locations'] as List).cast<Map<String, dynamic>>();
-    int errors = 0;
-
-    for (final loc in locations) {
-      final id = loc['id'] as String? ?? '<без id>';
-      int locErrors = 0;
-
-      // connections
-      final connections = (loc['connections'] as List? ?? []).cast<String>();
-      for (final target in connections) {
-        if (!locationIds.contains(target)) {
-          _error('Локация "$id": connections → "$target" не найдена');
-          locErrors++;
-        }
-      }
-
-      // loot_pool
-      final lootPool = (loc['loot_pool'] as List? ?? []).cast<String>();
-      for (final item in lootPool) {
-        if (!itemIds.contains(item)) {
-          _warn('Локация "$id": loot_pool → "$item" не найден');
-        }
-      }
-
-      // unlocked_by
-      final unlockedBy = loc['unlocked_by'] as String?;
-      if (unlockedBy != null && !locationIds.contains(unlockedBy)) {
-        _error('Локация "$id": unlocked_by → "$unlockedBy" не найдена');
-        locErrors++;
-      }
-
-      // search_events
-      final events = (loc['search_events'] as List? ?? []).cast<Map<String, dynamic>>();
-      for (int i = 0; i < events.length; i++) {
-        final effect = events[i]['effect'] as Map<String, dynamic>?;
-        if (effect == null) continue;
-
-        final unlock = effect['unlock_location'] as String?;
-        if (unlock != null && unlock != 'auto' && !locationIds.contains(unlock)) {
-          _error(
-            'Локация "$id": search_events[$i].unlock_location = '
-            '"$unlock" не найдена',
-          );
-          locErrors++;
-        }
-
-        final loot = (effect['random_loot'] as List? ?? []).cast<String>();
-        for (final item in loot) {
-          if (!itemIds.contains(item)) {
-            _warn(
-              'Локация "$id": search_events[$i].random_loot → '
-              '"$item" не найден',
-            );
-          }
-        }
-      }
-
-      if (locErrors > 0) errors += locErrors;
-    }
-
-    if (errors == 0) {
-      print('  ✅ ${locations.length} локаций, все ссылки валидны');
-    } else {
-      print('  ❌ ${locations.length} локаций, $errors ошибок');
+      print('  ❌ $character/chapter_1 — $chapterErrors ошибок (нод: ${allNodes.length})');
     }
   }
 
@@ -43258,13 +46611,10 @@ class Validator {
       final id = recipe['id'] as String? ?? '<без id>';
       final resultId = recipe['result_id'] as String?;
 
-      // result_id не обязателен быть в справочнике (может крафтиться)
-      // но предупредим, если неизвестен
       if (resultId != null && !itemIds.contains(resultId)) {
         _warn('Рецепт "$id": result_id "$resultId" не в справочнике');
       }
 
-      // ingredients
       final ingredients =
           (recipe['ingredients'] as List? ?? []).cast<Map<String, dynamic>>();
       for (int i = 0; i < ingredients.length; i++) {
@@ -43285,8 +46635,6 @@ class Validator {
       print('  ❌ ${recipes.length} рецептов, $errors ошибок');
     }
   }
-
-  // ═══════════ Валидация условий ═══════════
 
   void validateConditions() {
     final file = File('assets/data/conditions.json');
@@ -43324,8 +46672,6 @@ class Validator {
       print('  ❌ ${conditions.length} состояний, $errors ошибок');
     }
   }
-
-  // ═══════════ Валидация search_events ═══════════
 
   void validateSearchEvents() {
     final file = File('assets/data/search_events.json');
@@ -43381,8 +46727,6 @@ class Validator {
     }
   }
 
-  // ═══════════ Валидация достижений ═══════════
-
   void validateAchievements() {
     final file = File('assets/data/achievements.json');
     if (!file.existsSync()) {
@@ -43418,10 +46762,7 @@ class Validator {
 
       final category = ach['category'] as String?;
       if (category != null && !validCategories.contains(category)) {
-        _warn(
-          'Достижение "$id": неизвестная категория "$category" '
-          '(допустимые: ${validCategories.join(", ")})',
-        );
+        _warn('Достижение "$id": неизвестная категория "$category"');
       }
     }
 
@@ -43431,8 +46772,6 @@ class Validator {
       print('  ❌ ${achievements.length} достижений, $errors ошибок');
     }
   }
-
-  // ═══════════ Утилиты ═══════════
 
   void _error(String message) {
     print('  ❌ $message');
@@ -43444,6 +46783,97 @@ class Validator {
     warningCount++;
   }
 }
+```
+
+### 📄 `./web/index.html`
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="A new Flutter project.">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="dark_hours">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>dark_hours</title>
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+  <!--
+    You can customize the "flutter_bootstrap.js" script.
+    This is useful to provide a custom configuration to the Flutter loader
+    or to give the user feedback during the initialization process.
+
+    For more details:
+    * https://docs.flutter.dev/platform-integration/web/initialization
+  -->
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>
+
+```
+
+### 📄 `./web/manifest.json`
+```json
+{
+    "name": "dark_hours",
+    "short_name": "dark_hours",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#0175C2",
+    "theme_color": "#0175C2",
+    "description": "A new Flutter project.",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "icons/Icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}
+
 ```
 
 ## 📦 BUILD ARTIFACTS
@@ -43479,13 +46909,18 @@ class Validator {
 ./assets/fonts/Orbitron-Regular.ttf                                    0
 ./assets/fonts/RobotoMono-Regular.ttf                                  0
 ./pubspec.lock                                                         20K
+./web/favicon.png                                                      4.0K
+./web/icons/Icon-192.png                                               8.0K
+./web/icons/Icon-512.png                                               12K
+./web/icons/Icon-maskable-192.png                                      8.0K
+./web/icons/Icon-maskable-512.png                                      24K
 ```
 
 ## 📊 SUMMARY
 
-- Всего файлов: **193**
-- Текстовых (в дампе): **166**
+- Всего файлов: **212**
+- Текстовых (в дампе): **180**
 - Артефактов: **1**
-- Бинарников: **26**
-- Дамп: **1.5M**
+- Бинарников: **31**
+- Дамп: **1.6M**
 
