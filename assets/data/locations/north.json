@@ -1,6 +1,74 @@
 {
   "locations": [
     {
+      "id": "station_outer",
+      "name": "Внешний периметр",
+      "scouted_name": "Ограда и прожекторы",
+      "description": "Внешний периметр станции. Колючая проволока, бетонные блоки, прожекторы. Здесь проверяют всех, кто приходит с юга. Хорошо одетые проходят, слабые — нет.",
+      "scouted_description": "Стена из бетона. Прожекторы. Кто-то смотрит через прицел.",
+      "type": "military",
+      "region": "north",
+      "danger_level": 7,
+      "search_time": 20,
+      "max_searches": 2,
+      "loot_pool": ["mre", "water_bottle", "bandage", "radio"],
+      "enemies": ["ex_soldier", "bandit"],
+      "connections": [
+        { "id": "bridge_north", "minutes": 60 },
+        { "id": "station_gate", "minutes": 30 }
+      ],
+      "icon": "🚧",
+      "repeatable": true,
+      "mapPosition": { "x": 0.50, "y": 0.14 },
+      "map_zone": "north"
+    },
+    {
+      "id": "station_gate",
+      "name": "Ворота станции",
+      "scouted_name": "Огромные ворота",
+      "description": "Главные ворота геотермальной станции. Металлические створки, будка охраны, очередь выживших. Здесь решается, кто войдёт — и на каких условиях.",
+      "scouted_description": "Высокие ворота из металла. Дым над ними. Очередь людей. Разговор.",
+      "type": "gate",
+      "region": "north",
+      "danger_level": 6,
+      "search_time": 15,
+      "max_searches": 2,
+      "loot_pool": ["water_bottle", "crackers", "bandage"],
+      "enemies": [],
+      "connections": [
+        { "id": "station_outer", "minutes": 30 },
+        { "id": "watchtower", "minutes": 20 },
+        { "id": "north_station", "minutes": 15 }
+      ],
+      "icon": "🚪",
+      "repeatable": true,
+      "mapPosition": { "x": 0.50, "y": 0.11 },
+      "map_zone": "north"
+    },
+    {
+      "id": "watchtower",
+      "name": "Вышка наблюдения",
+      "scouted_name": "Высокая башня",
+      "description": "Вышка наблюдения на краю периметра. Отсюда видно всю станцию — купола, трубы, движение внизу. Последний обзор перед финалом.",
+      "scouted_description": "Металлическая башня. Прожектор наверху. Кто-то стоит на площадке.",
+      "type": "tower",
+      "region": "north",
+      "danger_level": 5,
+      "search_time": 25,
+      "max_searches": 3,
+      "loot_pool": ["binoculars", "radio", "mre", "bandage"],
+      "enemies": ["ex_soldier"],
+      "connections": [
+        { "id": "station_gate", "minutes": 20 },
+        { "id": "north_station", "minutes": 15 }
+      ],
+      "icon": "🗼",
+      "repeatable": true,
+      "risk": "fall",
+      "mapPosition": { "x": 0.35, "y": 0.06 },
+      "map_zone": "north"
+    },
+    {
       "id": "north_station",
       "name": "Северная станция",
       "scouted_name": "Что-то большое на севере",
@@ -14,12 +82,14 @@
       "loot_pool": [],
       "enemies": [],
       "connections": [
-        { "id": "checkpoint", "minutes": 120 }
+        { "id": "station_gate", "minutes": 15 },
+        { "id": "watchtower", "minutes": 15 },
+        { "id": "bridge_north", "minutes": 60 }
       ],
       "icon": "🏭",
       "repeatable": false,
       "is_final": true,
-      "mapPosition": { "x": 0.50, "y": 0.08 },
+      "mapPosition": { "x": 0.50, "y": 0.03 },
       "map_zone": "north"
     }
   ]

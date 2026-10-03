@@ -16,7 +16,8 @@
       "connections": [
         { "id": "pharmacy", "minutes": 30 },
         { "id": "street_center", "minutes": 15 },
-        { "id": "hospital_morgue", "minutes": 10 }
+        { "id": "hospital_morgue", "minutes": 10 },
+        { "id": "clinic_south", "minutes": 20 }
       ],
       "icon": "🏥",
       "repeatable": true,
@@ -46,7 +47,11 @@
       "connections": [
         { "id": "hospital", "minutes": 15 },
         { "id": "police_station", "minutes": 20 },
-        { "id": "office_tower", "minutes": 15 }
+        { "id": "office_tower", "minutes": 15 },
+        { "id": "library", "minutes": 10 },
+        { "id": "theater", "minutes": 15 },
+        { "id": "cafe_center", "minutes": 10 },
+        { "id": "church", "minutes": 20 }
       ],
       "icon": "🛣️",
       "repeatable": true,
@@ -95,7 +100,8 @@
       "enemies": ["looter_common"],
       "connections": [
         { "id": "street_center", "minutes": 15 },
-        { "id": "rooftop", "minutes": 20 }
+        { "id": "rooftop", "minutes": 20 },
+        { "id": "rooftop_center", "minutes": 15 }
       ],
       "icon": "🏢",
       "repeatable": true,
@@ -145,6 +151,207 @@
       "hidden": true,
       "unlocked_by": "hospital",
       "mapPosition": { "x": 0.50, "y": 0.65 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "library",
+      "name": "Библиотека им. Ленина",
+      "scouted_name": "Большое здание с колоннами",
+      "description": "Старая библиотека. Тысячи книг. Среди них — карты города, медицинские справочники, старые журналы. Здесь можно найти то, что спасёт жизнь.",
+      "scouted_description": "Классическое здание с колоннами. Тишина. Внутри — книги до потолка.",
+      "type": "library",
+      "region": "city_center",
+      "danger_level": 3,
+      "search_time": 45,
+      "max_searches": 5,
+      "loot_pool": ["map", "binoculars", "cloth", "electronics", "herb_medkit"],
+      "enemies": ["looter_common"],
+      "connections": [
+        { "id": "street_center", "minutes": 10 },
+        { "id": "museum", "minutes": 15 }
+      ],
+      "icon": "📚",
+      "repeatable": true,
+      "mapPosition": { "x": 0.62, "y": 0.50 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "theater",
+      "name": "Драматический театр",
+      "scouted_name": "Здание с афишами",
+      "description": "Старый театр. Сцена, зал, костюмерные. Пахнет пылью и бархатом. Кто-то жил здесь — или всё ещё живёт.",
+      "scouted_description": "Театр с высокими колоннами. Афиши выцвели. Внутри темно, но не пусто.",
+      "type": "theater",
+      "region": "city_center",
+      "danger_level": 4,
+      "search_time": 40,
+      "max_searches": 4,
+      "loot_pool": ["cloth", "leather_jacket", "crackers", "chocolate", "painkiller_pill"],
+      "enemies": ["looter_common", "looter_desperate"],
+      "connections": [
+        { "id": "street_center", "minutes": 15 },
+        { "id": "university", "minutes": 20 }
+      ],
+      "icon": "🎭",
+      "repeatable": true,
+      "mapPosition": { "x": 0.60, "y": 0.42 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "museum",
+      "name": "Краеведческий музей",
+      "scouted_name": "Здание с башней",
+      "description": "Старый музей. Экспонаты — оружие, монеты, документы. Кто-то разбил витрины, но часть экспонатов уцелела.",
+      "scouted_description": "Здание с башней. Разбитые витрины. Что-то блестит внутри.",
+      "type": "museum",
+      "region": "city_center",
+      "danger_level": 5,
+      "search_time": 40,
+      "max_searches": 4,
+      "loot_pool": ["hunting_knife", "pistol", "kevlar_vest", "electronics", "tool_kit"],
+      "enemies": ["looter_common", "looter_armed"],
+      "connections": [
+        { "id": "library", "minutes": 15 },
+        { "id": "university", "minutes": 20 }
+      ],
+      "icon": "🏛️",
+      "repeatable": true,
+      "mapPosition": { "x": 0.70, "y": 0.42 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "park_center",
+      "name": "Центральный парк",
+      "scouted_name": "Большой зелёный массив",
+      "description": "Центральный парк города. Озёра, аллеи, старые дубы. Тихое место, но ночью здесь небезопасно.",
+      "scouted_description": "Огромный парк. Пруды, дорожки, деревья. Тишина — слишком тихая.",
+      "type": "park",
+      "region": "city_center",
+      "danger_level": 4,
+      "search_time": 40,
+      "max_searches": 5,
+      "loot_pool": ["wood", "mushrooms", "berries", "cloth", "crackers"],
+      "enemies": ["dog_stray", "looter_common", "boar"],
+      "connections": [
+        { "id": "church", "minutes": 20 },
+        { "id": "theater", "minutes": 25 },
+        { "id": "rooftop_center", "minutes": 30 }
+      ],
+      "icon": "🌳",
+      "repeatable": true,
+      "mapPosition": { "x": 0.50, "y": 0.45 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "cafe_center",
+      "name": "Кафе «У фонтана»",
+      "scouted_name": "Угловое кафе",
+      "description": "Маленькое кафе. Ещё пахнет кофе. В подсобке — запас зёрен и сахара. Для Андрея — золото.",
+      "scouted_description": "Кафе на углу. Пахнет кофе. Тёплый свет из окна.",
+      "type": "shop",
+      "region": "city_center",
+      "danger_level": 3,
+      "search_time": 30,
+      "max_searches": 4,
+      "loot_pool": ["crackers", "chocolate", "water_bottle", "cloth", "cigarette"],
+      "enemies": ["looter_common"],
+      "connections": [
+        { "id": "street_center", "minutes": 10 },
+        { "id": "metro_station_center", "minutes": 15 }
+      ],
+      "icon": "☕",
+      "repeatable": true,
+      "mapPosition": { "x": 0.75, "y": 0.50 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "metro_station_center",
+      "name": "Метро «Площадь Революции»",
+      "scouted_name": "Вход в метро",
+      "description": "Станция метро в центре. Спуск в темноту. Через тоннели можно попасть в другие районы — если не боишься темноты.",
+      "scouted_description": "Круглый вход с буквой «М». Внутри темно. Тянет холодом из глубины.",
+      "type": "metro",
+      "region": "city_center",
+      "danger_level": 6,
+      "search_time": 45,
+      "max_searches": 3,
+      "loot_pool": ["flashlight", "battery", "rope", "map"],
+      "enemies": ["looter_common", "dog_stray"],
+      "connections": [
+        { "id": "cafe_center", "minutes": 15 },
+        { "id": "tunnel_entrance", "minutes": 30 }
+      ],
+      "icon": "🚇",
+      "repeatable": true,
+      "risk": "dirty_water",
+      "mapPosition": { "x": 0.85, "y": 0.45 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "university",
+      "name": "Университет",
+      "scouted_name": "Большой кампус",
+      "description": "Университетский кампус. Аудитории, лаборатории, библиотека. В лабораториях — химикаты и оборудование.",
+      "scouted_description": "Комплекс зданий. Флаг над главным. Кто-то оставил оборудование.",
+      "type": "university",
+      "region": "city_center",
+      "danger_level": 5,
+      "search_time": 50,
+      "max_searches": 5,
+      "loot_pool": ["electronics", "antibiotic_pill", "bandage", "tool_kit", "cloth", "map"],
+      "enemies": ["looter_common", "looter_armed"],
+      "connections": [
+        { "id": "theater", "minutes": 20 },
+        { "id": "museum", "minutes": 20 }
+      ],
+      "icon": "🎓",
+      "repeatable": true,
+      "mapPosition": { "x": 0.65, "y": 0.35 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "church",
+      "name": "Церковь Св. Николая",
+      "scouted_name": "Здание с куполом",
+      "description": "Старая церковь. Внутри — люди. Настоящие люди, не мародёры. Они не пускают чужих, но могут помочь — за услугу.",
+      "scouted_description": "Церковь с золотым куполом. Свет внутри. Кто-то поёт.",
+      "type": "church",
+      "region": "city_center",
+      "danger_level": 3,
+      "search_time": 30,
+      "max_searches": 3,
+      "loot_pool": ["canned_stew", "water_bottle", "bandage", "cloth", "crackers"],
+      "enemies": [],
+      "connections": [
+        { "id": "street_center", "minutes": 20 },
+        { "id": "park_center", "minutes": 20 }
+      ],
+      "icon": "⛪",
+      "repeatable": true,
+      "mapPosition": { "x": 0.55, "y": 0.32 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "rooftop_center",
+      "name": "Крыша офиса",
+      "scouted_name": "Крыша высокого дома",
+      "description": "Плоская крыша офисного здания. Обзор на весь район. Здесь стоит старый радиомаяк — можно попробовать подать сигнал.",
+      "scouted_description": "Крыша высокого здания. Ветер. Вдали видна антенна.",
+      "type": "rooftop",
+      "region": "city_center",
+      "danger_level": 5,
+      "search_time": 35,
+      "max_searches": 3,
+      "loot_pool": ["binoculars", "radio", "battery", "electronics", "rope"],
+      "enemies": ["looter_common"],
+      "connections": [
+        { "id": "office_tower", "minutes": 15 },
+        { "id": "park_center", "minutes": 30 }
+      ],
+      "icon": "📡",
+      "repeatable": true,
+      "risk": "fall",
+      "mapPosition": { "x": 0.90, "y": 0.35 },
       "map_zone": "city_center"
     }
   ]

@@ -16,7 +16,11 @@
       "connections": [
         { "id": "gas_station", "minutes": 30 },
         { "id": "forest_path", "minutes": 60 },
-        { "id": "checkpoint", "minutes": 90 }
+        { "id": "checkpoint", "minutes": 90 },
+        { "id": "gas_station_north", "minutes": 45 },
+        { "id": "road_cafe", "minutes": 30 },
+        { "id": "bus_station", "minutes": 60 },
+        { "id": "forest_river", "minutes": 45 }
       ],
       "icon": "🛤️",
       "repeatable": true,
@@ -38,11 +42,149 @@
       "enemies": ["bandit", "ex_soldier", "looter_armed"],
       "connections": [
         { "id": "highway_entrance", "minutes": 90 },
-        { "id": "north_station", "minutes": 120 }
+        { "id": "north_station", "minutes": 120 },
+        { "id": "abandoned_convoy", "minutes": 45 },
+        { "id": "roadblock", "minutes": 30 }
       ],
       "icon": "🛑",
       "repeatable": true,
       "mapPosition": { "x": 0.50, "y": 0.20 },
+      "map_zone": "highway"
+    },
+    {
+      "id": "gas_station_north",
+      "name": "Заправка «Лукойл»",
+      "scouted_name": "Одинокая заправка",
+      "description": "Вторая заправка на трассе. Магазинчик разграблен, но канистры с топливом остались. Здесь можно подготовиться к рывку на север.",
+      "scouted_description": "Заправка сбоку от дороги. Вывеска мигает. Канистры у колонок.",
+      "type": "industrial",
+      "region": "highway",
+      "danger_level": 5,
+      "search_time": 25,
+      "max_searches": 4,
+      "loot_pool": ["fuel_can", "fuel_can", "crackers", "water_bottle", "tool_kit", "wire"],
+      "enemies": ["looter_common", "dog_stray"],
+      "connections": [
+        { "id": "highway_entrance", "minutes": 45 },
+        { "id": "bridge_north", "minutes": 60 }
+      ],
+      "icon": "⛽",
+      "repeatable": true,
+      "mapPosition": { "x": 0.30, "y": 0.25 },
+      "map_zone": "highway"
+    },
+    {
+      "id": "road_cafe",
+      "name": "Придорожное кафе",
+      "scouted_name": "Одинокое кафе",
+      "description": "Придорожное кафе для дальнобойщиков. Внутри — плита, кофе, запас еды. Кто-то жил здесь — или всё ещё живёт.",
+      "scouted_description": "Одноэтажное здание с вывеской. Окна светятся. Пахнет едой.",
+      "type": "shop",
+      "region": "highway",
+      "danger_level": 4,
+      "search_time": 30,
+      "max_searches": 4,
+      "loot_pool": ["canned_stew", "crackers", "chocolate", "water_bottle", "cigarette", "coffee"],
+      "enemies": ["looter_common"],
+      "connections": [
+        { "id": "highway_entrance", "minutes": 30 },
+        { "id": "bus_station", "minutes": 40 }
+      ],
+      "icon": "🍽️",
+      "repeatable": true,
+      "mapPosition": { "x": 0.65, "y": 0.28 },
+      "map_zone": "highway"
+    },
+    {
+      "id": "bus_station",
+      "name": "Автовокзал",
+      "scouted_name": "Транспортный узел",
+      "description": "Автовокзал на выезде из города. Автобусы, расписания, кассы. В диспетчерской — старые карты и схемы. Здесь можно найти путь на север.",
+      "scouted_description": "Большое здание с навесом. Автобусы. Внутри — темно.",
+      "type": "transport",
+      "region": "highway",
+      "danger_level": 5,
+      "search_time": 35,
+      "max_searches": 4,
+      "loot_pool": ["map", "map", "radio", "battery", "crackers", "water_bottle"],
+      "enemies": ["looter_common", "looter_armed", "dog_stray"],
+      "connections": [
+        { "id": "highway_entrance", "minutes": 60 },
+        { "id": "road_cafe", "minutes": 40 },
+        { "id": "abandoned_convoy", "minutes": 45 }
+      ],
+      "icon": "🚌",
+      "repeatable": true,
+      "mapPosition": { "x": 0.75, "y": 0.35 },
+      "map_zone": "highway"
+    },
+    {
+      "id": "abandoned_convoy",
+      "name": "Брошенный конвой",
+      "scouted_name": "Военные машины на дороге",
+      "description": "Военный конвой, брошенный посреди трассы. Броневики, грузовики. Кто-то уже был здесь, но многое осталось — военные припасы не для каждого.",
+      "scouted_description": "Колонна военных машин. Двери открыты. Тела? Не видно. Кровь есть.",
+      "type": "military",
+      "region": "highway",
+      "danger_level": 7,
+      "search_time": 40,
+      "max_searches": 5,
+      "loot_pool": ["mre", "ammo_box", "pistol", "kevlar_vest", "army_helmet", "9mm", "first_aid_kit"],
+      "enemies": ["bandit", "ex_soldier"],
+      "connections": [
+        { "id": "bus_station", "minutes": 45 },
+        { "id": "checkpoint", "minutes": 45 },
+        { "id": "bridge_north", "minutes": 30 }
+      ],
+      "icon": "🚛",
+      "repeatable": true,
+      "mapPosition": { "x": 0.80, "y": 0.20 },
+      "map_zone": "highway"
+    },
+    {
+      "id": "bridge_north",
+      "name": "Северный мост",
+      "scouted_name": "Мост через реку",
+      "description": "Длинный мост через реку. Ключевая точка на пути к Северу. Здесь всегда кто-то ждёт — либо с открытыми руками, либо с оружием.",
+      "scouted_description": "Мост вдалеке. Машины на нём. Свет в конце. Кто-то ходит.",
+      "type": "bridge",
+      "region": "highway",
+      "danger_level": 6,
+      "search_time": 20,
+      "max_searches": 3,
+      "loot_pool": ["fuel_can", "crackers", "water_bottle", "rope"],
+      "enemies": ["bandit", "looter_armed", "ex_soldier"],
+      "connections": [
+        { "id": "gas_station_north", "minutes": 60 },
+        { "id": "abandoned_convoy", "minutes": 30 },
+        { "id": "roadblock", "minutes": 45 },
+        { "id": "north_station", "minutes": 60 }
+      ],
+      "icon": "🌉",
+      "repeatable": true,
+      "mapPosition": { "x": 0.35, "y": 0.12 },
+      "map_zone": "highway"
+    },
+    {
+      "id": "roadblock",
+      "name": "Второй блокпост",
+      "scouted_name": "Заграждение из бетона",
+      "description": "Последний фильтр перед Севером. Бетонные плиты, колючая проволока, следы боя. Здесь пропускают не всех — и не всегда живыми.",
+      "scouted_description": "Бетонное заграждение. Проволока. Дым. Очень опасно.",
+      "type": "military",
+      "region": "highway",
+      "danger_level": 8,
+      "search_time": 30,
+      "max_searches": 4,
+      "loot_pool": ["ammo_box", "mre", "water_bottle", "kevlar_vest", "army_helmet", "radio"],
+      "enemies": ["ex_soldier", "bandit", "bandit_leader"],
+      "connections": [
+        { "id": "checkpoint", "minutes": 30 },
+        { "id": "bridge_north", "minutes": 45 }
+      ],
+      "icon": "🚧",
+      "repeatable": true,
+      "mapPosition": { "x": 0.50, "y": 0.12 },
       "map_zone": "highway"
     }
   ]

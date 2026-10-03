@@ -40,7 +40,10 @@
         { "id": "home_boris", "minutes": 10 },
         { "id": "supermarket", "minutes": 15 },
         { "id": "pharmacy", "minutes": 10 },
-        { "id": "gas_station", "minutes": 20 }
+        { "id": "gas_station", "minutes": 20 },
+        { "id": "school_south", "minutes": 15 },
+        { "id": "park_south", "minutes": 15 },
+        { "id": "clinic_south", "minutes": 20 }
       ],
       "icon": "🛣️",
       "repeatable": true,
@@ -91,7 +94,8 @@
       "enemies": ["looter_armed"],
       "connections": [
         { "id": "street_south", "minutes": 10 },
-        { "id": "hospital", "minutes": 30 }
+        { "id": "hospital", "minutes": 30 },
+        { "id": "school_south", "minutes": 5 }
       ],
       "icon": "💊",
       "repeatable": true,
@@ -119,7 +123,8 @@
       "enemies": [],
       "connections": [
         { "id": "street_south", "minutes": 20 },
-        { "id": "highway_entrance", "minutes": 30 }
+        { "id": "highway_entrance", "minutes": 30 },
+        { "id": "old_garage", "minutes": 15 }
       ],
       "icon": "⛽",
       "repeatable": true,
@@ -146,7 +151,8 @@
       "loot_pool": ["metal_scrap", "wire", "fuel_can", "battery"],
       "enemies": ["looter_common"],
       "connections": [
-        { "id": "supermarket", "minutes": 10 }
+        { "id": "supermarket", "minutes": 10 },
+        { "id": "old_garage", "minutes": 20 }
       ],
       "icon": "🅿️",
       "repeatable": true,
@@ -169,7 +175,8 @@
       "connections": [
         { "id": "tunnel_entrance", "minutes": 15 },
         { "id": "street_south", "minutes": 25 },
-        { "id": "rooftop_warehouse", "minutes": 10 }
+        { "id": "rooftop_warehouse", "minutes": 10 },
+        { "id": "construction_site", "minutes": 10 }
       ],
       "icon": "📦",
       "repeatable": true,
@@ -220,6 +227,142 @@
       "hidden": true,
       "unlocked_by": "warehouse",
       "mapPosition": { "x": 0.10, "y": 0.68 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "school_south",
+      "name": "Школа №15",
+      "scouted_name": "Здание за забором",
+      "description": "Трёхэтажное здание. В коридорах — тишина. В классах — парты, разбитые окна. В спортзале что-то шевелится.",
+      "scouted_description": "Длинное здание с высокими окнами. Похоже на школу. Кто-то двигается за стеклом.",
+      "type": "school",
+      "region": "city_south",
+      "danger_level": 4,
+      "search_time": 45,
+      "max_searches": 5,
+      "loot_pool": ["canned_stew", "crackers", "water_bottle", "bandage", "tool_kit", "chocolate"],
+      "enemies": ["looter_common", "dog_stray"],
+      "connections": [
+        { "id": "street_south", "minutes": 15 },
+        { "id": "pharmacy", "minutes": 5 }
+      ],
+      "icon": "🏫",
+      "repeatable": true,
+      "mapPosition": { "x": 0.48, "y": 0.80 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "park_south",
+      "name": "Южный парк",
+      "scouted_name": "Зелёный островок",
+      "description": "Городской парк. Пруды, лавочки, старые деревья. Тихо — но ночью здесь кто-то ходит.",
+      "scouted_description": "Деревья, лавочки. Сквозь листву просвечивает вода. Тишина.",
+      "type": "park",
+      "region": "city_south",
+      "danger_level": 3,
+      "search_time": 30,
+      "max_searches": 4,
+      "loot_pool": ["wood", "mushrooms", "berries", "cloth"],
+      "enemies": ["dog_stray", "looter_common"],
+      "connections": [
+        { "id": "street_south", "minutes": 15 },
+        { "id": "forest_hut", "minutes": 30 },
+        { "id": "clinic_south", "minutes": 20 }
+      ],
+      "icon": "🌳",
+      "repeatable": true,
+      "mapPosition": { "x": 0.35, "y": 0.68 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "construction_site",
+      "name": "Стройка",
+      "scouted_name": "Недостроенное здание",
+      "description": "Каркас здания, краны, piles of металла. Лестниц нет — только каркас. Опасно, но много инструментов.",
+      "scouted_description": "Каркас недостроенного здания. Краны, лебёдки. Слышен скрип металла.",
+      "type": "industrial",
+      "region": "city_south",
+      "danger_level": 5,
+      "search_time": 40,
+      "max_searches": 4,
+      "loot_pool": ["metal_scrap", "nails", "wire", "tool_kit", "wood", "rope"],
+      "enemies": ["looter_common", "dog_stray"],
+      "connections": [
+        { "id": "warehouse", "minutes": 10 },
+        { "id": "dump_south", "minutes": 20 }
+      ],
+      "icon": "🏗️",
+      "repeatable": true,
+      "risk": "fall",
+      "mapPosition": { "x": 0.10, "y": 0.85 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "clinic_south",
+      "name": "Поликлиника №7",
+      "scouted_name": "Небольшая больница",
+      "description": "Районная поликлиника. Внутри — запах медикаментов и старые карточки. Кто-то оставил в кабинетах всё, что не успел забрать.",
+      "scouted_description": "Двухэтажное здание с вывеской. Фонарь горит. Кто-то внутри.",
+      "type": "medical",
+      "region": "city_south",
+      "danger_level": 6,
+      "search_time": 40,
+      "max_searches": 4,
+      "loot_pool": ["bandage", "painkiller_pill", "antibiotic_pill", "first_aid_kit", "herb_medkit"],
+      "enemies": ["looter_armed", "looter_common"],
+      "connections": [
+        { "id": "street_south", "minutes": 20 },
+        { "id": "park_south", "minutes": 20 }
+      ],
+      "icon": "🏥",
+      "repeatable": true,
+      "mapPosition": { "x": 0.55, "y": 0.68 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "old_garage",
+      "name": "Старый гараж",
+      "scouted_name": "Гараж с машинами",
+      "description": "Ремонтный гараж. Машины, запчасти, инструменты. Пахнет маслом и бензином.",
+      "scouted_description": "Большой гараж. Машины внутри. Кто-то работал здесь недавно.",
+      "type": "industrial",
+      "region": "city_south",
+      "danger_level": 4,
+      "search_time": 30,
+      "max_searches": 4,
+      "loot_pool": ["tool_kit", "metal_scrap", "wire", "duct_tape", "fuel_can"],
+      "enemies": ["looter_common"],
+      "connections": [
+        { "id": "gas_station", "minutes": 15 },
+        { "id": "parking", "minutes": 20 },
+        { "id": "dump_south", "minutes": 25 }
+      ],
+      "icon": "🔧",
+      "repeatable": true,
+      "mapPosition": { "x": 0.88, "y": 0.82 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "dump_south",
+      "name": "Городская свалка",
+      "scouted_name": "Кучи мусора",
+      "description": "Огромная свалка на краю города. Металлолом, старые вещи, крысы. Кто-то здесь живёт — и это не крысы.",
+      "scouted_description": "Кучи мусора. Дым. Запах. Кто-то двигается между холмами.",
+      "type": "dump",
+      "region": "city_south",
+      "danger_level": 3,
+      "search_time": 60,
+      "max_searches": 6,
+      "loot_pool": ["metal_scrap", "nails", "wire", "cloth", "battery", "plastic"],
+      "enemies": ["dog_stray", "looter_desperate"],
+      "connections": [
+        { "id": "construction_site", "minutes": 20 },
+        { "id": "old_garage", "minutes": 25 },
+        { "id": "tunnel_entrance", "minutes": 30 }
+      ],
+      "icon": "🗑️",
+      "repeatable": true,
+      "mapPosition": { "x": 0.05, "y": 0.78 },
       "map_zone": "city_south"
     }
   ]

@@ -16,7 +16,9 @@
       "connections": [
         { "id": "home_boris", "minutes": 5 },
         { "id": "warehouse", "minutes": 15 },
-        { "id": "tunnel_dead_end", "minutes": 40 }
+        { "id": "tunnel_dead_end", "minutes": 40 },
+        { "id": "metro_platform", "minutes": 30 },
+        { "id": "sewer", "minutes": 20 }
       ],
       "icon": "🕳️",
       "repeatable": true,
@@ -45,6 +47,145 @@
       "hidden": true,
       "unlocked_by": "tunnel_entrance",
       "mapPosition": { "x": 0.05, "y": 0.98 },
+      "map_zone": "underground"
+    },
+    {
+      "id": "metro_platform",
+      "name": "Платформа метро",
+      "scouted_name": "Большая станция",
+      "description": "Заброшенная платформа метро. Поезда стоят, двери открыты. В вагонах — вещи, которые не успели забрать.",
+      "scouted_description": "Платформа. Поезда. Свет тусклый. В вагонах — тишина.",
+      "type": "metro",
+      "region": "underground",
+      "danger_level": 5,
+      "search_time": 50,
+      "max_searches": 5,
+      "loot_pool": ["flashlight", "battery", "bandage", "canned_stew", "water_bottle", "cloth"],
+      "enemies": ["looter_common", "dog_stray"],
+      "connections": [
+        { "id": "tunnel_entrance", "minutes": 30 },
+        { "id": "metro_tunnel", "minutes": 20 },
+        { "id": "forgotten_shelter", "minutes": 25 },
+        { "id": "metro_station_center", "minutes": 30 }
+      ],
+      "icon": "🚉",
+      "repeatable": true,
+      "mapPosition": { "x": 0.30, "y": 0.88 },
+      "map_zone": "underground"
+    },
+    {
+      "id": "metro_tunnel",
+      "name": "Тоннель метро",
+      "scouted_name": "Длинный тёмный тоннель",
+      "description": "Длинный тоннель метро. Рельсы уходят в темноту. Здесь можно попасть в любой район города — если не заблудишься.",
+      "scouted_description": "Тоннель. Рельсы. Темнота. Где-то капает вода.",
+      "type": "tunnel",
+      "region": "underground",
+      "danger_level": 6,
+      "search_time": 60,
+      "max_searches": 6,
+      "loot_pool": ["flashlight", "wire", "battery", "rope", "metal_scrap"],
+      "enemies": ["dog_stray", "looter_desperate"],
+      "connections": [
+        { "id": "metro_platform", "minutes": 20 },
+        { "id": "bunker", "minutes": 40 },
+        { "id": "metro_station_center", "minutes": 60 },
+        { "id": "tunnel_entrance", "minutes": 45 }
+      ],
+      "icon": "🚇",
+      "repeatable": true,
+      "risk": "dirty_water",
+      "mapPosition": { "x": 0.45, "y": 0.85 },
+      "map_zone": "underground"
+    },
+    {
+      "id": "bunker",
+      "name": "Старый бункер",
+      "scouted_name": "Железная дверь в скале",
+      "description": "Старый военный бункер. Тяжёлая дверь, кодовый замок, гермозатворы. Внутри — запасы военных, рассчитанные на годы.",
+      "scouted_description": "Железная дверь в стене тоннеля. Кодовый замок. Следы свежие.",
+      "type": "bunker",
+      "region": "underground",
+      "danger_level": 7,
+      "search_time": 60,
+      "max_searches": 5,
+      "loot_pool": ["mre", "pistol", "ammo_box", "kevlar_vest", "army_helmet", "radio", "first_aid_kit"],
+      "enemies": ["ex_soldier", "looter_armed"],
+      "connections": [
+        { "id": "metro_tunnel", "minutes": 40 },
+        { "id": "sewer", "minutes": 50 }
+      ],
+      "icon": "🛡️",
+      "repeatable": true,
+      "mapPosition": { "x": 0.55, "y": 0.75 },
+      "map_zone": "underground"
+    },
+    {
+      "id": "sewer",
+      "name": "Канализация",
+      "scouted_name": "Трубы и вода",
+      "description": "Городская канализация. Вода, грязь, крысы. Технический путь между районами — короче, но грязнее.",
+      "scouted_description": "Большая труба. Вода. Запах. Кто-то ходит в темноте.",
+      "type": "sewer",
+      "region": "underground",
+      "danger_level": 4,
+      "search_time": 45,
+      "max_searches": 4,
+      "loot_pool": ["cloth", "rubber", "metal_scrap", "glass", "plastic"],
+      "enemies": ["dog_stray", "fox"],
+      "connections": [
+        { "id": "tunnel_entrance", "minutes": 20 },
+        { "id": "bunker", "minutes": 50 },
+        { "id": "metro_station_center", "minutes": 40 }
+      ],
+      "icon": "🚰",
+      "repeatable": true,
+      "risk": "dirty_water",
+      "mapPosition": { "x": 0.70, "y": 0.80 },
+      "map_zone": "underground"
+    },
+    {
+      "id": "forgotten_shelter",
+      "name": "Забытое убежище",
+      "scouted_name": "Тёплый уголок",
+      "description": "Забытое убежище в стороне от тоннелей. Печка, дрова, консервы. Кто-то оставил это место — на всякий случай. Теперь твой черёд.",
+      "scouted_description": "Узкий проход в стене. Свет свечи. Пахнет дровами.",
+      "type": "shelter",
+      "region": "underground",
+      "danger_level": 3,
+      "search_time": 30,
+      "max_searches": 3,
+      "loot_pool": ["canned_stew", "water_bottle", "wood", "cloth", "sleeping_bag"],
+      "enemies": [],
+      "connections": [
+        { "id": "metro_platform", "minutes": 25 },
+        { "id": "underground_market", "minutes": 30 }
+      ],
+      "icon": "🔥",
+      "repeatable": true,
+      "mapPosition": { "x": 0.20, "y": 0.72 },
+      "map_zone": "underground"
+    },
+    {
+      "id": "underground_market",
+      "name": "Чёрный рынок",
+      "scouted_name": "Свет и голоса",
+      "description": "Чёрный рынок в подземелье. Здесь торгуют выжившие — оружием, едой, информацией. Не все дружелюбны, но все готовы говорить.",
+      "scouted_description": "Свет в тоннеле. Много голосов. Рынок? Скорее — встреча.",
+      "type": "market",
+      "region": "underground",
+      "danger_level": 5,
+      "search_time": 20,
+      "max_searches": 2,
+      "loot_pool": ["canned_stew", "water_bottle", "bandage", "ammo_box"],
+      "enemies": [],
+      "connections": [
+        { "id": "forgotten_shelter", "minutes": 30 },
+        { "id": "metro_tunnel", "minutes": 40 }
+      ],
+      "icon": "🏪",
+      "repeatable": true,
+      "mapPosition": { "x": 0.15, "y": 0.62 },
       "map_zone": "underground"
     }
   ]

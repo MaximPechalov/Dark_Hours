@@ -15,7 +15,9 @@
       "enemies": ["dog_stray"],
       "connections": [
         { "id": "forest_path", "minutes": 15 },
-        { "id": "gas_station", "minutes": 45 }
+        { "id": "gas_station", "minutes": 45 },
+        { "id": "forest_clearing", "minutes": 20 },
+        { "id": "abandoned_dacha", "minutes": 25 }
       ],
       "icon": "🏚️",
       "repeatable": true,
@@ -38,7 +40,10 @@
       "connections": [
         { "id": "forest_hut", "minutes": 15 },
         { "id": "highway_entrance", "minutes": 60 },
-        { "id": "forest_cache", "minutes": 30 }
+        { "id": "forest_cache", "minutes": 30 },
+        { "id": "forest_deep", "minutes": 30 },
+        { "id": "forest_river", "minutes": 45 },
+        { "id": "hunter_camp", "minutes": 25 }
       ],
       "icon": "🌲",
       "repeatable": true,
@@ -66,6 +71,161 @@
       "hidden": true,
       "unlocked_by": "forest_path",
       "mapPosition": { "x": 0.10, "y": 0.45 },
+      "map_zone": "forest"
+    },
+    {
+      "id": "forest_deep",
+      "name": "Глубина леса",
+      "scouted_name": "Тёмная чаща",
+      "description": "Настоящая глубина. Свет едва пробивается сквозь кроны. Здесь живут волки и медведи. И что-то ещё, о чём лучше не думать.",
+      "scouted_description": "Чаща. Свет едва проходит. Следы больших зверей. Кто-то следит.",
+      "type": "forest",
+      "region": "forest",
+      "danger_level": 5,
+      "search_time": 50,
+      "max_searches": 6,
+      "loot_pool": ["wood", "mushrooms", "raw_meat", "leather", "feathers", "flint"],
+      "enemies": ["wolf", "boar", "bear"],
+      "connections": [
+        { "id": "forest_path", "minutes": 30 },
+        { "id": "bear_den", "minutes": 45 }
+      ],
+      "icon": "🌲🌲",
+      "repeatable": true,
+      "mapPosition": { "x": 0.20, "y": 0.38 },
+      "map_zone": "forest"
+    },
+    {
+      "id": "forest_river",
+      "name": "Лесная река",
+      "scouted_name": "Река в лесу",
+      "description": "Быстрая река. Чистая вода, рыба, брод. Через реку можно пройти к трассе — сэкономить время.",
+      "scouted_description": "Шум воды. Река блестит между деревьями. Есть брод.",
+      "type": "river",
+      "region": "forest",
+      "danger_level": 3,
+      "search_time": 40,
+      "max_searches": 5,
+      "loot_pool": ["water_bottle", "water_bottle", "raw_meat", "rope"],
+      "enemies": ["dog_stray", "fox"],
+      "connections": [
+        { "id": "forest_path", "minutes": 45 },
+        { "id": "highway_entrance", "minutes": 45 }
+      ],
+      "icon": "🏞️",
+      "repeatable": true,
+      "mapPosition": { "x": 0.42, "y": 0.42 },
+      "map_zone": "forest"
+    },
+    {
+      "id": "hunter_camp",
+      "name": "Лагерь охотников",
+      "scouted_name": "Палатки в лесу",
+      "description": "Старый лагерь охотников. Палатки, костровище, ящики с трофеями. Кто-то жил здесь — и оставил много полезного.",
+      "scouted_description": "Палатки среди деревьев. Костровище. Следы недавние.",
+      "type": "camp",
+      "region": "forest",
+      "danger_level": 4,
+      "search_time": 35,
+      "max_searches": 5,
+      "loot_pool": ["hunting_knife", "pipe_gun", "raw_meat", "leather", "canned_stew", "bandage"],
+      "enemies": ["looter_common", "dog_stray"],
+      "connections": [
+        { "id": "forest_path", "minutes": 25 },
+        { "id": "forest_deep", "minutes": 30 }
+      ],
+      "icon": "🏕️",
+      "repeatable": true,
+      "mapPosition": { "x": 0.35, "y": 0.30 },
+      "map_zone": "forest"
+    },
+    {
+      "id": "abandoned_dacha",
+      "name": "Заброшенная дача",
+      "scouted_name": "Дом за забором",
+      "description": "Двухэтажная дача. Забор покосился, но дом крепкий. Внутри — мебель под чехлами, консервы, дровяной склад.",
+      "scouted_description": "Дом за забором. Окна целы. Возможно — пустой.",
+      "type": "house",
+      "region": "forest",
+      "danger_level": 4,
+      "search_time": 40,
+      "max_searches": 5,
+      "loot_pool": ["canned_stew", "water_bottle", "crackers", "cloth", "tool_kit", "fuel_can"],
+      "enemies": ["looter_common"],
+      "connections": [
+        { "id": "forest_hut", "minutes": 25 },
+        { "id": "forest_clearing", "minutes": 20 },
+        { "id": "old_chapel", "minutes": 30 }
+      ],
+      "icon": "🏡",
+      "repeatable": true,
+      "mapPosition": { "x": 0.10, "y": 0.58 },
+      "map_zone": "forest"
+    },
+    {
+      "id": "old_chapel",
+      "name": "Старая часовня",
+      "scouted_name": "Маленькое здание с крестом",
+      "description": "Заброшенная часовня в лесу. Свечи, старые иконы, деревянные скамьи. Здесь тихо. По-настоящему тихо. Психика восстанавливается.",
+      "scouted_description": "Маленькая часовня. Крест на крыше. Тишина.",
+      "type": "chapel",
+      "region": "forest",
+      "danger_level": 2,
+      "search_time": 30,
+      "max_searches": 3,
+      "loot_pool": ["cloth", "crackers", "water_bottle", "herb_medkit"],
+      "enemies": [],
+      "connections": [
+        { "id": "abandoned_dacha", "minutes": 30 },
+        { "id": "forest_clearing", "minutes": 25 }
+      ],
+      "icon": "⛪",
+      "repeatable": true,
+      "mapPosition": { "x": 0.05, "y": 0.35 },
+      "map_zone": "forest"
+    },
+    {
+      "id": "forest_clearing",
+      "name": "Лесная поляна",
+      "scouted_name": "Открытая поляна",
+      "description": "Большая поляна в лесу. Трава, цветы, ягоды. Открытое место — видно далеко, но и тебя видно.",
+      "scouted_description": "Поляна среди деревьев. Трава высокая. Видно небо.",
+      "type": "clearing",
+      "region": "forest",
+      "danger_level": 3,
+      "search_time": 25,
+      "max_searches": 4,
+      "loot_pool": ["berries", "mushrooms", "cloth", "wood", "flint"],
+      "enemies": ["boar", "dog_stray", "fox"],
+      "connections": [
+        { "id": "forest_hut", "minutes": 20 },
+        { "id": "abandoned_dacha", "minutes": 20 },
+        { "id": "old_chapel", "minutes": 25 }
+      ],
+      "icon": "🌾",
+      "repeatable": true,
+      "mapPosition": { "x": 0.18, "y": 0.62 },
+      "map_zone": "forest"
+    },
+    {
+      "id": "bear_den",
+      "name": "Медвежья берлога",
+      "scouted_name": "Тёмная пещера",
+      "description": "Пещера в глубине леса. Хозяин здесь — медведь. Внутри — кости, шкуры и что-то ценное, что он притащил.",
+      "scouted_description": "Тёмное отверстие в холме. Запах. Кости у входа.",
+      "type": "den",
+      "region": "forest",
+      "danger_level": 9,
+      "search_time": 40,
+      "max_searches": 3,
+      "loot_pool": ["raw_meat", "leather", "hunting_knife", "mre", "kevlar_vest"],
+      "enemies": ["bear"],
+      "connections": [
+        { "id": "forest_deep", "minutes": 45 }
+      ],
+      "icon": "🐻",
+      "repeatable": true,
+      "mapPosition": { "x": 0.28, "y": 0.20 },
       "map_zone": "forest"
     }
   ]
