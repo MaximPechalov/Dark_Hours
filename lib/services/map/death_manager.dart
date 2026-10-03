@@ -5,8 +5,32 @@ import 'package:dark_hours/services/map/map_controller.dart';
 import 'package:dark_hours/services/save/save_manager.dart';
 import 'package:dark_hours/services/progress/achievement_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/models/conditions/condition.dart';
 import 'package:dark_hours/screens/main/death_screen.dart';
 import 'package:dark_hours/constants/game_constants.dart';
+
+/// Что решил DeathManager после проверки усталости.
+enum FatigueAction {
+  /// Ничего — усталость в норме.
+  nothing,
+
+  /// Форсированный автосон (95..99).
+  forcedSleep,
+
+  /// Коллапс с последствиями (>= 100).
+  collapse,
+
+  /// Смерть от повторного коллапса (коллапс в течение 24 часов).
+  died,
+}
+
+/// Результат проверки усталости.
+class FatigueEvaluation {
+  final FatigueAction action;
+  final String? deathReason;
+
+  const FatigueEvaluation(this.action, {this.deathReason});
+}
 
 /// Управляет смертью, коллапсом и форсированным автосном.
 ///
@@ -45,35 +69,71 @@ class DeathManager {
     return true;
   }
 
-  /// Проверить усталость.
+  /// Проверить усталость и выполнить действие.
   ///
   /// Может инициировать:
-  /// - Форсированный автосон (усталость >= 95)
+  /// - Форсированный автосон (усталость 95..99)
   /// - Коллапс (усталость >= 100)
   /// - Смерть (повторный коллапс в течение 24 часов)
   static Future<void> checkFatigue(
     BuildContext context,
     MapController controller,
   ) async {
-    if (controller.isDead) return;
-    if (controller.fatigue < GameConstants.fatigueWarningThreshold) return;
+    final evaluation = evaluateFatigue(controller);
 
-    // Зона 80-95: только предупреждение (обрабатывается UI через PenaltiesPanel)
-    if (controller.fatigue < GameConstants.fatigueForcedSleepThreshold) {
-      return;
+    switch (evaluation.action) {
+      case FatigueAction.nothing:
+        return;
+
+      case FatigueAction.forcedSleep:
+        await _forceAutoSleep(context, controller);
+        return;
+
+      case FatigueAction.collapse:
+        await _handleCollapse(context, controller);
+        return;
+
+      case FatigueAction.died:
+        controller.markDead(evaluation.deathReason ?? 'Ты умер.');
+        return;
+    }
+  }
+
+  /// Чистая логика проверки усталости — БЕЗ UI.
+  ///
+  /// Возвращает решение, что делать. Тестируется без BuildContext.
+  @visibleForTesting
+  static FatigueEvaluation evaluateFatigue(MapController controller) {
+    if (controller.isDead) {
+      return const FatigueEvaluation(FatigueAction.nothing);
     }
 
-    // Зона 95-100: форсированный автосон (один раз)
+    // Зона 80-95: только предупреждение, обрабатывается UI
+    if (controller.fatigue < GameConstants.fatigueForcedSleepThreshold) {
+      return const FatigueEvaluation(FatigueAction.nothing);
+    }
+
+    // Зона 95-100: форсированный автосон
     if (controller.fatigue < GameConstants.fatigueCollapseThreshold) {
-      if (!controller.autoSleepTriggered) {
-        controller.autoSleepTriggered = true;
-        await _forceAutoSleep(context, controller);
+      if (controller.autoSleepTriggered) {
+        return const FatigueEvaluation(FatigueAction.nothing);
       }
-      return;
+      return const FatigueEvaluation(FatigueAction.forcedSleep);
     }
 
     // Зона >= 100: коллапс или смерть
-    await _handleCollapse(context, controller);
+    final lastCollapse = controller.lastCollapseTime;
+    if (lastCollapse != null &&
+        DateTime.now().difference(lastCollapse).inHours <
+            GameConstants.collapseRepeatHours) {
+      return const FatigueEvaluation(
+        FatigueAction.died,
+        deathReason:
+            'Твоё тело не выдержало повторного истощения. Сердце остановилось.',
+      );
+    }
+
+    return const FatigueEvaluation(FatigueAction.collapse);
   }
 
   /// Открыть DeathScreen, если игрок умер.
@@ -87,6 +147,8 @@ class DeathManager {
     if (!context.mounted) return;
 
     await AudioService.stopAmbience();
+
+    if (!context.mounted) return;
 
     await Navigator.push(
       context,
@@ -106,12 +168,10 @@ class DeathManager {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // ВНУТРЕННИЕ МЕТОДЫ
+  // ВНУТРЕННИЕ МЕТОДЫ — ФОРСИРОВАННЫЙ АВТОСОН
   // ═══════════════════════════════════════════════════════════
 
   /// Форсированный автосон при усталости 95-99.
-  ///
-  /// Игрок засыпает на 1 час, теряет немного статов.
   static Future<void> _forceAutoSleep(
     BuildContext context,
     MapController controller,
@@ -142,50 +202,40 @@ class DeathManager {
 
     controller.autoSleepTriggered = false;
 
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            '😵 Ты проснулся. Разбитость: -15 выносливости.',
-          ),
-          duration: Duration(seconds: 3),
-          backgroundColor: Color.fromARGB(255, 150, 100, 100),
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          '😵 Ты проснулся. Разбитость: -15 выносливости.',
         ),
-      );
-    }
+        duration: Duration(seconds: 3),
+        backgroundColor: Color.fromARGB(255, 150, 100, 100),
+      ),
+    );
 
     await controller.save();
     controller.refresh();
   }
 
+  // ═══════════════════════════════════════════════════════════
+  // ВНУТРЕННИЕ МЕТОДЫ — КОЛЛАПС
+  // ═══════════════════════════════════════════════════════════
+
   /// Коллапс при усталости >= 100.
-  ///
-  /// Если коллапс второй раз за 24 часа → смерть.
   static Future<void> _handleCollapse(
     BuildContext context,
     MapController controller,
   ) async {
-    // ─── 1. Проверить, был ли коллапс недавно ───
-    final lastCollapse = controller.lastCollapseTime;
-    if (lastCollapse != null &&
-        DateTime.now().difference(lastCollapse).inHours <
-            GameConstants.collapseRepeatHours) {
-      controller.markDead(
-        'Твоё тело не выдержало повторного истощения. Сердце остановилось.',
-      );
-      return;
-    }
-
-    // ─── 2. Обновить время последнего коллапса ───
+    // Отметить время коллапса
     controller.lastCollapseTime = DateTime.now();
     controller.trackCollapse();
 
     if (!context.mounted) return;
 
-    // ─── 3. Показать диалог коллапса ───
     await _showCollapseDialog(context);
 
-    // ─── 4. Продвинуть время + эффекты ───
+    // Продвинуть время + эффекты
     await controller.advanceTime(
       GameConstants.collapseSleepMinutes,
       isSleeping: true,
@@ -197,22 +247,19 @@ class DeathManager {
       'sanity': -GameConstants.collapseSanityPenalty,
     });
 
-    // ─── 5. Шанс ограбления ───
+    // Шансы
     _rollTheftOnCollapse(context, controller);
-
-    // ─── 6. Шанс простуды ───
     _rollColdOnCollapse(controller);
 
-    // ─── 7. Сообщение ───
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('😵 Ты очнулся. -20 HP, -15 психики.'),
-          duration: Duration(seconds: 3),
-          backgroundColor: Color.fromARGB(255, 100, 50, 50),
-        ),
-      );
-    }
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('😵 Ты очнулся. -20 HP, -15 психики.'),
+        duration: Duration(seconds: 3),
+        backgroundColor: Color.fromARGB(255, 100, 50, 50),
+      ),
+    );
 
     await controller.save();
     controller.refresh();
@@ -306,19 +353,19 @@ class DeathManager {
   }
 
   /// Найти условие по ID
-  static dynamic _findCondition(MapController controller, String id) {
+  static Condition? _findCondition(MapController controller, String id) {
     try {
       return controller.allConditions.firstWhere((c) => c.id == id);
     } catch (_) {
-      return controller.allConditions.isNotEmpty
-          ? controller.allConditions.first
-          : null;
+      return null;
     }
   }
 
+  // ═══════════════════════════════════════════════════════════
+  // СТАТИСТИКА ПРИ СМЕРТИ
+  // ═══════════════════════════════════════════════════════════
+
   /// Обновить статистику игрока при смерти.
-  ///
-  /// Вызывается из UI-обёртки перед показом DeathScreen.
   static Future<void> applyStatsOnDeath(MapController controller) async {
     final stats = await AchievementManager.loadStats();
     stats.totalDeaths += 1;

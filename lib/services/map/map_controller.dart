@@ -340,7 +340,6 @@ class MapController extends ChangeNotifier {
 
     gameTime.advance(minutes);
 
-
     // Расход голода/жажды/усталости
     final consumption = TimeManager.calculateConsumption(
       minutes: minutes,
@@ -656,6 +655,57 @@ class MapController extends ChangeNotifier {
     unlockedLocations.clear();
     unlockedLocations.addAll(save.unlockedLocations);
 
+    refresh();
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ТЕСТИРОВАНИЕ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Синхронная инициализация для тестов.
+  ///
+  /// Загружает локации, условия и рецепты **напрямую** —
+  /// без обращения к assets через rootBundle.
+  ///
+  /// Используется ТОЛЬКО в тестах. В production-коде
+  /// используй [init].
+  @visibleForTesting
+  void initForTest({
+    required List<Location> locations,
+    List<Condition> conditions = const [],
+    List<Recipe> recipes = const [],
+    int startTimeMinutes = GameConstants.startTimeMinutes,
+  }) {
+    if (locations.isEmpty) {
+      throw ArgumentError('initForTest: locations не может быть пустым');
+    }
+
+    // Все справочники
+    allConditions = conditions;
+    allRecipes = recipes;
+
+    // Характеристики персонажа
+    final stats = GameConstants.statsFor(characterId);
+    intelligence = stats['intelligence'] ?? GameConstants.defaultIntelligence;
+    strength = stats['strength'] ?? GameConstants.defaultStrength;
+
+    // Карта
+    final startLoc = locations.firstWhere(
+      (l) => l.isStart,
+      orElse: () => locations.first,
+    );
+
+    map = WorldMap(
+      locations: locations,
+      currentLocationId: startLoc.id,
+      visitedLocations: {startLoc.id},
+    );
+
+    // Время
+    gameTime = GameTime(totalMinutes: startTimeMinutes);
+
+    // Флаг готовности
+    isLoading = false;
     refresh();
   }
 

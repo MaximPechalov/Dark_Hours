@@ -8,17 +8,28 @@ import 'package:dark_hours/models/time/game_time.dart';
 import 'package:dark_hours/models/time/rest_action.dart';
 import 'package:dark_hours/constants/game_constants.dart';
 
+/// Результат проверки на простуду.
+class ColdResult {
+  final bool infected;
+  final int chance;
+
+  const ColdResult({required this.infected, required this.chance});
+}
+
+/// Результат проверки на ограбление.
+class TheftResult {
+  final bool stolen;
+  final int chance;
+  final int itemsToLose;
+
+  const TheftResult({
+    required this.stolen,
+    required this.chance,
+    this.itemsToLose = 1,
+  });
+}
+
 /// Управляет отдыхом игрока.
-///
-/// Логика:
-/// 1. Восстановить статы (стамина, здоровье, психика, усталость).
-/// 2. Бонус от спального мешка (если есть).
-/// 3. Если локация опасная — риски:
-///    - простудиться (шанс зависит от тепла экипировки);
-///    - быть ограбленным (при долгом отдыхе);
-///    - быть атакованным (при очень долгом отдыхе).
-/// 4. Продвинуть время.
-/// 5. Автосохранить.
 class RestManager {
   /// Выполнить действие отдыха.
   static Future<void> rest(
@@ -31,38 +42,35 @@ class RestManager {
 
     final isSafe = loc.dangerLevel <= GameConstants.safeLocationDangerLevel;
 
-    // ─── 1. Восстановление статов ───
     _applyRestStats(controller, action);
-
-    // ─── 2. Бонус спального мешка ───
     _applySleepingBagBonus(controller);
 
-    // ─── 3. Риски в опасной локации ───
     if (!isSafe) {
-      // 3.1. Простуда
-      _rollCold(controller);
-
-      // 3.2. Ограбление (при долгом отдыхе)
-      if (action.timeMinutes >= GameConstants.restTheftMinDuration) {
-        _rollTheft(context, controller);
+      final cold = rollCold(controller);
+      if (cold.infected) {
+        _applyCold(controller);
       }
 
-      // 3.3. Атака (при очень долгом отдыхе)
+      if (action.timeMinutes >= GameConstants.restTheftMinDuration) {
+        final theft = rollTheft(controller);
+        if (theft.stolen) {
+          _applyTheft(context, controller, theft.itemsToLose);
+        }
+      }
+
       if (action.timeMinutes >= GameConstants.restAttackMinDuration) {
-        final attacked = _rollAttack(context, controller);
-        if (attacked) return; // бой запущен, дальше не идём
+        final attacked = rollAttack(controller);
+        if (attacked) {
+          _triggerAttack(context, controller);
+          return;
+        }
       }
     }
 
-    // ─── 4. Время ───
     await controller.advanceTime(action.timeMinutes, isSleeping: true);
-
-    // ─── 5. Автосохранение ───
     await controller.save();
-
     controller.refresh();
 
-    // ─── 6. Снекбар ───
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -77,38 +85,94 @@ class RestManager {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // ВНУТРЕННИЕ МЕТОДЫ
+  // ЧИСТАЯ ЛОГИКА
   // ═══════════════════════════════════════════════════════════
 
-  /// Применить изменения статов от отдыха
-  static void _applyRestStats(MapController controller, RestAction action) {
-    controller.applyStatDelta({
+  /// Вычислить дельты статов от отдыха.
+  @visibleForTesting
+  static Map<String, int> computeRestStats(
+    MapController controller,
+    RestAction action,
+  ) {
+    final delta = <String, int>{
       'stamina': action.staminaRestore,
       'health': action.healthRestore,
       'sanity': action.sanityRestore,
       'fatigue': -action.fatigueReduce,
-    });
+    };
+
+    if (controller.inventory.hasItem('sleeping_bag')) {
+      delta['stamina'] =
+          (delta['stamina'] ?? 0) + GameConstants.sleepingBagStaminaBonus;
+      delta['sanity'] =
+          (delta['sanity'] ?? 0) + GameConstants.sleepingBagSanityBonus;
+    }
+
+    return delta;
   }
 
-  /// Бонус от спального мешка
-  static void _applySleepingBagBonus(MapController controller) {
-    if (!controller.inventory.hasItem('sleeping_bag')) return;
-    controller.applyStatDelta({
-      'stamina': GameConstants.sleepingBagStaminaBonus,
-      'sanity': GameConstants.sleepingBagSanityBonus,
-    });
-  }
-
-  /// Риск простуды при отдыхе в опасной/холодной локации
-  static void _rollCold(MapController controller) {
-    final riskRoll = Random().nextInt(100);
+  /// Определить, простудится ли игрок.
+  @visibleForTesting
+  static ColdResult rollCold(MapController controller) {
     final warmth = controller.equipment.totalWarmth;
-    final coldChance = warmth >= GameConstants.warmthColdResistThreshold
+    final chance = warmth >= GameConstants.warmthColdResistThreshold
         ? GameConstants.coldChanceLow
         : GameConstants.coldChanceHigh;
 
-    if (riskRoll >= coldChance) return;
+    final roll = Random().nextInt(100);
+    return ColdResult(
+      infected: roll < chance,
+      chance: chance,
+    );
+  }
 
+  /// Определить, ограбят ли игрока.
+  @visibleForTesting
+  static TheftResult rollTheft(MapController controller) {
+    if (controller.inventory.items.isEmpty) {
+      return const TheftResult(
+        stolen: false,
+        chance: GameConstants.restTheftChance,
+      );
+    }
+
+    final roll = Random().nextInt(100);
+    return TheftResult(
+      stolen: roll < GameConstants.restTheftChance,
+      chance: GameConstants.restTheftChance,
+      itemsToLose: 1,
+    );
+  }
+
+  /// Определить, атакуют ли игрока.
+  ///
+  /// ⚠️ ВАЖНО: multiplier — double (0.8, 1.0, 1.2, 1.8).
+  /// Нельзя использовать `.toInt()` — 0.8.toInt() = 0.
+  /// Умножаем на double, потом округляем до int.
+  @visibleForTesting
+  static bool rollAttack(MapController controller) {
+    final attackRoll = Random().nextInt(100);
+    final multiplier = controller.gameTime.phase.dangerMultiplier;
+    final attackChance =
+        (GameConstants.restAttackBaseChance * multiplier).round();
+
+    return attackRoll < attackChance;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ПРИМЕНЕНИЕ ЭФФЕКТОВ
+  // ═══════════════════════════════════════════════════════════
+
+  static void _applyRestStats(MapController controller, RestAction action) {
+    final delta = computeRestStats(controller, action);
+    controller.applyStatDelta(delta);
+  }
+
+  static void _applySleepingBagBonus(MapController controller) {
+    // Бонус уже учтён в computeRestStats
+  }
+
+  static void _applyCold(MapController controller) {
     final newCond = ConditionManager.tryInfect(
       controller.allConditions,
       'cold_weather',
@@ -126,23 +190,24 @@ class RestManager {
     controller.addCondition(newCond);
   }
 
-  /// Риск ограбления при отдыхе в опасной локации
-  static void _rollTheft(
+  static void _applyTheft(
     BuildContext context,
     MapController controller,
+    int itemsToLose,
   ) {
-    final theftRoll = Random().nextInt(100);
-    if (theftRoll >= GameConstants.restTheftChance) return;
-    if (controller.inventory.items.isEmpty) return;
+    final stolen = <String>[];
+    for (int i = 0; i < itemsToLose; i++) {
+      if (controller.inventory.items.isEmpty) break;
+      final item = controller.inventory.items[
+          Random().nextInt(controller.inventory.items.length)];
+      stolen.add(item.name);
+      controller.removeAll(item.id);
+    }
 
-    final stolen = controller.inventory.items[
-        Random().nextInt(controller.inventory.items.length)];
-    controller.removeAll(stolen.id);
-
-    if (context.mounted) {
+    if (context.mounted && stolen.isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('💀 Тебя ограбили! Украдено: ${stolen.name}'),
+          content: Text('💀 Тебя ограбили! Украдено: ${stolen.join(", ")}'),
           backgroundColor: Colors.red[700],
           duration: const Duration(
             seconds: GameConstants.snackbarLongSeconds,
@@ -152,23 +217,10 @@ class RestManager {
     }
   }
 
-  /// Риск атаки при отдыхе в опасной локации.
-  ///
-  /// Возвращает `true`, если бой запущен.
-  static bool _rollAttack(
+  static void _triggerAttack(
     BuildContext context,
     MapController controller,
   ) {
-    final attackRoll = Random().nextInt(100);
-    final phaseMultiplier =
-        controller.gameTime.phase.dangerMultiplier.toInt();
-    final attackChance =
-        GameConstants.restAttackBaseChance * phaseMultiplier;
-
-    if (attackRoll >= attackChance) return false;
-
-    // Запускаем бой — но не ждём (асинхронно, огонь и забыли)
     CombatManager.startCombat(context, controller, 'looter_common');
-    return true;
   }
 }

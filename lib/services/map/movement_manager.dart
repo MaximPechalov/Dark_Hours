@@ -5,6 +5,21 @@ import 'package:dark_hours/services/map/story_trigger_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
 import 'package:dark_hours/constants/game_constants.dart';
 
+/// Результат попытки перейти в локацию.
+enum MoveResult {
+  /// Переход возможен (или уже выполнен).
+  success,
+
+  /// Карта не загружена.
+  noMap,
+
+  /// Локация с таким id не найдена.
+  notFound,
+
+  /// Локация скрытая и ещё не открыта.
+  hidden,
+}
+
 /// Управляет перемещением между локациями.
 ///
 /// Что делает:
@@ -24,23 +39,15 @@ class MovementManager {
     MapController controller,
     String locationId,
   ) async {
-    // ─── 1. Проверяем локацию ───
-    final map = controller.map;
-    if (map == null) return false;
-
-    final target = map.getById(locationId);
-    if (target == null) {
-      debugPrint('⚠️ MovementManager: локация "$locationId" не найдена');
+    // ─── 1. Валидация ───
+    final validation = validateMove(controller, locationId);
+    if (validation != MoveResult.success) {
+      debugPrint('⚠️ MovementManager: переход отклонён — $validation');
       return false;
     }
 
-    // Скрытая локация должна быть открыта
-    if (target.hidden && !controller.isLocationUnlocked(target.id)) {
-      debugPrint(
-        '⚠️ MovementManager: локация "${target.id}" скрыта и не открыта',
-      );
-      return false;
-    }
+    final map = controller.map!;
+    final target = map.getById(locationId)!;
 
     // ─── 2. Звук клика ───
     AudioService.playClick();
@@ -86,5 +93,30 @@ class MovementManager {
     await StoryTriggerManager.checkTrigger(context, controller);
 
     return true;
+  }
+
+  /// Чистая валидация перехода — БЕЗ UI.
+  ///
+  /// Возвращает:
+  /// - `success` — переход можно выполнить.
+  /// - `noMap` — карта не загружена.
+  /// - `notFound` — локация с таким id не существует.
+  /// - `hidden` — локация скрытая и ещё не открыта.
+  @visibleForTesting
+  static MoveResult validateMove(
+    MapController controller,
+    String locationId,
+  ) {
+    final map = controller.map;
+    if (map == null) return MoveResult.noMap;
+
+    final target = map.getById(locationId);
+    if (target == null) return MoveResult.notFound;
+
+    if (target.hidden && !controller.isLocationUnlocked(target.id)) {
+      return MoveResult.hidden;
+    }
+
+    return MoveResult.success;
   }
 }

@@ -33,7 +33,7 @@ class SearchManager {
     if (loc == null) return;
 
     // ─── 1. Проверка: есть ли что искать ───
-    if (_nothingToSearch(loc)) {
+    if (nothingToSearch(loc)) {
       AudioService.playError();
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -76,8 +76,7 @@ class SearchManager {
 
     // ─── 7. Шанс встретить врага ───
     if (hasRemainingLoot && loc.enemies.isNotEmpty && !loc.isFinal) {
-      final enemyRoll = Random().nextInt(GameConstants.enemyEncounterChance);
-      if (enemyRoll == 0) {
+      if (rollEnemyEncounter()) {
         await CombatManager.startCombat(
           context,
           controller,
@@ -94,16 +93,93 @@ class SearchManager {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // ВНУТРЕННИЕ МЕТОДЫ
+  // ЧИСТАЯ ЛОГИКА (для тестов)
   // ═══════════════════════════════════════════════════════════
 
-  /// Проверить, есть ли что искать в локации
-  static bool _nothingToSearch(Location loc) {
+  /// Проверить, есть ли что искать в локации.
+  @visibleForTesting
+  static bool nothingToSearch(Location loc) {
     return loc.maxSearches == 0 &&
         loc.lootPool.isEmpty &&
         loc.enemies.isEmpty &&
         loc.risk == null;
   }
+
+  /// Бросок: встретить ли врага.
+  ///
+  /// Шанс = 1/N, где N = GameConstants.enemyEncounterChance.
+  @visibleForTesting
+  static bool rollEnemyEncounter() {
+    final roll = Random().nextInt(GameConstants.enemyEncounterChance);
+    return roll == 0;
+  }
+
+  /// Бросок: какой предмет из loot_pool выпадет.
+  ///
+  /// Возвращает item id или null, если пул пуст.
+  @visibleForTesting
+  static String? pickLoot(Location loc) {
+    if (loc.lootPool.isEmpty) return null;
+    return loc.lootPool[Random().nextInt(loc.lootPool.length)];
+  }
+
+  /// Выбрать событие из пула с учётом applicable.
+  ///
+  /// Возвращает `SearchEvent?` или `null`, если ничего не выпало.
+  @visibleForTesting
+  static SearchEvent? pickSearchEvent({
+    required List<SearchEvent> pool,
+    required String currentLocationId,
+    required Map<String, String> hiddenMap,
+  }) {
+    final rng = Random();
+
+    final applicable = pool.where((e) {
+      return e.isApplicableTo(
+        currentLocationId: currentLocationId,
+        hiddenLocations: hiddenMap,
+      );
+    }).toList();
+
+    double totalChance = 0.0;
+    for (final e in applicable) {
+      totalChance += e.chance;
+    }
+
+    final roll = rng.nextDouble() * (totalChance > 1.0 ? totalChance : 1.0);
+
+    double cumulative = 0.0;
+    for (final event in applicable) {
+      cumulative += event.chance;
+      if (roll < cumulative) {
+        return event;
+      }
+    }
+
+    return null;
+  }
+
+  /// Извлечь статы из effect (Map<String, dynamic>).
+  ///
+  /// Возвращает map с ключами hunger/thirst/health/sanity/stamina/fatigue,
+  /// где значение != 0.
+  @visibleForTesting
+  static Map<String, int> extractStatDelta(Map<String, dynamic> effect) {
+    final delta = <String, int>{};
+
+    for (final key in ['health', 'sanity', 'hunger', 'thirst', 'stamina', 'fatigue']) {
+      final value = effect[key];
+      if (value is int && value != 0) {
+        delta[key] = value;
+      }
+    }
+
+    return delta;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ВНУТРЕННИЕ МЕТОДЫ
+  // ═══════════════════════════════════════════════════════════
 
   /// Применить риск локации (шанс заразиться)
   static Future<void> _applyLocationRisk(
@@ -145,7 +221,8 @@ class SearchManager {
   ) async {
     controller.incrementSearchCount(loc.id);
 
-    if (loc.lootPool.isEmpty) {
+    final foundItemId = pickLoot(loc);
+    if (foundItemId == null) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -157,7 +234,6 @@ class SearchManager {
       return;
     }
 
-    final foundItemId = loc.lootPool[Random().nextInt(loc.lootPool.length)];
     final item = ItemLoader.findById(foundItemId);
     if (item == null) return;
 
@@ -205,7 +281,7 @@ class SearchManager {
 
     final hiddenMap = SearchEventLoader.buildHiddenMap(map.locations);
 
-    final event = _rollSearchEvent(
+    final event = pickSearchEvent(
       pool: pool,
       currentLocationId: loc.id,
       hiddenMap: hiddenMap,
@@ -226,39 +302,6 @@ class SearchManager {
     await _applySearchEvent(context, controller, event, loc);
   }
 
-  /// Бросить случайное событие из пула
-  static SearchEvent? _rollSearchEvent({
-    required List<SearchEvent> pool,
-    required String currentLocationId,
-    required Map<String, String> hiddenMap,
-  }) {
-    final rng = Random();
-
-    final applicable = pool.where((e) {
-      return e.isApplicableTo(
-        currentLocationId: currentLocationId,
-        hiddenLocations: hiddenMap,
-      );
-    }).toList();
-
-    double totalChance = 0.0;
-    for (final e in applicable) {
-      totalChance += e.chance;
-    }
-
-    final roll = rng.nextDouble() * (totalChance > 1.0 ? totalChance : 1.0);
-
-    double cumulative = 0.0;
-    for (final event in applicable) {
-      cumulative += event.chance;
-      if (roll < cumulative) {
-        return event;
-      }
-    }
-
-    return null;
-  }
-
   /// Применить событие поиска
   static Future<void> _applySearchEvent(
     BuildContext context,
@@ -266,7 +309,6 @@ class SearchManager {
     SearchEvent event,
     Location loc,
   ) async {
-    // Показать текст события
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -279,83 +321,60 @@ class SearchManager {
 
     final effect = event.effect;
 
-    // ─── Статы ───
-    _applyStatEffects(context, controller, effect);
+    // Статы
+    final delta = extractStatDelta(effect);
+    if (delta.isNotEmpty) {
+      controller.applyStatDelta(delta);
+      _showStatFloatingEffects(context, delta);
+    }
 
-    // ─── Случайный лут ───
+    // Случайный лут
     if (effect['random_loot'] != null) {
       await _applyRandomLoot(context, controller, effect);
     }
 
-    // ─── Открытие локации ───
+    // Открытие локации
     if (effect['unlock_location'] != null) {
       await _applyUnlockLocation(context, controller, effect, loc);
     }
 
-    // ─── Флаги ───
+    // Флаги
     if (effect['flag_set'] != null) {
       controller.setFlag(effect['flag_set'] as String);
     }
 
-    // ─── Заражение ───
+    // Заражение
     if (effect['infect'] != null) {
       await _applyInfect(context, controller, effect);
     }
 
-    // ─── Бой ───
+    // Бой
     if (effect['combat_start'] != null) {
       await _applyCombatStart(context, controller, effect);
     }
   }
 
-  static void _applyStatEffects(
+  static void _showStatFloatingEffects(
     BuildContext context,
-    MapController controller,
-    Map<String, dynamic> effect,
+    Map<String, int> delta,
   ) {
-    final delta = <String, int>{};
+    if (!context.mounted) return;
 
-    if (effect['health'] != null) {
-      delta['health'] = effect['health'] as int;
+    if (delta['health'] != null) {
+      FloatingEffectOverlay.show(
+        context,
+        '${delta['health']! > 0 ? '+' : ''}${delta['health']} ❤️',
+        color: delta['health']! > 0 ? Colors.green : Colors.red,
+        icon: Icons.favorite,
+      );
     }
-    if (effect['sanity'] != null) {
-      delta['sanity'] = effect['sanity'] as int;
-    }
-    if (effect['hunger'] != null) {
-      delta['hunger'] = effect['hunger'] as int;
-    }
-    if (effect['thirst'] != null) {
-      delta['thirst'] = effect['thirst'] as int;
-    }
-    if (effect['stamina'] != null) {
-      delta['stamina'] = effect['stamina'] as int;
-    }
-    if (effect['fatigue'] != null) {
-      delta['fatigue'] = effect['fatigue'] as int;
-    }
-
-    if (delta.isEmpty) return;
-
-    controller.applyStatDelta(delta);
-
-    // Floating effect
-    if (context.mounted) {
-      if (delta['health'] != null) {
-        FloatingEffectOverlay.show(
-          context,
-          '${delta['health']! > 0 ? '+' : ''}${delta['health']} ❤️',
-          color: delta['health']! > 0 ? Colors.green : Colors.red,
-          icon: Icons.favorite,
-        );
-      }
-      if (delta['sanity'] != null) {
-        FloatingEffectOverlay.show(
-          context,
-          '${delta['sanity']! > 0 ? '+' : ''}${delta['sanity']} 🧠',
-          color: delta['sanity']! > 0 ? Colors.purple : Colors.red,
-          icon: Icons.psychology,
-        );
-      }
+    if (delta['sanity'] != null) {
+      FloatingEffectOverlay.show(
+        context,
+        '${delta['sanity']! > 0 ? '+' : ''}${delta['sanity']} 🧠',
+        color: delta['sanity']! > 0 ? Colors.purple : Colors.red,
+        icon: Icons.psychology,
+      );
     }
   }
 

@@ -1,0 +1,179 @@
+Resolving dependencies...
+Downloading packages...
+  clock 1.1.2 (1.1.3 available)
+  code_assets 1.2.1 (2.1.0 available)
+  flutter_lints 2.0.3 (6.0.0 available)
+  hooks 2.0.2 (2.2.0 available)
+  jni 1.0.3 (1.1.0 available)
+  lints 2.1.1 (6.1.0 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  objective_c 9.5.0 (9.6.2 available)
+  record_use 0.6.0 (1.1.1 available)
+  stack_trace 1.12.1 (1.12.2 available)
+  test_api 0.7.12 (0.7.14 available)
+Got dependencies!
+11 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing Dark_Hours...                                         
+
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/extra/achievements_screen.dart:141:32 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/extra/achievements_screen.dart:192:59 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/extra/achievements_screen.dart:340:41 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/extra/achievements_screen.dart:345:43 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/extra/achievements_screen.dart:359:47 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/extra/achievements_screen.dart:407:58 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/extra/equipment_test_screen.dart:548:22 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/extra/equipment_test_screen.dart:563:22 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/extra/equipment_test_screen.dart:565:41 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/gameplay/combat_screen.dart:519:24 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/gameplay/combat_screen.dart:704:28 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/gameplay/combat_screen.dart:799:22 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/gameplay/credits_screen.dart:293:22 • deprecated_member_use
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check. Guard a 'State.context' use with a 'mounted' check on the State, and other BuildContext use with a 'mounted' check on the BuildContext • lib/screens/gameplay/story_screen.dart:875:38 • use_build_context_synchronously
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/gameplay/story_screen.dart:1041:40 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/gameplay/story_screen.dart:1146:61 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/gameplay/widgets/map_location_card.dart:36:52 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/gameplay/widgets/map_location_card.dart:37:32 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/gameplay/widgets/map_location_card.dart:178:22 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/gameplay/widgets/map_location_card.dart:180:41 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/gameplay/widgets/map_status_bar.dart:31:61 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/main/character_select_screen.dart:84:59 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/main/character_select_screen.dart:108:24 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/main/death_screen.dart:93:39 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/main/settings_screen.dart:150:36 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/main/settings_screen.dart:152:28 • deprecated_member_use
+   info • 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre. Try replacing the use of the deprecated member with the replacement • lib/screens/main/settings_screen.dart:194:21 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/main/settings_screen.dart:251:48 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/main/settings_screen.dart:341:26 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/main/settings_screen.dart:347:28 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/main/settings_screen.dart:378:18 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/main/splash_screen.dart:108:36 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/main/splash_screen.dart:185:57 • deprecated_member_use
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/screens/main/start_screen.dart:194:19 • prefer_const_constructors
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/main/start_screen.dart:234:30 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/main/start_screen.dart:262:32 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/main/start_screen.dart:266:34 • deprecated_member_use
+   info • The import of 'package:flutter/foundation.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart'. Try removing the import directive • lib/services/map/combat_manager.dart:2:8 • unnecessary_import
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/services/map/combat_manager.dart:159:27 • use_build_context_synchronously
+   info • The import of 'package:flutter/foundation.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart'. Try removing the import directive • lib/services/map/death_manager.dart:2:8 • unnecessary_import
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/services/map/death_manager.dart:167:21 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/services/map/death_manager.dart:252:26 • use_build_context_synchronously
+   info • The import of 'package:flutter/foundation.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart'. Try removing the import directive • lib/services/map/map_controller.dart:2:8 • unnecessary_import
+   info • Unnecessary use of getter and setter to wrap a field. Try removing the getter and setter and renaming the field • lib/services/map/map_controller.dart:116:12 • unnecessary_getters_setters
+   info • Unnecessary use of getter and setter to wrap a field. Try removing the getter and setter and renaming the field • lib/services/map/map_controller.dart:121:17 • unnecessary_getters_setters
+   info • The import of 'package:flutter/foundation.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart'. Try removing the import directive • lib/services/map/movement_manager.dart:2:8 • unnecessary_import
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/services/map/movement_manager.dart:94:44 • use_build_context_synchronously
+   info • The import of 'package:flutter/foundation.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart'. Try removing the import directive • lib/services/map/rest_manager.dart:2:8 • unnecessary_import
+   info • The import of 'package:flutter/foundation.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart'. Try removing the import directive • lib/services/map/search_manager.dart:2:8 • unnecessary_import
+warning • Unused import: 'package:dark_hours/models/inventory/inventory_item.dart'. Try removing the import directive • lib/services/map/search_manager.dart:13:8 • unused_import
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/services/map/search_manager.dart:71:29 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/services/map/search_manager.dart:73:26 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/services/map/search_manager.dart:83:11 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/services/map/search_manager.dart:340:34 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/services/map/search_manager.dart:350:26 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/services/map/search_manager.dart:355:31 • use_build_context_synchronously
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/cards/character_card.dart:39:26 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/cards/character_card.dart:98:28 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/effects/achievement_popup.dart:73:54 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/effects/achievement_popup.dart:86:61 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/effects/achievement_popup.dart:113:63 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/effects/achievement_popup.dart:158:63 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/effects/floating_effect.dart:101:39 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/effects/floating_effect.dart:109:43 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/effects/shimmer_button.dart:65:41 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/effects/shimmer_button.dart:85:43 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/conditions_panel.dart:22:31 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/conditions_panel.dart:70:55 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/conditions_panel.dart:73:57 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/conditions_panel.dart:97:61 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/conditions_panel.dart:151:34 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/conditions_panel.dart:181:40 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/conditions_panel.dart:184:42 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/craft_panel.dart:118:26 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/craft_panel.dart:183:32 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/craft_panel.dart:266:29 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/craft_panel.dart:313:41 • deprecated_member_use
+   info • Unnecessary braces in a string interpolation. Try removing the braces • lib/widgets/panels/craft_panel.dart:371:35 • unnecessary_brace_in_string_interps
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/craft_panel.dart:381:38 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/craft_panel.dart:382:36 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/craft_panel.dart:386:40 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/craft_panel.dart:387:38 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/craft_panel.dart:482:22 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/craft_panel.dart:484:41 • deprecated_member_use
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/widgets/panels/equipment_panel.dart:48:11 • prefer_const_constructors
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/inventory_panel.dart:143:46 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/inventory_panel.dart:186:56 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/inventory_panel.dart:334:36 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/inventory_panel.dart:369:40 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/inventory_panel.dart:390:43 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/penalties_panel.dart:27:34 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/penalties_panel.dart:32:32 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/penalties_panel.dart:37:32 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/penalties_panel.dart:100:36 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/penalties_panel.dart:103:38 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/penalties_panel.dart:109:46 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/rest_panel.dart:83:38 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/rest_panel.dart:84:39 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/rest_panel.dart:144:30 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/rest_panel.dart:171:38 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/rest_panel.dart:238:22 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/widgets/panels/rest_panel.dart:240:41 • deprecated_member_use
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/models/equipment_test.dart:146:21 • prefer_const_constructors
+warning • Unused import: 'package:flutter/foundation.dart'. Try removing the import directive • test/services/map/map_controller_test.dart:2:8 • unused_import
+warning • Unused import: 'package:dark_hours/models/items/recipe.dart'. Try removing the import directive • test/services/map/map_controller_test.dart:6:8 • unused_import
+warning • Unused import: 'package:dark_hours/models/conditions/active_condition.dart'. Try removing the import directive • test/services/map/map_controller_test.dart:8:8 • unused_import
+warning • Unused import: 'package:dark_hours/models/time/game_time.dart'. Try removing the import directive • test/services/map/map_controller_test.dart:9:8 • unused_import
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/services/map/rest_manager_test.dart:192:20 • prefer_const_constructors
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:25:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:26:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:27:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:32:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:33:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:34:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:40:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:41:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:42:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:45:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:46:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:47:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:52:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:53:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:54:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:59:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:60:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:61:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:66:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:67:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:68:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:73:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:74:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:75:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:80:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:81:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:82:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:87:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:88:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:89:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:90:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:92:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:93:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:94:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:96:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:98:5 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:101:5 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:408:7 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:413:7 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:499:7 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:501:7 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:552:7 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:554:7 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:591:7 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:593:7 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:647:7 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:649:7 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:698:7 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:700:7 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:707:5 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/validate.dart:712:5 • avoid_print
+
+159 issues found. (ran in 7.2s)

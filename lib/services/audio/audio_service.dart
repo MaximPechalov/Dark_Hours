@@ -4,6 +4,15 @@ import 'package:dark_hours/services/audio/audio_settings.dart';
 
 /// Центральный сервис для воспроизведения звуков
 class AudioService {
+  // ===== ФЛАГ ДЛЯ ТЕСТОВ =====
+
+  /// Отключить звук — используется в widget-тестах.
+  ///
+  /// По умолчанию `true` — звук работает как обычно.
+  /// В тестах выставляется в `false`, чтобы избежать
+  /// обращения к platform channels `audioplayers`.
+  static bool enabled = true;
+
   // ===== КАНАЛЫ =====
 
   static final AudioPlayer _musicPlayer = AudioPlayer();
@@ -42,6 +51,7 @@ class AudioService {
   // ===== ИНИЦИАЛИЗАЦИЯ =====
 
   static Future<void> init() async {
+    if (!enabled) return;
     if (_isInitialized) return;
 
     final settings = await AudioSettings.load();
@@ -78,6 +88,7 @@ class AudioService {
     String path, {
     double volume = 1.0,
   }) async {
+    if (!enabled) return;
     if (!_isInitialized) await init();
     if (_isMuted) return;
 
@@ -94,30 +105,37 @@ class AudioService {
   }
 
   static Future<void> playClick() async {
+    if (!enabled) return;
     await playSfx('audio/ui/click.ogg');
   }
 
   static Future<void> playTap() async {
+    if (!enabled) return;
     await playSfx('audio/ui/tap.ogg');
   }
 
   static Future<void> playHover() async {
+    if (!enabled) return;
     await playSfx('audio/ui/hover.ogg', volume: 0.5);
   }
 
   static Future<void> playSwitch() async {
+    if (!enabled) return;
     await playSfx('audio/ui/switch.ogg');
   }
 
   static Future<void> playSuccess() async {
+    if (!enabled) return;
     await playSfx('audio/ui/success.ogg');
   }
 
   static Future<void> playError() async {
+    if (!enabled) return;
     await playSfx('audio/ui/error.ogg');
   }
 
   static Future<void> playNotification() async {
+    if (!enabled) return;
     await playSfx('audio/ui/notification.ogg');
   }
 
@@ -125,6 +143,7 @@ class AudioService {
 
   /// Играть музыку, но не перезапускать если этот же трек играет
   static Future<void> playMusic(String path, {double volume = 1.0}) async {
+    if (!enabled) return;
     if (!_isInitialized) await init();
 
     if (_currentMusic == path) {
@@ -138,6 +157,7 @@ class AudioService {
   /// Играть музыку — принудительно, даже если уже играет этот же трек
   /// Полезно при возврате в меню из другого экрана
   static Future<void> forcePlayMusic(String path, {double volume = 1.0}) async {
+    if (!enabled) return;
     if (!_isInitialized) await init();
 
     // Если играет тот же трек — не перезапускаем (звук не должен дёргаться)
@@ -151,6 +171,7 @@ class AudioService {
   }
 
   static Future<void> _playMusicInternal(String path, {double volume = 1.0}) async {
+    if (!enabled) return;
     try {
       await _musicPlayer.stop();
       await _musicPlayer.setVolume(
@@ -164,6 +185,7 @@ class AudioService {
   }
 
   static Future<void> stopMusic() async {
+    if (!enabled) return;
     await _musicPlayer.stop();
     _currentMusic = null;
   }
@@ -171,6 +193,7 @@ class AudioService {
   // ===== АТМОСФЕРА =====
 
   static Future<void> playAmbience(String path, {double volume = 1.0}) async {
+    if (!enabled) return;
     if (!_isInitialized) await init();
 
     if (_currentAmbience == path) {
@@ -191,6 +214,7 @@ class AudioService {
   }
 
   static Future<void> stopAmbience() async {
+    if (!enabled) return;
     await _ambiencePlayer.stop();
     _currentAmbience = null;
   }
@@ -201,6 +225,7 @@ class AudioService {
     required String region,
     required int dangerLevel,
   }) {
+    // Чистая функция — не трогает плагины. Не требует проверки enabled.
     switch (locationId) {
       case 'street_south':
         return 'audio/ambience/street_south.ogg';
@@ -258,24 +283,28 @@ class AudioService {
 
   static Future<void> setMasterVolume(double value) async {
     _masterVolume = value.clamp(0.0, 1.0);
+    if (!enabled) return;
     await _applyVolumes();
     await _saveSettings();
   }
 
   static Future<void> setMusicVolume(double value) async {
     _musicVolume = value.clamp(0.0, 1.0);
+    if (!enabled) return;
     await _applyVolumes();
     await _saveSettings();
   }
 
   static Future<void> setSfxVolume(double value) async {
     _sfxVolume = value.clamp(0.0, 1.0);
+    if (!enabled) return;
     await _applyVolumes();
     await _saveSettings();
   }
 
   static Future<void> setMuted(bool muted) async {
     _isMuted = muted;
+    if (!enabled) return;
     await _applyVolumes();
     await _saveSettings();
   }
@@ -289,11 +318,13 @@ class AudioService {
     _musicVolume = AudioSettings.defaultMusic;
     _sfxVolume = AudioSettings.defaultSfx;
     _isMuted = AudioSettings.defaultMuted;
+    if (!enabled) return;
     await _applyVolumes();
     await _saveSettings();
   }
 
   static Future<void> _applyVolumes() async {
+    if (!enabled) return;
     await _musicPlayer.setVolume(
       _effectiveVolume(_musicVolume * _masterVolume),
     );
@@ -303,6 +334,7 @@ class AudioService {
   }
 
   static Future<void> _saveSettings() async {
+    if (!enabled) return;
     await AudioSettings.save(AudioSettingsData(
       masterVolume: _masterVolume,
       musicVolume: _musicVolume,
@@ -314,6 +346,7 @@ class AudioService {
   // ===== ОСТАНОВКА =====
 
   static Future<void> stopAll() async {
+    if (!enabled) return;
     await _musicPlayer.stop();
     await _ambiencePlayer.stop();
     for (final player in _sfxPool) {
