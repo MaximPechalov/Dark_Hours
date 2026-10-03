@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'package:dark_hours/services/map/map_controller.dart';
@@ -12,6 +13,7 @@ import 'package:dark_hours/services/time/time_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
 
 import 'package:dark_hours/models/world/location.dart';
+import 'package:dark_hours/models/world/map_position.dart';
 import 'package:dark_hours/models/items/recipe.dart';
 import 'package:dark_hours/models/inventory/inventory_item.dart';
 import 'package:dark_hours/models/time/rest_action.dart';
@@ -22,18 +24,21 @@ import 'package:dark_hours/widgets/panels/craft_panel.dart';
 import 'package:dark_hours/widgets/panels/inventory_panel.dart';
 import 'package:dark_hours/widgets/panels/equipment_panel.dart';
 import 'package:dark_hours/widgets/panels/rest_panel.dart';
-import 'package:dark_hours/widgets/cards/animated_location_card.dart';
 import 'package:dark_hours/widgets/effects/floating_effect.dart';
 import 'package:dark_hours/widgets/effects/shimmer_button.dart';
 
 import 'package:dark_hours/screens/gameplay/widgets/map_status_bar.dart';
 import 'package:dark_hours/screens/gameplay/widgets/map_current_location.dart';
-import 'package:dark_hours/screens/gameplay/widgets/map_location_card.dart';
+import 'package:dark_hours/screens/gameplay/widgets/map_zone_painter.dart';
+import 'package:dark_hours/screens/gameplay/widgets/map_edge_painter.dart';
+import 'package:dark_hours/screens/gameplay/widgets/map_node.dart';
+import 'package:dark_hours/screens/gameplay/widgets/map_player_marker.dart';
+import 'package:dark_hours/screens/gameplay/widgets/map_info_sheet.dart';
 
 class MapScreen extends StatefulWidget {
   final String characterId;
   final String characterName;
-  final dynamic resumeFrom; // SaveData? — чтобы не тянуть импорт
+  final dynamic resumeFrom;
 
   const MapScreen({
     super.key,
@@ -46,23 +51,39 @@ class MapScreen extends StatefulWidget {
   State<MapScreen> createState() => _MapScreenState();
 }
 
-class _MapScreenState extends State<MapScreen> {
+class _MapScreenState extends State<MapScreen>
+    with SingleTickerProviderStateMixin {
   late final MapController _controller;
+
+  final TransformationController _transformController =
+      TransformationController();
+
+  late AnimationController _markerController;
+  late Animation<MapPosition> _markerAnimation;
+  MapPosition _markerPosition = const MapPosition(x: 0.5, y: 0.5);
+  double _markerRotation = 0.0;
+  bool _isMoving = false;
+
+  Size _viewportSize = const Size(400, 600);
+
+  static const double _mapWidth = 1200.0;
+  static const double _mapHeight = 1600.0;
 
   @override
   void initState() {
     super.initState();
-
     _controller = MapController(
       characterId: widget.characterId,
       characterName: widget.characterName,
       resumeFrom: widget.resumeFrom,
     );
-
-    // Подписка на изменения состояния
     _controller.addListener(_onControllerChanged);
 
-    // Загрузка карты
+    _markerController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+
     _initController();
   }
 
@@ -70,82 +91,88 @@ class _MapScreenState extends State<MapScreen> {
   void dispose() {
     _controller.removeListener(_onControllerChanged);
     _controller.dispose();
+    _transformController.dispose();
+    _markerController.dispose();
     super.dispose();
   }
 
-  /// Обработчик изменений в контроллере.
-  ///
-  /// Только setState — проверка смерти выполняется явно
-  /// после каждого действия (см. _search, _moveTo, _executeRest).
-  /// Так избегаем рекурсии setState → notifyListeners → setState.
   void _onControllerChanged() {
     if (!mounted) return;
     setState(() {});
   }
 
-  /// Инициализация контроллера + ambience + первая проверка смерти
   Future<void> _initController() async {
     await _controller.init();
-
     if (!mounted) return;
 
-    // Запуск ambience стартовой локации
-    final startLoc = _controller.currentLocation;
-    if (startLoc != null) {
+    final cur = _controller.currentLocation;
+    if (cur != null) {
+      _markerPosition = cur.mapPosition;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _centerOnLocation(cur);
+      });
+
       final ambiencePath = AudioService.ambienceForLocation(
-        locationId: startLoc.id,
-        type: startLoc.type,
-        region: startLoc.region,
-        dangerLevel: startLoc.dangerLevel,
+        locationId: cur.id,
+        type: cur.type,
+        region: cur.region,
+        dangerLevel: cur.dangerLevel,
       );
       if (ambiencePath != null) {
         await AudioService.playAmbience(ambiencePath);
       }
     }
 
-    // Проверка смерти после инициализации
     if (DeathManager.checkDeath(_controller)) {
       await _handleDeath();
       return;
     }
-
     if (mounted) setState(() {});
   }
 
-  /// Показать экран смерти + сохранить статистику
+  void _centerOnLocation(Location loc) {
+    final px = loc.mapPosition.x * _mapWidth;
+    final py = loc.mapPosition.y * _mapHeight;
+
+    final viewW = _viewportSize.width;
+    final viewH = _viewportSize.height;
+
+    final tx = viewW / 2 - px;
+    final ty = viewH / 2 - py;
+
+    _transformController.value = Matrix4.identity()
+      ..translate(tx, ty);
+  }
+
   Future<void> _handleDeath() async {
     if (!mounted) return;
-
     await DeathManager.applyStatsOnDeath(_controller);
-
     if (!mounted) return;
     await DeathManager.showDeathScreenIfNeeded(context, _controller);
   }
 
   // ═══════════════════════════════════════════════════════════
-  // ДЕЙСТВИЯ ПОЛЬЗОВАТЕЛЯ
+  // ПЕРЕХОД
   // ═══════════════════════════════════════════════════════════
 
-  /// Обыск текущей локации
-  Future<void> _search() async {
-    await SearchManager.search(context, _controller);
-
-    if (!mounted) return;
-    // Проверка смерти после обыска
-    if (DeathManager.checkDeath(_controller)) {
-      await _handleDeath();
-      return;
-    }
-    await DeathManager.checkFatigue(context, _controller);
-    if (mounted) setState(() {});
-  }
-
-  /// Переход в локацию
   Future<void> _moveTo(String locationId) async {
+    final target = _controller.map?.getById(locationId);
+    if (target != null) {
+      _startMarkerAnimation(target.mapPosition);
+      await Future.delayed(const Duration(milliseconds: 400));
+    }
+
     final ok = await MovementManager.move(context, _controller, locationId);
     if (!ok || !mounted) return;
 
-    // Проверка смерти и усталости после перехода
+    final newLoc = _controller.currentLocation;
+    if (newLoc != null) {
+      _finishMarkerAnimation(newLoc.mapPosition);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _centerOnLocation(newLoc);
+      });
+    }
+
     if (DeathManager.checkDeath(_controller)) {
       await _handleDeath();
       return;
@@ -154,13 +181,305 @@ class _MapScreenState extends State<MapScreen> {
     if (mounted) setState(() {});
   }
 
-  /// Отдых
+  void _startMarkerAnimation(MapPosition target) {
+    _isMoving = true;
+
+    final dx = target.x - _markerPosition.x;
+    final dy = target.y - _markerPosition.y;
+    _markerRotation = math.atan2(dy, dx) + math.pi / 2;
+
+    _markerAnimation = Tween<MapPosition>(
+      begin: _markerPosition,
+      end: target,
+    ).animate(CurvedAnimation(
+      parent: _markerController,
+      curve: Curves.easeInOut,
+    ));
+
+    _markerController.forward(from: 0);
+    _markerController.addListener(_onMarkerTick);
+
+    setState(() {});
+  }
+
+  void _finishMarkerAnimation(MapPosition target) {
+    _markerPosition = target;
+    _isMoving = false;
+    _markerController.stop();
+    _markerController.removeListener(_onMarkerTick);
+    setState(() {});
+  }
+
+  void _onMarkerTick() {
+    setState(() {
+      _markerPosition = _markerAnimation.value;
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // РАЗВЕДКА
+  // ═══════════════════════════════════════════════════════════
+
+  /// Разведать округу.
+  ///
+  /// Тратит 30 минут + 10 стамины + 5 усталости.
+  /// Открывает 1-3 соседние локации как scouted.
+  Future<void> _scout() async {
+    AudioService.playClick();
+
+    final current = _controller.currentLocation;
+    if (current == null) return;
+
+    // Проверка: есть ли что разведывать?
+    final unknownNeighbors = current.connectionIds.where((id) {
+      return !_controller.isScouted(id);
+    }).toList();
+
+    if (unknownNeighbors.isEmpty) {
+      AudioService.playError();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('🔭 Все соседние места уже разведаны'),
+          backgroundColor: Colors.grey,
+        ),
+      );
+      return;
+    }
+
+    // Стоимость
+    if (_controller.stamina < 10) {
+      AudioService.playError();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('❌ Слишком устал для разведки'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    _controller.setStamina(_controller.stamina - 10);
+    _controller.setFatigue(_controller.fatigue + 5);
+
+    // Бросок: сколько локаций разведаем?
+    final rng = math.Random();
+    final roll = rng.nextInt(100);
+
+    int count;
+    String mood;
+    if (roll < 15) {
+      // Провал
+      count = 0;
+      mood = 'Ты вглядываешься в темноту. Ничего не видно.';
+    } else if (roll < 55) {
+      // 1 локация
+      count = 1;
+      mood = 'Сквозь туман различаешь силуэт...';
+    } else if (roll < 85) {
+      // 2 локации
+      count = 2;
+      mood = 'Ты видишь несколько очертаний впереди...';
+    } else {
+      // 3 локации (удача)
+      count = 3;
+      mood = 'С высоты ты видишь многое...';
+    }
+
+    // Разведываем
+    final scoutedList = <String>[];
+    unknownNeighbors.shuffle(rng);
+    for (int i = 0; i < count && i < unknownNeighbors.length; i++) {
+      scoutedList.add(unknownNeighbors[i]);
+    }
+
+    _controller.scoutAll(scoutedList);
+
+    // Время
+    await _controller.advanceTime(30);
+    await _controller.save();
+
+    if (!mounted) return;
+
+    // Показать результат
+    await _showScoutResult(mood, scoutedList);
+
+    if (mounted) setState(() {});
+  }
+
+  /// Показать модалку с результатом разведки.
+  Future<void> _showScoutResult(String mood, List<String> scoutedIds) async {
+    if (!mounted) return;
+
+    final map = _controller.map;
+    if (map == null) return;
+
+    final locations = scoutedIds
+        .map((id) => map.getById(id))
+        .whereType<Location>()
+        .toList();
+
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Color.fromARGB(255, 15, 15, 15),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                '🔭 РАЗВЕДКА',
+                style: TextStyle(
+                  color: Color(0xFFC8B464),
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 3.0,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                mood,
+                style: TextStyle(
+                  color: Colors.grey[400],
+                  fontSize: 13,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              if (locations.isEmpty) ...[
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1A1A1A),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'Ничего нового.',
+                    style: TextStyle(color: Colors.grey, fontSize: 13),
+                  ),
+                ),
+              ] else ...[
+                const Text(
+                  'Обнаружено:',
+                  style: TextStyle(
+                    color: Color(0xFFC8B464),
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2.0,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                ...locations.map((loc) => _buildScoutedCard(loc)),
+              ],
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    AudioService.playClick();
+                    Navigator.pop(ctx);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFC8B464),
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'ПОНЯТНО',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2.0,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScoutedCard(Location loc) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF181818),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: const Color(0xFFC8B464).withValues(alpha: 0.4),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Text(
+            loc.icon,
+            style: const TextStyle(fontSize: 28),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  loc.displayScoutedName,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  loc.displayScoutedDescription,
+                  style: TextStyle(
+                    color: Colors.grey[500],
+                    fontSize: 11,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ДЕЙСТВИЯ
+  // ═══════════════════════════════════════════════════════════
+
+  Future<void> _search() async {
+    await SearchManager.search(context, _controller);
+    if (!mounted) return;
+    if (DeathManager.checkDeath(_controller)) {
+      await _handleDeath();
+      return;
+    }
+    await DeathManager.checkFatigue(context, _controller);
+    if (mounted) setState(() {});
+  }
+
   Future<void> _showRestPanel() async {
     AudioService.playTap();
-
     final loc = _controller.currentLocation;
     if (loc == null) return;
-
     final isSafe = loc.dangerLevel <= 3;
 
     showModalBottomSheet(
@@ -181,7 +500,6 @@ class _MapScreenState extends State<MapScreen> {
 
   Future<void> _executeRest(RestAction action) async {
     await RestManager.rest(context, _controller, action);
-
     if (!mounted) return;
     if (DeathManager.checkDeath(_controller)) {
       await _handleDeath();
@@ -191,10 +509,27 @@ class _MapScreenState extends State<MapScreen> {
     if (mounted) setState(() {});
   }
 
-  /// Ручная проверка сюжетного триггера (по кнопке)
   Future<void> _checkStoryTrigger() async {
     await StoryTriggerManager.checkTrigger(context, _controller);
     if (mounted) setState(() {});
+  }
+
+  void _showLocationInfo(Location loc) {
+    AudioService.playTap();
+
+    final current = _controller.currentLocation;
+    final canMove = current != null && current.isConnectedTo(loc.id);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => MapInfoSheet(
+        location: loc,
+        canMove: canMove,
+        onMove: canMove ? () => _moveTo(loc.id) : null,
+      ),
+    );
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -203,7 +538,6 @@ class _MapScreenState extends State<MapScreen> {
 
   void _showCraftPanel() {
     AudioService.playTap();
-
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -239,24 +573,19 @@ class _MapScreenState extends State<MapScreen> {
       return;
     }
 
-    // Списать ингредиенты
     for (final ing in recipe.ingredients) {
       for (int i = 0; i < ing.count; i++) {
         _controller.removeItem(ing.id);
       }
     }
 
-    // Добавить результат
-    final resultItem = _findItemForCraft(recipe.resultId);
+    final resultItem = _controller.findItemInCatalog(recipe.resultId);
     if (resultItem != null) {
       _controller.addItem(resultItem);
     }
 
     _controller.trackCraft(isMolotov: recipe.id == 'molotov_craft');
-    _controller.applyStatDelta({
-      'stamina': -5,
-      'fatigue': 5,
-    });
+    _controller.applyStatDelta({'stamina': -5, 'fatigue': 5});
 
     await _controller.advanceTime(recipe.timeMinutes);
     await _controller.save();
@@ -285,13 +614,6 @@ class _MapScreenState extends State<MapScreen> {
       inventorySize: _controller.inventory.items.length,
       tracker: _controller.tracker,
     );
-  }
-
-  /// Найти предмет для крафта через глобальный каталог.
-  ///
-  /// MapScreen не знает об ItemLoader — делегирует в MapController.
-  InventoryItem? _findItemForCraft(String id) {
-    return _controller.findItemInCatalog(id);
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -331,7 +653,6 @@ class _MapScreenState extends State<MapScreen> {
 
   void _useItem(InventoryItem item) {
     AudioService.playSuccess();
-
     _controller.applyStatDelta({
       'hunger': item.hungerRestore,
       'thirst': item.thirstRestore,
@@ -347,38 +668,22 @@ class _MapScreenState extends State<MapScreen> {
       _controller.trackMedicineUsed();
     }
 
-    // Floating effects
     if (item.hungerRestore > 0) {
-      FloatingEffectOverlay.show(
-        context,
-        '+${item.hungerRestore} 🍞',
-        color: Colors.orange,
-        icon: Icons.restaurant,
-      );
+      FloatingEffectOverlay.show(context, '+${item.hungerRestore} 🍞',
+          color: Colors.orange, icon: Icons.restaurant);
     }
     if (item.thirstRestore > 0) {
-      FloatingEffectOverlay.show(
-        context,
-        '+${item.thirstRestore} 💧',
-        color: Colors.blue,
-        icon: Icons.water_drop,
-      );
+      FloatingEffectOverlay.show(context, '+${item.thirstRestore} 💧',
+          color: Colors.blue, icon: Icons.water_drop);
     }
     if (item.healthRestore > 0) {
-      FloatingEffectOverlay.show(
-        context,
-        '+${item.healthRestore} ❤️',
-        color: Colors.red,
-        icon: Icons.favorite,
-      );
+      FloatingEffectOverlay.show(context, '+${item.healthRestore} ❤️',
+          color: Colors.red, icon: Icons.favorite);
     }
 
-    // Лечение болезней
     final curable = <dynamic>[];
     for (final ac in _controller.activeConditions) {
-      if (ac.condition.cureItems.contains(item.id)) {
-        curable.add(ac);
-      }
+      if (ac.condition.cureItems.contains(item.id)) curable.add(ac);
     }
     for (final ac in curable) {
       _controller.activeConditions.remove(ac);
@@ -397,7 +702,6 @@ class _MapScreenState extends State<MapScreen> {
 
   void _equipItem(InventoryItem item) {
     AudioService.playClick();
-
     String? slot;
     if (item.sourceType == 'weapon') {
       slot = 'weapon';
@@ -405,7 +709,6 @@ class _MapScreenState extends State<MapScreen> {
       slot = item.armorSlot;
     }
     if (slot == null) return;
-
     _controller.equipItem(item, slot);
     _controller.save();
     setState(() {});
@@ -441,12 +744,37 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════
+  // ВИДИМОСТЬ ЛОКАЦИЙ
+  // ═══════════════════════════════════════════════════════════
+
+  NodeState _nodeState(Location loc) {
+    if (loc.id == _controller.currentLocation?.id) {
+      return NodeState.current;
+    }
+
+    if (loc.hidden && !_controller.isLocationUnlocked(loc.id)) {
+      return NodeState.hidden;
+    }
+
+    final isNeighbor = _controller.currentLocation?.connectionIds
+            .contains(loc.id) ??
+        false;
+
+    // Если локация не разведана и не соседняя — скрыта.
+    if (!_controller.isScouted(loc.id) && !isNeighbor) {
+      return NodeState.hidden;
+    }
+
+    if (isNeighbor) return NodeState.neighbor;
+    return NodeState.visited;
+  }
+
+  // ═══════════════════════════════════════════════════════════
   // UI
   // ═══════════════════════════════════════════════════════════
 
   @override
   Widget build(BuildContext context) {
-    // Загрузка
     if (_controller.isLoading) {
       return const Scaffold(
         backgroundColor: Color.fromARGB(255, 10, 10, 10),
@@ -458,7 +786,6 @@ class _MapScreenState extends State<MapScreen> {
       );
     }
 
-    // Карта не загрузилась
     if (_controller.map == null) {
       return Scaffold(
         backgroundColor: const Color.fromARGB(255, 10, 10, 10),
@@ -474,10 +801,8 @@ class _MapScreenState extends State<MapScreen> {
           ),
         ),
         body: const Center(
-          child: Text(
-            'Карта не найдена',
-            style: TextStyle(color: Colors.white),
-          ),
+          child: Text('Карта не найдена',
+              style: TextStyle(color: Colors.white)),
         ),
       );
     }
@@ -488,38 +813,143 @@ class _MapScreenState extends State<MapScreen> {
     final penalties = _getPenalties();
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 10, 10, 10),
+      backgroundColor: const Color.fromARGB(255, 8, 8, 10),
       appBar: _buildAppBar(),
       body: Column(
         children: [
           MapStatusBar(controller: _controller),
           PenaltiesPanel(penalties: penalties),
           ConditionsPanel(conditions: _controller.activeConditions),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  MapCurrentLocation(controller: _controller),
-                  const SizedBox(height: 20),
-                  ..._buildActionButtons(current),
-                  const SizedBox(height: 20),
-                  _buildConnectionsHeader(),
-                  const SizedBox(height: 12),
-                  ..._buildAvailableConnections(),
-                ],
+
+          if (_isMoving)
+            Container(
+              height: 3,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFFC8B464), Colors.transparent],
+                ),
               ),
             ),
+
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                if (_viewportSize != constraints.biggest) {
+                  _viewportSize = constraints.biggest;
+                }
+
+                return InteractiveViewer(
+                  transformationController: _transformController,
+                  minScale: 0.4,
+                  maxScale: 2.0,
+                  boundaryMargin: const EdgeInsets.all(400),
+                  constrained: false,
+                  child: SizedBox(
+                    width: _mapWidth,
+                    height: _mapHeight,
+                    child: _buildMapCanvas(),
+                  ),
+                );
+              },
+            ),
           ),
+
+          _buildBottomPanel(current),
         ],
       ),
     );
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // APPBAR
-  // ═══════════════════════════════════════════════════════════
+  Widget _buildMapCanvas() {
+    final map = _controller.map!;
+    final current = _controller.currentLocation!;
+
+    final edges = buildEdges(
+      locations: map.locations,
+      visited: map.visitedLocations,
+      scouted: _controller.scoutedLocations,
+      unlocked: _controller.unlockedLocations,
+      currentLocationId: current.id,
+    );
+
+    final visibleNodes = map.locations
+        .where((loc) => _nodeState(loc) != NodeState.hidden)
+        .toList();
+
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: CustomPaint(
+            painter: MapZonePainter(
+              logicalSize: const Size(_mapWidth, _mapHeight),
+            ),
+          ),
+        ),
+        Positioned.fill(
+          child: CustomPaint(
+            painter: MapEdgePainter(edges: edges),
+          ),
+        ),
+        ...visibleNodes.map((loc) {
+          final px = loc.mapPosition.x * _mapWidth;
+          final py = loc.mapPosition.y * _mapHeight;
+          final state = _nodeState(loc);
+
+          return Positioned(
+            left: px - MapNode.labelWidth / 2,
+            top: py - MapNode.nodeSize / 2,
+            child: MapNode(
+              location: loc,
+              state: state,
+              onTap: () {
+                if (state == NodeState.neighbor) {
+                  _moveTo(loc.id);
+                } else if (state == NodeState.visited) {
+                  _showLocationInfo(loc);
+                }
+              },
+            ),
+          );
+        }),
+        Positioned(
+          left: _markerPosition.x * _mapWidth - 30,
+          top: _markerPosition.y * _mapHeight - 30,
+          child: IgnorePointer(
+            child: MapPlayerMarker(
+              size: 20,
+              rotation: _markerRotation,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBottomPanel(Location current) {
+    return Container(
+      constraints: const BoxConstraints(maxHeight: 220),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 12, 12, 12),
+        border: Border(
+          top: BorderSide(
+            color: const Color(0xFFC8B464).withValues(alpha: 0.3),
+            width: 1,
+          ),
+        ),
+      ),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            MapCurrentLocation(controller: _controller),
+            const SizedBox(height: 8),
+            ..._buildActionButtons(current),
+          ],
+        ),
+      ),
+    );
+  }
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
@@ -544,6 +974,15 @@ class _MapScreenState extends State<MapScreen> {
       ),
       centerTitle: true,
       actions: [
+        IconButton(
+          icon: const Icon(Icons.center_focus_strong),
+          tooltip: 'Центрировать',
+          onPressed: () {
+            AudioService.playTap();
+            final cur = _controller.currentLocation;
+            if (cur != null) _centerOnLocation(cur);
+          },
+        ),
         IconButton(
           icon: const Icon(Icons.build_circle_outlined),
           tooltip: 'Крафт',
@@ -597,26 +1036,24 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // КНОПКИ ДЕЙСТВИЙ
-  // ═══════════════════════════════════════════════════════════
-
   List<Widget> _buildActionButtons(Location current) {
     final widgets = <Widget>[];
 
-    // Кнопка «Обыскать»
     if (_canSearch(current)) {
       widgets.add(_buildSearchButton(current));
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
-    // Кнопка «Сюжетное событие»
+    // Кнопка разведки — если есть что разведывать.
+    if (_canScout(current)) {
+      widgets.add(_buildScoutButton());
+      widgets.add(const SizedBox(height: 8));
+    }
+
     if (_hasStoryTrigger(current)) {
       widgets.add(_buildStoryButton());
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
-
-    // Кнопка «Войти на станцию»
     if (current.isFinal) {
       widgets.add(_buildStationButton());
     }
@@ -631,6 +1068,11 @@ class _MapScreenState extends State<MapScreen> {
         loc.risk != null;
   }
 
+  bool _canScout(Location loc) {
+    // Есть ли неизвестные соседи?
+    return loc.connectionIds.any((id) => !_controller.isScouted(id));
+  }
+
   bool _hasStoryTrigger(Location loc) {
     if (loc.storyNode == null) return false;
     return loc.canTriggerStory(
@@ -643,22 +1085,19 @@ class _MapScreenState extends State<MapScreen> {
   Widget _buildSearchButton(Location loc) {
     final searched = _controller.searchedCounts[loc.id] ?? 0;
     final remaining = loc.maxSearches - searched;
-
     String label;
     Color color;
-
     if (loc.maxSearches == 0) {
       label = '🔍  ОСМОТРЕТЬСЯ (${loc.searchTime} мин)';
       color = const Color.fromARGB(255, 100, 150, 200);
     } else if (remaining > 0) {
       label =
-          '🔍  ОБЫСКАТЬ · осталось $remaining из ${loc.maxSearches} (${loc.searchTime} мин)';
+          '🔍  ОБЫСКАТЬ · $remaining из ${loc.maxSearches} (${loc.searchTime} мин)';
       color = const Color.fromARGB(255, 100, 150, 200);
     } else {
-      label = '🔍  ОСМОТРЕТЬСЯ (рискованно) (${loc.searchTime} мин)';
+      label = '🔍  ОСМОТРЕТЬСЯ (${loc.searchTime} мин)';
       color = const Color.fromARGB(255, 150, 100, 100);
     }
-
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
@@ -667,7 +1106,7 @@ class _MapScreenState extends State<MapScreen> {
         label: Text(
           label,
           style: const TextStyle(
-            fontSize: 14,
+            fontSize: 13,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.5,
           ),
@@ -675,7 +1114,33 @@ class _MapScreenState extends State<MapScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 14),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScoutButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: _scout,
+        icon: const Icon(Icons.visibility_outlined, size: 18),
+        label: const Text(
+          '🔭  РАЗВЕДАТЬ ОКРУГУ (30 мин)',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color.fromARGB(255, 100, 130, 180),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
@@ -693,7 +1158,7 @@ class _MapScreenState extends State<MapScreen> {
         label: const Text(
           '📖  СЮЖЕТНОЕ СОБЫТИЕ',
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 13,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.5,
           ),
@@ -701,7 +1166,7 @@ class _MapScreenState extends State<MapScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color.fromARGB(255, 200, 120, 100),
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 14),
+          padding: const EdgeInsets.symmetric(vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
@@ -731,49 +1196,6 @@ class _MapScreenState extends State<MapScreen> {
       ),
     );
   }
-
-  // ═══════════════════════════════════════════════════════════
-  // СПИСОК СОСЕДНИХ ЛОКАЦИЙ
-  // ═══════════════════════════════════════════════════════════
-
-  Widget _buildConnectionsHeader() {
-    return const Text(
-      'КУДА ИДТИ?',
-      style: TextStyle(
-        color: Color.fromARGB(255, 200, 180, 100),
-        fontSize: 14,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 2.0,
-      ),
-    );
-  }
-
-  List<Widget> _buildAvailableConnections() {
-    final map = _controller.map;
-    if (map == null) return [];
-
-    final connections = map.availableConnections.where((loc) {
-      if (loc.hidden && !_controller.isLocationUnlocked(loc.id)) {
-        return false;
-      }
-      return true;
-    }).toList();
-
-    return connections.asMap().entries.map((entry) {
-      return AnimatedLocationCard(
-        index: entry.key,
-        child: MapLocationCard(
-          controller: _controller,
-          location: entry.value,
-          onTap: () => _moveTo(entry.value.id),
-        ),
-      );
-    }).toList();
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // УТИЛИТЫ
-  // ═══════════════════════════════════════════════════════════
 
   List<String> _getPenalties() {
     return TimeManager.getPenalties(

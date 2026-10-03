@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../_helpers/test_fixtures.dart';
 
 import 'package:dark_hours/models/world/location.dart';
 import 'package:dark_hours/models/world/search_event.dart';
@@ -39,7 +40,7 @@ void main() {
   // ФИКСТУРЫ
   // ═══════════════════════════════════════════════════════════
 
-  const emptyLocation = Location(
+  final emptyLocation = Location(
     id: 'empty',
     name: 'Пустая',
     description: '',
@@ -50,13 +51,13 @@ void main() {
     maxSearches: 0,
     lootPool: [],
     enemies: [],
-    connections: [],
+    connections: conns([]),
     icon: '📭',
     repeatable: true,
     isStart: true,
   );
 
-  const lootLocation = Location(
+  final lootLocation = Location(
     id: 'loot',
     name: 'Склад',
     description: '',
@@ -67,13 +68,13 @@ void main() {
     maxSearches: 3,
     lootPool: ['bandage', 'crackers', 'water_bottle'],
     enemies: [],
-    connections: [],
+    connections: conns([]),
     icon: '📦',
     repeatable: true,
     isStart: true,
   );
 
-  const riskLocation = Location(
+  final riskLocation = Location(
     id: 'risk',
     name: 'Тоннель',
     description: '',
@@ -84,7 +85,7 @@ void main() {
     maxSearches: 2,
     lootPool: ['wood'],
     enemies: [],
-    connections: [],
+    connections: conns([]),
     icon: '🕳️',
     repeatable: true,
     isStart: true,
@@ -129,7 +130,7 @@ void main() {
     });
 
     test('false, если есть maxSearches > 0', () {
-      const loc = Location(
+      final loc = Location(
         id: 'x',
         name: 'X',
         description: '',
@@ -140,7 +141,7 @@ void main() {
         maxSearches: 3,
         lootPool: [],
         enemies: [],
-        connections: [],
+        connections: conns([]),
         icon: '📦',
         repeatable: true,
       );
@@ -152,7 +153,7 @@ void main() {
     });
 
     test('false, если есть enemies', () {
-      const loc = Location(
+      final loc = Location(
         id: 'x',
         name: 'X',
         description: '',
@@ -163,7 +164,7 @@ void main() {
         maxSearches: 0,
         lootPool: [],
         enemies: ['looter_common'],
-        connections: [],
+        connections: conns([]),
         icon: '🛣️',
         repeatable: true,
       );
@@ -365,7 +366,7 @@ void main() {
 
   group('SearchManager.search — widget', () {
     testWidgets('пустая локация → снекбар "нечего искать"', (tester) async {
-      final c = makeController(locations: const [emptyLocation]);
+      final c = makeController(locations: [emptyLocation]);
 
       await tester.pumpWidget(
         makeTestApp(
@@ -380,7 +381,7 @@ void main() {
     });
 
     testWidgets('стандартный поиск добавляет предмет', (tester) async {
-      final c = makeController(locations: const [lootLocation]);
+      final c = makeController(locations: [lootLocation]);
       expect(c.inventory.items.length, 0);
 
       await tester.pumpWidget(
@@ -396,7 +397,7 @@ void main() {
     });
 
     testWidgets('стандартный поиск увеличивает searchedCount', (tester) async {
-      final c = makeController(locations: const [lootLocation]);
+      final c = makeController(locations: [lootLocation]);
       expect(c.searchedCounts['loot'], isNull);
 
       await tester.pumpWidget(
@@ -412,7 +413,7 @@ void main() {
     });
 
     testWidgets('стандартный поиск списывает стамину', (tester) async {
-      final c = makeController(locations: const [lootLocation]);
+      final c = makeController(locations: [lootLocation]);
       final staminaBefore = c.stamina;
 
       await tester.pumpWidget(
@@ -431,7 +432,7 @@ void main() {
     });
 
     testWidgets('стандартный поиск продвигает время', (tester) async {
-      final c = makeController(locations: const [lootLocation]);
+      final c = makeController(locations: [lootLocation]);
       final timeBefore = c.gameTime.totalMinutes;
 
       await tester.pumpWidget(
@@ -451,7 +452,7 @@ void main() {
 
     testWidgets('после исчерпания обысков идёт событийный поиск',
         (tester) async {
-      final c = makeController(locations: const [lootLocation]);
+      final c = makeController(locations: [lootLocation]);
       // Искусственно исчерпаем обыски
       c.incrementSearchCount('loot');
       c.incrementSearchCount('loot');

@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import '../../_helpers/test_fixtures.dart';
 
 import 'package:dark_hours/models/world/location.dart';
 import 'package:dark_hours/models/conditions/condition.dart';
@@ -10,7 +11,7 @@ void main() {
   // ФИКСТУРЫ
   // ═══════════════════════════════════════════════════════════
 
-  const homeLocation = Location(
+  final homeLocation = Location(
     id: 'home',
     name: 'Дом',
     description: 'Твой дом',
@@ -21,13 +22,13 @@ void main() {
     maxSearches: 3,
     lootPool: ['canned_stew'],
     enemies: [],
-    connections: ['street'],
+    connections: conns(['street']),
     icon: '🏠',
     repeatable: true,
     isStart: true,
   );
 
-  const streetLocation = Location(
+  final streetLocation = Location(
     id: 'street',
     name: 'Улица',
     description: 'Пустая улица',
@@ -38,7 +39,7 @@ void main() {
     maxSearches: 3,
     lootPool: ['bandage'],
     enemies: [],
-    connections: ['home'],
+    connections: conns(['home']),
     icon: '🛣️',
     repeatable: true,
   );
@@ -154,7 +155,7 @@ void main() {
     test('кидает ArgumentError для пустого списка локаций', () {
       final c = MapController(characterId: 'boris', characterName: 'Борис');
       expect(
-        () => c.initForTest(locations: const []),
+        () => c.initForTest(locations: []),
         throwsArgumentError,
       );
     });

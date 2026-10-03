@@ -23,23 +23,6 @@ import 'package:dark_hours/services/progress/run_tracker.dart';
 import 'package:dark_hours/constants/game_constants.dart';
 
 /// Центральный контроллер карты.
-///
-/// Хранит **всё** состояние игры на карте:
-/// - локации и текущую позицию
-/// - статы игрока (голод, жажда, здоровье, психика, стамина, усталость)
-/// - инвентарь и экипировку
-/// - активные болезни
-/// - игровое время
-/// - счётчики обысков и открытые скрытые локации
-/// - трекер забега
-///
-/// Действия делегируются менеджерам:
-/// - MovementManager — перемещение
-/// - SearchManager — обыск
-/// - RestManager — отдых
-/// - CombatManager — бой
-/// - StoryTriggerManager — сюжетные триггеры
-/// - DeathManager — смерть и коллапс
 class MapController extends ChangeNotifier {
   // ═══════════════════════════════════════════════════════════
   // ВХОДНЫЕ ДАННЫЕ
@@ -53,10 +36,8 @@ class MapController extends ChangeNotifier {
   // СОСТОЯНИЕ ИГРЫ
   // ═══════════════════════════════════════════════════════════
 
-  /// Карта и текущая локация
   WorldMap? map;
 
-  /// Статы
   int hunger = GameConstants.maxStat;
   int thirst = GameConstants.maxStat;
   int health = GameConstants.maxStat;
@@ -64,42 +45,35 @@ class MapController extends ChangeNotifier {
   int stamina = GameConstants.maxStat;
   int fatigue = 0;
 
-  /// Игровое время
   late GameTime gameTime;
-
-  /// Глава
   int chapter = 1;
 
-  /// Характеристики персонажа
   int intelligence = GameConstants.defaultIntelligence;
   int strength = GameConstants.defaultStrength;
 
-  /// Инвентарь и экипировка
   final Inventory inventory = Inventory(maxWeight: 30.0);
   final Equipment equipment = Equipment();
 
-  /// Все возможные болезни + активные
   List<Condition> allConditions = [];
   final List<ActiveCondition> activeConditions = [];
 
-  /// Рецепты крафта
   List<Recipe> allRecipes = [];
 
-  /// Флаги (для сюжета и достижений)
   final Set<String> flags = {};
-
-  /// Счётчики обысков по локациям
   final Map<String, int> searchedCounts = {};
-
-  /// Открытые скрытые локации
   final Set<String> unlockedLocations = {};
 
-  /// Трекер забега (для достижений)
-  final RunTracker tracker = RunTracker();
+  // ═══════════════════════════════════════════════════════════
+  // ИССЛЕДОВАНИЕ
+  // ═══════════════════════════════════════════════════════════
 
-  // ═══════════════════════════════════════════════════════════
-  // ФЛАГИ СОСТОЯНИЯ
-  // ═══════════════════════════════════════════════════════════
+  /// Разведанные локации — игрок знает их существование, но не был там.
+  final Set<String> scoutedLocations = {};
+
+  /// Открытые регионы — игрок знает зоны (city_south, forest, ...).
+  final Set<String> discoveredRegions = {};
+
+  final RunTracker tracker = RunTracker();
 
   bool isLoading = true;
   bool isDead = false;
@@ -107,10 +81,6 @@ class MapController extends ChangeNotifier {
 
   bool _autoSleepTriggered = false;
   DateTime? _lastCollapseTime;
-
-  // ═══════════════════════════════════════════════════════════
-  // GETTERS / SETTERS ДЛЯ ФЛАГОВ
-  // ═══════════════════════════════════════════════════════════
 
   bool get autoSleepTriggered => _autoSleepTriggered;
   set autoSleepTriggered(bool value) {
@@ -138,24 +108,20 @@ class MapController extends ChangeNotifier {
   // ИНИЦИАЛИЗАЦИЯ
   // ═══════════════════════════════════════════════════════════
 
-  /// Загрузить карту и (опционально) восстановить сохранение
   Future<void> init() async {
     isLoading = true;
     refresh();
 
-    // Загружаем справочники
     await ItemLoader.init();
     await SearchEventLoader.init();
     await EnemyLoader.init();
     allConditions = await Condition.loadAll();
     allRecipes = await Recipe.loadAll();
 
-    // Характеристики персонажа
     final stats = GameConstants.statsFor(characterId);
     intelligence = stats['intelligence'] ?? GameConstants.defaultIntelligence;
     strength = stats['strength'] ?? GameConstants.defaultStrength;
 
-    // Загружаем локации
     final locations = await Location.loadAll();
     if (locations.isEmpty) {
       isLoading = false;
@@ -163,7 +129,6 @@ class MapController extends ChangeNotifier {
       return;
     }
 
-    // Восстанавливаем сохранение или начинаем заново
     if (resumeFrom != null) {
       _restoreFromSave(resumeFrom!, locations);
     } else {
@@ -174,7 +139,6 @@ class MapController extends ChangeNotifier {
     refresh();
   }
 
-  /// Начать новую игру
   void _startNewGame(List<Location> locations) {
     final startLoc = locations.firstWhere(
       (l) => l.isStart,
@@ -188,9 +152,22 @@ class MapController extends ChangeNotifier {
     );
 
     gameTime = GameTime(totalMinutes: GameConstants.startTimeMinutes);
+
+    // Стартовая локация — сразу разведана и посещена.
+    scoutedLocations.add(startLoc.id);
+    discoverRegion(startLoc.region);
+
+    // Соседи стартовой — автоматически разведаны.
+    for (final conn in startLoc.connections) {
+      scoutedLocations.add(conn.targetId);
+      final target = map!.getById(conn.targetId);
+      if (target != null) {
+        // Регион соседа тоже известен (частично).
+        discoverRegion(target.region);
+      }
+    }
   }
 
-  /// Восстановить состояние из сохранения
   void _restoreFromSave(SaveData s, List<Location> locations) {
     hunger = s.hunger;
     thirst = s.thirst;
@@ -208,6 +185,27 @@ class MapController extends ChangeNotifier {
 
     unlockedLocations.clear();
     unlockedLocations.addAll(s.unlockedLocations);
+
+    // Восстанавливаем исследование
+    scoutedLocations.clear();
+    scoutedLocations.addAll(s.scoutedLocations);
+
+    discoveredRegions.clear();
+    discoveredRegions.addAll(s.discoveredRegions);
+
+    // Миграция: если сохранение старое и полей нет — 
+    // добавляем стартовую локацию в scouted/discovered.
+    if (scoutedLocations.isEmpty) {
+      final startLoc = locations.firstWhere(
+        (l) => l.isStart,
+        orElse: () => locations.first,
+      );
+      scoutedLocations.add(startLoc.id);
+      discoverRegion(startLoc.region);
+      for (final conn in startLoc.connections) {
+        scoutedLocations.add(conn.targetId);
+      }
+    }
 
     inventory.items.clear();
     for (final itemJson in s.inventoryItems) {
@@ -231,9 +229,7 @@ class MapController extends ChangeNotifier {
         activeConditions.add(
           ActiveCondition(condition: cond, daysRemaining: days),
         );
-      } catch (_) {
-        // Игнорируем невалидную болезнь
-      }
+      } catch (_) {}
     }
 
     final startLoc = locations.firstWhere(
@@ -252,21 +248,87 @@ class MapController extends ChangeNotifier {
   }
 
   // ═══════════════════════════════════════════════════════════
+  // ИССЛЕДОВАНИЕ — ПУБЛИЧНЫЙ API
+  // ═══════════════════════════════════════════════════════════
+
+  /// Разведана ли локация.
+  bool isScouted(String locationId) {
+    return scoutedLocations.contains(locationId);
+  }
+
+  /// Посещена ли локация.
+  bool isVisited(String locationId) {
+    return map?.visitedLocations.contains(locationId) ?? false;
+  }
+
+  /// Открыт ли регион.
+  bool isRegionDiscovered(String region) {
+    return discoveredRegions.contains(region);
+  }
+
+  /// Разведать локацию (без посещения).
+  ///
+  /// Регион разведанной локации тоже открывается.
+  void scoutLocation(String locationId) {
+    if (scoutedLocations.contains(locationId)) return;
+    scoutedLocations.add(locationId);
+
+    final loc = map?.getById(locationId);
+    if (loc != null) {
+      discoverRegion(loc.region);
+    }
+
+    refresh();
+  }
+
+  /// Разведать несколько локаций сразу.
+  void scoutAll(Iterable<String> locationIds) {
+    bool changed = false;
+    for (final id in locationIds) {
+      if (scoutedLocations.add(id)) {
+        changed = true;
+        final loc = map?.getById(id);
+        if (loc != null) {
+          discoveredRegions.add(loc.region);
+        }
+      }
+    }
+    if (changed) refresh();
+  }
+
+  /// Открыть регион.
+  void discoverRegion(String region) {
+    if (discoveredRegions.add(region)) {
+      refresh();
+    }
+  }
+
+  /// Прямая установка (для тестов / загрузки).
+  @visibleForTesting
+  void setScouted(Set<String> ids) {
+    scoutedLocations
+      ..clear()
+      ..addAll(ids);
+    refresh();
+  }
+
+  /// Прямая установка (для тестов).
+  @visibleForTesting
+  void setDiscoveredRegions(Set<String> regions) {
+    discoveredRegions
+      ..clear()
+      ..addAll(regions);
+    refresh();
+  }
+
+  // ═══════════════════════════════════════════════════════════
   // ПУБЛИЧНЫЙ API ДЛЯ МЕНЕДЖЕРОВ
   // ═══════════════════════════════════════════════════════════
 
-  /// Публичная обёртка над notifyListeners().
-  ///
-  /// Менеджеры вызывают refresh() вместо notifyListeners(),
-  /// потому что notifyListeners() — protected member ChangeNotifier.
   void refresh() {
     notifyListeners();
   }
 
-  /// Найти предмет в глобальном каталоге (ItemLoader).
-  ///
-  /// Используется для крафта: recipe.resultId → InventoryItem.
-  /// MapScreen не знает об ItemLoader напрямую — всё через контроллер.
   InventoryItem? findItemInCatalog(String id) {
     return ItemLoader.findById(id);
   }
@@ -275,7 +337,6 @@ class MapController extends ChangeNotifier {
   // ИЗМЕНЕНИЕ СОСТОЯНИЯ
   // ═══════════════════════════════════════════════════════════
 
-  /// Применить изменения к статам (с автоограничением 0..100)
   void applyStatDelta(Map<String, int> delta) {
     if (delta['hunger'] != null) {
       hunger = (hunger + delta['hunger']!)
@@ -304,7 +365,6 @@ class MapController extends ChangeNotifier {
     refresh();
   }
 
-  /// Прямая установка стата (без delta)
   void setHunger(int value) {
     hunger = value.clamp(GameConstants.minStat, GameConstants.maxStat);
   }
@@ -333,14 +393,12 @@ class MapController extends ChangeNotifier {
   // ИГРОВОЕ ВРЕМЯ
   // ═══════════════════════════════════════════════════════════
 
-  /// Продвинуть время на N минут с расходом статов
   Future<void> advanceTime(int minutes, {bool isSleeping = false}) async {
     final oldDay = gameTime.day;
     final phaseBefore = gameTime.phase;
 
     gameTime.advance(minutes);
 
-    // Расход голода/жажды/усталости
     final consumption = TimeManager.calculateConsumption(
       minutes: minutes,
       phase: phaseBefore,
@@ -356,10 +414,8 @@ class MapController extends ChangeNotifier {
           .clamp(GameConstants.minStat, GameConstants.maxStat);
     }
 
-    // Тик активных болезней
     _applyConditionsTick();
 
-    // Новый день — обновляем трекер и проверяем достижения
     if (gameTime.day > oldDay) {
       tracker.nightsPassed += 1;
       if (phaseBefore == TimePhase.night) {
@@ -376,7 +432,6 @@ class MapController extends ChangeNotifier {
     refresh();
   }
 
-  /// Тик активных болезней (вызывается из advanceTime)
   void _applyConditionsTick() {
     if (activeConditions.isEmpty) return;
 
@@ -407,7 +462,6 @@ class MapController extends ChangeNotifier {
   // УСЛОВИЯ
   // ═══════════════════════════════════════════════════════════
 
-  /// Добавить условие, если его ещё нет
   void addCondition(Condition condition) {
     if (ConditionManager.hasCondition(activeConditions, condition.id)) return;
     activeConditions.add(ActiveCondition(
@@ -418,7 +472,6 @@ class MapController extends ChangeNotifier {
     refresh();
   }
 
-  /// Попробовать вылечить условие предметом
   bool tryCureCondition(ActiveCondition ac, String itemId) {
     if (!ConditionManager.tryCure(ac, itemId)) return false;
     activeConditions.remove(ac);
@@ -430,10 +483,8 @@ class MapController extends ChangeNotifier {
   // ИНВЕНТАРЬ И ЭКИПИРОВКА
   // ═══════════════════════════════════════════════════════════
 
-  /// Найти предмет в инвентаре по ID
   InventoryItem? findItem(String id) => inventory.getById(id);
 
-  /// Добавить предмет (с трекингом для достижений)
   bool addItem(InventoryItem item) {
     final ok = inventory.addItem(item);
     if (ok) {
@@ -446,19 +497,16 @@ class MapController extends ChangeNotifier {
     return ok;
   }
 
-  /// Удалить предмет из инвентаря
   void removeItem(String id) {
     inventory.removeItem(id);
     refresh();
   }
 
-  /// Удалить предмет полностью
   void removeAll(String id) {
     inventory.removeAll(id);
     refresh();
   }
 
-  /// Надеть предмет
   void equipItem(InventoryItem item, String slot) {
     final old = equipment.unequip(slot);
     if (old != null) inventory.addItem(old);
@@ -468,7 +516,6 @@ class MapController extends ChangeNotifier {
     refresh();
   }
 
-  /// Снять предмет (возвращается в инвентарь)
   void unequipItem(String slot) {
     final item = equipment.unequip(slot);
     if (item != null) inventory.addItem(item);
@@ -479,69 +526,46 @@ class MapController extends ChangeNotifier {
   // ТРЕКЕР
   // ═══════════════════════════════════════════════════════════
 
-  /// Отметить использование медицинского предмета
-  void trackMedicineUsed() {
-    tracker.medicineUsed += 1;
-  }
+  void trackMedicineUsed() => tracker.medicineUsed += 1;
 
-  /// Отметить крафт
   void trackCraft({required bool isMolotov}) {
     tracker.craftedCount += 1;
     if (isMolotov) tracker.alchemistCrafted = true;
   }
 
-  /// Отметить бой
-  void trackCombat() {
-    tracker.hadCombat = true;
-  }
-
-  /// Отметить урон в бою
-  void trackDamage() {
-    tracker.hadDamage = true;
-  }
-
-  /// Отметить победу в бою
-  void trackVictory() {
-    tracker.kills += 1;
-  }
-
-  /// Отметить поражение
-  void trackDefeat() {
-    tracker.defeats += 1;
-  }
-
-  /// Отметить коллапс
-  void trackCollapse() {
-    tracker.collapsesCount += 1;
-  }
+  void trackCombat() => tracker.hadCombat = true;
+  void trackDamage() => tracker.hadDamage = true;
+  void trackVictory() => tracker.kills += 1;
+  void trackDefeat() => tracker.defeats += 1;
+  void trackCollapse() => tracker.collapsesCount += 1;
 
   // ═══════════════════════════════════════════════════════════
   // ФЛАГИ
   // ═══════════════════════════════════════════════════════════
 
-  /// Установить флаг
   void setFlag(String flag) {
     flags.add(flag);
     refresh();
   }
 
-  /// Есть ли флаг
   bool hasFlag(String flag) => flags.contains(flag);
 
   // ═══════════════════════════════════════════════════════════
   // ОБЫСКИ И СКРЫТЫЕ ЛОКАЦИИ
   // ═══════════════════════════════════════════════════════════
 
-  /// Увеличить счётчик обысков
   int incrementSearchCount(String locationId) {
     final count = (searchedCounts[locationId] ?? 0) + 1;
     searchedCounts[locationId] = count;
     return count;
   }
 
-  /// Открыть скрытую локацию
   void unlockLocation(String locationId) {
     unlockedLocations.add(locationId);
+    // Открытая локация — сразу разведана.
+    scoutedLocations.add(locationId);
+    final loc = map?.getById(locationId);
+    if (loc != null) discoverRegion(loc.region);
     refresh();
   }
 
@@ -549,7 +573,6 @@ class MapController extends ChangeNotifier {
   // УТИЛИТЫ
   // ═══════════════════════════════════════════════════════════
 
-  /// Потерять N случайных предметов из инвентаря
   void loseRandomItems(int count) {
     final rng = Random();
     for (int i = 0; i < count && inventory.items.isNotEmpty; i++) {
@@ -560,10 +583,8 @@ class MapController extends ChangeNotifier {
     refresh();
   }
 
-  /// Текущая локация
   Location? get currentLocation => map?.current;
 
-  /// Проверить, находится ли локация в списке доступных
   bool isLocationUnlocked(String locationId) {
     return unlockedLocations.contains(locationId);
   }
@@ -572,7 +593,6 @@ class MapController extends ChangeNotifier {
   // СОХРАНЕНИЕ
   // ═══════════════════════════════════════════════════════════
 
-  /// Автосохранить текущее состояние
   Future<void> save() async {
     if (map == null) return;
 
@@ -601,13 +621,14 @@ class MapController extends ChangeNotifier {
           .toList(),
       searchedCounts: searchedCounts,
       unlockedLocations: unlockedLocations.toList(),
+      scoutedLocations: scoutedLocations,
+      discoveredRegions: discoveredRegions,
       savedAt: DateTime.now(),
     );
 
     await SaveManager.save(data);
   }
 
-  /// Перечитать сохранение (после StoryScreen)
   Future<void> reloadFromSave() async {
     final save = await SaveManager.load();
     if (save == null) return;
@@ -655,6 +676,12 @@ class MapController extends ChangeNotifier {
     unlockedLocations.clear();
     unlockedLocations.addAll(save.unlockedLocations);
 
+    scoutedLocations.clear();
+    scoutedLocations.addAll(save.scoutedLocations);
+
+    discoveredRegions.clear();
+    discoveredRegions.addAll(save.discoveredRegions);
+
     refresh();
   }
 
@@ -662,13 +689,6 @@ class MapController extends ChangeNotifier {
   // ТЕСТИРОВАНИЕ
   // ═══════════════════════════════════════════════════════════
 
-  /// Синхронная инициализация для тестов.
-  ///
-  /// Загружает локации, условия и рецепты **напрямую** —
-  /// без обращения к assets через rootBundle.
-  ///
-  /// Используется ТОЛЬКО в тестах. В production-коде
-  /// используй [init].
   @visibleForTesting
   void initForTest({
     required List<Location> locations,
@@ -680,16 +700,13 @@ class MapController extends ChangeNotifier {
       throw ArgumentError('initForTest: locations не может быть пустым');
     }
 
-    // Все справочники
     allConditions = conditions;
     allRecipes = recipes;
 
-    // Характеристики персонажа
     final stats = GameConstants.statsFor(characterId);
     intelligence = stats['intelligence'] ?? GameConstants.defaultIntelligence;
     strength = stats['strength'] ?? GameConstants.defaultStrength;
 
-    // Карта
     final startLoc = locations.firstWhere(
       (l) => l.isStart,
       orElse: () => locations.first,
@@ -701,10 +718,21 @@ class MapController extends ChangeNotifier {
       visitedLocations: {startLoc.id},
     );
 
-    // Время
     gameTime = GameTime(totalMinutes: startTimeMinutes);
 
-    // Флаг готовности
+    // Стартовая — разведана.
+    scoutedLocations.add(startLoc.id);
+    discoveredRegions.add(startLoc.region);
+
+    // Соседи стартовой — тоже разведаны.
+    for (final conn in startLoc.connections) {
+      scoutedLocations.add(conn.targetId);
+      final target = map!.getById(conn.targetId);
+      if (target != null) {
+        discoveredRegions.add(target.region);
+      }
+    }
+
     isLoading = false;
     refresh();
   }
@@ -713,14 +741,12 @@ class MapController extends ChangeNotifier {
   // СМЕРТЬ
   // ═══════════════════════════════════════════════════════════
 
-  /// Проверить, не умер ли игрок
   void markDead(String reason) {
     isDead = true;
     deathReason = reason;
     refresh();
   }
 
-  /// Сбросить флаг смерти (после DeathScreen)
   void clearDeath() {
     isDead = false;
     deathReason = '';

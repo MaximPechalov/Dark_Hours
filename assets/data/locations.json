@@ -15,7 +15,9 @@
       "icon": "🏠",
       "repeatable": true,
       "is_start": true,
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.20, "y": 0.88 },
+      "map_zone": "city_south"
     },
     {
       "id": "street_south",
@@ -31,7 +33,9 @@
       "connections": ["home_boris", "supermarket", "pharmacy", "gas_station"],
       "icon": "🛣️",
       "repeatable": true,
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.35, "y": 0.82 },
+      "map_zone": "city_south"
     },
     {
       "id": "supermarket",
@@ -53,17 +57,8 @@
         "character": "boris",
         "once": true
       },
-      "search_events": [
-        {
-          "id": "smell_of_food",
-          "chance": 0.12,
-          "text": "За холодильниками — запах. Что-то осталось. Или кто-то.",
-          "effect": {
-            "sanity": -5,
-            "hunger": -3
-          }
-        }
-      ]
+      "mapPosition": { "x": 0.60, "y": 0.82 },
+      "map_zone": "city_south"
     },
     {
       "id": "pharmacy",
@@ -85,17 +80,8 @@
         "character": "darya",
         "once": true
       },
-      "search_events": [
-        {
-          "id": "someone_breathing",
-          "chance": 0.15,
-          "text": "За стеллажами — чьё-то дыхание. Ты замираешь. Тишина. Наверное, показалось.",
-          "effect": {
-            "sanity": -8,
-            "stamina": -5
-          }
-        }
-      ]
+      "mapPosition": { "x": 0.50, "y": 0.75 },
+      "map_zone": "city_south"
     },
     {
       "id": "gas_station",
@@ -116,7 +102,9 @@
         "chapter": 2,
         "character": "andrey",
         "once": true
-      }
+      },
+      "mapPosition": { "x": 0.75, "y": 0.88 },
+      "map_zone": "city_south"
     },
     {
       "id": "parking",
@@ -132,7 +120,9 @@
       "connections": ["supermarket"],
       "icon": "🅿️",
       "repeatable": true,
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.80, "y": 0.75 },
+      "map_zone": "city_south"
     },
     {
       "id": "tunnel_entrance",
@@ -149,7 +139,9 @@
       "icon": "🕳️",
       "repeatable": true,
       "risk": "dirty_water",
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.10, "y": 0.92 },
+      "map_zone": "underground"
     },
     {
       "id": "warehouse",
@@ -165,7 +157,9 @@
       "connections": ["tunnel_entrance", "street_south", "rooftop_warehouse"],
       "icon": "📦",
       "repeatable": true,
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.15, "y": 0.75 },
+      "map_zone": "city_south"
     },
     {
       "id": "hospital",
@@ -188,17 +182,8 @@
         "character": "ivan",
         "once": true
       },
-      "search_events": [
-        {
-          "id": "distant_sounds",
-          "chance": 0.15,
-          "text": "Где-то в глубине коридора — звук. Металл по кафелю. Медленно. Ты не один.",
-          "effect": {
-            "sanity": -8,
-            "stamina": -5
-          }
-        }
-      ]
+      "mapPosition": { "x": 0.55, "y": 0.55 },
+      "map_zone": "city_center"
     },
     {
       "id": "street_center",
@@ -214,7 +199,9 @@
       "connections": ["hospital", "police_station", "office_tower"],
       "icon": "🛣️",
       "repeatable": true,
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.70, "y": 0.58 },
+      "map_zone": "city_center"
     },
     {
       "id": "police_station",
@@ -235,7 +222,9 @@
         "chapter": 2,
         "character": "alina",
         "once": true
-      }
+      },
+      "mapPosition": { "x": 0.85, "y": 0.55 },
+      "map_zone": "city_center"
     },
     {
       "id": "office_tower",
@@ -251,7 +240,9 @@
       "connections": ["street_center", "rooftop"],
       "icon": "🏢",
       "repeatable": true,
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.80, "y": 0.68 },
+      "map_zone": "city_center"
     },
     {
       "id": "rooftop",
@@ -268,7 +259,9 @@
       "icon": "🌃",
       "repeatable": true,
       "risk": "fall",
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.90, "y": 0.65 },
+      "map_zone": "city_center"
     },
     {
       "id": "forest_hut",
@@ -284,7 +277,9 @@
       "connections": ["forest_path", "gas_station"],
       "icon": "🏚️",
       "repeatable": true,
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.20, "y": 0.50 },
+      "map_zone": "forest"
     },
     {
       "id": "forest_path",
@@ -301,17 +296,8 @@
       "icon": "🌲",
       "repeatable": true,
       "story_node": null,
-      "search_events": [
-        {
-          "id": "animal_sounds",
-          "chance": 0.15,
-          "text": "Где-то в глубине — треск веток. Что-то большое. Или кто-то.",
-          "effect": {
-            "sanity": -5,
-            "stamina": -5
-          }
-        }
-      ]
+      "mapPosition": { "x": 0.30, "y": 0.55 },
+      "map_zone": "forest"
     },
     {
       "id": "highway_entrance",
@@ -327,7 +313,9 @@
       "connections": ["gas_station", "forest_path", "checkpoint"],
       "icon": "🛤️",
       "repeatable": true,
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.50, "y": 0.30 },
+      "map_zone": "highway"
     },
     {
       "id": "checkpoint",
@@ -343,7 +331,9 @@
       "connections": ["highway_entrance", "north_station"],
       "icon": "🛑",
       "repeatable": true,
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.50, "y": 0.20 },
+      "map_zone": "highway"
     },
     {
       "id": "north_station",
@@ -360,7 +350,9 @@
       "icon": "🏭",
       "repeatable": false,
       "is_final": true,
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.50, "y": 0.08 },
+      "map_zone": "north"
     },
 
     {
@@ -379,7 +371,9 @@
       "repeatable": true,
       "hidden": true,
       "unlocked_by": "supermarket",
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.65, "y": 0.90 },
+      "map_zone": "city_south"
     },
     {
       "id": "hospital_morgue",
@@ -397,7 +391,9 @@
       "repeatable": true,
       "hidden": true,
       "unlocked_by": "hospital",
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.50, "y": 0.65 },
+      "map_zone": "city_center"
     },
     {
       "id": "forest_cache",
@@ -415,7 +411,9 @@
       "repeatable": true,
       "hidden": true,
       "unlocked_by": "forest_path",
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.10, "y": 0.45 },
+      "map_zone": "forest"
     },
     {
       "id": "tunnel_dead_end",
@@ -433,7 +431,9 @@
       "repeatable": true,
       "hidden": true,
       "unlocked_by": "tunnel_entrance",
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.05, "y": 0.98 },
+      "map_zone": "underground"
     },
     {
       "id": "rooftop_warehouse",
@@ -451,7 +451,9 @@
       "repeatable": true,
       "hidden": true,
       "unlocked_by": "warehouse",
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.10, "y": 0.68 },
+      "map_zone": "city_south"
     }
   ]
 }

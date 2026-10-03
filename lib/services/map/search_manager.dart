@@ -13,16 +13,6 @@ import 'package:dark_hours/widgets/effects/floating_effect.dart';
 import 'package:dark_hours/constants/game_constants.dart';
 
 /// Управляет обыском локаций.
-///
-/// Логика:
-/// 1. Проверить, есть ли что искать.
-/// 2. Списать стамину и усталость.
-/// 3. Проверить risk локации (шанс заболеть).
-/// 4. Если ещё есть "свежие" обыски — стандартный поиск (лут из пула).
-/// 5. Если обыски кончились — случайное событие.
-/// 6. Продвинуть время.
-/// 7. Шанс встретить врага.
-/// 8. Автосохранить.
 class SearchManager {
   /// Обыскать текущую локацию.
   static Future<void> search(
@@ -32,7 +22,6 @@ class SearchManager {
     final loc = controller.currentLocation;
     if (loc == null) return;
 
-    // ─── 1. Проверка: есть ли что искать ───
     if (nothingToSearch(loc)) {
       AudioService.playError();
       if (context.mounted) {
@@ -48,7 +37,6 @@ class SearchManager {
 
     AudioService.playClick();
 
-    // ─── 2. Стоимость ───
     controller.setStamina(
       controller.stamina - GameConstants.searchStaminaCost,
     );
@@ -56,12 +44,10 @@ class SearchManager {
       controller.fatigue + GameConstants.searchFatigueCost,
     );
 
-    // ─── 3. Risk локации ───
     if (loc.risk != null) {
       await _applyLocationRisk(context, controller, loc);
     }
 
-    // ─── 4-5. Стандартный поиск или событие ───
     final searched = controller.searchedCounts[loc.id] ?? 0;
     final hasRemainingLoot = searched < loc.maxSearches;
 
@@ -71,10 +57,8 @@ class SearchManager {
       await _eventSearch(context, controller, loc);
     }
 
-    // ─── 6. Время ───
     await controller.advanceTime(loc.searchTime);
 
-    // ─── 7. Шанс встретить врага ───
     if (hasRemainingLoot && loc.enemies.isNotEmpty && !loc.isFinal) {
       if (rollEnemyEncounter()) {
         await CombatManager.startCombat(
@@ -86,17 +70,15 @@ class SearchManager {
       }
     }
 
-    // ─── 8. Автосохранение ───
     await controller.save();
 
     controller.refresh();
   }
 
   // ═══════════════════════════════════════════════════════════
-  // ЧИСТАЯ ЛОГИКА (для тестов)
+  // ЧИСТАЯ ЛОГИКА
   // ═══════════════════════════════════════════════════════════
 
-  /// Проверить, есть ли что искать в локации.
   @visibleForTesting
   static bool nothingToSearch(Location loc) {
     return loc.maxSearches == 0 &&
@@ -105,27 +87,18 @@ class SearchManager {
         loc.risk == null;
   }
 
-  /// Бросок: встретить ли врага.
-  ///
-  /// Шанс = 1/N, где N = GameConstants.enemyEncounterChance.
   @visibleForTesting
   static bool rollEnemyEncounter() {
     final roll = Random().nextInt(GameConstants.enemyEncounterChance);
     return roll == 0;
   }
 
-  /// Бросок: какой предмет из loot_pool выпадет.
-  ///
-  /// Возвращает item id или null, если пул пуст.
   @visibleForTesting
   static String? pickLoot(Location loc) {
     if (loc.lootPool.isEmpty) return null;
     return loc.lootPool[Random().nextInt(loc.lootPool.length)];
   }
 
-  /// Выбрать событие из пула с учётом applicable.
-  ///
-  /// Возвращает `SearchEvent?` или `null`, если ничего не выпало.
   @visibleForTesting
   static SearchEvent? pickSearchEvent({
     required List<SearchEvent> pool,
@@ -159,15 +132,18 @@ class SearchManager {
     return null;
   }
 
-  /// Извлечь статы из effect (Map<String, dynamic>).
-  ///
-  /// Возвращает map с ключами hunger/thirst/health/sanity/stamina/fatigue,
-  /// где значение != 0.
   @visibleForTesting
   static Map<String, int> extractStatDelta(Map<String, dynamic> effect) {
     final delta = <String, int>{};
 
-    for (final key in ['health', 'sanity', 'hunger', 'thirst', 'stamina', 'fatigue']) {
+    for (final key in [
+      'health',
+      'sanity',
+      'hunger',
+      'thirst',
+      'stamina',
+      'fatigue',
+    ]) {
       final value = effect[key];
       if (value is int && value != 0) {
         delta[key] = value;
@@ -181,7 +157,6 @@ class SearchManager {
   // ВНУТРЕННИЕ МЕТОДЫ
   // ═══════════════════════════════════════════════════════════
 
-  /// Применить риск локации (шанс заразиться)
   static Future<void> _applyLocationRisk(
     BuildContext context,
     MapController controller,
@@ -213,7 +188,6 @@ class SearchManager {
     }
   }
 
-  /// Стандартный поиск — берём случайный лут из пула
   static Future<void> _standardSearch(
     BuildContext context,
     MapController controller,
@@ -266,7 +240,6 @@ class SearchManager {
     }
   }
 
-  /// Поиск события — когда стандартный пул исчерпан
   static Future<void> _eventSearch(
     BuildContext context,
     MapController controller,
@@ -302,7 +275,6 @@ class SearchManager {
     await _applySearchEvent(context, controller, event, loc);
   }
 
-  /// Применить событие поиска
   static Future<void> _applySearchEvent(
     BuildContext context,
     MapController controller,
@@ -336,6 +308,16 @@ class SearchManager {
     // Открытие локации
     if (effect['unlock_location'] != null) {
       await _applyUnlockLocation(context, controller, effect, loc);
+    }
+
+    // НОВОЕ: Разведка локации (без открытия)
+    if (effect['scout_location'] != null) {
+      await _applyScoutLocation(context, controller, effect);
+    }
+
+    // НОВОЕ: Разведка всего региона
+    if (effect['scout_region'] != null) {
+      await _applyScoutRegion(context, controller, effect);
     }
 
     // Флаги
@@ -437,6 +419,89 @@ class SearchManager {
           content: Text('🔓 Открыто новое место: ${hidden.name}'),
           duration: const Duration(seconds: 4),
           backgroundColor: const Color.fromARGB(255, 200, 180, 100),
+        ),
+      );
+    }
+  }
+
+  /// НОВОЕ: разведка локации.
+  ///
+  /// Формат в JSON:
+  ///   "scout_location": "street_center"
+  ///   "scout_location": ["street_center", "office_tower"]
+  static Future<void> _applyScoutLocation(
+    BuildContext context,
+    MapController controller,
+    Map<String, dynamic> effect,
+  ) async {
+    final value = effect['scout_location'];
+
+    final List<String> toScout;
+    if (value is String) {
+      toScout = [value];
+    } else if (value is List) {
+      toScout = List<String>.from(value);
+    } else {
+      return;
+    }
+
+    if (toScout.isEmpty) return;
+
+    controller.scoutAll(toScout);
+
+    if (context.mounted) {
+      AudioService.playNotification();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('🔭 Разведано: ${toScout.length} мест'),
+          duration: const Duration(seconds: 3),
+          backgroundColor: const Color.fromARGB(255, 100, 150, 200),
+        ),
+      );
+    }
+  }
+
+  /// НОВОЕ: разведка всего региона.
+  ///
+  /// Формат в JSON:
+  ///   "scout_region": "city_center"
+  ///   "scout_region": ["city_center", "forest"]
+  static Future<void> _applyScoutRegion(
+    BuildContext context,
+    MapController controller,
+    Map<String, dynamic> effect,
+  ) async {
+    final value = effect['scout_region'];
+
+    final List<String> regions;
+    if (value is String) {
+      regions = [value];
+    } else if (value is List) {
+      regions = List<String>.from(value);
+    } else {
+      return;
+    }
+
+    final map = controller.map;
+    if (map == null) return;
+
+    int totalScouted = 0;
+    for (final region in regions) {
+      final regionLocations = map.locations
+          .where((l) => l.region == region && !l.hidden)
+          .map((l) => l.id)
+          .toList();
+      controller.scoutAll(regionLocations);
+      totalScouted += regionLocations.length;
+    }
+
+    if (context.mounted && totalScouted > 0) {
+      AudioService.playNotification();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('🔭 Разведан регион: $totalScouted мест'),
+          duration: const Duration(seconds: 4),
+          backgroundColor: const Color.fromARGB(255, 100, 150, 200),
         ),
       );
     }

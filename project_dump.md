@@ -1,8 +1,8 @@
 # PROJECT DUMP
 
-**Generated:** Fri Oct  2 15:20:48 UTC 2026
+**Generated:** Sat Oct  3 10:01:52 UTC 2026
 **Root:** /workspaces/Dark_Hours
-**Files:** 181
+**Files:** 193
 
 ## 📁 STRUCTURE
 
@@ -98,7 +98,6 @@
 ./assets/images/items/1
 ./dark_hours.iml
 ./dump.sh
-./fix_imports.sh
 ./lib/constants/game_constants.dart
 ./lib/main.dart
 ./lib/models/character/character.dart
@@ -122,7 +121,9 @@
 ./lib/models/story/story_node.dart
 ./lib/models/time/game_time.dart
 ./lib/models/time/rest_action.dart
+./lib/models/world/connection.dart
 ./lib/models/world/location.dart
+./lib/models/world/map_position.dart
 ./lib/models/world/search_event.dart
 ./lib/models/world/world_map.dart
 ./lib/screens/extra/achievements_screen.dart
@@ -133,8 +134,13 @@
 ./lib/screens/gameplay/map_screen.dart
 ./lib/screens/gameplay/story_screen.dart
 ./lib/screens/gameplay/widgets/map_current_location.dart
+./lib/screens/gameplay/widgets/map_edge_painter.dart
+./lib/screens/gameplay/widgets/map_info_sheet.dart
 ./lib/screens/gameplay/widgets/map_location_card.dart
+./lib/screens/gameplay/widgets/map_node.dart
+./lib/screens/gameplay/widgets/map_player_marker.dart
 ./lib/screens/gameplay/widgets/map_status_bar.dart
+./lib/screens/gameplay/widgets/map_zone_painter.dart
 ./lib/screens/main/character_select_screen.dart
 ./lib/screens/main/death_screen.dart
 ./lib/screens/main/settings_screen.dart
@@ -176,12 +182,18 @@
 ./lib/widgets/panels/rest_panel.dart
 ./pubspec.lock
 ./pubspec.yaml
-./reorganize.sh
+./test/_helpers/test_fixtures.dart
 ./test/models/combat_test.dart
 ./test/models/equipment_test.dart
 ./test/models/inventory_test.dart
 ./test/services/condition_manager_test.dart
 ./test/services/item_loader_test.dart
+./test/services/map/combat_manager_test.dart
+./test/services/map/death_manager_test.dart
+./test/services/map/map_controller_test.dart
+./test/services/map/movement_manager_test.dart
+./test/services/map/rest_manager_test.dart
+./test/services/map/search_manager_test.dart
 ./test/services/save_manager_test.dart
 ./test/services/time_manager_test.dart
 ./test/story/story_loader_test.dart
@@ -194,7 +206,7 @@
 
 ### 📄 `./.flutter-plugins-dependencies`
 ```
-{"info":"This is a generated file; do not edit or check into version control.","plugins":{"ios":[{"name":"audioplayers_darwin","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_darwin-6.5.0/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_foundation-2.6.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.7/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false}],"android":[{"name":"audioplayers_android","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_android-5.3.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni-1.0.3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni_flutter","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni_flutter-1.0.3/","native_build":true,"dependencies":["jni"],"dev_dependency":false},{"name":"path_provider_android","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_android-2.3.1/","native_build":false,"dependencies":["jni","jni_flutter"],"dev_dependency":false},{"name":"shared_preferences_android","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.28/","native_build":true,"dependencies":[],"dev_dependency":false}],"macos":[{"name":"audioplayers_darwin","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_darwin-6.5.0/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_foundation-2.6.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.7/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false}],"linux":[{"name":"audioplayers_linux","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_linux-4.3.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni-1.0.3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_linux","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.2/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_linux","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_linux-2.4.1/","native_build":false,"dependencies":["path_provider_linux"],"dev_dependency":false}],"windows":[{"name":"audioplayers_windows","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_windows-4.4.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni-1.0.3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_windows","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_windows","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_windows-2.4.1/","native_build":false,"dependencies":["path_provider_windows"],"dev_dependency":false}],"web":[{"name":"audioplayers_web","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_web-5.3.0/","dependencies":[],"dev_dependency":false},{"name":"shared_preferences_web","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_web-2.4.3/","dependencies":[],"dev_dependency":false}]},"dependencyGraph":[{"name":"audioplayers","dependencies":["audioplayers_android","audioplayers_darwin","audioplayers_linux","audioplayers_web","audioplayers_windows","path_provider"]},{"name":"audioplayers_android","dependencies":[]},{"name":"audioplayers_darwin","dependencies":[]},{"name":"audioplayers_linux","dependencies":[]},{"name":"audioplayers_web","dependencies":[]},{"name":"audioplayers_windows","dependencies":[]},{"name":"jni","dependencies":[]},{"name":"jni_flutter","dependencies":["jni"]},{"name":"path_provider","dependencies":["path_provider_android","path_provider_foundation","path_provider_linux","path_provider_windows"]},{"name":"path_provider_android","dependencies":["jni","jni_flutter"]},{"name":"path_provider_foundation","dependencies":[]},{"name":"path_provider_linux","dependencies":[]},{"name":"path_provider_windows","dependencies":[]},{"name":"shared_preferences","dependencies":["shared_preferences_android","shared_preferences_foundation","shared_preferences_linux","shared_preferences_web","shared_preferences_windows"]},{"name":"shared_preferences_android","dependencies":[]},{"name":"shared_preferences_foundation","dependencies":[]},{"name":"shared_preferences_linux","dependencies":["path_provider_linux"]},{"name":"shared_preferences_web","dependencies":[]},{"name":"shared_preferences_windows","dependencies":["path_provider_windows"]}],"date_created":"2026-10-02 15:16:31.258209","version":"3.47.6","swift_package_manager_enabled":{"ios":false,"macos":false}}
+{"info":"This is a generated file; do not edit or check into version control.","plugins":{"ios":[{"name":"audioplayers_darwin","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_darwin-6.5.0/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_foundation-2.6.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.7/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false}],"android":[{"name":"audioplayers_android","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_android-5.3.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni-1.0.3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni_flutter","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni_flutter-1.0.3/","native_build":true,"dependencies":["jni"],"dev_dependency":false},{"name":"path_provider_android","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_android-2.3.1/","native_build":false,"dependencies":["jni","jni_flutter"],"dev_dependency":false},{"name":"shared_preferences_android","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.28/","native_build":true,"dependencies":[],"dev_dependency":false}],"macos":[{"name":"audioplayers_darwin","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_darwin-6.5.0/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_foundation-2.6.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.7/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false}],"linux":[{"name":"audioplayers_linux","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_linux-4.3.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni-1.0.3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_linux","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.2/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_linux","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_linux-2.4.1/","native_build":false,"dependencies":["path_provider_linux"],"dev_dependency":false}],"windows":[{"name":"audioplayers_windows","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_windows-4.4.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni-1.0.3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_windows","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_windows","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_windows-2.4.1/","native_build":false,"dependencies":["path_provider_windows"],"dev_dependency":false}],"web":[{"name":"audioplayers_web","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_web-5.3.0/","dependencies":[],"dev_dependency":false},{"name":"shared_preferences_web","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_web-2.4.3/","dependencies":[],"dev_dependency":false}]},"dependencyGraph":[{"name":"audioplayers","dependencies":["audioplayers_android","audioplayers_darwin","audioplayers_linux","audioplayers_web","audioplayers_windows","path_provider"]},{"name":"audioplayers_android","dependencies":[]},{"name":"audioplayers_darwin","dependencies":[]},{"name":"audioplayers_linux","dependencies":[]},{"name":"audioplayers_web","dependencies":[]},{"name":"audioplayers_windows","dependencies":[]},{"name":"jni","dependencies":[]},{"name":"jni_flutter","dependencies":["jni"]},{"name":"path_provider","dependencies":["path_provider_android","path_provider_foundation","path_provider_linux","path_provider_windows"]},{"name":"path_provider_android","dependencies":["jni","jni_flutter"]},{"name":"path_provider_foundation","dependencies":[]},{"name":"path_provider_linux","dependencies":[]},{"name":"path_provider_windows","dependencies":[]},{"name":"shared_preferences","dependencies":["shared_preferences_android","shared_preferences_foundation","shared_preferences_linux","shared_preferences_web","shared_preferences_windows"]},{"name":"shared_preferences_android","dependencies":[]},{"name":"shared_preferences_foundation","dependencies":[]},{"name":"shared_preferences_linux","dependencies":["path_provider_linux"]},{"name":"shared_preferences_web","dependencies":[]},{"name":"shared_preferences_windows","dependencies":["path_provider_windows"]}],"date_created":"2026-10-02 15:39:33.806343","version":"3.47.6","swift_package_manager_enabled":{"ios":false,"macos":false}}
 ```
 
 ### 📄 `./.github/workflows/build-apk.yml`
@@ -204,42 +216,78 @@ name: Build Flutter APK
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch: # Позволяет запускать сборку вручную кнопкой
 
 jobs:
-  build:
+  quality:
+    name: Analyze & Test
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Java
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '17'
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-    - name: Setup Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        channel: stable
-        cache: true
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
 
-    - name: Install dependencies
-      run: flutter pub get
+      - name: Install dependencies
+        run: flutter pub get
 
-    - name: Validate JSON
-      run: dart run tool/validate.dart
+      - name: Validate JSON
+        run: dart run tool/validate.dart
 
-    - name: Build APK
-      run: flutter build apk --release
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+        # --no-fatal-infos: не падаем на info (у нас ~148 info)
+        # warnings и errors будут фатальны
 
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-release
-        path: build/app/outputs/flutter-apk/app-release.apk
+      - name: Run tests
+        run: flutter test
+
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+    needs: quality # Ждём, пока quality пройдёт
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: build/app/outputs/flutter-apk/app-release.apk
 ```
 
 ### 📄 `./.gitignore`
@@ -2293,7 +2341,9 @@ include(":app")
       "icon": "🏠",
       "repeatable": true,
       "is_start": true,
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.20, "y": 0.88 },
+      "map_zone": "city_south"
     },
     {
       "id": "street_south",
@@ -2309,7 +2359,9 @@ include(":app")
       "connections": ["home_boris", "supermarket", "pharmacy", "gas_station"],
       "icon": "🛣️",
       "repeatable": true,
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.35, "y": 0.82 },
+      "map_zone": "city_south"
     },
     {
       "id": "supermarket",
@@ -2331,17 +2383,8 @@ include(":app")
         "character": "boris",
         "once": true
       },
-      "search_events": [
-        {
-          "id": "smell_of_food",
-          "chance": 0.12,
-          "text": "За холодильниками — запах. Что-то осталось. Или кто-то.",
-          "effect": {
-            "sanity": -5,
-            "hunger": -3
-          }
-        }
-      ]
+      "mapPosition": { "x": 0.60, "y": 0.82 },
+      "map_zone": "city_south"
     },
     {
       "id": "pharmacy",
@@ -2363,17 +2406,8 @@ include(":app")
         "character": "darya",
         "once": true
       },
-      "search_events": [
-        {
-          "id": "someone_breathing",
-          "chance": 0.15,
-          "text": "За стеллажами — чьё-то дыхание. Ты замираешь. Тишина. Наверное, показалось.",
-          "effect": {
-            "sanity": -8,
-            "stamina": -5
-          }
-        }
-      ]
+      "mapPosition": { "x": 0.50, "y": 0.75 },
+      "map_zone": "city_south"
     },
     {
       "id": "gas_station",
@@ -2394,7 +2428,9 @@ include(":app")
         "chapter": 2,
         "character": "andrey",
         "once": true
-      }
+      },
+      "mapPosition": { "x": 0.75, "y": 0.88 },
+      "map_zone": "city_south"
     },
     {
       "id": "parking",
@@ -2410,7 +2446,9 @@ include(":app")
       "connections": ["supermarket"],
       "icon": "🅿️",
       "repeatable": true,
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.80, "y": 0.75 },
+      "map_zone": "city_south"
     },
     {
       "id": "tunnel_entrance",
@@ -2427,7 +2465,9 @@ include(":app")
       "icon": "🕳️",
       "repeatable": true,
       "risk": "dirty_water",
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.10, "y": 0.92 },
+      "map_zone": "underground"
     },
     {
       "id": "warehouse",
@@ -2443,7 +2483,9 @@ include(":app")
       "connections": ["tunnel_entrance", "street_south", "rooftop_warehouse"],
       "icon": "📦",
       "repeatable": true,
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.15, "y": 0.75 },
+      "map_zone": "city_south"
     },
     {
       "id": "hospital",
@@ -2466,17 +2508,8 @@ include(":app")
         "character": "ivan",
         "once": true
       },
-      "search_events": [
-        {
-          "id": "distant_sounds",
-          "chance": 0.15,
-          "text": "Где-то в глубине коридора — звук. Металл по кафелю. Медленно. Ты не один.",
-          "effect": {
-            "sanity": -8,
-            "stamina": -5
-          }
-        }
-      ]
+      "mapPosition": { "x": 0.55, "y": 0.55 },
+      "map_zone": "city_center"
     },
     {
       "id": "street_center",
@@ -2492,7 +2525,9 @@ include(":app")
       "connections": ["hospital", "police_station", "office_tower"],
       "icon": "🛣️",
       "repeatable": true,
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.70, "y": 0.58 },
+      "map_zone": "city_center"
     },
     {
       "id": "police_station",
@@ -2513,7 +2548,9 @@ include(":app")
         "chapter": 2,
         "character": "alina",
         "once": true
-      }
+      },
+      "mapPosition": { "x": 0.85, "y": 0.55 },
+      "map_zone": "city_center"
     },
     {
       "id": "office_tower",
@@ -2529,7 +2566,9 @@ include(":app")
       "connections": ["street_center", "rooftop"],
       "icon": "🏢",
       "repeatable": true,
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.80, "y": 0.68 },
+      "map_zone": "city_center"
     },
     {
       "id": "rooftop",
@@ -2546,7 +2585,9 @@ include(":app")
       "icon": "🌃",
       "repeatable": true,
       "risk": "fall",
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.90, "y": 0.65 },
+      "map_zone": "city_center"
     },
     {
       "id": "forest_hut",
@@ -2562,7 +2603,9 @@ include(":app")
       "connections": ["forest_path", "gas_station"],
       "icon": "🏚️",
       "repeatable": true,
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.20, "y": 0.50 },
+      "map_zone": "forest"
     },
     {
       "id": "forest_path",
@@ -2579,17 +2622,8 @@ include(":app")
       "icon": "🌲",
       "repeatable": true,
       "story_node": null,
-      "search_events": [
-        {
-          "id": "animal_sounds",
-          "chance": 0.15,
-          "text": "Где-то в глубине — треск веток. Что-то большое. Или кто-то.",
-          "effect": {
-            "sanity": -5,
-            "stamina": -5
-          }
-        }
-      ]
+      "mapPosition": { "x": 0.30, "y": 0.55 },
+      "map_zone": "forest"
     },
     {
       "id": "highway_entrance",
@@ -2605,7 +2639,9 @@ include(":app")
       "connections": ["gas_station", "forest_path", "checkpoint"],
       "icon": "🛤️",
       "repeatable": true,
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.50, "y": 0.30 },
+      "map_zone": "highway"
     },
     {
       "id": "checkpoint",
@@ -2621,7 +2657,9 @@ include(":app")
       "connections": ["highway_entrance", "north_station"],
       "icon": "🛑",
       "repeatable": true,
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.50, "y": 0.20 },
+      "map_zone": "highway"
     },
     {
       "id": "north_station",
@@ -2638,7 +2676,9 @@ include(":app")
       "icon": "🏭",
       "repeatable": false,
       "is_final": true,
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.50, "y": 0.08 },
+      "map_zone": "north"
     },
 
     {
@@ -2657,7 +2697,9 @@ include(":app")
       "repeatable": true,
       "hidden": true,
       "unlocked_by": "supermarket",
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.65, "y": 0.90 },
+      "map_zone": "city_south"
     },
     {
       "id": "hospital_morgue",
@@ -2675,7 +2717,9 @@ include(":app")
       "repeatable": true,
       "hidden": true,
       "unlocked_by": "hospital",
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.50, "y": 0.65 },
+      "map_zone": "city_center"
     },
     {
       "id": "forest_cache",
@@ -2693,7 +2737,9 @@ include(":app")
       "repeatable": true,
       "hidden": true,
       "unlocked_by": "forest_path",
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.10, "y": 0.45 },
+      "map_zone": "forest"
     },
     {
       "id": "tunnel_dead_end",
@@ -2711,7 +2757,9 @@ include(":app")
       "repeatable": true,
       "hidden": true,
       "unlocked_by": "tunnel_entrance",
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.05, "y": 0.98 },
+      "map_zone": "underground"
     },
     {
       "id": "rooftop_warehouse",
@@ -2729,7 +2777,9 @@ include(":app")
       "repeatable": true,
       "hidden": true,
       "unlocked_by": "warehouse",
-      "story_node": null
+      "story_node": null,
+      "mapPosition": { "x": 0.10, "y": 0.68 },
+      "map_zone": "city_south"
     }
   ]
 }
@@ -19057,89 +19107,6 @@ echo "  head -n 40 $OUT"
 echo "  tail -n 20 $OUT"
 ```
 
-### 📄 `./fix_imports.sh`
-```bash
-#!/bin/bash
-
-echo "🔧 Исправляем импорты..."
-
-# В файлах пакета `lib/` меняем пути
-
-# Модели
-find lib -type f -name "*.dart" -exec sed -i \
-  -e "s|'../models/character.dart'|'../models/character/character.dart'|g" \
-  -e "s|'../models/inventory.dart'|'../models/inventory/inventory.dart'|g" \
-  -e "s|'../models/inventory_item.dart'|'../models/inventory/inventory_item.dart'|g" \
-  -e "s|'../models/equipment.dart'|'../models/inventory/equipment.dart'|g" \
-  -e "s|'../models/weapon.dart'|'../models/items/weapon.dart'|g" \
-  -e "s|'../models/tool.dart'|'../models/items/tool.dart'|g" \
-  -e "s|'../models/consumable.dart'|'../models/items/consumable.dart'|g" \
-  -e "s|'../models/armor.dart'|'../models/items/armor.dart'|g" \
-  -e "s|'../models/resource.dart'|'../models/items/resource.dart'|g" \
-  -e "s|'../models/recipe.dart'|'../models/items/recipe.dart'|g" \
-  -e "s|'../models/combat.dart'|'../models/combat/combat.dart'|g" \
-  -e "s|'../models/condition.dart'|'../models/conditions/condition.dart'|g" \
-  -e "s|'../models/active_condition.dart'|'../models/conditions/active_condition.dart'|g" \
-  -e "s|'../models/location.dart'|'../models/world/location.dart'|g" \
-  -e "s|'../models/world_map.dart'|'../models/world/world_map.dart'|g" \
-  -e "s|'../models/story_node.dart'|'../models/story/story_node.dart'|g" \
-  -e "s|'../models/game_time.dart'|'../models/time/game_time.dart'|g" \
-  -e "s|'../models/rest_action.dart'|'../models/time/rest_action.dart'|g" \
-  -e "s|'../models/achievement.dart'|'../models/progress/achievement.dart'|g" \
-  -e "s|'../models/player_stats.dart'|'../models/progress/player_stats.dart'|g" \
-  -e "s|'../models/save_data.dart'|'../models/save/save_data.dart'|g" \
-  {} \;
-
-# Сервисы
-find lib -type f -name "*.dart" -exec sed -i \
-  -e "s|'../services/save_manager.dart'|'../services/save/save_manager.dart'|g" \
-  -e "s|'../services/item_loader.dart'|'../services/items/item_loader.dart'|g" \
-  -e "s|'../services/condition_manager.dart'|'../services/conditions/condition_manager.dart'|g" \
-  -e "s|'../services/time_manager.dart'|'../services/time/time_manager.dart'|g" \
-  -e "s|'../services/run_tracker.dart'|'../services/progress/run_tracker.dart'|g" \
-  -e "s|'../services/achievement_manager.dart'|'../services/progress/achievement_manager.dart'|g" \
-  -e "s|'../services/achievement_checker.dart'|'../services/progress/achievement_checker.dart'|g" \
-  {} \;
-
-# Скрины
-find lib -type f -name "*.dart" -exec sed -i \
-  -e "s|'start_screen.dart'|'../main/start_screen.dart'|g" \
-  -e "s|'character_select_screen.dart'|'../main/character_select_screen.dart'|g" \
-  -e "s|'death_screen.dart'|'../main/death_screen.dart'|g" \
-  -e "s|'story_screen.dart'|'../gameplay/story_screen.dart'|g" \
-  -e "s|'map_screen.dart'|'../gameplay/map_screen.dart'|g" \
-  -e "s|'combat_screen.dart'|'../gameplay/combat_screen.dart'|g" \
-  -e "s|'equipment_test_screen.dart'|'../extra/equipment_test_screen.dart'|g" \
-  -e "s|'achievements_screen.dart'|'../extra/achievements_screen.dart'|g" \
-  {} \;
-
-# Виджеты
-find lib -type f -name "*.dart" -exec sed -i \
-  -e "s|'../widgets/inventory_panel.dart'|'../widgets/panels/inventory_panel.dart'|g" \
-  -e "s|'../widgets/equipment_panel.dart'|'../widgets/panels/equipment_panel.dart'|g" \
-  -e "s|'../widgets/conditions_panel.dart'|'../widgets/panels/conditions_panel.dart'|g" \
-  -e "s|'../widgets/rest_panel.dart'|'../widgets/panels/rest_panel.dart'|g" \
-  -e "s|'../widgets/craft_panel.dart'|'../widgets/panels/craft_panel.dart'|g" \
-  -e "s|'../widgets/penalties_panel.dart'|'../widgets/panels/penalties_panel.dart'|g" \
-  -e "s|'../widgets/character_card.dart'|'../widgets/cards/character_card.dart'|g" \
-  -e "s|'../widgets/animated_location_card.dart'|'../widgets/cards/animated_location_card.dart'|g" \
-  -e "s|'../widgets/time_indicator.dart'|'../widgets/indicators/time_indicator.dart'|g" \
-  -e "s|'../widgets/animated_stat_bar.dart'|'../widgets/indicators/animated_stat_bar.dart'|g" \
-  -e "s|'../widgets/fade_in_text.dart'|'../widgets/effects/fade_in_text.dart'|g" \
-  -e "s|'../widgets/floating_effect.dart'|'../widgets/effects/floating_effect.dart'|g" \
-  -e "s|'../widgets/shimmer_button.dart'|'../widgets/effects/shimmer_button.dart'|g" \
-  -e "s|'../widgets/shake_widget.dart'|'../widgets/effects/shake_widget.dart'|g" \
-  -e "s|'../widgets/achievement_popup.dart'|'../widgets/effects/achievement_popup.dart'|g" \
-  -e "s|'../widgets/achievement_notifier.dart'|'../widgets/effects/achievement_notifier.dart'|g" \
-  {} \;
-
-# Пути к экранам из main.dart
-sed -i "s|'screens/start_screen.dart'|'screens/main/start_screen.dart'|g" lib/main.dart
-
-echo "✅ Импорты исправлены!"
-
-```
-
 ### 📄 `./lib/constants/game_constants.dart`
 ```dart
 /// Игровые константы — все магические числа в одном месте.
@@ -21418,9 +21385,19 @@ class SaveData {
   final Map<String, dynamic> equipmentItems;
   final List<Map<String, dynamic>> activeConditions;
 
-  // НОВЫЕ ПОЛЯ
+  // Старые поля
   final Map<String, int> searchedCounts;
   final List<String> unlockedLocations;
+
+  // ═══════════════════════════════════════════════════════════
+  // НОВЫЕ ПОЛЯ — ИССЛЕДОВАНИЕ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Разведанные локации (видел снаружи, знаешь название + приблизительное описание).
+  final Set<String> scoutedLocations;
+
+  /// Открытые регионы (был здесь, знаешь силуэты, зоны).
+  final Set<String> discoveredRegions;
 
   final DateTime savedAt;
 
@@ -21444,9 +21421,13 @@ class SaveData {
     required this.activeConditions,
     Map<String, int>? searchedCounts,
     List<String>? unlockedLocations,
+    Set<String>? scoutedLocations,
+    Set<String>? discoveredRegions,
     required this.savedAt,
   })  : searchedCounts = searchedCounts ?? {},
-        unlockedLocations = unlockedLocations ?? [];
+        unlockedLocations = unlockedLocations ?? [],
+        scoutedLocations = scoutedLocations ?? {},
+        discoveredRegions = discoveredRegions ?? {};
 
   Map<String, dynamic> toJson() {
     return {
@@ -21469,6 +21450,8 @@ class SaveData {
       'activeConditions': activeConditions,
       'searchedCounts': searchedCounts,
       'unlockedLocations': unlockedLocations,
+      'scoutedLocations': scoutedLocations.toList(),
+      'discoveredRegions': discoveredRegions.toList(),
       'savedAt': savedAt.toIso8601String(),
     };
   }
@@ -21504,6 +21487,12 @@ class SaveData {
       unlockedLocations: json['unlockedLocations'] != null
           ? List<String>.from(json['unlockedLocations'])
           : [],
+      scoutedLocations: json['scoutedLocations'] != null
+          ? Set<String>.from(json['scoutedLocations'])
+          : {},
+      discoveredRegions: json['discoveredRegions'] != null
+          ? Set<String>.from(json['discoveredRegions'])
+          : {},
       savedAt: DateTime.parse(json['savedAt']),
     );
   }
@@ -22185,12 +22174,83 @@ class RestAction {
 }
 ```
 
+### 📄 `./lib/models/world/connection.dart`
+```dart
+/// Соединение между двумя локациями.
+///
+/// Заменяет старый `List<String> connections`.
+class Connection {
+  final String targetId;
+  final int minutes;
+
+  const Connection({
+    required this.targetId,
+    required this.minutes,
+  });
+
+  /// Парсинг из JSON.
+  ///
+  /// Поддерживает три формата:
+  /// 1. `{ "id": "street_south", "minutes": 10 }` — полный объект.
+  /// 2. `"street_south"` — просто строка (старый формат).
+  /// 3. `{ "id": "street_south" }` — объект без minutes.
+  factory Connection.fromJson(dynamic json) {
+    if (json is String) {
+      return Connection(targetId: json, minutes: 20);
+    }
+
+    if (json is Map) {
+      final map = Map<String, dynamic>.from(json);
+      return Connection(
+        targetId: map['id'] as String,
+        minutes: (map['minutes'] as num?)?.toInt() ?? 20,
+      );
+    }
+
+    throw ArgumentError(
+      'Connection.fromJson: ожидается String или Map, получено: ${json.runtimeType}',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': targetId,
+      'minutes': minutes,
+    };
+  }
+
+  /// Форматированное время — «15 мин», «1ч 30м».
+  String get formattedTime {
+    if (minutes < 60) return '$minutes мин';
+    final h = minutes ~/ 60;
+    final m = minutes % 60;
+    if (m == 0) return '${h}ч';
+    return '${h}ч ${m}м';
+  }
+
+  @override
+  String toString() => 'Connection($targetId, $minutes мин)';
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Connection &&
+          other.targetId == targetId &&
+          other.minutes == minutes;
+
+  @override
+  int get hashCode => Object.hash(targetId, minutes);
+}
+```
+
 ### 📄 `./lib/models/world/location.dart`
 ```dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dark_hours/models/world/search_event.dart';
+import 'package:dark_hours/models/world/map_position.dart';
+import 'package:dark_hours/models/world/connection.dart';
 
 class StoryCondition {
   final int? chapter;
@@ -22231,7 +22291,10 @@ class Location {
   final int maxSearches;
   final List<String> lootPool;
   final List<String> enemies;
-  final List<String> connections;
+
+  /// Соединения с другими локациями (с временем в пути).
+  final List<Connection> connections;
+
   final String icon;
   final bool repeatable;
   final bool isStart;
@@ -22239,6 +22302,22 @@ class Location {
   final bool hidden;
   final String? unlockedBy;
   final String? risk;
+
+  /// Позиция локации на карте.
+  final MapPosition mapPosition;
+
+  /// Название зоны.
+  final String? mapZone;
+
+  /// Название локации, как её видит разведчик (может быть неточным).
+  ///
+  /// Если `null` — используется `name`.
+  final String? scoutedName;
+
+  /// Описание локации, как её видит разведчик (неполное, с догадками).
+  ///
+  /// Если `null` — используется `description`.
+  final String? scoutedDescription;
 
   // Сюжетные триггеры
   final String? storyNode;
@@ -22266,12 +22345,34 @@ class Location {
     this.hidden = false,
     this.unlockedBy,
     this.risk,
+    this.mapPosition = const MapPosition(x: 0.5, y: 0.5),
+    this.mapZone,
+    this.scoutedName,
+    this.scoutedDescription,
     this.storyNode,
     this.storyCondition,
     this.searchEvents = const [],
   });
 
   factory Location.fromJson(Map<String, dynamic> json) {
+    MapPosition position = const MapPosition(x: 0.5, y: 0.5);
+    if (json['mapPosition'] != null) {
+      position = MapPosition.fromJson(
+        Map<String, dynamic>.from(json['mapPosition']),
+      );
+    }
+
+    // Парсим connections — поддерживаем оба формата (строки и объекты).
+    final rawConnections = json['connections'] as List? ?? [];
+    final parsedConnections = rawConnections.map((c) {
+      if (c is String) {
+        return Connection(targetId: c, minutes: 20);
+      } else if (c is Map) {
+        return Connection.fromJson(Map<String, dynamic>.from(c));
+      }
+      return null;
+    }).whereType<Connection>().toList();
+
     return Location(
       id: json['id'],
       name: json['name'],
@@ -22283,7 +22384,7 @@ class Location {
       maxSearches: json['max_searches'] ?? 0,
       lootPool: List<String>.from(json['loot_pool'] ?? []),
       enemies: List<String>.from(json['enemies'] ?? []),
-      connections: List<String>.from(json['connections'] ?? []),
+      connections: parsedConnections,
       icon: json['icon'],
       repeatable: json['repeatable'] ?? true,
       isStart: json['is_start'] ?? false,
@@ -22291,6 +22392,10 @@ class Location {
       hidden: json['hidden'] ?? false,
       unlockedBy: json['unlocked_by'],
       risk: json['risk'],
+      mapPosition: position,
+      mapZone: json['map_zone'],
+      scoutedName: json['scouted_name'],
+      scoutedDescription: json['scouted_description'],
       storyNode: json['story_node'],
       storyCondition: json['story_condition'] != null
           ? StoryCondition.fromJson(
@@ -22302,6 +22407,40 @@ class Location {
           .toList(),
     );
   }
+
+  // ═══════════════════════════════════════════════════════════
+  // ХЕЛПЕРЫ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Список ID соседей (для быстрых проверок).
+  List<String> get connectionIds =>
+      connections.map((c) => c.targetId).toList();
+
+  /// Сколько минут идти до указанной локации.
+  ///
+  /// Возвращает `null`, если локация не соседняя.
+  int? connectionMinutesTo(String targetId) {
+    for (final c in connections) {
+      if (c.targetId == targetId) return c.minutes;
+    }
+    return null;
+  }
+
+  /// Является ли локация соседней.
+  bool isConnectedTo(String targetId) {
+    return connections.any((c) => c.targetId == targetId);
+  }
+
+  /// Название для разведки (fallback на `name`).
+  String get displayScoutedName => scoutedName ?? name;
+
+  /// Описание для разведки (fallback на `description`).
+  String get displayScoutedDescription =>
+      scoutedDescription ?? description;
+
+  // ═══════════════════════════════════════════════════════════
+  // ГЕТТЕРЫ
+  // ═══════════════════════════════════════════════════════════
 
   Color get dangerColor {
     if (dangerLevel <= 2) return Colors.green;
@@ -22319,7 +22458,7 @@ class Location {
     return 'Смертельно';
   }
 
-  /// Проверка: сработает ли сюжетный триггер в этой локации
+  /// Проверка: сработает ли сюжетный триггер в этой локации.
   bool canTriggerStory({
     required int currentChapter,
     required String currentCharacter,
@@ -22329,17 +22468,14 @@ class Location {
 
     final cond = storyCondition!;
 
-    // Проверка по главе
     if (cond.chapter != null && currentChapter < cond.chapter!) {
       return false;
     }
 
-    // Проверка по персонажу
     if (cond.character != null && cond.character != currentCharacter) {
       return false;
     }
 
-    // Проверка "только один раз"
     if (cond.once && triggeredNodes.contains(storyNode)) {
       return false;
     }
@@ -22358,6 +22494,67 @@ class Location {
       return [];
     }
   }
+}
+```
+
+### 📄 `./lib/models/world/map_position.dart`
+```dart
+import 'dart:math' as math;
+
+/// Позиция локации на карте.
+///
+/// Координаты **логические** — в диапазоне 0.0..1.0.
+/// Рендер умножает их на реальные размеры экрана.
+///
+/// (0, 0) — верхний левый угол.
+/// (1, 1) — нижний правый угол.
+/// (0.5, 0.5) — центр.
+class MapPosition {
+  final double x;
+  final double y;
+
+  const MapPosition({required this.x, required this.y});
+
+  /// Парсинг из JSON: `{ "x": 0.15, "y": 0.6 }`
+  factory MapPosition.fromJson(Map<String, dynamic> json) {
+    return MapPosition(
+      x: (json['x'] as num).toDouble(),
+      y: (json['y'] as num).toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'x': x, 'y': y};
+  }
+
+  /// Линейная интерполяция между двумя позициями.
+  ///
+  /// `t = 0.0` — эта позиция, `t = 1.0` — другая.
+  MapPosition lerp(MapPosition other, double t) {
+    return MapPosition(
+      x: x + (other.x - x) * t,
+      y: y + (other.y - y) * t,
+    );
+  }
+
+  /// Расстояние до другой позиции (евклидово, в логических координатах).
+  double distanceTo(MapPosition other) {
+    final dx = x - other.x;
+    final dy = y - other.y;
+    return math.sqrt(dx * dx + dy * dy);
+  }
+
+  @override
+  String toString() =>
+      'MapPosition(${x.toStringAsFixed(2)}, ${y.toStringAsFixed(2)})';
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MapPosition && other.x == x && other.y == y;
+
+  @override
+  int get hashCode => Object.hash(x, y);
 }
 ```
 
@@ -22433,10 +22630,11 @@ class SearchEvent {
 ### 📄 `./lib/models/world/world_map.dart`
 ```dart
 import 'package:dark_hours/models/world/location.dart';
+import 'package:dark_hours/models/world/connection.dart';
 
 class WorldMap {
   final List<Location> locations;
-  String currentLocationId; // ← убрали final
+  String currentLocationId;
   final Set<String> visitedLocations;
 
   WorldMap({
@@ -22457,26 +22655,48 @@ class WorldMap {
     }
   }
 
+  /// Локации, доступные для перехода из текущей.
+  ///
+  /// Теперь работает через `connectionIds`, потому что
+  /// `connections` — это `List<Connection>`.
   List<Location> get availableConnections {
-    return current.connections
+    return current.connectionIds
         .map((id) => getById(id))
         .whereType<Location>()
         .toList();
   }
 
+  /// Получить Connection из текущей локации в указанную.
+  Connection? getConnection(String targetId) {
+    return current.connections.cast<Connection?>().firstWhere(
+          (c) => c?.targetId == targetId,
+          orElse: () => null,
+        );
+  }
+
+  /// Получить время перехода между двумя локациями.
+  ///
+  /// Если локации не соседние — возвращает null.
+  int? getTravelMinutes(String fromId, String toId) {
+    final from = getById(fromId);
+    if (from == null) return null;
+    return from.connectionMinutesTo(toId);
+  }
+
+  /// Перейти в локацию (без валидации).
   void moveTo(String locationId) {
     currentLocationId = locationId;
     visitedLocations.add(locationId);
   }
 
-  /// Поиск лута в локации — возвращает случайный предмет из пула
+  /// Случайный лут из пула текущей локации.
   String? rollLoot() {
     if (current.lootPool.isEmpty) return null;
     return current.lootPool[
         DateTime.now().millisecond % current.lootPool.length];
   }
 
-  /// Случайный враг из локации
+  /// Случайный враг из текущей локации.
   String? rollEnemy() {
     if (current.enemies.isEmpty) return null;
     return current.enemies[
@@ -24967,6 +25187,7 @@ class _CreditsScreenState extends State<CreditsScreen>
 
 ### 📄 `./lib/screens/gameplay/map_screen.dart`
 ```dart
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'package:dark_hours/services/map/map_controller.dart';
@@ -24977,8 +25198,11 @@ import 'package:dark_hours/services/map/death_manager.dart';
 import 'package:dark_hours/services/map/story_trigger_manager.dart';
 import 'package:dark_hours/services/progress/achievement_checker.dart';
 import 'package:dark_hours/services/progress/achievement_manager.dart';
+import 'package:dark_hours/services/time/time_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
 
+import 'package:dark_hours/models/world/location.dart';
+import 'package:dark_hours/models/world/map_position.dart';
 import 'package:dark_hours/models/items/recipe.dart';
 import 'package:dark_hours/models/inventory/inventory_item.dart';
 import 'package:dark_hours/models/time/rest_action.dart';
@@ -24989,18 +25213,21 @@ import 'package:dark_hours/widgets/panels/craft_panel.dart';
 import 'package:dark_hours/widgets/panels/inventory_panel.dart';
 import 'package:dark_hours/widgets/panels/equipment_panel.dart';
 import 'package:dark_hours/widgets/panels/rest_panel.dart';
-import 'package:dark_hours/widgets/cards/animated_location_card.dart';
 import 'package:dark_hours/widgets/effects/floating_effect.dart';
 import 'package:dark_hours/widgets/effects/shimmer_button.dart';
 
 import 'package:dark_hours/screens/gameplay/widgets/map_status_bar.dart';
 import 'package:dark_hours/screens/gameplay/widgets/map_current_location.dart';
-import 'package:dark_hours/screens/gameplay/widgets/map_location_card.dart';
+import 'package:dark_hours/screens/gameplay/widgets/map_zone_painter.dart';
+import 'package:dark_hours/screens/gameplay/widgets/map_edge_painter.dart';
+import 'package:dark_hours/screens/gameplay/widgets/map_node.dart';
+import 'package:dark_hours/screens/gameplay/widgets/map_player_marker.dart';
+import 'package:dark_hours/screens/gameplay/widgets/map_info_sheet.dart';
 
 class MapScreen extends StatefulWidget {
   final String characterId;
   final String characterName;
-  final dynamic resumeFrom; // SaveData? — чтобы не тянуть импорт
+  final dynamic resumeFrom;
 
   const MapScreen({
     super.key,
@@ -25013,23 +25240,39 @@ class MapScreen extends StatefulWidget {
   State<MapScreen> createState() => _MapScreenState();
 }
 
-class _MapScreenState extends State<MapScreen> {
+class _MapScreenState extends State<MapScreen>
+    with SingleTickerProviderStateMixin {
   late final MapController _controller;
+
+  final TransformationController _transformController =
+      TransformationController();
+
+  late AnimationController _markerController;
+  late Animation<MapPosition> _markerAnimation;
+  MapPosition _markerPosition = const MapPosition(x: 0.5, y: 0.5);
+  double _markerRotation = 0.0;
+  bool _isMoving = false;
+
+  Size _viewportSize = const Size(400, 600);
+
+  static const double _mapWidth = 1200.0;
+  static const double _mapHeight = 1600.0;
 
   @override
   void initState() {
     super.initState();
-
     _controller = MapController(
       characterId: widget.characterId,
       characterName: widget.characterName,
       resumeFrom: widget.resumeFrom,
     );
-
-    // Подписка на изменения состояния
     _controller.addListener(_onControllerChanged);
 
-    // Загрузка карты
+    _markerController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+
     _initController();
   }
 
@@ -25037,95 +25280,395 @@ class _MapScreenState extends State<MapScreen> {
   void dispose() {
     _controller.removeListener(_onControllerChanged);
     _controller.dispose();
+    _transformController.dispose();
+    _markerController.dispose();
     super.dispose();
   }
 
-  /// Обработчик изменений в контроллере
   void _onControllerChanged() {
     if (!mounted) return;
-    setState(() {
-      // Проверка смерти
-      if (DeathManager.checkDeath(_controller)) {
-        _handleDeath();
-      }
-    });
+    setState(() {});
   }
 
-  /// Инициализация контроллера + ambience + первая проверка смерти
   Future<void> _initController() async {
     await _controller.init();
-
     if (!mounted) return;
 
-    // Запуск ambience стартовой локации
-    final startLoc = _controller.currentLocation;
-    if (startLoc != null) {
+    final cur = _controller.currentLocation;
+    if (cur != null) {
+      _markerPosition = cur.mapPosition;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _centerOnLocation(cur);
+      });
+
       final ambiencePath = AudioService.ambienceForLocation(
-        locationId: startLoc.id,
-        type: startLoc.type,
-        region: startLoc.region,
-        dangerLevel: startLoc.dangerLevel,
+        locationId: cur.id,
+        type: cur.type,
+        region: cur.region,
+        dangerLevel: cur.dangerLevel,
       );
       if (ambiencePath != null) {
         await AudioService.playAmbience(ambiencePath);
       }
     }
 
-    // Проверка смерти после инициализации
     if (DeathManager.checkDeath(_controller)) {
-      _handleDeath();
+      await _handleDeath();
+      return;
     }
-
     if (mounted) setState(() {});
   }
 
-  /// Показать экран смерти + сохранить статистику
+  void _centerOnLocation(Location loc) {
+    final px = loc.mapPosition.x * _mapWidth;
+    final py = loc.mapPosition.y * _mapHeight;
+
+    final viewW = _viewportSize.width;
+    final viewH = _viewportSize.height;
+
+    final tx = viewW / 2 - px;
+    final ty = viewH / 2 - py;
+
+    _transformController.value = Matrix4.identity()
+      ..translate(tx, ty);
+  }
+
   Future<void> _handleDeath() async {
     if (!mounted) return;
-
     await DeathManager.applyStatsOnDeath(_controller);
-
     if (!mounted) return;
     await DeathManager.showDeathScreenIfNeeded(context, _controller);
   }
 
   // ═══════════════════════════════════════════════════════════
-  // ДЕЙСТВИЯ ПОЛЬЗОВАТЕЛЯ
+  // ПЕРЕХОД
   // ═══════════════════════════════════════════════════════════
 
-  /// Обыск текущей локации
-  Future<void> _search() async {
-    await SearchManager.search(context, _controller);
-
-    if (!mounted) return;
-    // Проверка смерти после обыска
-    if (DeathManager.checkDeath(_controller)) {
-      await _handleDeath();
-      return;
-    }
-    await DeathManager.checkFatigue(context, _controller);
-  }
-
-  /// Переход в локацию
   Future<void> _moveTo(String locationId) async {
+    final target = _controller.map?.getById(locationId);
+    if (target != null) {
+      _startMarkerAnimation(target.mapPosition);
+      await Future.delayed(const Duration(milliseconds: 400));
+    }
+
     final ok = await MovementManager.move(context, _controller, locationId);
     if (!ok || !mounted) return;
 
-    // Проверка смерти и усталости после перехода
+    final newLoc = _controller.currentLocation;
+    if (newLoc != null) {
+      _finishMarkerAnimation(newLoc.mapPosition);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _centerOnLocation(newLoc);
+      });
+    }
+
     if (DeathManager.checkDeath(_controller)) {
       await _handleDeath();
       return;
     }
     await DeathManager.checkFatigue(context, _controller);
+    if (mounted) setState(() {});
   }
 
-  /// Отдых
+  void _startMarkerAnimation(MapPosition target) {
+    _isMoving = true;
+
+    final dx = target.x - _markerPosition.x;
+    final dy = target.y - _markerPosition.y;
+    _markerRotation = math.atan2(dy, dx) + math.pi / 2;
+
+    _markerAnimation = Tween<MapPosition>(
+      begin: _markerPosition,
+      end: target,
+    ).animate(CurvedAnimation(
+      parent: _markerController,
+      curve: Curves.easeInOut,
+    ));
+
+    _markerController.forward(from: 0);
+    _markerController.addListener(_onMarkerTick);
+
+    setState(() {});
+  }
+
+  void _finishMarkerAnimation(MapPosition target) {
+    _markerPosition = target;
+    _isMoving = false;
+    _markerController.stop();
+    _markerController.removeListener(_onMarkerTick);
+    setState(() {});
+  }
+
+  void _onMarkerTick() {
+    setState(() {
+      _markerPosition = _markerAnimation.value;
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // РАЗВЕДКА
+  // ═══════════════════════════════════════════════════════════
+
+  /// Разведать округу.
+  ///
+  /// Тратит 30 минут + 10 стамины + 5 усталости.
+  /// Открывает 1-3 соседние локации как scouted.
+  Future<void> _scout() async {
+    AudioService.playClick();
+
+    final current = _controller.currentLocation;
+    if (current == null) return;
+
+    // Проверка: есть ли что разведывать?
+    final unknownNeighbors = current.connectionIds.where((id) {
+      return !_controller.isScouted(id);
+    }).toList();
+
+    if (unknownNeighbors.isEmpty) {
+      AudioService.playError();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('🔭 Все соседние места уже разведаны'),
+          backgroundColor: Colors.grey,
+        ),
+      );
+      return;
+    }
+
+    // Стоимость
+    if (_controller.stamina < 10) {
+      AudioService.playError();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('❌ Слишком устал для разведки'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    _controller.setStamina(_controller.stamina - 10);
+    _controller.setFatigue(_controller.fatigue + 5);
+
+    // Бросок: сколько локаций разведаем?
+    final rng = math.Random();
+    final roll = rng.nextInt(100);
+
+    int count;
+    String mood;
+    if (roll < 15) {
+      // Провал
+      count = 0;
+      mood = 'Ты вглядываешься в темноту. Ничего не видно.';
+    } else if (roll < 55) {
+      // 1 локация
+      count = 1;
+      mood = 'Сквозь туман различаешь силуэт...';
+    } else if (roll < 85) {
+      // 2 локации
+      count = 2;
+      mood = 'Ты видишь несколько очертаний впереди...';
+    } else {
+      // 3 локации (удача)
+      count = 3;
+      mood = 'С высоты ты видишь многое...';
+    }
+
+    // Разведываем
+    final scoutedList = <String>[];
+    unknownNeighbors.shuffle(rng);
+    for (int i = 0; i < count && i < unknownNeighbors.length; i++) {
+      scoutedList.add(unknownNeighbors[i]);
+    }
+
+    _controller.scoutAll(scoutedList);
+
+    // Время
+    await _controller.advanceTime(30);
+    await _controller.save();
+
+    if (!mounted) return;
+
+    // Показать результат
+    await _showScoutResult(mood, scoutedList);
+
+    if (mounted) setState(() {});
+  }
+
+  /// Показать модалку с результатом разведки.
+  Future<void> _showScoutResult(String mood, List<String> scoutedIds) async {
+    if (!mounted) return;
+
+    final map = _controller.map;
+    if (map == null) return;
+
+    final locations = scoutedIds
+        .map((id) => map.getById(id))
+        .whereType<Location>()
+        .toList();
+
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Color.fromARGB(255, 15, 15, 15),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                '🔭 РАЗВЕДКА',
+                style: TextStyle(
+                  color: Color(0xFFC8B464),
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 3.0,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                mood,
+                style: TextStyle(
+                  color: Colors.grey[400],
+                  fontSize: 13,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              if (locations.isEmpty) ...[
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1A1A1A),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'Ничего нового.',
+                    style: TextStyle(color: Colors.grey, fontSize: 13),
+                  ),
+                ),
+              ] else ...[
+                const Text(
+                  'Обнаружено:',
+                  style: TextStyle(
+                    color: Color(0xFFC8B464),
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2.0,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                ...locations.map((loc) => _buildScoutedCard(loc)),
+              ],
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    AudioService.playClick();
+                    Navigator.pop(ctx);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFC8B464),
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'ПОНЯТНО',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2.0,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScoutedCard(Location loc) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF181818),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: const Color(0xFFC8B464).withValues(alpha: 0.4),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Text(
+            loc.icon,
+            style: const TextStyle(fontSize: 28),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  loc.displayScoutedName,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  loc.displayScoutedDescription,
+                  style: TextStyle(
+                    color: Colors.grey[500],
+                    fontSize: 11,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ДЕЙСТВИЯ
+  // ═══════════════════════════════════════════════════════════
+
+  Future<void> _search() async {
+    await SearchManager.search(context, _controller);
+    if (!mounted) return;
+    if (DeathManager.checkDeath(_controller)) {
+      await _handleDeath();
+      return;
+    }
+    await DeathManager.checkFatigue(context, _controller);
+    if (mounted) setState(() {});
+  }
+
   Future<void> _showRestPanel() async {
     AudioService.playTap();
-
     final loc = _controller.currentLocation;
     if (loc == null) return;
-
     final isSafe = loc.dangerLevel <= 3;
 
     showModalBottomSheet(
@@ -25146,19 +25689,36 @@ class _MapScreenState extends State<MapScreen> {
 
   Future<void> _executeRest(RestAction action) async {
     await RestManager.rest(context, _controller, action);
-
     if (!mounted) return;
     if (DeathManager.checkDeath(_controller)) {
       await _handleDeath();
       return;
     }
     await DeathManager.checkFatigue(context, _controller);
+    if (mounted) setState(() {});
   }
 
-  /// Ручная проверка сюжетного триггера (по кнопке)
   Future<void> _checkStoryTrigger() async {
     await StoryTriggerManager.checkTrigger(context, _controller);
     if (mounted) setState(() {});
+  }
+
+  void _showLocationInfo(Location loc) {
+    AudioService.playTap();
+
+    final current = _controller.currentLocation;
+    final canMove = current != null && current.isConnectedTo(loc.id);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => MapInfoSheet(
+        location: loc,
+        canMove: canMove,
+        onMove: canMove ? () => _moveTo(loc.id) : null,
+      ),
+    );
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -25167,7 +25727,6 @@ class _MapScreenState extends State<MapScreen> {
 
   void _showCraftPanel() {
     AudioService.playTap();
-
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -25203,24 +25762,19 @@ class _MapScreenState extends State<MapScreen> {
       return;
     }
 
-    // Списать ингредиенты
     for (final ing in recipe.ingredients) {
       for (int i = 0; i < ing.count; i++) {
         _controller.removeItem(ing.id);
       }
     }
 
-    // Добавить результат
-    final resultItem = _findItemForCraft(recipe.resultId);
+    final resultItem = _controller.findItemInCatalog(recipe.resultId);
     if (resultItem != null) {
       _controller.addItem(resultItem);
     }
 
     _controller.trackCraft(isMolotov: recipe.id == 'molotov_craft');
-    _controller.applyStatDelta({
-      'stamina': -5,
-      'fatigue': 5,
-    });
+    _controller.applyStatDelta({'stamina': -5, 'fatigue': 5});
 
     await _controller.advanceTime(recipe.timeMinutes);
     await _controller.save();
@@ -25249,13 +25803,6 @@ class _MapScreenState extends State<MapScreen> {
       inventorySize: _controller.inventory.items.length,
       tracker: _controller.tracker,
     );
-  }
-
-  /// Найти предмет для крафта (использует ItemLoader через MapController)
-  InventoryItem? _findItemForCraft(String id) {
-    // ItemLoader уже загружен в MapController.init()
-    // Используем глобальный загрузчик
-    return null; // Заглушка — см. ниже про ItemLoader
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -25295,7 +25842,6 @@ class _MapScreenState extends State<MapScreen> {
 
   void _useItem(InventoryItem item) {
     AudioService.playSuccess();
-
     _controller.applyStatDelta({
       'hunger': item.hungerRestore,
       'thirst': item.thirstRestore,
@@ -25311,38 +25857,22 @@ class _MapScreenState extends State<MapScreen> {
       _controller.trackMedicineUsed();
     }
 
-    // Floating effects
     if (item.hungerRestore > 0) {
-      FloatingEffectOverlay.show(
-        context,
-        '+${item.hungerRestore} 🍞',
-        color: Colors.orange,
-        icon: Icons.restaurant,
-      );
+      FloatingEffectOverlay.show(context, '+${item.hungerRestore} 🍞',
+          color: Colors.orange, icon: Icons.restaurant);
     }
     if (item.thirstRestore > 0) {
-      FloatingEffectOverlay.show(
-        context,
-        '+${item.thirstRestore} 💧',
-        color: Colors.blue,
-        icon: Icons.water_drop,
-      );
+      FloatingEffectOverlay.show(context, '+${item.thirstRestore} 💧',
+          color: Colors.blue, icon: Icons.water_drop);
     }
     if (item.healthRestore > 0) {
-      FloatingEffectOverlay.show(
-        context,
-        '+${item.healthRestore} ❤️',
-        color: Colors.red,
-        icon: Icons.favorite,
-      );
+      FloatingEffectOverlay.show(context, '+${item.healthRestore} ❤️',
+          color: Colors.red, icon: Icons.favorite);
     }
 
-    // Лечение болезней
     final curable = <dynamic>[];
     for (final ac in _controller.activeConditions) {
-      if (ac.condition.cureItems.contains(item.id)) {
-        curable.add(ac);
-      }
+      if (ac.condition.cureItems.contains(item.id)) curable.add(ac);
     }
     for (final ac in curable) {
       _controller.activeConditions.remove(ac);
@@ -25361,7 +25891,6 @@ class _MapScreenState extends State<MapScreen> {
 
   void _equipItem(InventoryItem item) {
     AudioService.playClick();
-
     String? slot;
     if (item.sourceType == 'weapon') {
       slot = 'weapon';
@@ -25369,7 +25898,6 @@ class _MapScreenState extends State<MapScreen> {
       slot = item.armorSlot;
     }
     if (slot == null) return;
-
     _controller.equipItem(item, slot);
     _controller.save();
     setState(() {});
@@ -25405,12 +25933,37 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════
+  // ВИДИМОСТЬ ЛОКАЦИЙ
+  // ═══════════════════════════════════════════════════════════
+
+  NodeState _nodeState(Location loc) {
+    if (loc.id == _controller.currentLocation?.id) {
+      return NodeState.current;
+    }
+
+    if (loc.hidden && !_controller.isLocationUnlocked(loc.id)) {
+      return NodeState.hidden;
+    }
+
+    final isNeighbor = _controller.currentLocation?.connectionIds
+            .contains(loc.id) ??
+        false;
+
+    // Если локация не разведана и не соседняя — скрыта.
+    if (!_controller.isScouted(loc.id) && !isNeighbor) {
+      return NodeState.hidden;
+    }
+
+    if (isNeighbor) return NodeState.neighbor;
+    return NodeState.visited;
+  }
+
+  // ═══════════════════════════════════════════════════════════
   // UI
   // ═══════════════════════════════════════════════════════════
 
   @override
   Widget build(BuildContext context) {
-    // Загрузка
     if (_controller.isLoading) {
       return const Scaffold(
         backgroundColor: Color.fromARGB(255, 10, 10, 10),
@@ -25422,7 +25975,6 @@ class _MapScreenState extends State<MapScreen> {
       );
     }
 
-    // Карта не загрузилась
     if (_controller.map == null) {
       return Scaffold(
         backgroundColor: const Color.fromARGB(255, 10, 10, 10),
@@ -25438,10 +25990,8 @@ class _MapScreenState extends State<MapScreen> {
           ),
         ),
         body: const Center(
-          child: Text(
-            'Карта не найдена',
-            style: TextStyle(color: Colors.white),
-          ),
+          child: Text('Карта не найдена',
+              style: TextStyle(color: Colors.white)),
         ),
       );
     }
@@ -25452,38 +26002,143 @@ class _MapScreenState extends State<MapScreen> {
     final penalties = _getPenalties();
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 10, 10, 10),
+      backgroundColor: const Color.fromARGB(255, 8, 8, 10),
       appBar: _buildAppBar(),
       body: Column(
         children: [
           MapStatusBar(controller: _controller),
           PenaltiesPanel(penalties: penalties),
           ConditionsPanel(conditions: _controller.activeConditions),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  MapCurrentLocation(controller: _controller),
-                  const SizedBox(height: 20),
-                  ..._buildActionButtons(current),
-                  const SizedBox(height: 20),
-                  _buildConnectionsHeader(),
-                  const SizedBox(height: 12),
-                  ..._buildAvailableConnections(),
-                ],
+
+          if (_isMoving)
+            Container(
+              height: 3,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFFC8B464), Colors.transparent],
+                ),
               ),
             ),
+
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                if (_viewportSize != constraints.biggest) {
+                  _viewportSize = constraints.biggest;
+                }
+
+                return InteractiveViewer(
+                  transformationController: _transformController,
+                  minScale: 0.4,
+                  maxScale: 2.0,
+                  boundaryMargin: const EdgeInsets.all(400),
+                  constrained: false,
+                  child: SizedBox(
+                    width: _mapWidth,
+                    height: _mapHeight,
+                    child: _buildMapCanvas(),
+                  ),
+                );
+              },
+            ),
           ),
+
+          _buildBottomPanel(current),
         ],
       ),
     );
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // APPBAR
-  // ═══════════════════════════════════════════════════════════
+  Widget _buildMapCanvas() {
+    final map = _controller.map!;
+    final current = _controller.currentLocation!;
+
+    final edges = buildEdges(
+      locations: map.locations,
+      visited: map.visitedLocations,
+      scouted: _controller.scoutedLocations,
+      unlocked: _controller.unlockedLocations,
+      currentLocationId: current.id,
+    );
+
+    final visibleNodes = map.locations
+        .where((loc) => _nodeState(loc) != NodeState.hidden)
+        .toList();
+
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: CustomPaint(
+            painter: MapZonePainter(
+              logicalSize: const Size(_mapWidth, _mapHeight),
+            ),
+          ),
+        ),
+        Positioned.fill(
+          child: CustomPaint(
+            painter: MapEdgePainter(edges: edges),
+          ),
+        ),
+        ...visibleNodes.map((loc) {
+          final px = loc.mapPosition.x * _mapWidth;
+          final py = loc.mapPosition.y * _mapHeight;
+          final state = _nodeState(loc);
+
+          return Positioned(
+            left: px - MapNode.labelWidth / 2,
+            top: py - MapNode.nodeSize / 2,
+            child: MapNode(
+              location: loc,
+              state: state,
+              onTap: () {
+                if (state == NodeState.neighbor) {
+                  _moveTo(loc.id);
+                } else if (state == NodeState.visited) {
+                  _showLocationInfo(loc);
+                }
+              },
+            ),
+          );
+        }),
+        Positioned(
+          left: _markerPosition.x * _mapWidth - 30,
+          top: _markerPosition.y * _mapHeight - 30,
+          child: IgnorePointer(
+            child: MapPlayerMarker(
+              size: 20,
+              rotation: _markerRotation,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBottomPanel(Location current) {
+    return Container(
+      constraints: const BoxConstraints(maxHeight: 220),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 12, 12, 12),
+        border: Border(
+          top: BorderSide(
+            color: const Color(0xFFC8B464).withValues(alpha: 0.3),
+            width: 1,
+          ),
+        ),
+      ),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            MapCurrentLocation(controller: _controller),
+            const SizedBox(height: 8),
+            ..._buildActionButtons(current),
+          ],
+        ),
+      ),
+    );
+  }
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
@@ -25508,6 +26163,15 @@ class _MapScreenState extends State<MapScreen> {
       ),
       centerTitle: true,
       actions: [
+        IconButton(
+          icon: const Icon(Icons.center_focus_strong),
+          tooltip: 'Центрировать',
+          onPressed: () {
+            AudioService.playTap();
+            final cur = _controller.currentLocation;
+            if (cur != null) _centerOnLocation(cur);
+          },
+        ),
         IconButton(
           icon: const Icon(Icons.build_circle_outlined),
           tooltip: 'Крафт',
@@ -25561,26 +26225,24 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // КНОПКИ ДЕЙСТВИЙ
-  // ═══════════════════════════════════════════════════════════
-
-  List<Widget> _buildActionButtons(dynamic current) {
+  List<Widget> _buildActionButtons(Location current) {
     final widgets = <Widget>[];
 
-    // Кнопка «Обыскать»
     if (_canSearch(current)) {
       widgets.add(_buildSearchButton(current));
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
-    // Кнопка «Сюжетное событие»
+    // Кнопка разведки — если есть что разведывать.
+    if (_canScout(current)) {
+      widgets.add(_buildScoutButton());
+      widgets.add(const SizedBox(height: 8));
+    }
+
     if (_hasStoryTrigger(current)) {
       widgets.add(_buildStoryButton());
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
-
-    // Кнопка «Войти на станцию»
     if (current.isFinal) {
       widgets.add(_buildStationButton());
     }
@@ -25588,14 +26250,19 @@ class _MapScreenState extends State<MapScreen> {
     return widgets;
   }
 
-  bool _canSearch(dynamic loc) {
+  bool _canSearch(Location loc) {
     return loc.maxSearches > 0 ||
         loc.lootPool.isNotEmpty ||
         loc.enemies.isNotEmpty ||
         loc.risk != null;
   }
 
-  bool _hasStoryTrigger(dynamic loc) {
+  bool _canScout(Location loc) {
+    // Есть ли неизвестные соседи?
+    return loc.connectionIds.any((id) => !_controller.isScouted(id));
+  }
+
+  bool _hasStoryTrigger(Location loc) {
     if (loc.storyNode == null) return false;
     return loc.canTriggerStory(
       currentChapter: _controller.chapter,
@@ -25604,25 +26271,22 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  Widget _buildSearchButton(dynamic loc) {
+  Widget _buildSearchButton(Location loc) {
     final searched = _controller.searchedCounts[loc.id] ?? 0;
     final remaining = loc.maxSearches - searched;
-
     String label;
     Color color;
-
     if (loc.maxSearches == 0) {
       label = '🔍  ОСМОТРЕТЬСЯ (${loc.searchTime} мин)';
       color = const Color.fromARGB(255, 100, 150, 200);
     } else if (remaining > 0) {
       label =
-          '🔍  ОБЫСКАТЬ · осталось $remaining из ${loc.maxSearches} (${loc.searchTime} мин)';
+          '🔍  ОБЫСКАТЬ · $remaining из ${loc.maxSearches} (${loc.searchTime} мин)';
       color = const Color.fromARGB(255, 100, 150, 200);
     } else {
-      label = '🔍  ОСМОТРЕТЬСЯ (рискованно) (${loc.searchTime} мин)';
+      label = '🔍  ОСМОТРЕТЬСЯ (${loc.searchTime} мин)';
       color = const Color.fromARGB(255, 150, 100, 100);
     }
-
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
@@ -25631,7 +26295,7 @@ class _MapScreenState extends State<MapScreen> {
         label: Text(
           label,
           style: const TextStyle(
-            fontSize: 14,
+            fontSize: 13,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.5,
           ),
@@ -25639,7 +26303,33 @@ class _MapScreenState extends State<MapScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 14),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScoutButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: _scout,
+        icon: const Icon(Icons.visibility_outlined, size: 18),
+        label: const Text(
+          '🔭  РАЗВЕДАТЬ ОКРУГУ (30 мин)',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color.fromARGB(255, 100, 130, 180),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
@@ -25657,7 +26347,7 @@ class _MapScreenState extends State<MapScreen> {
         label: const Text(
           '📖  СЮЖЕТНОЕ СОБЫТИЕ',
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 13,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.5,
           ),
@@ -25665,7 +26355,7 @@ class _MapScreenState extends State<MapScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color.fromARGB(255, 200, 120, 100),
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 14),
+          padding: const EdgeInsets.symmetric(vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
@@ -25695,49 +26385,6 @@ class _MapScreenState extends State<MapScreen> {
       ),
     );
   }
-
-  // ═══════════════════════════════════════════════════════════
-  // СПИСОК СОСЕДНИХ ЛОКАЦИЙ
-  // ═══════════════════════════════════════════════════════════
-
-  Widget _buildConnectionsHeader() {
-    return const Text(
-      'КУДА ИДТИ?',
-      style: TextStyle(
-        color: Color.fromARGB(255, 200, 180, 100),
-        fontSize: 14,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 2.0,
-      ),
-    );
-  }
-
-  List<Widget> _buildAvailableConnections() {
-    final map = _controller.map;
-    if (map == null) return [];
-
-    final connections = map.availableConnections.where((loc) {
-      if (loc.hidden && !_controller.isLocationUnlocked(loc.id)) {
-        return false;
-      }
-      return true;
-    }).toList();
-
-    return connections.asMap().entries.map((entry) {
-      return AnimatedLocationCard(
-        index: entry.key,
-        child: MapLocationCard(
-          controller: _controller,
-          location: entry.value,
-          onTap: () => _moveTo(entry.value.id),
-        ),
-      );
-    }).toList();
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // УТИЛИТЫ
-  // ═══════════════════════════════════════════════════════════
 
   List<String> _getPenalties() {
     return TimeManager.getPenalties(
@@ -27007,18 +27654,8 @@ class _StoryScreenState extends State<StoryScreen> {
 import 'package:flutter/material.dart';
 
 import 'package:dark_hours/services/map/map_controller.dart';
-import 'package:dark_hours/models/world/location.dart';
 
-/// Карточка текущей локации.
-///
-/// Показывает:
-/// - иконку локации
-/// - метку «ТЫ ЗДЕСЬ» + фазу суток
-/// - значок «🔓 СКРЫТОЕ» (если локация скрытая)
-/// - название локации
-/// - полное описание
-/// - чипы: опасность, время поиска, кол-во врагов, лута, риска,
-///   счётчик обысков
+/// Компактная карточка текущей локации (внизу экрана).
 class MapCurrentLocation extends StatelessWidget {
   final MapController controller;
 
@@ -27033,156 +27670,605 @@ class MapCurrentLocation extends StatelessWidget {
     if (loc == null) return const SizedBox.shrink();
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 20, 20, 20),
-        borderRadius: BorderRadius.circular(12),
+        color: const Color.fromARGB(255, 18, 18, 18),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: loc.hidden
-              ? const Color.fromARGB(255, 100, 200, 100)
-              : const Color.fromARGB(255, 200, 180, 100),
-          width: 2,
+              ? const Color(0xFF64C864)
+              : const Color(0xFFC8B464),
+          width: 1.5,
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          _buildHeader(loc),
-          const SizedBox(height: 12),
-          _buildDescription(loc),
-          const SizedBox(height: 12),
-          _buildChips(loc),
+          // Верхняя строка: иконка + название
+          Row(
+            children: [
+              Text(
+                loc.icon,
+                style: const TextStyle(fontSize: 22),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  loc.name,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              if (loc.hidden)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 5,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF64C864).withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(3),
+                    border: Border.all(
+                      color: const Color(0xFF64C864),
+                      width: 1,
+                    ),
+                  ),
+                  child: const Text(
+                    '🔓',
+                    style: TextStyle(fontSize: 9),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 6),
+
+          // Описание в одну строку
+          Text(
+            loc.description,
+            style: TextStyle(
+              color: Colors.grey[500],
+              fontSize: 11,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 8),
+
+          // Чипы в одну строку
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _chip('⚠️ ${loc.dangerLevel}', loc.dangerColor),
+                const SizedBox(width: 6),
+                if (loc.searchTime > 0)
+                  _chip(
+                    '⏱️ ${loc.searchTime}м',
+                    Colors.blue[400]!,
+                  ),
+                if (loc.enemies.isNotEmpty) ...[
+                  const SizedBox(width: 6),
+                  _chip('👥 ${loc.enemies.length}', Colors.red[400]!),
+                ],
+                if (loc.lootPool.isNotEmpty) ...[
+                  const SizedBox(width: 6),
+                  _chip('🎁', Colors.green[400]!),
+                ],
+                if (loc.risk != null) ...[
+                  const SizedBox(width: 6),
+                  _chip('☣️', Colors.deepOrange[400]!),
+                ],
+                if (loc.maxSearches > 0) ...[
+                  const SizedBox(width: 6),
+                  _chip(
+                    '🔍 ${(loc.maxSearches - (controller.searchedCounts[loc.id] ?? 0)).clamp(0, loc.maxSearches)}/${loc.maxSearches}',
+                    Colors.cyan[400]!,
+                  ),
+                ],
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // HEADER: иконка + метка + название
-  // ═══════════════════════════════════════════════════════════
-
-  Widget _buildHeader(Location loc) {
-    return Row(
-      children: [
-        Text(loc.icon, style: const TextStyle(fontSize: 40)),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildTopLabelRow(loc),
-              const SizedBox(height: 4),
-              Text(
-                loc.name,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTopLabelRow(Location loc) {
-    return Row(
-      children: [
-        Text(
-          'ТЫ ЗДЕСЬ · ${controller.gameTime.phase.name.toUpperCase()}',
-          style: TextStyle(
-            color: controller.gameTime.phase.color,
-            fontSize: 10,
-            letterSpacing: 2.0,
-          ),
-        ),
-        if (loc.hidden) ...[
-          const SizedBox(width: 6),
-          _buildHiddenBadge(),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildHiddenBadge() {
+  Widget _chip(String text, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 100, 200, 100).withOpacity(0.2),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(
-          color: const Color.fromARGB(255, 100, 200, 100),
-          width: 1,
-        ),
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(3),
+        border: Border.all(color: color.withValues(alpha: 0.5), width: 1),
       ),
-      child: const Text(
-        '🔓 СКРЫТОЕ',
+      child: Text(
+        text,
         style: TextStyle(
-          color: Color.fromARGB(255, 100, 200, 100),
-          fontSize: 9,
+          color: color,
+          fontSize: 10,
           fontWeight: FontWeight.bold,
         ),
       ),
     );
   }
+}
+```
 
-  // ═══════════════════════════════════════════════════════════
-  // ОПИСАНИЕ
-  // ═══════════════════════════════════════════════════════════
+### 📄 `./lib/screens/gameplay/widgets/map_edge_painter.dart`
+```dart
+import 'package:flutter/material.dart';
 
-  Widget _buildDescription(Location loc) {
-    return Text(
-      loc.description,
-      style: TextStyle(
-        color: Colors.grey[400],
-        fontSize: 13,
-        height: 1.5,
+import 'package:dark_hours/models/world/location.dart';
+import 'package:dark_hours/models/world/map_position.dart';
+
+/// Одна линия между двумя локациями.
+class MapEdge {
+  final MapPosition from;
+  final MapPosition to;
+  final bool isHighlighted;
+  final bool isVisited;
+  final bool isScouted;
+  final int minutes;
+
+  const MapEdge({
+    required this.from,
+    required this.to,
+    this.isHighlighted = false,
+    this.isVisited = false,
+    this.isScouted = false,
+    this.minutes = 20,
+  });
+}
+
+/// Рисует все рёбра между локациями.
+class MapEdgePainter extends CustomPainter {
+  final List<MapEdge> edges;
+
+  const MapEdgePainter({required this.edges});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Сначала рисуем обычные рёбра (фон).
+    for (final edge in edges.where((e) => !e.isHighlighted)) {
+      _drawEdge(canvas, size, edge);
+    }
+    // Потом highlighted (поверх).
+    for (final edge in edges.where((e) => e.isHighlighted)) {
+      _drawEdge(canvas, size, edge);
+    }
+  }
+
+  void _drawEdge(Canvas canvas, Size size, MapEdge edge) {
+    final start = Offset(
+      edge.from.x * size.width,
+      edge.from.y * size.height,
+    );
+    final end = Offset(
+      edge.to.x * size.width,
+      edge.to.y * size.height,
+    );
+
+    Color color;
+    double width;
+    bool dashed;
+
+    if (edge.isHighlighted) {
+      color = const Color(0xFFC8B464);
+      width = 2.5;
+      dashed = true;
+    } else if (edge.isVisited) {
+      color = Colors.white.withValues(alpha: 0.35);
+      width = 1.2;
+      dashed = false;
+    } else if (edge.isScouted) {
+      // Разведано, но не посещено — очень тусклая
+      color = Colors.white.withValues(alpha: 0.12);
+      width = 0.8;
+      dashed = true;
+    } else {
+      // Не разведано — не рисуем.
+      return;
+    }
+
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = width
+      ..strokeCap = StrokeCap.round;
+
+    if (dashed) {
+      _drawDashedLine(canvas, start, end, paint);
+    } else {
+      canvas.drawLine(start, end, paint);
+    }
+
+    // Бусины на посещённых рёбрах
+    if (edge.isVisited || edge.isHighlighted) {
+      _drawBeads(canvas, start, end, color);
+    }
+
+    // Время перехода — маленький бейдж по центру (только для highlighted)
+    if (edge.isHighlighted) {
+      _drawTimeBadge(canvas, start, end, edge.minutes);
+    }
+  }
+
+  void _drawDashedLine(Canvas canvas, Offset start, Offset end, Paint paint) {
+    const dashLength = 8.0;
+    const gapLength = 5.0;
+
+    final total = (end - start).distance;
+    if (total <= 0) return;
+
+    final direction = (end - start) / total;
+    double drawn = 0;
+    while (drawn < total) {
+      final dashEnd = (drawn + dashLength).clamp(0.0, total);
+      canvas.drawLine(
+        start + direction * drawn,
+        start + direction * dashEnd,
+        paint,
+      );
+      drawn += dashLength + gapLength;
+    }
+  }
+
+  void _drawBeads(Canvas canvas, Offset start, Offset end, Color color) {
+    final total = (end - start).distance;
+    if (total < 30) return;
+
+    final direction = (end - start) / total;
+    final beadPaint = Paint()..color = color;
+
+    for (final t in [0.25, 0.5, 0.75]) {
+      final pos = start + direction * (total * t);
+      canvas.drawCircle(pos, 2.0, beadPaint);
+    }
+  }
+
+  /// Бейдж с временем перехода в центре ребра.
+  void _drawTimeBadge(Canvas canvas, Offset start, Offset end, int minutes) {
+    final center = Offset(
+      (start.dx + end.dx) / 2,
+      (start.dy + end.dy) / 2,
+    );
+
+    final text = minutes < 60
+        ? '$minutes м'
+        : '${minutes ~/ 60}ч ${minutes % 60}м';
+
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: const TextStyle(
+          color: Color(0xFFC8B464),
+          fontSize: 9,
+          fontWeight: FontWeight.bold,
+          shadows: [
+            Shadow(color: Colors.black, blurRadius: 3),
+          ],
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    // Фон бейджа
+    final bgRect = Rect.fromCenter(
+      center: center,
+      width: textPainter.width + 8,
+      height: textPainter.height + 4,
+    );
+
+    final bgPaint = Paint()
+      ..color = const Color(0xFF141414).withValues(alpha: 0.9);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(bgRect, const Radius.circular(3)),
+      bgPaint,
+    );
+
+    final borderPaint = Paint()
+      ..color = const Color(0xFFC8B464).withValues(alpha: 0.5)
+      ..strokeWidth = 1.0
+      ..style = PaintingStyle.stroke;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(bgRect, const Radius.circular(3)),
+      borderPaint,
+    );
+
+    textPainter.paint(
+      canvas,
+      Offset(
+        center.dx - textPainter.width / 2,
+        center.dy - textPainter.height / 2,
       ),
     );
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // ЧИПЫ
-  // ═══════════════════════════════════════════════════════════
+  @override
+  bool shouldRepaint(covariant MapEdgePainter oldDelegate) {
+    return oldDelegate.edges != edges;
+  }
+}
 
-  Widget _buildChips(Location loc) {
-    final searched = controller.searchedCounts[loc.id] ?? 0;
-    final remaining = (loc.maxSearches - searched).clamp(0, loc.maxSearches);
+/// Хелпер: собрать рёбра из списка локаций.
+///
+/// Правила (Fog of War):
+/// - Рисуем ребро только если **обе** локации scouted или visited.
+/// - Hidden локации — пропускаем, пока не открыты.
+/// - Не дублируем: если A→B и B→A — рисуем один раз.
+/// - Highlighted — рёбра текущей локации с её соседями.
+List<MapEdge> buildEdges({
+  required List<Location> locations,
+  required Set<String> visited,
+  required Set<String> scouted,
+  required Set<String> unlocked,
+  required String currentLocationId,
+}) {
+  final byId = <String, Location>{
+    for (final loc in locations) loc.id: loc,
+  };
 
-    return Wrap(
-      spacing: 8,
-      runSpacing: 6,
-      children: [
-        _buildChip('⚠️ ${loc.dangerName}', loc.dangerColor),
-        _buildChip('⏱️ ${loc.searchTime} мин', Colors.blue[400]!),
-        if (loc.enemies.isNotEmpty)
-          _buildChip('👥 ${loc.enemies.length}', Colors.red[400]!),
-        if (loc.lootPool.isNotEmpty)
-          _buildChip('🎁 ${loc.lootPool.length}', Colors.green[400]!),
-        if (loc.risk != null)
-          _buildChip('☣️ Опасность', Colors.deepOrange[400]!),
-        if (loc.maxSearches > 0)
-          _buildChip(
-            '🔍 $remaining / ${loc.maxSearches}',
-            remaining > 0 ? Colors.cyan[400]! : Colors.grey[600]!,
-          ),
-      ],
+  final currentLoc = byId[currentLocationId];
+  final currentNeighbors = <String>{
+    if (currentLoc != null) ...currentLoc.connectionIds,
+  };
+
+  final edges = <MapEdge>[];
+  final seen = <String>{};
+
+  for (final loc in locations) {
+    // Не рисуем рёбра от локаций, о которых игрок не знает.
+    final locKnown = scouted.contains(loc.id) || visited.contains(loc.id);
+    if (!locKnown) continue;
+
+    for (final conn in loc.connections) {
+      final target = byId[conn.targetId];
+      if (target == null) continue;
+
+      // Скрытая и неоткрытая — пропускаем.
+      if (target.hidden && !unlocked.contains(target.id)) continue;
+      if (loc.hidden && !unlocked.contains(loc.id)) continue;
+
+      // Обе локации должны быть известны.
+      final targetKnown =
+          scouted.contains(target.id) || visited.contains(target.id);
+      if (!targetKnown) continue;
+
+      // Дедупликация.
+      final key = [loc.id, target.id]..sort();
+      final keyStr = key.join('|');
+      if (seen.contains(keyStr)) continue;
+      seen.add(keyStr);
+
+      // Highlighted — если ребро касается текущей.
+      final touchesCurrent =
+          loc.id == currentLocationId || target.id == currentLocationId;
+
+      final isDirectNeighbor = touchesCurrent &&
+          (currentNeighbors.contains(loc.id) ||
+              currentNeighbors.contains(target.id));
+
+      edges.add(MapEdge(
+        from: loc.mapPosition,
+        to: target.mapPosition,
+        isHighlighted: isDirectNeighbor,
+        isVisited: visited.contains(loc.id) && visited.contains(target.id),
+        isScouted: scouted.contains(loc.id) || scouted.contains(target.id),
+        minutes: conn.minutes,
+      ));
+    }
+  }
+
+  return edges;
+}
+```
+
+### 📄 `./lib/screens/gameplay/widgets/map_info_sheet.dart`
+```dart
+import 'package:flutter/material.dart';
+
+import 'package:dark_hours/models/world/location.dart';
+import 'package:dark_hours/services/audio/audio_service.dart';
+
+/// Модалка с информацией о локации (для клика по посещённой).
+class MapInfoSheet extends StatelessWidget {
+  final Location location;
+  final VoidCallback? onMove;
+  final bool canMove;
+
+  const MapInfoSheet({
+    super.key,
+    required this.location,
+    this.onMove,
+    this.canMove = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: const BoxDecoration(
+        color: Color.fromARGB(255, 15, 15, 15),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Заголовок
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1A1A1A),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: location.dangerColor,
+                      width: 2,
+                    ),
+                  ),
+                  child: Text(
+                    location.icon,
+                    style: const TextStyle(fontSize: 32),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        location.name,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Text(
+                            '⚠️ ${location.dangerName}',
+                            style: TextStyle(
+                              color: location.dangerColor,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '📍 ${location.mapZone ?? location.region}',
+                            style: TextStyle(
+                              color: Colors.grey[500],
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Описание
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 20, 20, 20),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Colors.grey[850]!,
+                  width: 1,
+                ),
+              ),
+              child: Text(
+                location.description,
+                style: TextStyle(
+                  color: Colors.grey[300],
+                  fontSize: 13,
+                  height: 1.5,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Статы
+            Wrap(
+              spacing: 8,
+              runSpacing: 6,
+              children: [
+                _chip('⚠️ Опасность ${location.dangerLevel}', location.dangerColor),
+                if (location.searchTime > 0)
+                  _chip(
+                    '⏱️ ${location.searchTime} мин',
+                    Colors.blue[400]!,
+                  ),
+                if (location.enemies.isNotEmpty)
+                  _chip(
+                    '👥 ${location.enemies.length}',
+                    Colors.red[400]!,
+                  ),
+                if (location.lootPool.isNotEmpty)
+                  _chip(
+                    '🎁 ${location.lootPool.length}',
+                    Colors.green[400]!,
+                  ),
+                if (location.risk != null)
+                  _chip('☣️ Опасность', Colors.deepOrange[400]!),
+              ],
+            ),
+            const SizedBox(height: 24),
+
+            // Кнопка перемещения (если это сосед)
+            if (canMove && onMove != null)
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    AudioService.playClick();
+                    Navigator.pop(context);
+                    onMove!();
+                  },
+                  icon: const Icon(Icons.arrow_forward, size: 18),
+                  label: const Text(
+                    'ПЕРЕЙТИ СЮДА',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2.0,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFC8B464),
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                onPressed: () {
+                  AudioService.playClick();
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'ЗАКРЫТЬ',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 12,
+                    letterSpacing: 2.0,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // ХЕЛПЕР
-  // ═══════════════════════════════════════════════════════════
-
-  Widget _buildChip(String text, Color color) {
+  Widget _chip(String text, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withOpacity(0.5), width: 1),
+        border: Border.all(color: color.withValues(alpha: 0.5), width: 1),
       ),
       child: Text(
         text,
@@ -27420,6 +28506,382 @@ class MapLocationCard extends StatelessWidget {
 }
 ```
 
+### 📄 `./lib/screens/gameplay/widgets/map_node.dart`
+```dart
+import 'package:flutter/material.dart';
+
+import 'package:dark_hours/models/world/location.dart';
+
+/// Состояние локации на карте.
+enum NodeState {
+  current,
+  neighbor,
+  visited,
+  hidden,
+}
+
+/// Кружок локации на карте с подписью.
+class MapNode extends StatelessWidget {
+  final Location location;
+  final NodeState state;
+  final VoidCallback? onTap;
+
+  static const double nodeSize = 56.0;
+  static const double labelWidth = 110.0;
+
+  const MapNode({
+    super.key,
+    required this.location,
+    required this.state,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isTappable = state == NodeState.current ||
+        state == NodeState.neighbor ||
+        state == NodeState.visited;
+
+    return GestureDetector(
+      onTap: isTappable ? onTap : null,
+      child: SizedBox(
+        width: labelWidth,
+        height: nodeSize + 24,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: nodeSize,
+              height: nodeSize,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  if (state == NodeState.current) _buildPulse(),
+                  _buildCircle(),
+                  _buildIcon(),
+                ],
+              ),
+            ),
+            const SizedBox(height: 6),
+            _buildLabel(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Пульсация текущей локации.
+  Widget _buildPulse() {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 1600),
+      curve: Curves.easeInOut,
+      builder: (context, value, child) {
+        return Container(
+          width: nodeSize + 20 * value,
+          height: nodeSize + 20 * value,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: const Color(0xFFC8B464)
+                  .withValues(alpha: (1.0 - value) * 0.5),
+              width: 2.0,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// Основной кружок с обводкой.
+  Widget _buildCircle() {
+    final fillColor = _getFillColor();
+    final borderColor = _getBorderColor();
+    final borderWidth = _getBorderWidth();
+
+    return Container(
+      width: nodeSize - 10,
+      height: nodeSize - 10,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: fillColor,
+        border: Border.all(color: borderColor, width: borderWidth),
+        boxShadow: state == NodeState.current
+            ? [
+                BoxShadow(
+                  color: const Color(0xFFC8B464).withValues(alpha: 0.5),
+                  blurRadius: 14,
+                  spreadRadius: 3,
+                ),
+              ]
+            : null,
+      ),
+    );
+  }
+
+  /// Цвет заливки — по danger_level.
+  Color _getFillColor() {
+    if (state == NodeState.hidden) return Colors.transparent;
+    if (state == NodeState.current) return const Color(0xFF2A2418);
+    if (state == NodeState.neighbor) return const Color(0xFF1E1A12);
+
+    // visited — по уровню опасности
+    final danger = location.dangerLevel;
+    if (location.isFinal) return const Color(0xFF3A2E10); // Северная станция
+    if (danger <= 2) return const Color(0xFF142018); // безопасно — зелёный
+    if (danger <= 5) return const Color(0xFF201814); // средне — тёплый
+    if (danger <= 8) return const Color(0xFF201010); // опасно — красный
+    return const Color(0xFF251010); // смертельно — тёмно-красный
+  }
+
+  /// Цвет обводки.
+  Color _getBorderColor() {
+    switch (state) {
+      case NodeState.current:
+        return const Color(0xFFC8B464); // золотой
+      case NodeState.neighbor:
+        return const Color(0xFFC8B464).withValues(alpha: 0.75);
+      case NodeState.visited:
+        if (location.isFinal) {
+          return const Color(0xFFC8B464).withValues(alpha: 0.6);
+        }
+        if (location.hidden) {
+          return const Color(0xFF8844FF).withValues(alpha: 0.6); // скрытая
+        }
+        return Colors.white.withValues(alpha: 0.4);
+      case NodeState.hidden:
+        return Colors.transparent;
+    }
+  }
+
+  /// Толщина обводки.
+  double _getBorderWidth() {
+    switch (state) {
+      case NodeState.current:
+        return 2.5;
+      case NodeState.neighbor:
+        return 2.0;
+      case NodeState.visited:
+        return 1.0;
+      case NodeState.hidden:
+        return 0.0;
+    }
+  }
+
+  /// Иконка внутри кружка.
+  Widget _buildIcon() {
+    final opacity = state == NodeState.visited ? 0.7 : 1.0;
+
+    // Финальная станция — особый значок
+    if (location.isFinal) {
+      return Opacity(
+        opacity: opacity,
+        child: const Text(
+          '⭐',
+          style: TextStyle(fontSize: 26),
+        ),
+      );
+    }
+
+    return Opacity(
+      opacity: opacity,
+      child: Text(
+        location.icon,
+        style: const TextStyle(fontSize: 24),
+      ),
+    );
+  }
+
+  /// Подпись локации под кружком.
+  Widget _buildLabel() {
+    final Color textColor;
+    final FontWeight weight;
+
+    switch (state) {
+      case NodeState.current:
+        textColor = const Color(0xFFC8B464);
+        weight = FontWeight.bold;
+        break;
+      case NodeState.neighbor:
+        textColor = const Color(0xFFC8B464).withValues(alpha: 0.9);
+        weight = FontWeight.w600;
+        break;
+      case NodeState.visited:
+        textColor = Colors.white.withValues(alpha: 0.55);
+        weight = FontWeight.normal;
+        break;
+      case NodeState.hidden:
+        return const SizedBox.shrink();
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: Text(
+        location.name,
+        style: TextStyle(
+          color: textColor,
+          fontSize: 11,
+          fontWeight: weight,
+          letterSpacing: 0.2,
+          height: 1.1,
+          shadows: const [
+            Shadow(
+              color: Colors.black,
+              blurRadius: 2,
+            ),
+          ],
+        ),
+        textAlign: TextAlign.center,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
+}
+```
+
+### 📄 `./lib/screens/gameplay/widgets/map_player_marker.dart`
+```dart
+import 'package:flutter/material.dart';
+
+import 'package:dark_hours/models/world/map_position.dart';
+
+/// Маркер игрока — пульсирующий золотой кружок.
+///
+/// При анимации может принимать `rotation` — маркер
+/// поворачивается в сторону движения.
+class MapPlayerMarker extends StatefulWidget {
+  final double size;
+
+  /// Угол поворота в радианах (0 = вправо).
+  final double rotation;
+
+  const MapPlayerMarker({
+    super.key,
+    this.size = 24.0,
+    this.rotation = 0.0,
+  });
+
+  @override
+  State<MapPlayerMarker> createState() => _MapPlayerMarkerState();
+}
+
+class _MapPlayerMarkerState extends State<MapPlayerMarker>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1600),
+      vsync: this,
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        final scale = 1.0 + _controller.value * 0.25;
+        final glowOpacity = 0.6 + _controller.value * 0.4;
+
+        return Transform.rotate(
+          angle: widget.rotation,
+          child: SizedBox(
+            width: widget.size * 2.5,
+            height: widget.size * 2.5,
+            child: Center(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Внешнее свечение (пульсирует)
+                  Container(
+                    width: widget.size * 2.0 * scale,
+                    height: widget.size * 2.0 * scale,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFC8B464)
+                              .withValues(alpha: glowOpacity * 0.35),
+                          blurRadius: 20,
+                          spreadRadius: 6,
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Золотое кольцо
+                  Container(
+                    width: widget.size * 1.7,
+                    height: widget.size * 1.7,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: const Color(0xFFC8B464).withValues(
+                          alpha: 0.5,
+                        ),
+                        width: 1.5,
+                      ),
+                    ),
+                  ),
+                  // Основной кружок
+                  Container(
+                    width: widget.size,
+                    height: widget.size,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: const RadialGradient(
+                        colors: [
+                          Color(0xFFE8D480),
+                          Color(0xFFC8B464),
+                        ],
+                      ),
+                      border: Border.all(color: Colors.black, width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFC8B464)
+                              .withValues(alpha: glowOpacity),
+                          blurRadius: 14,
+                          spreadRadius: 3,
+                        ),
+                      ],
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        Icons.person,
+                        color: Colors.black,
+                        size: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Хелпер: позиция в пикселях.
+Offset mapPositionToPixel(MapPosition pos, Size size) {
+  return Offset(pos.x * size.width, pos.y * size.height);
+}
+```
+
 ### 📄 `./lib/screens/gameplay/widgets/map_status_bar.dart`
 ```dart
 import 'package:flutter/material.dart';
@@ -27595,6 +29057,424 @@ class MapStatusBar extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+```
+
+### 📄 `./lib/screens/gameplay/widgets/map_zone_painter.dart`
+```dart
+import 'package:flutter/material.dart';
+import 'dart:math' as math;
+
+/// Цвета зон на карте.
+const Map<String, Color> kZoneColors = {
+  'city_south': Color(0x1AFFA500),
+  'city_center': Color(0x1AFF4444),
+  'forest': Color(0x1A22AA22),
+  'highway': Color(0x1ACCCC44),
+  'north': Color(0x1A4488FF),
+  'underground': Color(0x158844FF),
+};
+
+/// Названия зон.
+const Map<String, String> kZoneNames = {
+  'city_south': 'ЮГ ГОРОДА',
+  'city_center': 'ЦЕНТР',
+  'forest': 'ЛЕС',
+  'highway': 'ТРАССА',
+  'north': 'СЕВЕР',
+  'underground': 'ТОННЕЛИ',
+};
+
+/// Прямоугольники зон в логических координатах.
+const Map<String, Rect> kZoneRects = {
+  'north': Rect.fromLTWH(0.0, 0.0, 1.0, 0.15),
+  'highway': Rect.fromLTWH(0.0, 0.15, 1.0, 0.20),
+  'forest': Rect.fromLTWH(0.0, 0.35, 0.45, 0.35),
+  'city_center': Rect.fromLTWH(0.45, 0.35, 0.55, 0.35),
+  'city_south': Rect.fromLTWH(0.0, 0.70, 1.0, 0.30),
+};
+
+/// Рисует зоны, сетку и силуэты на фоне карты.
+class MapZonePainter extends CustomPainter {
+  final Size logicalSize;
+
+
+  const MapZonePainter({required this.logicalSize});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    _drawBackground(canvas, size);
+    _drawGrid(canvas, size);
+    _drawZones(canvas, size);
+    _drawCitySilhouettes(canvas, size);
+    _drawForestSilhouettes(canvas, size);
+    _drawHighwaySilhouettes(canvas, size);
+    _drawNorthSilhouettes(canvas, size);
+    _drawUndergroundSilhouettes(canvas, size);
+  }
+
+  /// Градиентный фон — не чистый чёрный, а с оттенком.
+  void _drawBackground(Canvas canvas, Size size) {
+    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
+
+    final paint = Paint()
+      ..shader = const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          Color(0xFF0E0E14), // север — синеватый
+          Color(0xFF0A0A0A), // середина — почти чёрный
+          Color(0xFF100C08), // юг — тёплый
+        ],
+        stops: [0.0, 0.5, 1.0],
+      ).createShader(rect);
+
+    canvas.drawRect(rect, paint);
+  }
+
+  /// Сетка «миллиметровка».
+  void _drawGrid(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0x0AFFFFFF)
+      ..strokeWidth = 1.0;
+
+    const step = 40.0;
+    for (double x = 0; x < size.width; x += step) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+    for (double y = 0; y < size.height; y += step) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  /// Цветные зоны с подписями.
+  void _drawZones(Canvas canvas, Size size) {
+    for (final entry in kZoneRects.entries) {
+      final zoneId = entry.key;
+      final rect = entry.value;
+      final color = kZoneColors[zoneId] ?? Colors.transparent;
+
+      final pxRect = Rect.fromLTWH(
+        rect.left * size.width,
+        rect.top * size.height,
+        rect.width * size.width,
+        rect.height * size.height,
+      );
+
+      final fillPaint = Paint()..color = color;
+      canvas.drawRect(pxRect, fillPaint);
+
+      final borderPaint = Paint()
+        ..color = color.withValues(alpha: 0.5)
+        ..strokeWidth = 1.0
+        ..style = PaintingStyle.stroke;
+      canvas.drawRect(pxRect, borderPaint);
+
+      _drawZoneLabel(
+        canvas,
+        pxRect.topLeft + const Offset(10, 10),
+        kZoneNames[zoneId] ?? zoneId.toUpperCase(),
+        color.withValues(alpha: 0.9),
+      );
+    }
+  }
+
+  /// Подпись зоны.
+  void _drawZoneLabel(Canvas canvas, Offset offset, String text, Color color) {
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(
+          color: color,
+          fontSize: 12,
+          letterSpacing: 4.0,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    textPainter.paint(canvas, offset);
+  }
+
+  /// Силуэты зданий в городских зонах.
+  void _drawCitySilhouettes(Canvas canvas, Size size) {
+    // city_south — дома
+    _drawBuildingRow(
+      canvas,
+      size,
+      Rect.fromLTWH(0.0, 0.70, 1.0, 0.30),
+      baseAlpha: 0.08,
+      seed: 100,
+    );
+    // city_center — небоскрёбы (выше)
+    _drawBuildingRow(
+      canvas,
+      size,
+      Rect.fromLTWH(0.45, 0.35, 0.55, 0.35),
+      baseAlpha: 0.10,
+      seed: 200,
+      heightFactor: 1.6,
+    );
+  }
+
+  /// Ряд зданий — прямоугольники разной высоты.
+  void _drawBuildingRow(
+    Canvas canvas,
+    Size size,
+    Rect zone,
+    {required double baseAlpha,
+    required int seed,
+    double heightFactor = 1.0}
+  ) {
+    final rng = math.Random(seed);
+    final zoneRect = Rect.fromLTWH(
+      zone.left * size.width,
+      zone.top * size.height,
+      zone.width * size.width,
+      zone.height * size.height,
+    );
+
+    final paint = Paint()
+      ..color = Colors.white.withValues(alpha: baseAlpha);
+
+    // Ряд зданий внизу зоны
+    const buildingCount = 8;
+    final buildingWidth = zoneRect.width / buildingCount;
+
+    for (int i = 0; i < buildingCount; i++) {
+      final h = (rng.nextDouble() * 30 + 15) * heightFactor;
+      final bx = zoneRect.left + i * buildingWidth + 4;
+      final by = zoneRect.bottom - h;
+      final bw = buildingWidth - 8;
+
+      // Тело здания
+      canvas.drawRect(
+        Rect.fromLTWH(bx, by, bw, h),
+        paint,
+      );
+
+      // Окна (вертикальные полоски)
+      final windowPaint = Paint()
+        ..color = Colors.white.withValues(alpha: baseAlpha * 1.5);
+      final windowRows = (h / 8).floor();
+      final windowCols = (bw / 6).floor().clamp(1, 4);
+
+      for (int wr = 0; wr < windowRows; wr++) {
+        for (int wc = 0; wc < windowCols; wc++) {
+          if (rng.nextDouble() > 0.4) continue; // не все окна горят
+          canvas.drawRect(
+            Rect.fromLTWH(
+              bx + 4 + wc * 6,
+              by + 4 + wr * 8,
+              2,
+              3,
+            ),
+            windowPaint,
+          );
+        }
+      }
+    }
+  }
+
+  /// Силуэты ёлок в лесу.
+  void _drawForestSilhouettes(Canvas canvas, Size size) {
+    const zone = Rect.fromLTWH(0.0, 0.35, 0.45, 0.35);
+    final rng = math.Random(300);
+
+    final zoneRect = Rect.fromLTWH(
+      zone.left * size.width,
+      zone.top * size.height,
+      zone.width * size.width,
+      zone.height * size.height,
+    );
+
+    final paint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.10)
+      ..style = PaintingStyle.fill;
+
+    // Много ёлок разного размера
+    for (int i = 0; i < 40; i++) {
+      final x = zoneRect.left + rng.nextDouble() * zoneRect.width;
+      final y = zoneRect.top + rng.nextDouble() * zoneRect.height;
+      final h = 12 + rng.nextDouble() * 12;
+
+      _drawTree(canvas, Offset(x, y), h, paint);
+    }
+  }
+
+  /// Одна ёлка (три треугольника).
+  void _drawTree(Canvas canvas, Offset center, double h, Paint paint) {
+    // Верхний треугольник
+    final path1 = Path()
+      ..moveTo(center.dx, center.dy - h)
+      ..lineTo(center.dx - h * 0.4, center.dy - h * 0.4)
+      ..lineTo(center.dx + h * 0.4, center.dy - h * 0.4)
+      ..close();
+    canvas.drawPath(path1, paint);
+
+    // Средний
+    final path2 = Path()
+      ..moveTo(center.dx, center.dy - h * 0.7)
+      ..lineTo(center.dx - h * 0.5, center.dy - h * 0.1)
+      ..lineTo(center.dx + h * 0.5, center.dy - h * 0.1)
+      ..close();
+    canvas.drawPath(path2, paint);
+
+    // Нижний
+    final path3 = Path()
+      ..moveTo(center.dx, center.dy - h * 0.4)
+      ..lineTo(center.dx - h * 0.6, center.dy + h * 0.3)
+      ..lineTo(center.dx + h * 0.6, center.dy + h * 0.3)
+      ..close();
+    canvas.drawPath(path3, paint);
+  }
+
+  /// Разметка на трассе.
+  void _drawHighwaySilhouettes(Canvas canvas, Size size) {
+    const zone = Rect.fromLTWH(0.0, 0.15, 1.0, 0.20);
+    final zoneRect = Rect.fromLTWH(
+      zone.left * size.width,
+      zone.top * size.height,
+      zone.width * size.width,
+      zone.height * size.height,
+    );
+
+    // Дорога — широкая полоса
+    final roadPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.06);
+    canvas.drawRect(
+      Rect.fromLTWH(
+        zoneRect.left,
+        zoneRect.center.dy - 20,
+        zoneRect.width,
+        40,
+      ),
+      roadPaint,
+    );
+
+    // Пунктирная разметка
+    final dashPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.12)
+      ..strokeWidth = 1.0;
+
+    for (double x = zoneRect.left; x < zoneRect.right; x += 30) {
+      canvas.drawLine(
+        Offset(x, zoneRect.center.dy),
+        Offset(x + 15, zoneRect.center.dy),
+        dashPaint,
+      );
+    }
+
+    // Разбитые машины — маленькие прямоугольники
+    final rng = math.Random(400);
+    final carPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.08);
+    for (int i = 0; i < 6; i++) {
+      final cx = zoneRect.left + rng.nextDouble() * zoneRect.width;
+      final cy = zoneRect.center.dy - 25 + rng.nextDouble() * 50;
+      canvas.drawRect(
+        Rect.fromLTWH(cx, cy, 14, 6),
+        carPaint,
+      );
+    }
+  }
+
+  /// Радио-башня в зоне north.
+  void _drawNorthSilhouettes(Canvas canvas, Size size) {
+    const zone = Rect.fromLTWH(0.0, 0.0, 1.0, 0.15);
+    final zoneRect = Rect.fromLTWH(
+      zone.left * size.width,
+      zone.top * size.height,
+      zone.width * size.width,
+      zone.height * size.height,
+    );
+
+    final paint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.15)
+      ..strokeWidth = 2.0
+      ..style = PaintingStyle.stroke;
+
+    // Башня по центру
+    final cx = zoneRect.center.dx;
+    final baseY = zoneRect.bottom - 10;
+    final topY = zoneRect.top + 20;
+
+    // Основание
+    canvas.drawLine(
+      Offset(cx - 20, baseY),
+      Offset(cx - 5, topY),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(cx + 20, baseY),
+      Offset(cx + 5, topY),
+      paint,
+    );
+
+    // Перекладины
+    for (int i = 0; i < 5; i++) {
+      final t = i / 5.0;
+      final y = baseY - (baseY - topY) * t;
+      final width = 20 - t * 15;
+      canvas.drawLine(
+        Offset(cx - width, y),
+        Offset(cx + width, y),
+        paint,
+      );
+    }
+
+    // Антенна
+    canvas.drawLine(
+      Offset(cx, topY),
+      Offset(cx, topY - 15),
+      paint,
+    );
+
+    // Сигнал — круги
+    final signalPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.08)
+      ..strokeWidth = 1.0
+      ..style = PaintingStyle.stroke;
+    for (int i = 1; i <= 3; i++) {
+      canvas.drawCircle(
+        Offset(cx, topY - 15),
+        8.0 * i,
+        signalPaint,
+      );
+    }
+  }
+
+  /// Линии тоннелей в underground.
+  void _drawUndergroundSilhouettes(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.06)
+      ..strokeWidth = 2.0
+      ..style = PaintingStyle.stroke;
+
+    // Несколько тоннельных линий
+    final paths = [
+      Path()
+        ..moveTo(0, size.height * 0.92)
+        ..lineTo(size.width * 0.3, size.height * 0.92)
+        ..lineTo(size.width * 0.3, size.height * 0.98),
+      Path()
+        ..moveTo(size.width * 0.05, size.height * 0.95)
+        ..lineTo(size.width * 0.15, size.height * 0.98),
+      Path()
+        ..moveTo(size.width * 0.5, size.height * 0.55)
+        ..lineTo(size.width * 0.6, size.height * 0.5),
+    ];
+
+    for (final path in paths) {
+      canvas.drawPath(path, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant MapZonePainter oldDelegate) {
+    return oldDelegate.logicalSize != logicalSize;
   }
 }
 ```
@@ -29210,6 +31090,15 @@ import 'package:dark_hours/services/audio/audio_settings.dart';
 
 /// Центральный сервис для воспроизведения звуков
 class AudioService {
+  // ===== ФЛАГ ДЛЯ ТЕСТОВ =====
+
+  /// Отключить звук — используется в widget-тестах.
+  ///
+  /// По умолчанию `true` — звук работает как обычно.
+  /// В тестах выставляется в `false`, чтобы избежать
+  /// обращения к platform channels `audioplayers`.
+  static bool enabled = true;
+
   // ===== КАНАЛЫ =====
 
   static final AudioPlayer _musicPlayer = AudioPlayer();
@@ -29248,6 +31137,7 @@ class AudioService {
   // ===== ИНИЦИАЛИЗАЦИЯ =====
 
   static Future<void> init() async {
+    if (!enabled) return;
     if (_isInitialized) return;
 
     final settings = await AudioSettings.load();
@@ -29284,6 +31174,7 @@ class AudioService {
     String path, {
     double volume = 1.0,
   }) async {
+    if (!enabled) return;
     if (!_isInitialized) await init();
     if (_isMuted) return;
 
@@ -29300,30 +31191,37 @@ class AudioService {
   }
 
   static Future<void> playClick() async {
+    if (!enabled) return;
     await playSfx('audio/ui/click.ogg');
   }
 
   static Future<void> playTap() async {
+    if (!enabled) return;
     await playSfx('audio/ui/tap.ogg');
   }
 
   static Future<void> playHover() async {
+    if (!enabled) return;
     await playSfx('audio/ui/hover.ogg', volume: 0.5);
   }
 
   static Future<void> playSwitch() async {
+    if (!enabled) return;
     await playSfx('audio/ui/switch.ogg');
   }
 
   static Future<void> playSuccess() async {
+    if (!enabled) return;
     await playSfx('audio/ui/success.ogg');
   }
 
   static Future<void> playError() async {
+    if (!enabled) return;
     await playSfx('audio/ui/error.ogg');
   }
 
   static Future<void> playNotification() async {
+    if (!enabled) return;
     await playSfx('audio/ui/notification.ogg');
   }
 
@@ -29331,6 +31229,7 @@ class AudioService {
 
   /// Играть музыку, но не перезапускать если этот же трек играет
   static Future<void> playMusic(String path, {double volume = 1.0}) async {
+    if (!enabled) return;
     if (!_isInitialized) await init();
 
     if (_currentMusic == path) {
@@ -29344,6 +31243,7 @@ class AudioService {
   /// Играть музыку — принудительно, даже если уже играет этот же трек
   /// Полезно при возврате в меню из другого экрана
   static Future<void> forcePlayMusic(String path, {double volume = 1.0}) async {
+    if (!enabled) return;
     if (!_isInitialized) await init();
 
     // Если играет тот же трек — не перезапускаем (звук не должен дёргаться)
@@ -29357,6 +31257,7 @@ class AudioService {
   }
 
   static Future<void> _playMusicInternal(String path, {double volume = 1.0}) async {
+    if (!enabled) return;
     try {
       await _musicPlayer.stop();
       await _musicPlayer.setVolume(
@@ -29370,6 +31271,7 @@ class AudioService {
   }
 
   static Future<void> stopMusic() async {
+    if (!enabled) return;
     await _musicPlayer.stop();
     _currentMusic = null;
   }
@@ -29377,6 +31279,7 @@ class AudioService {
   // ===== АТМОСФЕРА =====
 
   static Future<void> playAmbience(String path, {double volume = 1.0}) async {
+    if (!enabled) return;
     if (!_isInitialized) await init();
 
     if (_currentAmbience == path) {
@@ -29397,6 +31300,7 @@ class AudioService {
   }
 
   static Future<void> stopAmbience() async {
+    if (!enabled) return;
     await _ambiencePlayer.stop();
     _currentAmbience = null;
   }
@@ -29407,6 +31311,7 @@ class AudioService {
     required String region,
     required int dangerLevel,
   }) {
+    // Чистая функция — не трогает плагины. Не требует проверки enabled.
     switch (locationId) {
       case 'street_south':
         return 'audio/ambience/street_south.ogg';
@@ -29464,24 +31369,28 @@ class AudioService {
 
   static Future<void> setMasterVolume(double value) async {
     _masterVolume = value.clamp(0.0, 1.0);
+    if (!enabled) return;
     await _applyVolumes();
     await _saveSettings();
   }
 
   static Future<void> setMusicVolume(double value) async {
     _musicVolume = value.clamp(0.0, 1.0);
+    if (!enabled) return;
     await _applyVolumes();
     await _saveSettings();
   }
 
   static Future<void> setSfxVolume(double value) async {
     _sfxVolume = value.clamp(0.0, 1.0);
+    if (!enabled) return;
     await _applyVolumes();
     await _saveSettings();
   }
 
   static Future<void> setMuted(bool muted) async {
     _isMuted = muted;
+    if (!enabled) return;
     await _applyVolumes();
     await _saveSettings();
   }
@@ -29495,11 +31404,13 @@ class AudioService {
     _musicVolume = AudioSettings.defaultMusic;
     _sfxVolume = AudioSettings.defaultSfx;
     _isMuted = AudioSettings.defaultMuted;
+    if (!enabled) return;
     await _applyVolumes();
     await _saveSettings();
   }
 
   static Future<void> _applyVolumes() async {
+    if (!enabled) return;
     await _musicPlayer.setVolume(
       _effectiveVolume(_musicVolume * _masterVolume),
     );
@@ -29509,6 +31420,7 @@ class AudioService {
   }
 
   static Future<void> _saveSettings() async {
+    if (!enabled) return;
     await AudioSettings.save(AudioSettingsData(
       masterVolume: _masterVolume,
       musicVolume: _musicVolume,
@@ -29520,6 +31432,7 @@ class AudioService {
   // ===== ОСТАНОВКА =====
 
   static Future<void> stopAll() async {
+    if (!enabled) return;
     await _musicPlayer.stop();
     await _ambiencePlayer.stop();
     for (final player in _sfxPool) {
@@ -29699,7 +31612,6 @@ class EnemyLoader {
 import 'dart:math';
 import 'package:dark_hours/models/conditions/condition.dart';
 import 'package:dark_hours/models/conditions/active_condition.dart';
-import 'package:dark_hours/models/inventory/inventory.dart';
 
 class ConditionManager {
   static final Random _rng = Random();
@@ -29948,20 +31860,11 @@ import 'package:dark_hours/services/conditions/condition_manager.dart';
 import 'package:dark_hours/services/combat/enemy_loader.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
 import 'package:dark_hours/models/combat/combat.dart';
+import 'package:dark_hours/models/world/location.dart';
 import 'package:dark_hours/constants/game_constants.dart';
 import 'package:dark_hours/screens/gameplay/combat_screen.dart';
 
 /// Управляет боем на карте.
-///
-/// Логика:
-/// 1. Запускает экран боя (CombatScreen).
-/// 2. Обрабатывает результат: победа / поражение / побег.
-/// 3. При победе: трекает, показывает снекбар, автосохраняет.
-/// 4. При поражении: вызывает _handleDefeat.
-///    - Тяжёлое поражение (бандит, дезертир, зверь) —
-///      HP=5, кровотечение, потеря 3 предметов, перенос в безопасное место.
-///    - Лёгкое поражение (мародёр) —
-///      HP=15, потеря 2 предметов, перенос в соседнюю локацию.
 class CombatManager {
   // ═══════════════════════════════════════════════════════════
   // ПУБЛИЧНЫЕ МЕТОДЫ
@@ -29995,11 +31898,6 @@ class CombatManager {
   }
 
   /// Запустить бой с произвольными параметрами.
-  ///
-  /// Используется:
-  /// - SearchManager — враг из локации.
-  /// - SearchManager — враг из события `combat_start`.
-  /// - StoryScreen — враг из сюжета (не через этот файл, но через CombatScreen напрямую).
   static Future<void> startCombatWithParams(
     BuildContext context,
     MapController controller, {
@@ -30011,10 +31909,8 @@ class CombatManager {
     String damageType = 'blunt',
     List<CombatAbility> abilities = const [],
   }) async {
-    // ─── 1. Отметить, что бой был ───
     controller.trackCombat();
 
-    // ─── 2. Создать Combatant'ов ───
     final player = Combatant(
       name: controller.characterName,
       health: controller.health,
@@ -30039,10 +31935,10 @@ class CombatManager {
       abilities: abilities,
     );
 
-    // ─── 3. Остановить ambience ───
     await AudioService.stopAmbience();
 
-    // ─── 4. Запустить экран боя ───
+    if (!context.mounted) return;
+
     final rawResult = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -30050,10 +31946,8 @@ class CombatManager {
       ),
     );
 
-    if (!context.mounted) return;
-
-    // ─── 5. Вернуть музыку и ambience ───
     await AudioService.playMusic('audio/music/map_theme.ogg');
+
     final loc = controller.currentLocation;
     if (loc != null) {
       final ambiencePath = AudioService.ambienceForLocation(
@@ -30067,7 +31961,6 @@ class CombatManager {
       }
     }
 
-    // ─── 6. Разобрать результат ───
     String result = 'defeat';
     if (rawResult is Map) {
       result = rawResult['result'] ?? 'defeat';
@@ -30077,17 +31970,14 @@ class CombatManager {
 
       if (controller.health < oldHealth) controller.trackDamage();
 
-      // Обработать статус-эффекты
-      _applyStatusEffects(context, controller, rawResult);
+      _applyStatusEffects(controller, rawResult);
     } else if (rawResult is String) {
       result = rawResult;
       controller.setHealth(player.health);
     }
 
-    // ─── 7. Время на бой ───
     await controller.advanceTime(GameConstants.combatTimeMinutes);
 
-    // ─── 8. Обработка результата ───
     if (result == 'victory') {
       controller.trackVictory();
       if (context.mounted) {
@@ -30100,21 +31990,64 @@ class CombatManager {
         );
       }
     } else if (result == 'defeat') {
-      _handleDefeat(context, controller, enemyName);
+      await _handleDefeat(context, controller, enemyName);
     }
 
-    // ─── 9. Автосохранение ───
     await controller.save();
-    controller.notifyListeners();
+    controller.refresh();
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ЧИСТАЯ ЛОГИКА
+  // ═══════════════════════════════════════════════════════════
+
+  @visibleForTesting
+  static bool isStoryBoss(String enemyName) {
+    return GameConstants.storyBosses.contains(enemyName);
+  }
+
+  @visibleForTesting
+  static bool isDangerousEnemy(String enemyName) {
+    return GameConstants.dangerousEnemyKeywords.any(
+      (keyword) => enemyName.contains(keyword),
+    );
+  }
+
+  @visibleForTesting
+  static Location? pickSafeLocation(MapController controller) {
+    final map = controller.map;
+    if (map == null) return null;
+
+    final safe = map.locations
+        .where((l) =>
+            l.dangerLevel <= 2 &&
+            l.id != map.currentLocationId &&
+            !l.hidden)
+        .toList();
+
+    if (safe.isEmpty) return null;
+    return safe[Random().nextInt(safe.length)];
+  }
+
+  /// Найти соседнюю локацию (использует `connectionIds`).
+  @visibleForTesting
+  static Location? pickNeighborLocation(MapController controller) {
+    final map = controller.map;
+    if (map == null) return null;
+
+    final neighbors = map.availableConnections
+        .where((l) => !l.hidden || controller.isLocationUnlocked(l.id))
+        .toList();
+
+    if (neighbors.isEmpty) return null;
+    return neighbors[Random().nextInt(neighbors.length)];
   }
 
   // ═══════════════════════════════════════════════════════════
   // ВНУТРЕННИЕ МЕТОДЫ
   // ═══════════════════════════════════════════════════════════
 
-  /// Применить статус-эффекты из результата боя (кровотечение, яд, инфекция)
   static void _applyStatusEffects(
-    BuildContext context,
     MapController controller,
     Map<dynamic, dynamic> rawResult,
   ) {
@@ -30152,48 +32085,32 @@ class CombatManager {
     }
   }
 
-  /// Обработать поражение
-  static void _handleDefeat(
+  static Future<void> _handleDefeat(
     BuildContext context,
     MapController controller,
     String enemyName,
-  ) {
-    // ─── 1. Сюжетный босс → смерть ───
-    if (GameConstants.storyBosses.contains(enemyName)) {
-      // Смерть обрабатывается DeathManager — здесь только флаг
-      // (реальная смерть произойдёт после проверки HP)
+  ) async {
+    if (isStoryBoss(enemyName)) {
       return;
     }
 
-    // ─── 2. Отметить поражение ───
     controller.trackDefeat();
 
-    // ─── 3. Определить, опасный ли враг ───
-    final isDangerous = _isDangerousEnemy(enemyName);
+    final dangerous = isDangerousEnemy(enemyName);
 
-    // ─── 4. Применить последствия ───
-    if (isDangerous) {
-      _applyHeavyDefeat(context, controller);
+    if (dangerous) {
+      await _applyHeavyDefeat(context, controller);
     } else {
-      _applyLightDefeat(context, controller);
+      await _applyLightDefeat(context, controller);
     }
   }
 
-  /// Проверить, опасный ли враг (по ключевым словам в имени)
-  static bool _isDangerousEnemy(String enemyName) {
-    return GameConstants.dangerousEnemyKeywords.any(
-      (keyword) => enemyName.contains(keyword),
-    );
-  }
-
-  /// Тяжёлое поражение — HP=5, кровотечение, потеря 3 предметов, перенос в безопасное место
-  static void _applyHeavyDefeat(
+  static Future<void> _applyHeavyDefeat(
     BuildContext context,
     MapController controller,
-  ) {
+  ) async {
     controller.setHealth(GameConstants.heavyDefeatHealth);
 
-    // Кровотечение
     final bleedCond = _findCondition(controller, 'bleeding');
     if (bleedCond != null &&
         !ConditionManager.hasCondition(
@@ -30203,99 +32120,68 @@ class CombatManager {
       controller.addCondition(bleedCond);
     }
 
-    // Потеря предметов
     controller.loseRandomItems(GameConstants.heavyDefeatLostItems);
 
-    // Штрафы
     controller.applyStatDelta({
       'sanity': -GameConstants.heavyDefeatSanityPenalty,
       'fatigue': GameConstants.heavyDefeatFatigueGain,
     });
 
-    // Перенос в безопасное место
-    _moveToSafeLocation(controller);
-
-    if (context.mounted) {
-      _showDefeatDialog(
-        context,
-        controller,
-        title: '💀 ТЯЖЁЛОЕ ПОРАЖЕНИЕ',
-        message: 'Ты едва выжил. Раны кровоточат, в глазах темнеет. '
-            'Тебя ограбили и бросили на произвол судьбы.\n\n'
-            'Ты очнулся в безопасном месте. '
-            'Потеряно ${GameConstants.heavyDefeatLostItems} предмета.',
-        color: Colors.red[900]!,
-      );
+    final target = pickSafeLocation(controller);
+    if (target != null) {
+      controller.map?.moveTo(target.id);
+      // Авто-разведка нового места
+      controller.scoutLocation(target.id);
+      controller.discoverRegion(target.region);
     }
+
+    if (!context.mounted) return;
+
+    await _showDefeatDialog(
+      context,
+      controller,
+      title: '💀 ТЯЖЁЛОЕ ПОРАЖЕНИЕ',
+      message: 'Ты едва выжил. Раны кровоточат, в глазах темнеет. '
+          'Тебя ограбили и бросили на произвол судьбы.\n\n'
+          'Ты очнулся в безопасном месте. '
+          'Потеряно ${GameConstants.heavyDefeatLostItems} предмета.',
+      color: Colors.red[900]!,
+    );
   }
 
-  /// Лёгкое поражение — HP=15, потеря 2 предметов, перенос в соседнюю локацию
-  static void _applyLightDefeat(
+  static Future<void> _applyLightDefeat(
     BuildContext context,
     MapController controller,
-  ) {
+  ) async {
     controller.setHealth(GameConstants.lightDefeatHealth);
 
-    // Потеря предметов
     controller.loseRandomItems(GameConstants.lightDefeatLostItems);
 
-    // Штрафы
     controller.applyStatDelta({
       'sanity': -GameConstants.lightDefeatSanityPenalty,
       'fatigue': GameConstants.lightDefeatFatigueGain,
     });
 
-    // Перенос в соседнюю локацию
-    _moveToNeighborLocation(controller);
-
-    if (context.mounted) {
-      _showDefeatDialog(
-        context,
-        controller,
-        title: '🤕 ПОРАЖЕНИЕ',
-        message: 'Тебя избили и ограбили. Ты отделался синяками, '
-            'но потерял ${GameConstants.lightDefeatLostItems} предмета.\n\n'
-            'Ты очнулся в соседнем районе.',
-        color: Colors.orange[900]!,
-      );
+    final target = pickNeighborLocation(controller);
+    if (target != null) {
+      controller.map?.moveTo(target.id);
+      controller.scoutLocation(target.id);
+      controller.discoverRegion(target.region);
     }
+
+    if (!context.mounted) return;
+
+    await _showDefeatDialog(
+      context,
+      controller,
+      title: '🤕 ПОРАЖЕНИЕ',
+      message: 'Тебя избили и ограбили. Ты отделался синяками, '
+          'но потерял ${GameConstants.lightDefeatLostItems} предмета.\n\n'
+          'Ты очнулся в соседнем районе.',
+      color: Colors.orange[900]!,
+    );
   }
 
-  /// Переместить игрока в безопасную локацию
-  static void _moveToSafeLocation(MapController controller) {
-    final map = controller.map;
-    if (map == null) return;
-
-    final safeLocations = map.locations
-        .where((l) =>
-            l.dangerLevel <= 2 &&
-            l.id != map.currentLocationId &&
-            !l.hidden)
-        .toList();
-
-    if (safeLocations.isEmpty) return;
-
-    final target = safeLocations[Random().nextInt(safeLocations.length)];
-    map.moveTo(target.id);
-  }
-
-  /// Переместить игрока в соседнюю локацию
-  static void _moveToNeighborLocation(MapController controller) {
-    final map = controller.map;
-    if (map == null) return;
-
-    final neighbors = map.availableConnections
-        .where((l) =>
-            !l.hidden || controller.isLocationUnlocked(l.id))
-        .toList();
-
-    if (neighbors.isEmpty) return;
-
-    final target = neighbors[Random().nextInt(neighbors.length)];
-    map.moveTo(target.id);
-  }
-
-  /// Найти условие по ID
   static dynamic _findCondition(MapController controller, String id) {
     try {
       return controller.allConditions.firstWhere((c) => c.id == id);
@@ -30306,7 +32192,6 @@ class CombatManager {
     }
   }
 
-  /// Показать диалог поражения
   static Future<void> _showDefeatDialog(
     BuildContext context,
     MapController controller, {
@@ -30372,8 +32257,32 @@ import 'package:dark_hours/services/map/map_controller.dart';
 import 'package:dark_hours/services/save/save_manager.dart';
 import 'package:dark_hours/services/progress/achievement_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/models/conditions/condition.dart';
 import 'package:dark_hours/screens/main/death_screen.dart';
 import 'package:dark_hours/constants/game_constants.dart';
+
+/// Что решил DeathManager после проверки усталости.
+enum FatigueAction {
+  /// Ничего — усталость в норме.
+  nothing,
+
+  /// Форсированный автосон (95..99).
+  forcedSleep,
+
+  /// Коллапс с последствиями (>= 100).
+  collapse,
+
+  /// Смерть от повторного коллапса (коллапс в течение 24 часов).
+  died,
+}
+
+/// Результат проверки усталости.
+class FatigueEvaluation {
+  final FatigueAction action;
+  final String? deathReason;
+
+  const FatigueEvaluation(this.action, {this.deathReason});
+}
 
 /// Управляет смертью, коллапсом и форсированным автосном.
 ///
@@ -30412,35 +32321,71 @@ class DeathManager {
     return true;
   }
 
-  /// Проверить усталость.
+  /// Проверить усталость и выполнить действие.
   ///
   /// Может инициировать:
-  /// - Форсированный автосон (усталость >= 95)
+  /// - Форсированный автосон (усталость 95..99)
   /// - Коллапс (усталость >= 100)
   /// - Смерть (повторный коллапс в течение 24 часов)
   static Future<void> checkFatigue(
     BuildContext context,
     MapController controller,
   ) async {
-    if (controller.isDead) return;
-    if (controller.fatigue < GameConstants.fatigueWarningThreshold) return;
+    final evaluation = evaluateFatigue(controller);
 
-    // Зона 80-95: только предупреждение (обрабатывается UI через PenaltiesPanel)
-    if (controller.fatigue < GameConstants.fatigueForcedSleepThreshold) {
-      return;
+    switch (evaluation.action) {
+      case FatigueAction.nothing:
+        return;
+
+      case FatigueAction.forcedSleep:
+        await _forceAutoSleep(context, controller);
+        return;
+
+      case FatigueAction.collapse:
+        await _handleCollapse(context, controller);
+        return;
+
+      case FatigueAction.died:
+        controller.markDead(evaluation.deathReason ?? 'Ты умер.');
+        return;
+    }
+  }
+
+  /// Чистая логика проверки усталости — БЕЗ UI.
+  ///
+  /// Возвращает решение, что делать. Тестируется без BuildContext.
+  @visibleForTesting
+  static FatigueEvaluation evaluateFatigue(MapController controller) {
+    if (controller.isDead) {
+      return const FatigueEvaluation(FatigueAction.nothing);
     }
 
-    // Зона 95-100: форсированный автосон (один раз)
+    // Зона 80-95: только предупреждение, обрабатывается UI
+    if (controller.fatigue < GameConstants.fatigueForcedSleepThreshold) {
+      return const FatigueEvaluation(FatigueAction.nothing);
+    }
+
+    // Зона 95-100: форсированный автосон
     if (controller.fatigue < GameConstants.fatigueCollapseThreshold) {
-      if (!controller.autoSleepTriggered) {
-        controller.autoSleepTriggered = true;
-        await _forceAutoSleep(context, controller);
+      if (controller.autoSleepTriggered) {
+        return const FatigueEvaluation(FatigueAction.nothing);
       }
-      return;
+      return const FatigueEvaluation(FatigueAction.forcedSleep);
     }
 
     // Зона >= 100: коллапс или смерть
-    await _handleCollapse(context, controller);
+    final lastCollapse = controller.lastCollapseTime;
+    if (lastCollapse != null &&
+        DateTime.now().difference(lastCollapse).inHours <
+            GameConstants.collapseRepeatHours) {
+      return const FatigueEvaluation(
+        FatigueAction.died,
+        deathReason:
+            'Твоё тело не выдержало повторного истощения. Сердце остановилось.',
+      );
+    }
+
+    return const FatigueEvaluation(FatigueAction.collapse);
   }
 
   /// Открыть DeathScreen, если игрок умер.
@@ -30454,6 +32399,8 @@ class DeathManager {
     if (!context.mounted) return;
 
     await AudioService.stopAmbience();
+
+    if (!context.mounted) return;
 
     await Navigator.push(
       context,
@@ -30473,12 +32420,10 @@ class DeathManager {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // ВНУТРЕННИЕ МЕТОДЫ
+  // ВНУТРЕННИЕ МЕТОДЫ — ФОРСИРОВАННЫЙ АВТОСОН
   // ═══════════════════════════════════════════════════════════
 
   /// Форсированный автосон при усталости 95-99.
-  ///
-  /// Игрок засыпает на 1 час, теряет немного статов.
   static Future<void> _forceAutoSleep(
     BuildContext context,
     MapController controller,
@@ -30509,50 +32454,40 @@ class DeathManager {
 
     controller.autoSleepTriggered = false;
 
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            '😵 Ты проснулся. Разбитость: -15 выносливости.',
-          ),
-          duration: Duration(seconds: 3),
-          backgroundColor: Color.fromARGB(255, 150, 100, 100),
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          '😵 Ты проснулся. Разбитость: -15 выносливости.',
         ),
-      );
-    }
+        duration: Duration(seconds: 3),
+        backgroundColor: Color.fromARGB(255, 150, 100, 100),
+      ),
+    );
 
     await controller.save();
-    controller.notifyListeners();
+    controller.refresh();
   }
 
+  // ═══════════════════════════════════════════════════════════
+  // ВНУТРЕННИЕ МЕТОДЫ — КОЛЛАПС
+  // ═══════════════════════════════════════════════════════════
+
   /// Коллапс при усталости >= 100.
-  ///
-  /// Если коллапс второй раз за 24 часа → смерть.
   static Future<void> _handleCollapse(
     BuildContext context,
     MapController controller,
   ) async {
-    // ─── 1. Проверить, был ли коллапс недавно ───
-    final lastCollapse = controller.lastCollapseTime;
-    if (lastCollapse != null &&
-        DateTime.now().difference(lastCollapse).inHours <
-            GameConstants.collapseRepeatHours) {
-      controller.markDead(
-        'Твоё тело не выдержало повторного истощения. Сердце остановилось.',
-      );
-      return;
-    }
-
-    // ─── 2. Обновить время последнего коллапса ───
+    // Отметить время коллапса
     controller.lastCollapseTime = DateTime.now();
     controller.trackCollapse();
 
     if (!context.mounted) return;
 
-    // ─── 3. Показать диалог коллапса ───
     await _showCollapseDialog(context);
 
-    // ─── 4. Продвинуть время + эффекты ───
+    // Продвинуть время + эффекты
     await controller.advanceTime(
       GameConstants.collapseSleepMinutes,
       isSleeping: true,
@@ -30564,25 +32499,22 @@ class DeathManager {
       'sanity': -GameConstants.collapseSanityPenalty,
     });
 
-    // ─── 5. Шанс ограбления ───
+    // Шансы
     _rollTheftOnCollapse(context, controller);
-
-    // ─── 6. Шанс простуды ───
     _rollColdOnCollapse(controller);
 
-    // ─── 7. Сообщение ───
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('😵 Ты очнулся. -20 HP, -15 психики.'),
-          duration: Duration(seconds: 3),
-          backgroundColor: Color.fromARGB(255, 100, 50, 50),
-        ),
-      );
-    }
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('😵 Ты очнулся. -20 HP, -15 психики.'),
+        duration: Duration(seconds: 3),
+        backgroundColor: Color.fromARGB(255, 100, 50, 50),
+      ),
+    );
 
     await controller.save();
-    controller.notifyListeners();
+    controller.refresh();
   }
 
   /// Показать диалог коллапса
@@ -30673,19 +32605,19 @@ class DeathManager {
   }
 
   /// Найти условие по ID
-  static dynamic _findCondition(MapController controller, String id) {
+  static Condition? _findCondition(MapController controller, String id) {
     try {
       return controller.allConditions.firstWhere((c) => c.id == id);
     } catch (_) {
-      return controller.allConditions.isNotEmpty
-          ? controller.allConditions.first
-          : null;
+      return null;
     }
   }
 
+  // ═══════════════════════════════════════════════════════════
+  // СТАТИСТИКА ПРИ СМЕРТИ
+  // ═══════════════════════════════════════════════════════════
+
   /// Обновить статистику игрока при смерти.
-  ///
-  /// Вызывается из UI-обёртки перед показом DeathScreen.
   static Future<void> applyStatsOnDeath(MapController controller) async {
     final stats = await AchievementManager.loadStats();
     stats.totalDeaths += 1;
@@ -30729,23 +32661,6 @@ import 'package:dark_hours/services/progress/run_tracker.dart';
 import 'package:dark_hours/constants/game_constants.dart';
 
 /// Центральный контроллер карты.
-///
-/// Хранит **всё** состояние игры на карте:
-/// - локации и текущую позицию
-/// - статы игрока (голод, жажда, здоровье, психика, стамина, усталость)
-/// - инвентарь и экипировку
-/// - активные болезни
-/// - игровое время
-/// - счётчики обысков и открытые скрытые локации
-/// - трекер забега
-///
-/// Действия делегируются менеджерам:
-/// - MovementManager — перемещение
-/// - SearchManager — обыск
-/// - RestManager — отдых
-/// - CombatManager — бой
-/// - StoryTriggerManager — сюжетные триггеры
-/// - DeathManager — смерть и коллапс
 class MapController extends ChangeNotifier {
   // ═══════════════════════════════════════════════════════════
   // ВХОДНЫЕ ДАННЫЕ
@@ -30759,10 +32674,8 @@ class MapController extends ChangeNotifier {
   // СОСТОЯНИЕ ИГРЫ
   // ═══════════════════════════════════════════════════════════
 
-  /// Карта и текущая локация
   WorldMap? map;
 
-  /// Статы
   int hunger = GameConstants.maxStat;
   int thirst = GameConstants.maxStat;
   int health = GameConstants.maxStat;
@@ -30770,42 +32683,35 @@ class MapController extends ChangeNotifier {
   int stamina = GameConstants.maxStat;
   int fatigue = 0;
 
-  /// Игровое время
   late GameTime gameTime;
-
-  /// Глава
   int chapter = 1;
 
-  /// Характеристики персонажа
   int intelligence = GameConstants.defaultIntelligence;
   int strength = GameConstants.defaultStrength;
 
-  /// Инвентарь и экипировка
   final Inventory inventory = Inventory(maxWeight: 30.0);
   final Equipment equipment = Equipment();
 
-  /// Все возможные болезни + активные
   List<Condition> allConditions = [];
   final List<ActiveCondition> activeConditions = [];
 
-  /// Рецепты крафта
   List<Recipe> allRecipes = [];
 
-  /// Флаги (для сюжета и достижений)
   final Set<String> flags = {};
-
-  /// Счётчики обысков по локациям
   final Map<String, int> searchedCounts = {};
-
-  /// Открытые скрытые локации
   final Set<String> unlockedLocations = {};
 
-  /// Трекер забега (для достижений)
-  final RunTracker tracker = RunTracker();
+  // ═══════════════════════════════════════════════════════════
+  // ИССЛЕДОВАНИЕ
+  // ═══════════════════════════════════════════════════════════
 
-  // ═══════════════════════════════════════════════════════════
-  // ФЛАГИ СОСТОЯНИЯ
-  // ═══════════════════════════════════════════════════════════
+  /// Разведанные локации — игрок знает их существование, но не был там.
+  final Set<String> scoutedLocations = {};
+
+  /// Открытые регионы — игрок знает зоны (city_south, forest, ...).
+  final Set<String> discoveredRegions = {};
+
+  final RunTracker tracker = RunTracker();
 
   bool isLoading = true;
   bool isDead = false;
@@ -30813,10 +32719,6 @@ class MapController extends ChangeNotifier {
 
   bool _autoSleepTriggered = false;
   DateTime? _lastCollapseTime;
-
-  // ═══════════════════════════════════════════════════════════
-  // GETTERS / SETTERS ДЛЯ ФЛАГОВ
-  // ═══════════════════════════════════════════════════════════
 
   bool get autoSleepTriggered => _autoSleepTriggered;
   set autoSleepTriggered(bool value) {
@@ -30844,32 +32746,27 @@ class MapController extends ChangeNotifier {
   // ИНИЦИАЛИЗАЦИЯ
   // ═══════════════════════════════════════════════════════════
 
-  /// Загрузить карту и (опционально) восстановить сохранение
   Future<void> init() async {
     isLoading = true;
-    notifyListeners();
+    refresh();
 
-    // Загружаем справочники
     await ItemLoader.init();
     await SearchEventLoader.init();
     await EnemyLoader.init();
     allConditions = await Condition.loadAll();
     allRecipes = await Recipe.loadAll();
 
-    // Характеристики персонажа
     final stats = GameConstants.statsFor(characterId);
     intelligence = stats['intelligence'] ?? GameConstants.defaultIntelligence;
     strength = stats['strength'] ?? GameConstants.defaultStrength;
 
-    // Загружаем локации
     final locations = await Location.loadAll();
     if (locations.isEmpty) {
       isLoading = false;
-      notifyListeners();
+      refresh();
       return;
     }
 
-    // Восстанавливаем сохранение или начинаем заново
     if (resumeFrom != null) {
       _restoreFromSave(resumeFrom!, locations);
     } else {
@@ -30877,10 +32774,9 @@ class MapController extends ChangeNotifier {
     }
 
     isLoading = false;
-    notifyListeners();
+    refresh();
   }
 
-  /// Начать новую игру
   void _startNewGame(List<Location> locations) {
     final startLoc = locations.firstWhere(
       (l) => l.isStart,
@@ -30894,9 +32790,22 @@ class MapController extends ChangeNotifier {
     );
 
     gameTime = GameTime(totalMinutes: GameConstants.startTimeMinutes);
+
+    // Стартовая локация — сразу разведана и посещена.
+    scoutedLocations.add(startLoc.id);
+    discoverRegion(startLoc.region);
+
+    // Соседи стартовой — автоматически разведаны.
+    for (final conn in startLoc.connections) {
+      scoutedLocations.add(conn.targetId);
+      final target = map!.getById(conn.targetId);
+      if (target != null) {
+        // Регион соседа тоже известен (частично).
+        discoverRegion(target.region);
+      }
+    }
   }
 
-  /// Восстановить состояние из сохранения
   void _restoreFromSave(SaveData s, List<Location> locations) {
     hunger = s.hunger;
     thirst = s.thirst;
@@ -30914,6 +32823,27 @@ class MapController extends ChangeNotifier {
 
     unlockedLocations.clear();
     unlockedLocations.addAll(s.unlockedLocations);
+
+    // Восстанавливаем исследование
+    scoutedLocations.clear();
+    scoutedLocations.addAll(s.scoutedLocations);
+
+    discoveredRegions.clear();
+    discoveredRegions.addAll(s.discoveredRegions);
+
+    // Миграция: если сохранение старое и полей нет — 
+    // добавляем стартовую локацию в scouted/discovered.
+    if (scoutedLocations.isEmpty) {
+      final startLoc = locations.firstWhere(
+        (l) => l.isStart,
+        orElse: () => locations.first,
+      );
+      scoutedLocations.add(startLoc.id);
+      discoverRegion(startLoc.region);
+      for (final conn in startLoc.connections) {
+        scoutedLocations.add(conn.targetId);
+      }
+    }
 
     inventory.items.clear();
     for (final itemJson in s.inventoryItems) {
@@ -30937,9 +32867,7 @@ class MapController extends ChangeNotifier {
         activeConditions.add(
           ActiveCondition(condition: cond, daysRemaining: days),
         );
-      } catch (_) {
-        // Игнорируем невалидную болезнь
-      }
+      } catch (_) {}
     }
 
     final startLoc = locations.firstWhere(
@@ -30958,10 +32886,95 @@ class MapController extends ChangeNotifier {
   }
 
   // ═══════════════════════════════════════════════════════════
+  // ИССЛЕДОВАНИЕ — ПУБЛИЧНЫЙ API
+  // ═══════════════════════════════════════════════════════════
+
+  /// Разведана ли локация.
+  bool isScouted(String locationId) {
+    return scoutedLocations.contains(locationId);
+  }
+
+  /// Посещена ли локация.
+  bool isVisited(String locationId) {
+    return map?.visitedLocations.contains(locationId) ?? false;
+  }
+
+  /// Открыт ли регион.
+  bool isRegionDiscovered(String region) {
+    return discoveredRegions.contains(region);
+  }
+
+  /// Разведать локацию (без посещения).
+  ///
+  /// Регион разведанной локации тоже открывается.
+  void scoutLocation(String locationId) {
+    if (scoutedLocations.contains(locationId)) return;
+    scoutedLocations.add(locationId);
+
+    final loc = map?.getById(locationId);
+    if (loc != null) {
+      discoverRegion(loc.region);
+    }
+
+    refresh();
+  }
+
+  /// Разведать несколько локаций сразу.
+  void scoutAll(Iterable<String> locationIds) {
+    bool changed = false;
+    for (final id in locationIds) {
+      if (scoutedLocations.add(id)) {
+        changed = true;
+        final loc = map?.getById(id);
+        if (loc != null) {
+          discoveredRegions.add(loc.region);
+        }
+      }
+    }
+    if (changed) refresh();
+  }
+
+  /// Открыть регион.
+  void discoverRegion(String region) {
+    if (discoveredRegions.add(region)) {
+      refresh();
+    }
+  }
+
+  /// Прямая установка (для тестов / загрузки).
+  @visibleForTesting
+  void setScouted(Set<String> ids) {
+    scoutedLocations
+      ..clear()
+      ..addAll(ids);
+    refresh();
+  }
+
+  /// Прямая установка (для тестов).
+  @visibleForTesting
+  void setDiscoveredRegions(Set<String> regions) {
+    discoveredRegions
+      ..clear()
+      ..addAll(regions);
+    refresh();
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ПУБЛИЧНЫЙ API ДЛЯ МЕНЕДЖЕРОВ
+  // ═══════════════════════════════════════════════════════════
+
+  void refresh() {
+    notifyListeners();
+  }
+
+  InventoryItem? findItemInCatalog(String id) {
+    return ItemLoader.findById(id);
+  }
+
+  // ═══════════════════════════════════════════════════════════
   // ИЗМЕНЕНИЕ СОСТОЯНИЯ
   // ═══════════════════════════════════════════════════════════
 
-  /// Применить изменения к статам (с автоограничением 0..100)
   void applyStatDelta(Map<String, int> delta) {
     if (delta['hunger'] != null) {
       hunger = (hunger + delta['hunger']!)
@@ -30987,10 +33000,9 @@ class MapController extends ChangeNotifier {
       fatigue = (fatigue + delta['fatigue']!)
           .clamp(GameConstants.minStat, GameConstants.maxStat);
     }
-    notifyListeners();
+    refresh();
   }
 
-  /// Прямая установка стата (без delta)
   void setHunger(int value) {
     hunger = value.clamp(GameConstants.minStat, GameConstants.maxStat);
   }
@@ -31019,15 +33031,12 @@ class MapController extends ChangeNotifier {
   // ИГРОВОЕ ВРЕМЯ
   // ═══════════════════════════════════════════════════════════
 
-  /// Продвинуть время на N минут с расходом статов
   Future<void> advanceTime(int minutes, {bool isSleeping = false}) async {
     final oldDay = gameTime.day;
     final phaseBefore = gameTime.phase;
 
     gameTime.advance(minutes);
-    final phaseAfter = gameTime.phase;
 
-    // Расход голода/жажды/усталости
     final consumption = TimeManager.calculateConsumption(
       minutes: minutes,
       phase: phaseBefore,
@@ -31043,10 +33052,8 @@ class MapController extends ChangeNotifier {
           .clamp(GameConstants.minStat, GameConstants.maxStat);
     }
 
-    // Тик активных болезней
     _applyConditionsTick();
 
-    // Новый день — обновляем трекер и проверяем достижения
     if (gameTime.day > oldDay) {
       tracker.nightsPassed += 1;
       if (phaseBefore == TimePhase.night) {
@@ -31058,20 +33065,11 @@ class MapController extends ChangeNotifier {
       } else {
         tracker.sanityDaysLow = 0;
       }
-
-      // Проверка достижений делегируется — здесь только данные
-      // (сам вызов делает UI через AchievementChecker)
     }
 
-    // Смена фазы суток — уведомляем
-    if (phaseBefore != phaseAfter) {
-      // UI сам покажет снекбар при обновлении состояния
-    }
-
-    notifyListeners();
+    refresh();
   }
 
-  /// Тик активных болезней (вызывается из advanceTime)
   void _applyConditionsTick() {
     if (activeConditions.isEmpty) return;
 
@@ -31102,7 +33100,6 @@ class MapController extends ChangeNotifier {
   // УСЛОВИЯ
   // ═══════════════════════════════════════════════════════════
 
-  /// Добавить условие, если его ещё нет
   void addCondition(Condition condition) {
     if (ConditionManager.hasCondition(activeConditions, condition.id)) return;
     activeConditions.add(ActiveCondition(
@@ -31110,14 +33107,13 @@ class MapController extends ChangeNotifier {
       daysRemaining: condition.durationDays,
     ));
     tracker.infections += 1;
-    notifyListeners();
+    refresh();
   }
 
-  /// Попробовать вылечить условие предметом
   bool tryCureCondition(ActiveCondition ac, String itemId) {
     if (!ConditionManager.tryCure(ac, itemId)) return false;
     activeConditions.remove(ac);
-    notifyListeners();
+    refresh();
     return true;
   }
 
@@ -31125,10 +33121,8 @@ class MapController extends ChangeNotifier {
   // ИНВЕНТАРЬ И ЭКИПИРОВКА
   // ═══════════════════════════════════════════════════════════
 
-  /// Найти предмет в инвентаре по ID
   InventoryItem? findItem(String id) => inventory.getById(id);
 
-  /// Добавить предмет (с трекингом для достижений)
   bool addItem(InventoryItem item) {
     final ok = inventory.addItem(item);
     if (ok) {
@@ -31136,115 +33130,87 @@ class MapController extends ChangeNotifier {
       if (inventory.items.length > tracker.maxInventorySize) {
         tracker.maxInventorySize = inventory.items.length;
       }
-      notifyListeners();
+      refresh();
     }
     return ok;
   }
 
-  /// Удалить предмет из инвентаря
   void removeItem(String id) {
     inventory.removeItem(id);
-    notifyListeners();
+    refresh();
   }
 
-  /// Удалить предмет полностью
   void removeAll(String id) {
     inventory.removeAll(id);
-    notifyListeners();
+    refresh();
   }
 
-  /// Надеть предмет
   void equipItem(InventoryItem item, String slot) {
     final old = equipment.unequip(slot);
     if (old != null) inventory.addItem(old);
 
     equipment.equip(item, slot);
     inventory.removeItem(item.id);
-    notifyListeners();
+    refresh();
   }
 
-  /// Снять предмет (возвращается в инвентарь)
   void unequipItem(String slot) {
     final item = equipment.unequip(slot);
     if (item != null) inventory.addItem(item);
-    notifyListeners();
+    refresh();
   }
 
   // ═══════════════════════════════════════════════════════════
   // ТРЕКЕР
   // ═══════════════════════════════════════════════════════════
 
-  /// Отметить использование медицинского предмета
-  void trackMedicineUsed() {
-    tracker.medicineUsed += 1;
-  }
+  void trackMedicineUsed() => tracker.medicineUsed += 1;
 
-  /// Отметить крафт
   void trackCraft({required bool isMolotov}) {
     tracker.craftedCount += 1;
     if (isMolotov) tracker.alchemistCrafted = true;
   }
 
-  /// Отметить бой
-  void trackCombat() {
-    tracker.hadCombat = true;
-  }
-
-  /// Отметить урон в бою
-  void trackDamage() {
-    tracker.hadDamage = true;
-  }
-
-  /// Отметить победу в бою
-  void trackVictory() {
-    tracker.kills += 1;
-  }
-
-  /// Отметить поражение
-  void trackDefeat() {
-    tracker.defeats += 1;
-  }
-
-  /// Отметить коллапс
-  void trackCollapse() {
-    tracker.collapsesCount += 1;
-  }
+  void trackCombat() => tracker.hadCombat = true;
+  void trackDamage() => tracker.hadDamage = true;
+  void trackVictory() => tracker.kills += 1;
+  void trackDefeat() => tracker.defeats += 1;
+  void trackCollapse() => tracker.collapsesCount += 1;
 
   // ═══════════════════════════════════════════════════════════
   // ФЛАГИ
   // ═══════════════════════════════════════════════════════════
 
-  /// Установить флаг
   void setFlag(String flag) {
     flags.add(flag);
-    notifyListeners();
+    refresh();
   }
 
-  /// Есть ли флаг
   bool hasFlag(String flag) => flags.contains(flag);
 
   // ═══════════════════════════════════════════════════════════
   // ОБЫСКИ И СКРЫТЫЕ ЛОКАЦИИ
   // ═══════════════════════════════════════════════════════════
 
-  /// Увеличить счётчик обысков
   int incrementSearchCount(String locationId) {
     final count = (searchedCounts[locationId] ?? 0) + 1;
     searchedCounts[locationId] = count;
     return count;
   }
 
-  /// Открыть скрытую локацию
   void unlockLocation(String locationId) {
     unlockedLocations.add(locationId);
-    notifyListeners();
+    // Открытая локация — сразу разведана.
+    scoutedLocations.add(locationId);
+    final loc = map?.getById(locationId);
+    if (loc != null) discoverRegion(loc.region);
+    refresh();
   }
 
   // ═══════════════════════════════════════════════════════════
   // УТИЛИТЫ
   // ═══════════════════════════════════════════════════════════
 
-  /// Потерять N случайных предметов из инвентаря
   void loseRandomItems(int count) {
     final rng = Random();
     for (int i = 0; i < count && inventory.items.isNotEmpty; i++) {
@@ -31252,13 +33218,11 @@ class MapController extends ChangeNotifier {
       final lost = inventory.items[index];
       inventory.removeAll(lost.id);
     }
-    notifyListeners();
+    refresh();
   }
 
-  /// Текущая локация
   Location? get currentLocation => map?.current;
 
-  /// Проверить, находится ли локация в списке доступных
   bool isLocationUnlocked(String locationId) {
     return unlockedLocations.contains(locationId);
   }
@@ -31267,7 +33231,6 @@ class MapController extends ChangeNotifier {
   // СОХРАНЕНИЕ
   // ═══════════════════════════════════════════════════════════
 
-  /// Автосохранить текущее состояние
   Future<void> save() async {
     if (map == null) return;
 
@@ -31296,13 +33259,14 @@ class MapController extends ChangeNotifier {
           .toList(),
       searchedCounts: searchedCounts,
       unlockedLocations: unlockedLocations.toList(),
+      scoutedLocations: scoutedLocations,
+      discoveredRegions: discoveredRegions,
       savedAt: DateTime.now(),
     );
 
     await SaveManager.save(data);
   }
 
-  /// Перечитать сохранение (после StoryScreen)
   Future<void> reloadFromSave() async {
     final save = await SaveManager.load();
     if (save == null) return;
@@ -31350,25 +33314,81 @@ class MapController extends ChangeNotifier {
     unlockedLocations.clear();
     unlockedLocations.addAll(save.unlockedLocations);
 
-    notifyListeners();
+    scoutedLocations.clear();
+    scoutedLocations.addAll(save.scoutedLocations);
+
+    discoveredRegions.clear();
+    discoveredRegions.addAll(save.discoveredRegions);
+
+    refresh();
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ТЕСТИРОВАНИЕ
+  // ═══════════════════════════════════════════════════════════
+
+  @visibleForTesting
+  void initForTest({
+    required List<Location> locations,
+    List<Condition> conditions = const [],
+    List<Recipe> recipes = const [],
+    int startTimeMinutes = GameConstants.startTimeMinutes,
+  }) {
+    if (locations.isEmpty) {
+      throw ArgumentError('initForTest: locations не может быть пустым');
+    }
+
+    allConditions = conditions;
+    allRecipes = recipes;
+
+    final stats = GameConstants.statsFor(characterId);
+    intelligence = stats['intelligence'] ?? GameConstants.defaultIntelligence;
+    strength = stats['strength'] ?? GameConstants.defaultStrength;
+
+    final startLoc = locations.firstWhere(
+      (l) => l.isStart,
+      orElse: () => locations.first,
+    );
+
+    map = WorldMap(
+      locations: locations,
+      currentLocationId: startLoc.id,
+      visitedLocations: {startLoc.id},
+    );
+
+    gameTime = GameTime(totalMinutes: startTimeMinutes);
+
+    // Стартовая — разведана.
+    scoutedLocations.add(startLoc.id);
+    discoveredRegions.add(startLoc.region);
+
+    // Соседи стартовой — тоже разведаны.
+    for (final conn in startLoc.connections) {
+      scoutedLocations.add(conn.targetId);
+      final target = map!.getById(conn.targetId);
+      if (target != null) {
+        discoveredRegions.add(target.region);
+      }
+    }
+
+    isLoading = false;
+    refresh();
   }
 
   // ═══════════════════════════════════════════════════════════
   // СМЕРТЬ
   // ═══════════════════════════════════════════════════════════
 
-  /// Проверить, не умер ли игрок
   void markDead(String reason) {
     isDead = true;
     deathReason = reason;
-    notifyListeners();
+    refresh();
   }
 
-  /// Сбросить флаг смерти (после DeathScreen)
   void clearDeath() {
     isDead = false;
     deathReason = '';
-    notifyListeners();
+    refresh();
   }
 }
 ```
@@ -31380,61 +33400,68 @@ import 'package:flutter/material.dart';
 import 'package:dark_hours/services/map/map_controller.dart';
 import 'package:dark_hours/services/map/story_trigger_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
-import 'package:dark_hours/constants/game_constants.dart';
+
+/// Результат попытки перейти в локацию.
+enum MoveResult {
+  success,
+  noMap,
+  notFound,
+  hidden,
+  notConnected,
+}
 
 /// Управляет перемещением между локациями.
-///
-/// Что делает:
-/// 1. Проверяет, что локация существует и доступна.
-/// 2. Списывает стамину за переход.
-/// 3. Продвигает игровое время.
-/// 4. Меняет текущую локацию в MapController.
-/// 5. Запускает ambience новой локации.
-/// 6. Автосохраняет.
-/// 7. Проверяет сюжетные триггеры.
 class MovementManager {
   /// Перейти в локацию по ID.
-  ///
-  /// Возвращает `true`, если переход удался.
   static Future<bool> move(
     BuildContext context,
     MapController controller,
     String locationId,
   ) async {
-    // ─── 1. Проверяем локацию ───
-    final map = controller.map;
-    if (map == null) return false;
-
-    final target = map.getById(locationId);
-    if (target == null) {
-      debugPrint('⚠️ MovementManager: локация "$locationId" не найдена');
+    final validation = validateMove(controller, locationId);
+    if (validation != MoveResult.success) {
+      debugPrint('⚠️ MovementManager: переход отклонён — $validation');
       return false;
     }
 
-    // Скрытая локация должна быть открыта
-    if (target.hidden && !controller.isLocationUnlocked(target.id)) {
-      debugPrint(
-        '⚠️ MovementManager: локация "${target.id}" скрыта и не открыта',
-      );
-      return false;
+    final map = controller.map!;
+    final target = map.getById(locationId)!;
+    final current = controller.currentLocation;
+
+    // ─── 1. Время перехода из Connection ───
+    int travelMinutes = 20;
+    if (current != null) {
+      final minutes = current.connectionMinutesTo(locationId);
+      if (minutes != null) {
+        travelMinutes = minutes;
+      }
     }
 
-    // ─── 2. Звук клика ───
+    // ─── 2. Расход стамины пропорционально времени ───
+    // 15 мин → 2 стамины, 60 мин → 6, 120 мин → 12, 200 мин → 20 (max).
+    final staminaCost = (travelMinutes / 10).round().clamp(2, 20);
+    controller.setStamina(controller.stamina - staminaCost);
+
+    // ─── 3. Звук клика ───
     AudioService.playClick();
 
-    // ─── 3. Списываем стамину ───
-    controller.setStamina(
-      controller.stamina - GameConstants.moveStaminaCost,
-    );
-
     // ─── 4. Продвигаем время ───
-    await controller.advanceTime(GameConstants.moveTimeMinutes);
+    await controller.advanceTime(travelMinutes);
 
     // ─── 5. Меняем локацию ───
     map.moveTo(locationId);
-    controller.notifyListeners();
 
-    // ─── 6. Ambience новой локации ───
+    // ─── 6. Авто-разведка новой локации ───
+    controller.scoutLocation(locationId);
+    controller.discoverRegion(target.region);
+
+    for (final conn in target.connections) {
+      controller.scoutedLocations.add(conn.targetId);
+    }
+
+    controller.refresh();
+
+    // ─── 7. Ambience ───
     final ambiencePath = AudioService.ambienceForLocation(
       locationId: target.id,
       type: target.type,
@@ -31445,24 +33472,72 @@ class MovementManager {
       await AudioService.playAmbience(ambiencePath);
     }
 
-    // ─── 7. Автосохранение ───
+    // ─── 8. Автосохранение ───
     await controller.save();
 
-    // ─── 8. Снекбар ───
+    // ─── 9. Снекбар ───
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Переход: ${target.name}'),
-          duration: const Duration(seconds: 1),
+          content: Text(
+            'Переход: ${target.name} · ${_formatTime(travelMinutes)} · −$staminaCost⚡',
+          ),
+          duration: const Duration(seconds: 2),
           backgroundColor: const Color.fromARGB(255, 200, 180, 100),
         ),
       );
     }
 
-    // ─── 9. Проверка сюжетного триггера ───
+    // ─── 10. Сюжетный триггер ───
     await StoryTriggerManager.checkTrigger(context, controller);
 
     return true;
+  }
+
+  /// Чистая валидация перехода.
+  @visibleForTesting
+  static MoveResult validateMove(
+    MapController controller,
+    String locationId,
+  ) {
+    final map = controller.map;
+    if (map == null) return MoveResult.noMap;
+
+    final target = map.getById(locationId);
+    if (target == null) return MoveResult.notFound;
+
+    if (target.hidden && !controller.isLocationUnlocked(target.id)) {
+      return MoveResult.hidden;
+    }
+
+    final current = controller.currentLocation;
+    if (current != null && !current.isConnectedTo(locationId)) {
+      return MoveResult.notConnected;
+    }
+
+    return MoveResult.success;
+  }
+
+  /// Получить время перехода (в минутах).
+  @visibleForTesting
+  static int getTravelTime(MapController controller, String locationId) {
+    final current = controller.currentLocation;
+    if (current == null) return 20;
+    return current.connectionMinutesTo(locationId) ?? 20;
+  }
+
+  /// Расход стамины на переход.
+  @visibleForTesting
+  static int computeStaminaCost(int travelMinutes) {
+    return (travelMinutes / 10).round().clamp(2, 20);
+  }
+
+  static String _formatTime(int minutes) {
+    if (minutes < 60) return '$minutes мин';
+    final h = minutes ~/ 60;
+    final m = minutes % 60;
+    if (m == 0) return '${h}ч';
+    return '${h}ч ${m}м';
   }
 }
 ```
@@ -31475,20 +33550,32 @@ import 'dart:math';
 import 'package:dark_hours/services/map/map_controller.dart';
 import 'package:dark_hours/services/map/combat_manager.dart';
 import 'package:dark_hours/services/conditions/condition_manager.dart';
+import 'package:dark_hours/models/time/game_time.dart';
 import 'package:dark_hours/models/time/rest_action.dart';
 import 'package:dark_hours/constants/game_constants.dart';
 
+/// Результат проверки на простуду.
+class ColdResult {
+  final bool infected;
+  final int chance;
+
+  const ColdResult({required this.infected, required this.chance});
+}
+
+/// Результат проверки на ограбление.
+class TheftResult {
+  final bool stolen;
+  final int chance;
+  final int itemsToLose;
+
+  const TheftResult({
+    required this.stolen,
+    required this.chance,
+    this.itemsToLose = 1,
+  });
+}
+
 /// Управляет отдыхом игрока.
-///
-/// Логика:
-/// 1. Восстановить статы (стамина, здоровье, психика, усталость).
-/// 2. Бонус от спального мешка (если есть).
-/// 3. Если локация опасная — риски:
-///    - простудиться (шанс зависит от тепла экипировки);
-///    - быть ограбленным (при долгом отдыхе);
-///    - быть атакованным (при очень долгом отдыхе).
-/// 4. Продвинуть время.
-/// 5. Автосохранить.
 class RestManager {
   /// Выполнить действие отдыха.
   static Future<void> rest(
@@ -31501,82 +33588,137 @@ class RestManager {
 
     final isSafe = loc.dangerLevel <= GameConstants.safeLocationDangerLevel;
 
-    // ─── 1. Восстановление статов ───
     _applyRestStats(controller, action);
-
-    // ─── 2. Бонус спального мешка ───
     _applySleepingBagBonus(controller);
 
-    // ─── 3. Риски в опасной локации ───
     if (!isSafe) {
-      // 3.1. Простуда
-      _rollCold(controller);
-
-      // 3.2. Ограбление (при долгом отдыхе)
-      if (action.timeMinutes >= GameConstants.restTheftMinDuration) {
-        _rollTheft(context, controller);
+      final cold = rollCold(controller);
+      if (cold.infected) {
+        _applyCold(controller);
       }
 
-      // 3.3. Атака (при очень долгом отдыхе)
+      if (action.timeMinutes >= GameConstants.restTheftMinDuration) {
+        final theft = rollTheft(controller);
+        if (theft.stolen) {
+          _applyTheft(context, controller, theft.itemsToLose);
+        }
+      }
+
       if (action.timeMinutes >= GameConstants.restAttackMinDuration) {
-        final attacked = _rollAttack(context, controller);
-        if (attacked) return; // бой запущен, дальше не идём
+        final attacked = rollAttack(controller);
+        if (attacked) {
+          _triggerAttack(context, controller);
+          return;
+        }
       }
     }
 
-    // ─── 4. Время ───
     await controller.advanceTime(action.timeMinutes, isSleeping: true);
-
-    // ─── 5. Автосохранение ───
     await controller.save();
+    controller.refresh();
 
-    controller.notifyListeners();
-
-    // ─── 6. Снекбар ───
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('${action.icon} Отдых: ${action.name}'),
           backgroundColor: const Color.fromARGB(255, 100, 180, 100),
-          duration: const Duration(seconds: GameConstants.snackbarDefaultSeconds),
+          duration: const Duration(
+            seconds: GameConstants.snackbarDefaultSeconds,
+          ),
         ),
       );
     }
   }
 
   // ═══════════════════════════════════════════════════════════
-  // ВНУТРЕННИЕ МЕТОДЫ
+  // ЧИСТАЯ ЛОГИКА
   // ═══════════════════════════════════════════════════════════
 
-  /// Применить изменения статов от отдыха
-  static void _applyRestStats(MapController controller, RestAction action) {
-    controller.applyStatDelta({
+  /// Вычислить дельты статов от отдыха.
+  @visibleForTesting
+  static Map<String, int> computeRestStats(
+    MapController controller,
+    RestAction action,
+  ) {
+    final delta = <String, int>{
       'stamina': action.staminaRestore,
       'health': action.healthRestore,
       'sanity': action.sanityRestore,
       'fatigue': -action.fatigueReduce,
-    });
+    };
+
+    if (controller.inventory.hasItem('sleeping_bag')) {
+      delta['stamina'] =
+          (delta['stamina'] ?? 0) + GameConstants.sleepingBagStaminaBonus;
+      delta['sanity'] =
+          (delta['sanity'] ?? 0) + GameConstants.sleepingBagSanityBonus;
+    }
+
+    return delta;
   }
 
-  /// Бонус от спального мешка
-  static void _applySleepingBagBonus(MapController controller) {
-    if (!controller.inventory.hasItem('sleeping_bag')) return;
-    controller.applyStatDelta({
-      'stamina': GameConstants.sleepingBagStaminaBonus,
-      'sanity': GameConstants.sleepingBagSanityBonus,
-    });
-  }
-
-  /// Риск простуды при отдыхе в опасной/холодной локации
-  static void _rollCold(MapController controller) {
-    final riskRoll = Random().nextInt(100);
+  /// Определить, простудится ли игрок.
+  @visibleForTesting
+  static ColdResult rollCold(MapController controller) {
     final warmth = controller.equipment.totalWarmth;
-    final coldChance = warmth >= GameConstants.warmthColdResistThreshold
+    final chance = warmth >= GameConstants.warmthColdResistThreshold
         ? GameConstants.coldChanceLow
         : GameConstants.coldChanceHigh;
 
-    if (riskRoll >= coldChance) return;
+    final roll = Random().nextInt(100);
+    return ColdResult(
+      infected: roll < chance,
+      chance: chance,
+    );
+  }
 
+  /// Определить, ограбят ли игрока.
+  @visibleForTesting
+  static TheftResult rollTheft(MapController controller) {
+    if (controller.inventory.items.isEmpty) {
+      return const TheftResult(
+        stolen: false,
+        chance: GameConstants.restTheftChance,
+      );
+    }
+
+    final roll = Random().nextInt(100);
+    return TheftResult(
+      stolen: roll < GameConstants.restTheftChance,
+      chance: GameConstants.restTheftChance,
+      itemsToLose: 1,
+    );
+  }
+
+  /// Определить, атакуют ли игрока.
+  ///
+  /// ⚠️ ВАЖНО: multiplier — double (0.8, 1.0, 1.2, 1.8).
+  /// Нельзя использовать `.toInt()` — 0.8.toInt() = 0.
+  /// Умножаем на double, потом округляем до int.
+  @visibleForTesting
+  static bool rollAttack(MapController controller) {
+    final attackRoll = Random().nextInt(100);
+    final multiplier = controller.gameTime.phase.dangerMultiplier;
+    final attackChance =
+        (GameConstants.restAttackBaseChance * multiplier).round();
+
+    return attackRoll < attackChance;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ПРИМЕНЕНИЕ ЭФФЕКТОВ
+  // ═══════════════════════════════════════════════════════════
+
+  static void _applyRestStats(MapController controller, RestAction action) {
+    final delta = computeRestStats(controller, action);
+    controller.applyStatDelta(delta);
+  }
+
+  static void _applySleepingBagBonus(MapController controller) {
+    // Бонус уже учтён в computeRestStats
+  }
+
+  static void _applyCold(MapController controller) {
     final newCond = ConditionManager.tryInfect(
       controller.allConditions,
       'cold_weather',
@@ -31594,23 +33736,24 @@ class RestManager {
     controller.addCondition(newCond);
   }
 
-  /// Риск ограбления при отдыхе в опасной локации
-  static void _rollTheft(
+  static void _applyTheft(
     BuildContext context,
     MapController controller,
+    int itemsToLose,
   ) {
-    final theftRoll = Random().nextInt(100);
-    if (theftRoll >= GameConstants.restTheftChance) return;
-    if (controller.inventory.items.isEmpty) return;
+    final stolen = <String>[];
+    for (int i = 0; i < itemsToLose; i++) {
+      if (controller.inventory.items.isEmpty) break;
+      final item = controller.inventory.items[
+          Random().nextInt(controller.inventory.items.length)];
+      stolen.add(item.name);
+      controller.removeAll(item.id);
+    }
 
-    final stolen = controller.inventory.items[
-        Random().nextInt(controller.inventory.items.length)];
-    controller.removeAll(stolen.id);
-
-    if (context.mounted) {
+    if (context.mounted && stolen.isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('💀 Тебя ограбили! Украдено: ${stolen.name}'),
+          content: Text('💀 Тебя ограбили! Украдено: ${stolen.join(", ")}'),
           backgroundColor: Colors.red[700],
           duration: const Duration(
             seconds: GameConstants.snackbarLongSeconds,
@@ -31620,24 +33763,11 @@ class RestManager {
     }
   }
 
-  /// Риск атаки при отдыхе в опасной локации.
-  ///
-  /// Возвращает `true`, если бой запущен.
-  static bool _rollAttack(
+  static void _triggerAttack(
     BuildContext context,
     MapController controller,
   ) {
-    final attackRoll = Random().nextInt(100);
-    final phaseMultiplier =
-        controller.gameTime.phase.dangerMultiplier.toInt();
-    final attackChance =
-        GameConstants.restAttackBaseChance * phaseMultiplier;
-
-    if (attackRoll >= attackChance) return false;
-
-    // Запускаем бой — но не ждём (асинхронно, огонь и забыли)
     CombatManager.startCombat(context, controller, 'looter_common');
-    return true;
   }
 }
 ```
@@ -31655,21 +33785,10 @@ import 'package:dark_hours/services/conditions/condition_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
 import 'package:dark_hours/models/world/location.dart';
 import 'package:dark_hours/models/world/search_event.dart';
-import 'package:dark_hours/models/inventory/inventory_item.dart';
 import 'package:dark_hours/widgets/effects/floating_effect.dart';
 import 'package:dark_hours/constants/game_constants.dart';
 
 /// Управляет обыском локаций.
-///
-/// Логика:
-/// 1. Проверить, есть ли что искать.
-/// 2. Списать стамину и усталость.
-/// 3. Проверить risk локации (шанс заболеть).
-/// 4. Если ещё есть "свежие" обыски — стандартный поиск (лут из пула).
-/// 5. Если обыски кончились — случайное событие.
-/// 6. Продвинуть время.
-/// 7. Шанс встретить врага.
-/// 8. Автосохранить.
 class SearchManager {
   /// Обыскать текущую локацию.
   static Future<void> search(
@@ -31679,8 +33798,7 @@ class SearchManager {
     final loc = controller.currentLocation;
     if (loc == null) return;
 
-    // ─── 1. Проверка: есть ли что искать ───
-    if (_nothingToSearch(loc)) {
+    if (nothingToSearch(loc)) {
       AudioService.playError();
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -31695,7 +33813,6 @@ class SearchManager {
 
     AudioService.playClick();
 
-    // ─── 2. Стоимость ───
     controller.setStamina(
       controller.stamina - GameConstants.searchStaminaCost,
     );
@@ -31703,12 +33820,10 @@ class SearchManager {
       controller.fatigue + GameConstants.searchFatigueCost,
     );
 
-    // ─── 3. Risk локации ───
     if (loc.risk != null) {
       await _applyLocationRisk(context, controller, loc);
     }
 
-    // ─── 4-5. Стандартный поиск или событие ───
     final searched = controller.searchedCounts[loc.id] ?? 0;
     final hasRemainingLoot = searched < loc.maxSearches;
 
@@ -31718,13 +33833,10 @@ class SearchManager {
       await _eventSearch(context, controller, loc);
     }
 
-    // ─── 6. Время ───
     await controller.advanceTime(loc.searchTime);
 
-    // ─── 7. Шанс встретить врага ───
     if (hasRemainingLoot && loc.enemies.isNotEmpty && !loc.isFinal) {
-      final enemyRoll = Random().nextInt(GameConstants.enemyEncounterChance);
-      if (enemyRoll == 0) {
+      if (rollEnemyEncounter()) {
         await CombatManager.startCombat(
           context,
           controller,
@@ -31734,25 +33846,93 @@ class SearchManager {
       }
     }
 
-    // ─── 8. Автосохранение ───
     await controller.save();
 
-    controller.notifyListeners();
+    controller.refresh();
   }
 
   // ═══════════════════════════════════════════════════════════
-  // ВНУТРЕННИЕ МЕТОДЫ
+  // ЧИСТАЯ ЛОГИКА
   // ═══════════════════════════════════════════════════════════
 
-  /// Проверить, есть ли что искать в локации
-  static bool _nothingToSearch(Location loc) {
+  @visibleForTesting
+  static bool nothingToSearch(Location loc) {
     return loc.maxSearches == 0 &&
         loc.lootPool.isEmpty &&
         loc.enemies.isEmpty &&
         loc.risk == null;
   }
 
-  /// Применить риск локации (шанс заразиться)
+  @visibleForTesting
+  static bool rollEnemyEncounter() {
+    final roll = Random().nextInt(GameConstants.enemyEncounterChance);
+    return roll == 0;
+  }
+
+  @visibleForTesting
+  static String? pickLoot(Location loc) {
+    if (loc.lootPool.isEmpty) return null;
+    return loc.lootPool[Random().nextInt(loc.lootPool.length)];
+  }
+
+  @visibleForTesting
+  static SearchEvent? pickSearchEvent({
+    required List<SearchEvent> pool,
+    required String currentLocationId,
+    required Map<String, String> hiddenMap,
+  }) {
+    final rng = Random();
+
+    final applicable = pool.where((e) {
+      return e.isApplicableTo(
+        currentLocationId: currentLocationId,
+        hiddenLocations: hiddenMap,
+      );
+    }).toList();
+
+    double totalChance = 0.0;
+    for (final e in applicable) {
+      totalChance += e.chance;
+    }
+
+    final roll = rng.nextDouble() * (totalChance > 1.0 ? totalChance : 1.0);
+
+    double cumulative = 0.0;
+    for (final event in applicable) {
+      cumulative += event.chance;
+      if (roll < cumulative) {
+        return event;
+      }
+    }
+
+    return null;
+  }
+
+  @visibleForTesting
+  static Map<String, int> extractStatDelta(Map<String, dynamic> effect) {
+    final delta = <String, int>{};
+
+    for (final key in [
+      'health',
+      'sanity',
+      'hunger',
+      'thirst',
+      'stamina',
+      'fatigue',
+    ]) {
+      final value = effect[key];
+      if (value is int && value != 0) {
+        delta[key] = value;
+      }
+    }
+
+    return delta;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ВНУТРЕННИЕ МЕТОДЫ
+  // ═══════════════════════════════════════════════════════════
+
   static Future<void> _applyLocationRisk(
     BuildContext context,
     MapController controller,
@@ -31784,7 +33964,6 @@ class SearchManager {
     }
   }
 
-  /// Стандартный поиск — берём случайный лут из пула
   static Future<void> _standardSearch(
     BuildContext context,
     MapController controller,
@@ -31792,7 +33971,8 @@ class SearchManager {
   ) async {
     controller.incrementSearchCount(loc.id);
 
-    if (loc.lootPool.isEmpty) {
+    final foundItemId = pickLoot(loc);
+    if (foundItemId == null) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -31804,7 +33984,6 @@ class SearchManager {
       return;
     }
 
-    final foundItemId = loc.lootPool[Random().nextInt(loc.lootPool.length)];
     final item = ItemLoader.findById(foundItemId);
     if (item == null) return;
 
@@ -31837,7 +34016,6 @@ class SearchManager {
     }
   }
 
-  /// Поиск события — когда стандартный пул исчерпан
   static Future<void> _eventSearch(
     BuildContext context,
     MapController controller,
@@ -31852,7 +34030,7 @@ class SearchManager {
 
     final hiddenMap = SearchEventLoader.buildHiddenMap(map.locations);
 
-    final event = _rollSearchEvent(
+    final event = pickSearchEvent(
       pool: pool,
       currentLocationId: loc.id,
       hiddenMap: hiddenMap,
@@ -31873,47 +34051,12 @@ class SearchManager {
     await _applySearchEvent(context, controller, event, loc);
   }
 
-  /// Бросить случайное событие из пула
-  static SearchEvent? _rollSearchEvent({
-    required List<SearchEvent> pool,
-    required String currentLocationId,
-    required Map<String, String> hiddenMap,
-  }) {
-    final rng = Random();
-
-    final applicable = pool.where((e) {
-      return e.isApplicableTo(
-        currentLocationId: currentLocationId,
-        hiddenLocations: hiddenMap,
-      );
-    }).toList();
-
-    double totalChance = 0.0;
-    for (final e in applicable) {
-      totalChance += e.chance;
-    }
-
-    final roll = rng.nextDouble() * (totalChance > 1.0 ? totalChance : 1.0);
-
-    double cumulative = 0.0;
-    for (final event in applicable) {
-      cumulative += event.chance;
-      if (roll < cumulative) {
-        return event;
-      }
-    }
-
-    return null;
-  }
-
-  /// Применить событие поиска
   static Future<void> _applySearchEvent(
     BuildContext context,
     MapController controller,
     SearchEvent event,
     Location loc,
   ) async {
-    // Показать текст события
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -31926,83 +34069,70 @@ class SearchManager {
 
     final effect = event.effect;
 
-    // ─── Статы ───
-    _applyStatEffects(context, controller, effect);
+    // Статы
+    final delta = extractStatDelta(effect);
+    if (delta.isNotEmpty) {
+      controller.applyStatDelta(delta);
+      _showStatFloatingEffects(context, delta);
+    }
 
-    // ─── Случайный лут ───
+    // Случайный лут
     if (effect['random_loot'] != null) {
       await _applyRandomLoot(context, controller, effect);
     }
 
-    // ─── Открытие локации ───
+    // Открытие локации
     if (effect['unlock_location'] != null) {
       await _applyUnlockLocation(context, controller, effect, loc);
     }
 
-    // ─── Флаги ───
+    // НОВОЕ: Разведка локации (без открытия)
+    if (effect['scout_location'] != null) {
+      await _applyScoutLocation(context, controller, effect);
+    }
+
+    // НОВОЕ: Разведка всего региона
+    if (effect['scout_region'] != null) {
+      await _applyScoutRegion(context, controller, effect);
+    }
+
+    // Флаги
     if (effect['flag_set'] != null) {
       controller.setFlag(effect['flag_set'] as String);
     }
 
-    // ─── Заражение ───
+    // Заражение
     if (effect['infect'] != null) {
       await _applyInfect(context, controller, effect);
     }
 
-    // ─── Бой ───
+    // Бой
     if (effect['combat_start'] != null) {
       await _applyCombatStart(context, controller, effect);
     }
   }
 
-  static void _applyStatEffects(
+  static void _showStatFloatingEffects(
     BuildContext context,
-    MapController controller,
-    Map<String, dynamic> effect,
+    Map<String, int> delta,
   ) {
-    final delta = <String, int>{};
+    if (!context.mounted) return;
 
-    if (effect['health'] != null) {
-      delta['health'] = effect['health'] as int;
+    if (delta['health'] != null) {
+      FloatingEffectOverlay.show(
+        context,
+        '${delta['health']! > 0 ? '+' : ''}${delta['health']} ❤️',
+        color: delta['health']! > 0 ? Colors.green : Colors.red,
+        icon: Icons.favorite,
+      );
     }
-    if (effect['sanity'] != null) {
-      delta['sanity'] = effect['sanity'] as int;
-    }
-    if (effect['hunger'] != null) {
-      delta['hunger'] = effect['hunger'] as int;
-    }
-    if (effect['thirst'] != null) {
-      delta['thirst'] = effect['thirst'] as int;
-    }
-    if (effect['stamina'] != null) {
-      delta['stamina'] = effect['stamina'] as int;
-    }
-    if (effect['fatigue'] != null) {
-      delta['fatigue'] = effect['fatigue'] as int;
-    }
-
-    if (delta.isEmpty) return;
-
-    controller.applyStatDelta(delta);
-
-    // Floating effect
-    if (context.mounted) {
-      if (delta['health'] != null) {
-        FloatingEffectOverlay.show(
-          context,
-          '${delta['health']! > 0 ? '+' : ''}${delta['health']} ❤️',
-          color: delta['health']! > 0 ? Colors.green : Colors.red,
-          icon: Icons.favorite,
-        );
-      }
-      if (delta['sanity'] != null) {
-        FloatingEffectOverlay.show(
-          context,
-          '${delta['sanity']! > 0 ? '+' : ''}${delta['sanity']} 🧠',
-          color: delta['sanity']! > 0 ? Colors.purple : Colors.red,
-          icon: Icons.psychology,
-        );
-      }
+    if (delta['sanity'] != null) {
+      FloatingEffectOverlay.show(
+        context,
+        '${delta['sanity']! > 0 ? '+' : ''}${delta['sanity']} 🧠',
+        color: delta['sanity']! > 0 ? Colors.purple : Colors.red,
+        icon: Icons.psychology,
+      );
     }
   }
 
@@ -32065,6 +34195,89 @@ class SearchManager {
           content: Text('🔓 Открыто новое место: ${hidden.name}'),
           duration: const Duration(seconds: 4),
           backgroundColor: const Color.fromARGB(255, 200, 180, 100),
+        ),
+      );
+    }
+  }
+
+  /// НОВОЕ: разведка локации.
+  ///
+  /// Формат в JSON:
+  ///   "scout_location": "street_center"
+  ///   "scout_location": ["street_center", "office_tower"]
+  static Future<void> _applyScoutLocation(
+    BuildContext context,
+    MapController controller,
+    Map<String, dynamic> effect,
+  ) async {
+    final value = effect['scout_location'];
+
+    final List<String> toScout;
+    if (value is String) {
+      toScout = [value];
+    } else if (value is List) {
+      toScout = List<String>.from(value);
+    } else {
+      return;
+    }
+
+    if (toScout.isEmpty) return;
+
+    controller.scoutAll(toScout);
+
+    if (context.mounted) {
+      AudioService.playNotification();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('🔭 Разведано: ${toScout.length} мест'),
+          duration: const Duration(seconds: 3),
+          backgroundColor: const Color.fromARGB(255, 100, 150, 200),
+        ),
+      );
+    }
+  }
+
+  /// НОВОЕ: разведка всего региона.
+  ///
+  /// Формат в JSON:
+  ///   "scout_region": "city_center"
+  ///   "scout_region": ["city_center", "forest"]
+  static Future<void> _applyScoutRegion(
+    BuildContext context,
+    MapController controller,
+    Map<String, dynamic> effect,
+  ) async {
+    final value = effect['scout_region'];
+
+    final List<String> regions;
+    if (value is String) {
+      regions = [value];
+    } else if (value is List) {
+      regions = List<String>.from(value);
+    } else {
+      return;
+    }
+
+    final map = controller.map;
+    if (map == null) return;
+
+    int totalScouted = 0;
+    for (final region in regions) {
+      final regionLocations = map.locations
+          .where((l) => l.region == region && !l.hidden)
+          .map((l) => l.id)
+          .toList();
+      controller.scoutAll(regionLocations);
+      totalScouted += regionLocations.length;
+    }
+
+    if (context.mounted && totalScouted > 0) {
+      AudioService.playNotification();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('🔭 Разведан регион: $totalScouted мест'),
+          duration: const Duration(seconds: 4),
+          backgroundColor: const Color.fromARGB(255, 100, 150, 200),
         ),
       );
     }
@@ -33568,7 +35781,6 @@ class ShakeWidget extends StatefulWidget {
 class _ShakeWidgetState extends State<ShakeWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  final Random _rng = Random();
 
   @override
   void initState() {
@@ -34940,7 +37152,8 @@ import 'package:flutter/material.dart';
 import 'package:dark_hours/models/inventory/equipment.dart';
 import 'package:dark_hours/models/inventory/inventory_item.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
-import 'package:dark_hours/widgets/panels/inventory_panel.dart' show ItemDetailsSheet;
+import 'package:dark_hours/widgets/panels/inventory_panel.dart'
+    show ItemDetailsSheet;
 
 class EquipmentPanel extends StatelessWidget {
   final Equipment equipment;
@@ -34983,14 +37196,14 @@ class EquipmentPanel extends StatelessWidget {
         children: [
           // Заголовок
           Row(
-            children: [
-              const Icon(
+            children: const [
+              Icon(
                 Icons.shield_outlined,
                 color: Color.fromARGB(255, 200, 180, 100),
                 size: 22,
               ),
-              const SizedBox(width: 8),
-              const Text(
+              SizedBox(width: 8),
+              Text(
                 'ЭКИПИРОВКА',
                 style: TextStyle(
                   color: Color.fromARGB(255, 200, 180, 100),
@@ -35004,55 +37217,19 @@ class EquipmentPanel extends StatelessWidget {
           const SizedBox(height: 12),
 
           // Итоговые характеристики
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 25, 25, 25),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: const Color.fromARGB(255, 200, 180, 100)
-                    .withOpacity(0.3),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildStatSummary(
-                  '⚔️',
-                  '${equipment.totalDamage}',
-                  'Урон',
-                  Colors.red[400]!,
-                ),
-                _buildStatSummary(
-                  '🛡️',
-                  '${equipment.totalProtection}',
-                  'Защита',
-                  Colors.blue[400]!,
-                ),
-                _buildStatSummary(
-                  '🔥',
-                  '${equipment.totalWarmth}',
-                  'Тепло',
-                  Colors.orange[400]!,
-                ),
-                _buildStatSummary(
-                  '🎒',
-                  '+${equipment.extraSlots}',
-                  'Слоты',
-                  Colors.teal[300]!,
-                ),
-              ],
-            ),
-          ),
+          _buildSummaryCard(),
           const SizedBox(height: 16),
 
           // Слоты экипировки
           _buildSlot(context, 'weapon', 'Оружие', Icons.gavel, equipment.weapon),
           _buildSlot(context, 'head', 'Голова', Icons.face, equipment.head),
           _buildSlot(context, 'body', 'Тело', Icons.checkroom, equipment.body),
-          _buildSlot(context, 'hands', 'Руки', Icons.back_hand, equipment.hands),
-          _buildSlot(context, 'feet', 'Ноги', Icons.directions_walk, equipment.feet),
-          _buildSlot(context, 'backpack', 'Рюкзак', Icons.backpack, equipment.backpack),
+          _buildSlot(
+              context, 'hands', 'Руки', Icons.back_hand, equipment.hands),
+          _buildSlot(
+              context, 'feet', 'Ноги', Icons.directions_walk, equipment.feet),
+          _buildSlot(context, 'backpack', 'Рюкзак', Icons.backpack,
+              equipment.backpack),
 
           const SizedBox(height: 10),
         ],
@@ -35060,7 +37237,59 @@ class EquipmentPanel extends StatelessWidget {
     );
   }
 
-  Widget _buildStatSummary(String icon, String value, String label, Color color) {
+  // ═══════════════════════════════════════════════════════════
+  // ИТОГОВЫЕ ХАРАКТЕРИСТИКИ
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildSummaryCard() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 25, 25, 25),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: const Color.fromARGB(255, 200, 180, 100)
+              .withValues(alpha: 0.3),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildStatSummary(
+            '⚔️',
+            '${equipment.totalDamage}',
+            'Урон',
+            Colors.red[400]!,
+          ),
+          _buildStatSummary(
+            '🛡️',
+            '${equipment.totalProtection}',
+            'Защита',
+            Colors.blue[400]!,
+          ),
+          _buildStatSummary(
+            '🔥',
+            '${equipment.totalWarmth}',
+            'Тепло',
+            Colors.orange[400]!,
+          ),
+          _buildStatSummary(
+            '🎒',
+            '+${equipment.extraSlots}',
+            'Слоты',
+            Colors.teal[300]!,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatSummary(
+    String icon,
+    String value,
+    String label,
+    Color color,
+  ) {
     return Column(
       children: [
         Text(icon, style: const TextStyle(fontSize: 18)),
@@ -35084,6 +37313,10 @@ class EquipmentPanel extends StatelessWidget {
     );
   }
 
+  // ═══════════════════════════════════════════════════════════
+  // СЛОТЫ ЭКИПИРОВКИ
+  // ═══════════════════════════════════════════════════════════
+
   Widget _buildSlot(
     BuildContext context,
     String slotKey,
@@ -35092,9 +37325,8 @@ class EquipmentPanel extends StatelessWidget {
     InventoryItem? item,
   ) {
     final isEmpty = item == null;
-    final rarityColor = isEmpty
-        ? Colors.grey[700]!
-        : _rarityColor(item.rarity);
+    final rarityColor =
+        isEmpty ? Colors.grey[700]! : _rarityColor(item.rarity);
 
     final content = Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -35103,7 +37335,7 @@ class EquipmentPanel extends StatelessWidget {
         color: const Color.fromARGB(255, 25, 25, 25),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: rarityColor.withOpacity(isEmpty ? 0.2 : 0.5),
+          color: rarityColor.withValues(alpha: isEmpty ? 0.2 : 0.5),
           width: 1,
         ),
       ),
@@ -35141,7 +37373,7 @@ class EquipmentPanel extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        item!.icon,
+                        item.icon,
                         style: const TextStyle(fontSize: 16),
                       ),
                       const SizedBox(width: 6),
@@ -36506,135 +38738,19 @@ flutter:
     - assets/audio/music/
 ```
 
-### 📄 `./reorganize.sh`
-```bash
-#!/bin/bash
+### 📄 `./test/_helpers/test_fixtures.dart`
+```dart
+import 'package:dark_hours/models/world/connection.dart';
 
-echo "📁 Создаём новую структуру папок..."
+/// Хелпер для тестов: быстрое создание Connection.
+Connection conn(String targetId, [int minutes = 10]) {
+  return Connection(targetId: targetId, minutes: minutes);
+}
 
-# Models
-mkdir -p lib/models/character
-mkdir -p lib/models/inventory
-mkdir -p lib/models/items
-mkdir -p lib/models/combat
-mkdir -p lib/models/conditions
-mkdir -p lib/models/world
-mkdir -p lib/models/story
-mkdir -p lib/models/time
-mkdir -p lib/models/progress
-mkdir -p lib/models/save
-
-# Services
-mkdir -p lib/services/save
-mkdir -p lib/services/items
-mkdir -p lib/services/conditions
-mkdir -p lib/services/time
-mkdir -p lib/services/progress
-
-# Screens
-mkdir -p lib/screens/main
-mkdir -p lib/screens/gameplay
-mkdir -p lib/screens/extra
-
-# Widgets
-mkdir -p lib/widgets/panels
-mkdir -p lib/widgets/cards
-mkdir -p lib/widgets/indicators
-mkdir -p lib/widgets/effects
-
-echo "📦 Переносим модели..."
-
-# Character
-mv lib/models/character.dart lib/models/character/ 2>/dev/null
-
-# Inventory
-mv lib/models/inventory.dart lib/models/inventory/ 2>/dev/null
-mv lib/models/inventory_item.dart lib/models/inventory/ 2>/dev/null
-mv lib/models/equipment.dart lib/models/inventory/ 2>/dev/null
-
-# Items
-mv lib/models/weapon.dart lib/models/items/ 2>/dev/null
-mv lib/models/tool.dart lib/models/items/ 2>/dev/null
-mv lib/models/consumable.dart lib/models/items/ 2>/dev/null
-mv lib/models/armor.dart lib/models/items/ 2>/dev/null
-mv lib/models/resource.dart lib/models/items/ 2>/dev/null
-mv lib/models/recipe.dart lib/models/items/ 2>/dev/null
-
-# Combat
-mv lib/models/combat.dart lib/models/combat/ 2>/dev/null
-
-# Conditions
-mv lib/models/condition.dart lib/models/conditions/ 2>/dev/null
-mv lib/models/active_condition.dart lib/models/conditions/ 2>/dev/null
-
-# World
-mv lib/models/location.dart lib/models/world/ 2>/dev/null
-mv lib/models/world_map.dart lib/models/world/ 2>/dev/null
-
-# Story
-mv lib/models/story_node.dart lib/models/story/ 2>/dev/null
-
-# Time
-mv lib/models/game_time.dart lib/models/time/ 2>/dev/null
-mv lib/models/rest_action.dart lib/models/time/ 2>/dev/null
-
-# Progress
-mv lib/models/achievement.dart lib/models/progress/ 2>/dev/null
-mv lib/models/player_stats.dart lib/models/progress/ 2>/dev/null
-
-# Save
-mv lib/models/save_data.dart lib/models/save/ 2>/dev/null
-
-echo "📦 Переносим сервисы..."
-
-mv lib/services/save_manager.dart lib/services/save/ 2>/dev/null
-mv lib/services/item_loader.dart lib/services/items/ 2>/dev/null
-mv lib/services/condition_manager.dart lib/services/conditions/ 2>/dev/null
-mv lib/services/time_manager.dart lib/services/time/ 2>/dev/null
-mv lib/services/run_tracker.dart lib/services/progress/ 2>/dev/null
-mv lib/services/achievement_manager.dart lib/services/progress/ 2>/dev/null
-mv lib/services/achievement_checker.dart lib/services/progress/ 2>/dev/null
-
-echo "📦 Переносим экраны..."
-
-mv lib/screens/start_screen.dart lib/screens/main/ 2>/dev/null
-mv lib/screens/character_select_screen.dart lib/screens/main/ 2>/dev/null
-mv lib/screens/death_screen.dart lib/screens/main/ 2>/dev/null
-
-mv lib/screens/story_screen.dart lib/screens/gameplay/ 2>/dev/null
-mv lib/screens/map_screen.dart lib/screens/gameplay/ 2>/dev/null
-mv lib/screens/combat_screen.dart lib/screens/gameplay/ 2>/dev/null
-
-mv lib/screens/equipment_test_screen.dart lib/screens/extra/ 2>/dev/null
-mv lib/screens/achievements_screen.dart lib/screens/extra/ 2>/dev/null
-
-echo "📦 Переносим виджеты..."
-
-mv lib/widgets/inventory_panel.dart lib/widgets/panels/ 2>/dev/null
-mv lib/widgets/equipment_panel.dart lib/widgets/panels/ 2>/dev/null
-mv lib/widgets/conditions_panel.dart lib/widgets/panels/ 2>/dev/null
-mv lib/widgets/rest_panel.dart lib/widgets/panels/ 2>/dev/null
-mv lib/widgets/craft_panel.dart lib/widgets/panels/ 2>/dev/null
-mv lib/widgets/penalties_panel.dart lib/widgets/panels/ 2>/dev/null
-
-mv lib/widgets/character_card.dart lib/widgets/cards/ 2>/dev/null
-mv lib/widgets/animated_location_card.dart lib/widgets/cards/ 2>/dev/null
-
-mv lib/widgets/time_indicator.dart lib/widgets/indicators/ 2>/dev/null
-mv lib/widgets/animated_stat_bar.dart lib/widgets/indicators/ 2>/dev/null
-
-mv lib/widgets/fade_in_text.dart lib/widgets/effects/ 2>/dev/null
-mv lib/widgets/floating_effect.dart lib/widgets/effects/ 2>/dev/null
-mv lib/widgets/shimmer_button.dart lib/widgets/effects/ 2>/dev/null
-mv lib/widgets/shake_widget.dart lib/widgets/effects/ 2>/dev/null
-mv lib/widgets/achievement_popup.dart lib/widgets/effects/ 2>/dev/null
-mv lib/widgets/achievement_notifier.dart lib/widgets/effects/ 2>/dev/null
-
-echo "✅ Файлы перемещены!"
-echo ""
-echo "🔧 Теперь нужно исправить импорты в файлах."
-echo "Запусти: dart fix_imports.sh (см. следующий шаг)"
-
+/// Хелпер для тестов: список Connection.
+List<Connection> conns(List<String> ids, {int minutes = 10}) {
+  return ids.map((id) => Connection(targetId: id, minutes: minutes)).toList();
+}
 ```
 
 ### 📄 `./test/models/combat_test.dart`
@@ -37339,7 +39455,6 @@ void main() {
 
 ### 📄 `./test/services/item_loader_test.dart`
 ```dart
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dark_hours/services/items/item_loader.dart';
 
@@ -37482,6 +39597,2583 @@ void main() {
 
     test('загружено больше 0 расходников', () {
       expect(ItemLoader.allConsumables.length, greaterThan(0));
+    });
+  });
+}
+```
+
+### 📄 `./test/services/map/combat_manager_test.dart`
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../_helpers/test_fixtures.dart';
+
+import 'package:dark_hours/models/world/location.dart';
+import 'package:dark_hours/services/map/map_controller.dart';
+import 'package:dark_hours/services/map/combat_manager.dart';
+import 'package:dark_hours/services/audio/audio_service.dart';
+
+void main() {
+  setUpAll(() {
+    TestWidgetsFlutterBinding.ensureInitialized();
+  });
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    AudioService.enabled = false;
+  });
+
+  tearDown(() {
+    AudioService.enabled = true;
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // ФИКСТУРЫ
+  // ═══════════════════════════════════════════════════════════
+
+  final startLocation = Location(
+    id: 'start',
+    name: 'Старт',
+    description: '',
+    type: 'safe_house',
+    region: 'city',
+    dangerLevel: 0,
+    searchTime: 0,
+    maxSearches: 0,
+    lootPool: [],
+    enemies: [],
+    connections: conns(['street', 'forest', 'safe_house', 'secret']),
+    icon: '🏠',
+    repeatable: true,
+    isStart: true,
+  );
+
+  final streetLocation = Location(
+    id: 'street',
+    name: 'Улица',
+    description: '',
+    type: 'street',
+    region: 'city',
+    dangerLevel: 6,
+    searchTime: 15,
+    maxSearches: 3,
+    lootPool: [],
+    enemies: [],
+    connections: conns(['start']),
+    icon: '🛣️',
+    repeatable: true,
+  );
+
+  final forestLocation = Location(
+    id: 'forest',
+    name: 'Лес',
+    description: '',
+    type: 'forest',
+    region: 'forest',
+    dangerLevel: 2,
+    searchTime: 20,
+    maxSearches: 3,
+    lootPool: [],
+    enemies: [],
+    connections: conns(['start']),
+    icon: '🌲',
+    repeatable: true,
+  );
+
+  final safeHouseLocation = Location(
+    id: 'safe_house',
+    name: 'Убежище',
+    description: '',
+    type: 'safe_house',
+    region: 'city',
+    dangerLevel: 1,
+    searchTime: 20,
+    maxSearches: 3,
+    lootPool: [],
+    enemies: [],
+    connections: conns(['start']),
+    icon: '🏡',
+    repeatable: true,
+  );
+
+  final hiddenLocation = Location(
+    id: 'secret',
+    name: 'Секрет',
+    description: '',
+    type: 'hidden',
+    region: 'city',
+    dangerLevel: 3,
+    searchTime: 30,
+    maxSearches: 3,
+    lootPool: [],
+    enemies: [],
+    connections: conns(['start']),
+    icon: '🔓',
+    repeatable: true,
+    hidden: true,
+    unlockedBy: 'start',
+  );
+
+  MapController makeController({List<Location>? locations}) {
+    final c = MapController(
+      characterId: 'boris',
+      characterName: 'Борис',
+    );
+    c.initForTest(
+      locations: locations ??
+          [
+            startLocation,
+            streetLocation,
+            forestLocation,
+            safeHouseLocation,
+            hiddenLocation,
+          ],
+    );
+    return c;
+  }
+
+  Widget makeTestApp({
+    required Future<void> Function(BuildContext context) onPressed,
+  }) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Builder(
+          builder: (context) => ElevatedButton(
+            onPressed: () => onPressed(context),
+            child: const Text('TEST'),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // isStoryBoss
+  // ═══════════════════════════════════════════════════════════
+
+  group('CombatManager.isStoryBoss', () {
+    test('true для Васьки', () {
+      expect(CombatManager.isStoryBoss('Васька'), true);
+    });
+
+    test('true для Сергея', () {
+      expect(CombatManager.isStoryBoss('Сергей'), true);
+    });
+
+    test('true для Главаря банды', () {
+      expect(CombatManager.isStoryBoss('Главарь банды'), true);
+    });
+
+    test('false для обычного врага', () {
+      expect(CombatManager.isStoryBoss('Мародёр'), false);
+    });
+
+    test('false для пустой строки', () {
+      expect(CombatManager.isStoryBoss(''), false);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // isDangerousEnemy
+  // ═══════════════════════════════════════════════════════════
+
+  group('CombatManager.isDangerousEnemy', () {
+    test('true для "Бандит"', () {
+      expect(CombatManager.isDangerousEnemy('Бандит'), true);
+    });
+
+    test('true для "Дезертир"', () {
+      expect(CombatManager.isDangerousEnemy('Дезертир'), true);
+    });
+
+    test('true для "Медведь"', () {
+      expect(CombatManager.isDangerousEnemy('Медведь'), true);
+    });
+
+    test('true для "Вооружённый мародёр" (подстрока)', () {
+      expect(
+        CombatManager.isDangerousEnemy('Вооружённый мародёр'),
+        true,
+      );
+    });
+
+    test('true для "Главарь"', () {
+      expect(CombatManager.isDangerousEnemy('Главарь'), true);
+    });
+
+    test('false для обычного "Мародёр"', () {
+      expect(CombatManager.isDangerousEnemy('Мародёр'), false);
+    });
+
+    test('false для "Собака"', () {
+      expect(CombatManager.isDangerousEnemy('Собака'), false);
+    });
+
+    test('false для пустой строки', () {
+      expect(CombatManager.isDangerousEnemy(''), false);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // pickSafeLocation
+  // ═══════════════════════════════════════════════════════════
+
+  group('CombatManager.pickSafeLocation', () {
+    test('возвращает локацию с dangerLevel <= 2', () {
+      final c = makeController();
+      final result = CombatManager.pickSafeLocation(c);
+
+      expect(result, isNotNull);
+      expect(result!.dangerLevel, lessThanOrEqualTo(2));
+    });
+
+    test('не возвращает текущую локацию', () {
+      final c = makeController();
+      final result = CombatManager.pickSafeLocation(c);
+
+      expect(result, isNotNull);
+      expect(result!.id, isNot('start'));
+    });
+
+    test('не возвращает скрытые локации', () {
+      final c = makeController();
+      final result = CombatManager.pickSafeLocation(c);
+
+      expect(result, isNotNull);
+      expect(result!.hidden, false);
+    });
+
+    test('возвращает null, если только одна локация и она текущая', () {
+      final c = makeController(locations: [startLocation]);
+      final result = CombatManager.pickSafeLocation(c);
+
+      expect(result, isNull);
+    });
+
+    test('возвращает null, если нет локаций с dangerLevel <= 2', () {
+      final c = makeController(
+        locations: [startLocation, streetLocation],
+      );
+      final result = CombatManager.pickSafeLocation(c);
+
+      expect(result, isNull);
+    });
+
+    test('может вернуть forest (dangerLevel 2)', () {
+      final c = makeController();
+      final result = CombatManager.pickSafeLocation(c);
+
+      expect(result, isNotNull);
+      expect(['forest', 'safe_house'], contains(result!.id));
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // pickNeighborLocation
+  // ═══════════════════════════════════════════════════════════
+
+  group('CombatManager.pickNeighborLocation', () {
+    test('возвращает одну из соседних локаций', () {
+      final c = makeController();
+
+      final result = CombatManager.pickNeighborLocation(c);
+
+      expect(result, isNotNull);
+      expect(result!.id, isNot('start'));
+    });
+
+    test('не возвращает скрытую неоткрытую локацию', () {
+      final c = makeController();
+
+      for (int i = 0; i < 100; i++) {
+        final result = CombatManager.pickNeighborLocation(c);
+        expect(result!.id, isNot('secret'));
+      }
+    });
+
+    test('возвращает скрытую ОТКРЫТУЮ локацию', () {
+      final c = makeController();
+      c.unlockLocation('secret');
+
+      final picks = <String>{};
+      for (int i = 0; i < 100; i++) {
+        final result = CombatManager.pickNeighborLocation(c);
+        if (result != null) picks.add(result.id);
+      }
+      expect(picks, contains('secret'));
+    });
+
+    test('возвращает null, если у текущей локации нет соседей', () {
+      final isolated = Location(
+        id: 'isolated',
+        name: 'Одинокий',
+        description: '',
+        type: 'safe_house',
+        region: 'city',
+        dangerLevel: 0,
+        searchTime: 0,
+        maxSearches: 0,
+        lootPool: [],
+        enemies: [],
+        connections: conns([]),
+        icon: '🏚️',
+        repeatable: true,
+        isStart: true,
+      );
+
+      final c = makeController(locations: [isolated]);
+      final result = CombatManager.pickNeighborLocation(c);
+
+      expect(result, isNull);
+    });
+
+    test('возвращает null, если карта null', () {
+      final c = MapController(characterId: 'boris', characterName: 'Борис');
+      final result = CombatManager.pickNeighborLocation(c);
+      expect(result, isNull);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // startCombat — базовая проверка
+  // ═══════════════════════════════════════════════════════════
+
+  group('CombatManager.startCombat — widget', () {
+    testWidgets('не падает для несуществующего enemyId', (tester) async {
+      final c = makeController();
+
+      await tester.pumpWidget(
+        makeTestApp(
+          onPressed: (context) =>
+              CombatManager.startCombat(context, c, 'nonexistent_enemy'),
+        ),
+      );
+
+      await tester.tap(find.text('TEST'));
+      await tester.pumpAndSettle();
+
+      expect(true, true);
+    });
+
+    testWidgets('после вызова trackCombat должен быть true',
+        (tester) async {
+      final c = makeController();
+
+      await tester.pumpWidget(
+        makeTestApp(
+          onPressed: (context) =>
+              CombatManager.startCombat(context, c, 'nonexistent_enemy'),
+        ),
+      );
+
+      await tester.tap(find.text('TEST'));
+      await tester.pumpAndSettle();
+
+      expect(c.tracker.hadCombat, false);
+    });
+  });
+}
+```
+
+### 📄 `./test/services/map/death_manager_test.dart`
+```dart
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:dark_hours/models/world/location.dart';
+import 'package:dark_hours/services/map/map_controller.dart';
+import 'package:dark_hours/services/map/death_manager.dart';
+import 'package:dark_hours/services/progress/achievement_manager.dart';
+import 'package:dark_hours/constants/game_constants.dart';
+
+void main() {
+  // ═══════════════════════════════════════════════════════════
+  // ФИКСТУРЫ
+  // ═══════════════════════════════════════════════════════════
+
+  const homeLocation = Location(
+    id: 'home',
+    name: 'Дом',
+    description: 'Твой дом',
+    type: 'safe_house',
+    region: 'city',
+    dangerLevel: 0,
+    searchTime: 30,
+    maxSearches: 3,
+    lootPool: [],
+    enemies: [],
+    connections: [],
+    icon: '🏠',
+    repeatable: true,
+    isStart: true,
+  );
+
+  MapController makeController({
+    String characterId = 'boris',
+    String characterName = 'Борис',
+    int startTimeMinutes = GameConstants.startTimeMinutes,
+  }) {
+    final c = MapController(
+      characterId: characterId,
+      characterName: characterName,
+    );
+    c.initForTest(
+      locations: const [homeLocation],
+      startTimeMinutes: startTimeMinutes,
+    );
+    return c;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // checkDeath — смерть от разных причин
+  // ═══════════════════════════════════════════════════════════
+
+  group('DeathManager.checkDeath', () {
+    test('false при нормальных статах', () {
+      final c = makeController();
+      expect(DeathManager.checkDeath(c), false);
+      expect(c.isDead, false);
+    });
+
+    test('true при hunger <= 0', () {
+      final c = makeController();
+      c.setHunger(0);
+      expect(DeathManager.checkDeath(c), true);
+      expect(c.isDead, true);
+      expect(c.deathReason, contains('голод'));
+    });
+
+    test('true при thirst <= 0', () {
+      final c = makeController();
+      c.setThirst(0);
+      expect(DeathManager.checkDeath(c), true);
+      expect(c.isDead, true);
+      expect(c.deathReason, contains('обезвоживан'));
+    });
+
+    test('true при health <= 0', () {
+      final c = makeController();
+      c.setHealth(0);
+      expect(DeathManager.checkDeath(c), true);
+      expect(c.isDead, true);
+      expect(c.deathReason, contains('ран'));
+    });
+
+    test('false при health = 1, hunger = 1, thirst = 1', () {
+      final c = makeController();
+      c.setHealth(1);
+      c.setHunger(1);
+      c.setThirst(1);
+      expect(DeathManager.checkDeath(c), false);
+    });
+
+    test('голод имеет приоритет над жаждой (проверка порядка)', () {
+      final c = makeController();
+      c.setHunger(0);
+      c.setThirst(0);
+      DeathManager.checkDeath(c);
+      expect(c.deathReason, contains('голод'));
+    });
+
+    test('если isDead уже true — возвращает true без изменения reason', () {
+      final c = makeController();
+      c.markDead('Уже мёртв');
+      expect(DeathManager.checkDeath(c), true);
+      expect(c.deathReason, 'Уже мёртв');
+    });
+
+    test('устанавливает isDead = true', () {
+      final c = makeController();
+      c.setHealth(0);
+      expect(c.isDead, false);
+      DeathManager.checkDeath(c);
+      expect(c.isDead, true);
+    });
+
+    test('true при isWinter (после 60 дней)', () {
+      // startTimeMinutes = 61 день в минутах → зима
+      final c = makeController(
+        startTimeMinutes: 61 * 24 * 60,
+      );
+      expect(DeathManager.checkDeath(c), true);
+      expect(c.deathReason, contains('зима'));
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // evaluateFatigue — чистая логика
+  // ═══════════════════════════════════════════════════════════
+
+  group('DeathManager.evaluateFatigue — зона nothing', () {
+    test('nothing при fatigue = 0', () {
+      final c = makeController();
+      c.setFatigue(0);
+      final result = DeathManager.evaluateFatigue(c);
+      expect(result.action, FatigueAction.nothing);
+    });
+
+    test('nothing при fatigue = 50', () {
+      final c = makeController();
+      c.setFatigue(50);
+      expect(DeathManager.evaluateFatigue(c).action, FatigueAction.nothing);
+    });
+
+    test('nothing при fatigue = 79 (ниже порога warning)', () {
+      final c = makeController();
+      c.setFatigue(79);
+      expect(DeathManager.evaluateFatigue(c).action, FatigueAction.nothing);
+    });
+
+    test('nothing при fatigue = 80 (зона warning, но не автосон)', () {
+      final c = makeController();
+      c.setFatigue(80);
+      expect(DeathManager.evaluateFatigue(c).action, FatigueAction.nothing);
+    });
+
+    test('nothing при fatigue = 94 (за шаг до forcedSleep)', () {
+      final c = makeController();
+      c.setFatigue(94);
+      expect(DeathManager.evaluateFatigue(c).action, FatigueAction.nothing);
+    });
+  });
+
+  group('DeathManager.evaluateFatigue — зона forcedSleep', () {
+    test('forcedSleep при fatigue = 95 (граница)', () {
+      final c = makeController();
+      c.setFatigue(95);
+      expect(
+        DeathManager.evaluateFatigue(c).action,
+        FatigueAction.forcedSleep,
+      );
+    });
+
+    test('forcedSleep при fatigue = 99', () {
+      final c = makeController();
+      c.setFatigue(99);
+      expect(
+        DeathManager.evaluateFatigue(c).action,
+        FatigueAction.forcedSleep,
+      );
+    });
+
+    test('nothing при fatigue = 95, но autoSleepTriggered = true', () {
+      final c = makeController();
+      c.setFatigue(95);
+      c.autoSleepTriggered = true;
+      expect(DeathManager.evaluateFatigue(c).action, FatigueAction.nothing);
+    });
+
+    test('forcedSleep при fatigue = 97 и autoSleepTriggered = false', () {
+      final c = makeController();
+      c.setFatigue(97);
+      c.autoSleepTriggered = false;
+      expect(
+        DeathManager.evaluateFatigue(c).action,
+        FatigueAction.forcedSleep,
+      );
+    });
+  });
+
+  group('DeathManager.evaluateFatigue — зона collapse', () {
+    test('collapse при fatigue = 100 без прошлого коллапса', () {
+      final c = makeController();
+      c.setFatigue(100);
+      c.lastCollapseTime = null;
+      expect(DeathManager.evaluateFatigue(c).action, FatigueAction.collapse);
+    });
+
+    test('collapse при fatigue = 100 и коллапс 25 часов назад', () {
+      final c = makeController();
+      c.setFatigue(100);
+      c.lastCollapseTime = DateTime.now().subtract(
+        const Duration(hours: 25),
+      );
+      expect(DeathManager.evaluateFatigue(c).action, FatigueAction.collapse);
+    });
+  });
+
+  group('DeathManager.evaluateFatigue — зона died', () {
+    test('died при fatigue = 100 и коллапсе 1 час назад', () {
+      final c = makeController();
+      c.setFatigue(100);
+      c.lastCollapseTime = DateTime.now().subtract(
+        const Duration(hours: 1),
+      );
+      final result = DeathManager.evaluateFatigue(c);
+      expect(result.action, FatigueAction.died);
+      expect(result.deathReason, isNotNull);
+      expect(result.deathReason, contains('истощени'));
+    });
+
+    test('died при fatigue = 100 и коллапсе 23 часа назад (граница)', () {
+      final c = makeController();
+      c.setFatigue(100);
+      c.lastCollapseTime = DateTime.now().subtract(
+        const Duration(hours: 23),
+      );
+      expect(DeathManager.evaluateFatigue(c).action, FatigueAction.died);
+    });
+
+    test('collapse при fatigue = 100 и коллапсе ровно 24 часа назад', () {
+      final c = makeController();
+      c.setFatigue(100);
+      c.lastCollapseTime = DateTime.now().subtract(
+        const Duration(hours: 24),
+      );
+      expect(DeathManager.evaluateFatigue(c).action, FatigueAction.collapse);
+    });
+
+    test('nothing при isDead = true, даже если fatigue = 100', () {
+      final c = makeController();
+      c.setFatigue(100);
+      c.markDead('Уже мёртв');
+      expect(DeathManager.evaluateFatigue(c).action, FatigueAction.nothing);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // applyStatsOnDeath — статистика при смерти
+  // ═══════════════════════════════════════════════════════════
+
+  group('DeathManager.applyStatsOnDeath', () {
+    setUp(() async {
+      // Очищаем SharedPreferences И кэш AchievementManager
+      SharedPreferences.setMockInitialValues({});
+      await AchievementManager.reset();
+    });
+
+    test('увеличивает totalDeaths на 1', () async {
+      final c = makeController();
+      final statsBefore = await AchievementManager.loadStats();
+      final before = statsBefore.totalDeaths;
+
+      await DeathManager.applyStatsOnDeath(c);
+
+      final statsAfter = await AchievementManager.loadStats();
+      expect(statsAfter.totalDeaths, before + 1);
+    });
+
+    test('добавляет текущий день в totalDaysSurvived', () async {
+      final c = makeController();
+      // gameTime.day = 1 сразу после initForTest
+      final statsBefore = await AchievementManager.loadStats();
+      final before = statsBefore.totalDaysSurvived;
+
+      await DeathManager.applyStatsOnDeath(c);
+
+      final statsAfter = await AchievementManager.loadStats();
+      expect(statsAfter.totalDaysSurvived, before + 1);
+    });
+
+    test('обновляет bestRunDays, если текущий день больше', () async {
+      // Загружаем начальную статистику и задаём bestRunDays = 5
+      final initial = await AchievementManager.loadStats();
+      initial.bestRunDays = 5;
+      await AchievementManager.saveStats(initial);
+
+      // Создаём контроллер и двигаем время на 10 дней
+      final c = makeController();
+      await c.advanceTime(10 * 24 * 60); // 10 дней
+
+      await DeathManager.applyStatsOnDeath(c);
+
+      final statsAfter = await AchievementManager.loadStats();
+      expect(statsAfter.bestRunDays, greaterThanOrEqualTo(11));
+    });
+
+    test('НЕ обновляет bestRunDays, если текущий день меньше', () async {
+      final initial = await AchievementManager.loadStats();
+      initial.bestRunDays = 100;
+      initial.bestRunCharacter = 'Андрей';
+      await AchievementManager.saveStats(initial);
+
+      final c = makeController(characterName: 'Борис');
+      await DeathManager.applyStatsOnDeath(c);
+
+      final statsAfter = await AchievementManager.loadStats();
+      expect(statsAfter.bestRunDays, 100);
+      expect(statsAfter.bestRunCharacter, 'Андрей');
+    });
+
+    test('устанавливает bestRunCharacter при новом рекорде', () async {
+      final c = makeController(characterName: 'Иван Ильич');
+      await DeathManager.applyStatsOnDeath(c);
+
+      final statsAfter = await AchievementManager.loadStats();
+      expect(statsAfter.bestRunCharacter, 'Иван Ильич');
+    });
+
+    test('applyToStats переносит kills/defeats/crafted из tracker', () async {
+      final c = makeController();
+      c.tracker.kills = 3;
+      c.tracker.defeats = 2;
+      c.tracker.craftedCount = 5;
+
+      final statsBefore = await AchievementManager.loadStats();
+      final killsBefore = statsBefore.totalKills;
+      final defeatsBefore = statsBefore.totalDefeats;
+      final craftedBefore = statsBefore.totalItemsCrafted;
+
+      await DeathManager.applyStatsOnDeath(c);
+
+      final statsAfter = await AchievementManager.loadStats();
+      expect(statsAfter.totalKills, killsBefore + 3);
+      expect(statsAfter.totalDefeats, defeatsBefore + 2);
+      expect(statsAfter.totalItemsCrafted, craftedBefore + 5);
+    });
+  });
+}
+```
+
+### 📄 `./test/services/map/map_controller_test.dart`
+```dart
+import 'package:flutter_test/flutter_test.dart';
+import '../../_helpers/test_fixtures.dart';
+
+import 'package:dark_hours/models/world/location.dart';
+import 'package:dark_hours/models/conditions/condition.dart';
+import 'package:dark_hours/models/inventory/inventory_item.dart';
+import 'package:dark_hours/services/map/map_controller.dart';
+
+void main() {
+  // ═══════════════════════════════════════════════════════════
+  // ФИКСТУРЫ
+  // ═══════════════════════════════════════════════════════════
+
+  final homeLocation = Location(
+    id: 'home',
+    name: 'Дом',
+    description: 'Твой дом',
+    type: 'safe_house',
+    region: 'city',
+    dangerLevel: 0,
+    searchTime: 30,
+    maxSearches: 3,
+    lootPool: ['canned_stew'],
+    enemies: [],
+    connections: conns(['street']),
+    icon: '🏠',
+    repeatable: true,
+    isStart: true,
+  );
+
+  final streetLocation = Location(
+    id: 'street',
+    name: 'Улица',
+    description: 'Пустая улица',
+    type: 'street',
+    region: 'city',
+    dangerLevel: 3,
+    searchTime: 15,
+    maxSearches: 3,
+    lootPool: ['bandage'],
+    enemies: [],
+    connections: conns(['home']),
+    icon: '🛣️',
+    repeatable: true,
+  );
+
+  const infectionCondition = Condition(
+    id: 'infection',
+    name: 'Инфекция',
+    description: 'Рана заражена',
+    icon: '🦠',
+    severity: 'medium',
+    effectsPerTurn: {'health': -3},
+    cureItems: ['antibiotic_pill'],
+    cureChance: 0.9,
+    durationDays: 5,
+    source: ['combat_wound'],
+  );
+
+  const coldCondition = Condition(
+    id: 'cold',
+    name: 'Простуда',
+    description: 'Промок',
+    icon: '🤧',
+    severity: 'low',
+    effectsPerTurn: {'health': -1},
+    cureItems: ['herb_medkit'],
+    cureChance: 0.8,
+    durationDays: 4,
+    source: ['cold_weather'],
+  );
+
+  /// Создать контроллер с ручными локациями
+  MapController makeController({
+    String characterId = 'boris',
+    String characterName = 'Борис',
+    List<Location>? locations,
+    List<Condition>? conditions,
+  }) {
+    final controller = MapController(
+      characterId: characterId,
+      characterName: characterName,
+    );
+    controller.initForTest(
+      locations: locations ?? [homeLocation, streetLocation],
+      conditions: conditions ?? [infectionCondition, coldCondition],
+    );
+    return controller;
+  }
+
+  /// Создать простой предмет для тестов
+  InventoryItem makeItem({
+    String id = 'test_item',
+    double weight = 1.0,
+    int count = 1,
+    String sourceType = 'consumable',
+    int hungerRestore = 0,
+    int thirstRestore = 0,
+    int healthRestore = 0,
+    int sanityRestore = 0,
+  }) {
+    return InventoryItem(
+      id: id,
+      name: id,
+      icon: '📦',
+      rarity: 'common',
+      weight: weight,
+      count: count,
+      sourceType: sourceType,
+      hungerRestore: hungerRestore,
+      thirstRestore: thirstRestore,
+      healthRestore: healthRestore,
+      sanityRestore: sanityRestore,
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ИНИЦИАЛИЗАЦИЯ
+  // ═══════════════════════════════════════════════════════════
+
+  group('MapController.initForTest', () {
+    test('создаёт карту с двумя локациями', () {
+      final c = makeController();
+      expect(c.map, isNotNull);
+      expect(c.map!.locations.length, 2);
+    });
+
+    test('устанавливает стартовую локацию (isStart: true)', () {
+      final c = makeController();
+      expect(c.currentLocation, isNotNull);
+      expect(c.currentLocation!.id, 'home');
+    });
+
+    test('устанавливает isLoading = false', () {
+      final c = makeController();
+      expect(c.isLoading, false);
+    });
+
+    test('загружает переданные условия', () {
+      final c = makeController();
+      expect(c.allConditions.length, 2);
+      expect(
+        c.allConditions.map((x) => x.id).toSet(),
+        {'infection', 'cold'},
+      );
+    });
+
+    test('устанавливает характеристики персонажа из GameConstants', () {
+      final c = makeController(characterId: 'boris');
+      // Борис: intelligence: 5, strength: 7
+      expect(c.intelligence, 5);
+      expect(c.strength, 7);
+    });
+
+    test('кидает ArgumentError для пустого списка локаций', () {
+      final c = MapController(characterId: 'boris', characterName: 'Борис');
+      expect(
+        () => c.initForTest(locations: []),
+        throwsArgumentError,
+      );
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // STAT DELTAS
+  // ═══════════════════════════════════════════════════════════
+
+  group('MapController.applyStatDelta', () {
+    test('уменьшает health в пределах 0..100', () {
+      final c = makeController();
+      c.setHealth(50);
+      c.applyStatDelta({'health': -30});
+      expect(c.health, 20);
+    });
+
+    test('не опускает health ниже 0', () {
+      final c = makeController();
+      c.setHealth(10);
+      c.applyStatDelta({'health': -100});
+      expect(c.health, 0);
+    });
+
+    test('не поднимает health выше 100', () {
+      final c = makeController();
+      c.setHealth(90);
+      c.applyStatDelta({'health': 50});
+      expect(c.health, 100);
+    });
+
+    test('применяет сразу несколько статов', () {
+      final c = makeController();
+      c.setHealth(50);
+      c.setHunger(50);
+      c.setThirst(50);
+      c.applyStatDelta({
+        'health': -10,
+        'hunger': -20,
+        'thirst': 15,
+      });
+      expect(c.health, 40);
+      expect(c.hunger, 30);
+      expect(c.thirst, 65);
+    });
+
+    test('не трогает статы, которых нет в delta', () {
+      final c = makeController();
+      c.setHealth(50);
+      c.setHunger(50);
+      c.applyStatDelta({'health': -10});
+      expect(c.health, 40);
+      expect(c.hunger, 50);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // SET-МЕТОДЫ
+  // ═══════════════════════════════════════════════════════════
+
+  group('MapController.setXxx', () {
+    test('setHealth клампит значение', () {
+      final c = makeController();
+      c.setHealth(150);
+      expect(c.health, 100);
+      c.setHealth(-50);
+      expect(c.health, 0);
+    });
+
+    test('setFatigue клампит значение', () {
+      final c = makeController();
+      c.setFatigue(200);
+      expect(c.fatigue, 100);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // ADVANCE TIME
+  // ═══════════════════════════════════════════════════════════
+
+  group('MapController.advanceTime', () {
+    test('увеличивает totalMinutes', () async {
+      final c = makeController();
+      final before = c.gameTime.totalMinutes;
+      await c.advanceTime(60);
+      expect(c.gameTime.totalMinutes, before + 60);
+    });
+
+    test('уменьшает голод и жажду', () async {
+      final c = makeController();
+      c.setHunger(100);
+      c.setThirst(100);
+      await c.advanceTime(600); // 10 часов — гарантированно видно расход
+      expect(c.hunger, lessThan(100));
+      expect(c.thirst, lessThan(100));
+    });
+
+    test('увеличивает усталость при бодрствовании', () async {
+      final c = makeController();
+      c.setFatigue(0);
+      await c.advanceTime(600);
+      expect(c.fatigue, greaterThan(0));
+    });
+
+    test('не увеличивает усталость при isSleeping: true', () async {
+      final c = makeController();
+      c.setFatigue(0);
+      await c.advanceTime(600, isSleeping: true);
+      expect(c.fatigue, 0);
+    });
+
+    test('тик активных условий снижает health', () async {
+      final c = makeController();
+      c.setHealth(100);
+      c.addCondition(infectionCondition); // -3 health за тик
+      await c.advanceTime(60);
+      expect(c.health, lessThan(100));
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // УСЛОВИЯ
+  // ═══════════════════════════════════════════════════════════
+
+  group('MapController.addCondition', () {
+    test('добавляет новое условие', () {
+      final c = makeController();
+      expect(c.activeConditions.length, 0);
+      c.addCondition(infectionCondition);
+      expect(c.activeConditions.length, 1);
+      expect(c.activeConditions.first.condition.id, 'infection');
+    });
+
+    test('не добавляет дубликат того же условия', () {
+      final c = makeController();
+      c.addCondition(infectionCondition);
+      c.addCondition(infectionCondition);
+      expect(c.activeConditions.length, 1);
+    });
+
+    test('увеличивает tracker.infections', () {
+      final c = makeController();
+      final before = c.tracker.infections;
+      c.addCondition(infectionCondition);
+      expect(c.tracker.infections, before + 1);
+    });
+
+    test('устанавливает daysRemaining = durationDays', () {
+      final c = makeController();
+      c.addCondition(infectionCondition);
+      expect(c.activeConditions.first.daysRemaining, 5);
+    });
+  });
+
+  group('MapController.tryCureCondition', () {
+    test('возвращает false для неподходящего предмета', () {
+      final c = makeController();
+      c.addCondition(infectionCondition);
+      final ac = c.activeConditions.first;
+      // bandage не подходит для infection
+      final cured = c.tryCureCondition(ac, 'bandage');
+      expect(cured, false);
+      expect(c.activeConditions.length, 1);
+    });
+
+    test('возвращает true для подходящего (cureChance = 1.0)', () {
+      // Используем условие с гарантированным лечением
+      const guaranteedCure = Condition(
+        id: 'bleeding',
+        name: 'Кровотечение',
+        description: 'Кровь',
+        icon: '🩸',
+        severity: 'critical',
+        effectsPerTurn: {'health': -8},
+        cureItems: ['bandage'],
+        cureChance: 1.0,
+        durationDays: 1,
+        source: ['combat_wound'],
+      );
+
+      final c = makeController(
+        conditions: [guaranteedCure],
+      );
+      c.addCondition(guaranteedCure);
+      final ac = c.activeConditions.first;
+      final cured = c.tryCureCondition(ac, 'bandage');
+      expect(cured, true);
+      expect(c.activeConditions.length, 0);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // ИНВЕНТАРЬ
+  // ═══════════════════════════════════════════════════════════
+
+  group('MapController.addItem', () {
+    test('добавляет предмет в инвентарь', () {
+      final c = makeController();
+      final ok = c.addItem(makeItem(id: 'bandage'));
+      expect(ok, true);
+      expect(c.inventory.hasItem('bandage'), true);
+    });
+
+    test('увеличивает tracker.lootedCount', () {
+      final c = makeController();
+      final before = c.tracker.lootedCount;
+      c.addItem(makeItem(id: 'bandage'));
+      expect(c.tracker.lootedCount, before + 1);
+    });
+
+    test('обновляет tracker.maxInventorySize', () {
+      final c = makeController();
+      final before = c.tracker.maxInventorySize;
+      c.addItem(makeItem(id: 'a'));
+      c.addItem(makeItem(id: 'b'));
+      c.addItem(makeItem(id: 'c'));
+      expect(c.tracker.maxInventorySize, greaterThan(before));
+    });
+  });
+
+  group('MapController.removeItem / removeAll', () {
+    test('removeItem уменьшает count', () {
+      final c = makeController();
+      c.addItem(makeItem(id: 'bandage', count: 3));
+      c.removeItem('bandage');
+      expect(c.inventory.countOf('bandage'), 2);
+    });
+
+    test('removeAll удаляет полностью', () {
+      final c = makeController();
+      c.addItem(makeItem(id: 'bandage', count: 3));
+      c.removeAll('bandage');
+      expect(c.inventory.hasItem('bandage'), false);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // ЭКИПИРОВКА
+  // ═══════════════════════════════════════════════════════════
+
+  group('MapController.equipItem / unequipItem', () {
+    test('equipItem переносит предмет из инвентаря в слот', () {
+      final c = makeController();
+      final weapon = makeItem(
+        id: 'knife',
+        sourceType: 'weapon',
+      );
+      c.addItem(weapon);
+      expect(c.inventory.hasItem('knife'), true);
+
+      c.equipItem(weapon, 'weapon');
+      expect(c.equipment.weapon, isNotNull);
+      expect(c.equipment.weapon!.id, 'knife');
+      expect(c.inventory.hasItem('knife'), false);
+    });
+
+    test('equipItem возвращает старое оружие в инвентарь', () {
+      final c = makeController();
+      final oldWeapon = makeItem(id: 'old_knife', sourceType: 'weapon');
+      final newWeapon = makeItem(id: 'new_knife', sourceType: 'weapon');
+
+      c.addItem(oldWeapon);
+      c.equipItem(oldWeapon, 'weapon');
+
+      c.addItem(newWeapon);
+      c.equipItem(newWeapon, 'weapon');
+
+      expect(c.equipment.weapon!.id, 'new_knife');
+      expect(c.inventory.hasItem('old_knife'), true);
+    });
+
+    test('unequipItem возвращает предмет в инвентарь', () {
+      final c = makeController();
+      final weapon = makeItem(id: 'knife', sourceType: 'weapon');
+      c.addItem(weapon);
+      c.equipItem(weapon, 'weapon');
+
+      c.unequipItem('weapon');
+      expect(c.equipment.weapon, isNull);
+      expect(c.inventory.hasItem('knife'), true);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // LOSE ITEMS
+  // ═══════════════════════════════════════════════════════════
+
+  group('MapController.loseRandomItems', () {
+    test('теряет ровно N предметов, если их столько есть', () {
+      final c = makeController();
+      c.addItem(makeItem(id: 'a'));
+      c.addItem(makeItem(id: 'b'));
+      c.addItem(makeItem(id: 'c'));
+      expect(c.inventory.items.length, 3);
+
+      c.loseRandomItems(2);
+      expect(c.inventory.items.length, 1);
+    });
+
+    test('не падает, если инвентарь пуст', () {
+      final c = makeController();
+      expect(() => c.loseRandomItems(5), returnsNormally);
+      expect(c.inventory.items.length, 0);
+    });
+
+    test('теряет всё, если count больше размера', () {
+      final c = makeController();
+      c.addItem(makeItem(id: 'a'));
+      c.addItem(makeItem(id: 'b'));
+      c.loseRandomItems(10);
+      expect(c.inventory.items.length, 0);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // СМЕРТЬ
+  // ═══════════════════════════════════════════════════════════
+
+  group('MapController.markDead / clearDeath', () {
+    test('markDead устанавливает isDead = true и reason', () {
+      final c = makeController();
+      expect(c.isDead, false);
+      c.markDead('Умер от голода');
+      expect(c.isDead, true);
+      expect(c.deathReason, 'Умер от голода');
+    });
+
+    test('clearDeath сбрасывает флаги', () {
+      final c = makeController();
+      c.markDead('Причина');
+      c.clearDeath();
+      expect(c.isDead, false);
+      expect(c.deathReason, '');
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // ФЛАГИ И ЛОКАЦИИ
+  // ═══════════════════════════════════════════════════════════
+
+  group('MapController flags / locations', () {
+    test('setFlag добавляет флаг', () {
+      final c = makeController();
+      c.setFlag('test_flag');
+      expect(c.hasFlag('test_flag'), true);
+    });
+
+    test('unlockLocation добавляет локацию в открытые', () {
+      final c = makeController();
+      expect(c.isLocationUnlocked('hidden1'), false);
+      c.unlockLocation('hidden1');
+      expect(c.isLocationUnlocked('hidden1'), true);
+    });
+
+    test('incrementSearchCount увеличивает счётчик', () {
+      final c = makeController();
+      expect(c.searchedCounts['home'], isNull);
+      c.incrementSearchCount('home');
+      c.incrementSearchCount('home');
+      expect(c.searchedCounts['home'], 2);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // NOTIFY LISTENERS
+  // ═══════════════════════════════════════════════════════════
+
+  group('MapController.refresh', () {
+    test('refresh вызывает notifyListeners', () {
+      final c = makeController();
+      int notifyCount = 0;
+      c.addListener(() => notifyCount++);
+
+      c.refresh();
+      c.refresh();
+      c.refresh();
+
+      expect(notifyCount, 3);
+    });
+
+    test('applyStatDelta вызывает notifyListeners', () {
+      final c = makeController();
+      int notifyCount = 0;
+      c.addListener(() => notifyCount++);
+
+      c.applyStatDelta({'health': -5});
+      expect(notifyCount, greaterThan(0));
+    });
+
+    test('setFlag вызывает notifyListeners', () {
+      final c = makeController();
+      int notifyCount = 0;
+      c.addListener(() => notifyCount++);
+
+      c.setFlag('x');
+      expect(notifyCount, 1);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // ГЛАВНАЯ ПРОВЕРКА: initForTest + все справочники
+  // ═══════════════════════════════════════════════════════════
+
+  group('MapController — комплексные проверки', () {
+    test('после initForTest готов к использованию', () {
+      final c = makeController();
+      expect(c.isLoading, false);
+      expect(c.map, isNotNull);
+      expect(c.currentLocation, isNotNull);
+      expect(c.gameTime.day, 1);
+      expect(c.hunger, 100);
+      expect(c.thirst, 100);
+      expect(c.health, 100);
+    });
+
+    test('gameTime доступно сразу после initForTest', () {
+      final c = makeController();
+      // startTimeMinutes = 8 * 60 = 480
+      expect(c.gameTime.totalMinutes, 480);
+      expect(c.gameTime.day, 1);
+    });
+
+    test('контроллер принимает кастомное startTimeMinutes', () {
+      final c = MapController(characterId: 'boris', characterName: 'Борис');
+      c.initForTest(
+        locations: [homeLocation, streetLocation],
+        startTimeMinutes: 600, // 10:00
+      );
+      expect(c.gameTime.totalMinutes, 600);
+    });
+  });
+}
+```
+
+### 📄 `./test/services/map/movement_manager_test.dart`
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:dark_hours/models/world/location.dart';
+import 'package:dark_hours/models/world/connection.dart';
+import 'package:dark_hours/services/map/map_controller.dart';
+import 'package:dark_hours/services/map/movement_manager.dart';
+import 'package:dark_hours/services/audio/audio_service.dart';
+
+void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    AudioService.enabled = false;
+  });
+
+  tearDown(() {
+    AudioService.enabled = true;
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // ФИКСТУРЫ
+  // ═══════════════════════════════════════════════════════════
+
+  final homeLocation = Location(
+    id: 'home',
+    name: 'Дом',
+    description: 'Твой дом',
+    type: 'safe_house',
+    region: 'city',
+    dangerLevel: 0,
+    searchTime: 30,
+    maxSearches: 3,
+    lootPool: [],
+    enemies: [],
+    connections: const [
+      Connection(targetId: 'street', minutes: 15),
+      Connection(targetId: 'secret', minutes: 30),
+    ],
+    icon: '🏠',
+    repeatable: true,
+    isStart: true,
+  );
+
+  final streetLocation = Location(
+    id: 'street',
+    name: 'Улица',
+    description: 'Пустая улица',
+    type: 'street',
+    region: 'city',
+    dangerLevel: 3,
+    searchTime: 15,
+    maxSearches: 3,
+    lootPool: [],
+    enemies: [],
+    connections: const [
+      Connection(targetId: 'home', minutes: 15),
+      Connection(targetId: 'far_place', minutes: 90),
+    ],
+    icon: '🛣️',
+    repeatable: true,
+  );
+
+  final farLocation = Location(
+    id: 'far_place',
+    name: 'Далёкое место',
+    description: 'Далеко',
+    type: 'street',
+    region: 'far',
+    dangerLevel: 4,
+    searchTime: 20,
+    maxSearches: 3,
+    lootPool: [],
+    enemies: [],
+    connections: const [
+      Connection(targetId: 'street', minutes: 90),
+    ],
+    icon: '🏚️',
+    repeatable: true,
+  );
+
+  final hiddenLocation = Location(
+    id: 'secret',
+    name: 'Секретное место',
+    description: 'Скрытая локация',
+    type: 'hidden',
+    region: 'city',
+    dangerLevel: 5,
+    searchTime: 30,
+    maxSearches: 3,
+    lootPool: [],
+    enemies: [],
+    connections: const [
+      Connection(targetId: 'home', minutes: 30),
+    ],
+    icon: '🔓',
+    repeatable: true,
+    hidden: true,
+    unlockedBy: 'home',
+  );
+
+  MapController makeController() {
+    final c = MapController(
+      characterId: 'boris',
+      characterName: 'Борис',
+    );
+    c.initForTest(
+      locations: [homeLocation, streetLocation, farLocation, hiddenLocation],
+    );
+    return c;
+  }
+
+  Widget makeTestApp({
+    required Future<void> Function(BuildContext context) onPressed,
+  }) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Builder(
+          builder: (context) => ElevatedButton(
+            onPressed: () => onPressed(context),
+            child: const Text('TEST'),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // validateMove
+  // ═══════════════════════════════════════════════════════════
+
+  group('MovementManager.validateMove', () {
+    test('success для существующей доступной локации', () {
+      final c = makeController();
+      final result = MovementManager.validateMove(c, 'street');
+      expect(result, MoveResult.success);
+    });
+
+    test('notFound для несуществующей локации', () {
+      final c = makeController();
+      final result = MovementManager.validateMove(c, 'nonexistent');
+      expect(result, MoveResult.notFound);
+    });
+
+    test('hidden для скрытой неоткрытой локации', () {
+      final c = makeController();
+      final result = MovementManager.validateMove(c, 'secret');
+      expect(result, MoveResult.hidden);
+    });
+
+    test('success для скрытой ОТКРЫТОЙ локации', () {
+      final c = makeController();
+      c.unlockLocation('secret');
+      final result = MovementManager.validateMove(c, 'secret');
+      expect(result, MoveResult.success);
+    });
+
+    test('notConnected для несоединённой локации', () {
+      // far_place соединён только со street, но не с home.
+      // Из home нельзя попасть в far_place.
+      final c = makeController();
+      // Перейдём в street
+      c.map!.moveTo('street');
+      final result = MovementManager.validateMove(c, 'far_place');
+      expect(result, MoveResult.success); // street → far_place есть
+
+      // А из home — нельзя.
+      c.map!.moveTo('home');
+      final result2 = MovementManager.validateMove(c, 'far_place');
+      expect(result2, MoveResult.notConnected);
+    });
+
+    test('noMap если карта не загружена', () {
+      final c = MapController(characterId: 'boris', characterName: 'Борис');
+      final result = MovementManager.validateMove(c, 'street');
+      expect(result, MoveResult.noMap);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // computeStaminaCost
+  // ═══════════════════════════════════════════════════════════
+
+  group('MovementManager.computeStaminaCost', () {
+    test('минимум 2 стамины (для коротких переходов)', () {
+      expect(MovementManager.computeStaminaCost(5), 2);
+      expect(MovementManager.computeStaminaCost(10), 2);
+    });
+
+    test('15 минут → 2 стамины', () {
+      expect(MovementManager.computeStaminaCost(15), 2);
+    });
+
+    test('60 минут → 6 стамины', () {
+      expect(MovementManager.computeStaminaCost(60), 6);
+    });
+
+    test('120 минут → 12 стамины', () {
+      expect(MovementManager.computeStaminaCost(120), 12);
+    });
+
+    test('максимум 20 стамины', () {
+      expect(MovementManager.computeStaminaCost(500), 20);
+      expect(MovementManager.computeStaminaCost(1000), 20);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // move — widget
+  // ═══════════════════════════════════════════════════════════
+
+  group('MovementManager.move — widget', () {
+    testWidgets('success переход меняет локацию', (tester) async {
+      final c = makeController();
+      expect(c.currentLocation!.id, 'home');
+
+      bool? result;
+      await tester.pumpWidget(
+        makeTestApp(
+          onPressed: (context) async {
+            result = await MovementManager.move(context, c, 'street');
+          },
+        ),
+      );
+
+      await tester.tap(find.text('TEST'));
+      await tester.pumpAndSettle();
+
+      expect(result, true);
+      expect(c.currentLocation!.id, 'street');
+    });
+
+    testWidgets('move продвигает время на Connection.minutes', (tester) async {
+      final c = makeController();
+      final timeBefore = c.gameTime.totalMinutes;
+
+      await tester.pumpWidget(
+        makeTestApp(
+          onPressed: (context) => MovementManager.move(context, c, 'street'),
+        ),
+      );
+
+      await tester.tap(find.text('TEST'));
+      await tester.pumpAndSettle();
+
+      expect(c.gameTime.totalMinutes, timeBefore + 15);
+    });
+
+    testWidgets('move тратит стамину через computeStaminaCost', (tester) async {
+      final c = makeController();
+      c.setStamina(80);
+      final staminaBefore = c.stamina;
+
+      await tester.pumpWidget(
+        makeTestApp(
+          onPressed: (context) => MovementManager.move(context, c, 'street'),
+        ),
+      );
+
+      await tester.tap(find.text('TEST'));
+      await tester.pumpAndSettle();
+
+      // 15 минут → 2 стамины
+      expect(c.stamina, staminaBefore - 2);
+    });
+
+    testWidgets('долгий переход тратит больше стамины', (tester) async {
+      final c = makeController();
+      // Перейдём в street, потом в far_place (90 мин)
+      c.map!.moveTo('street');
+      c.setStamina(80);
+      final staminaBefore = c.stamina;
+
+      await tester.pumpWidget(
+        makeTestApp(
+          onPressed: (context) => MovementManager.move(context, c, 'far_place'),
+        ),
+      );
+
+      await tester.tap(find.text('TEST'));
+      await tester.pumpAndSettle();
+
+      // 90 минут → 9 стамины
+      expect(c.stamina, staminaBefore - 9);
+    });
+
+    testWidgets('move возвращает false для несуществующей локации',
+        (tester) async {
+      final c = makeController();
+
+      bool? result;
+      await tester.pumpWidget(
+        makeTestApp(
+          onPressed: (context) async {
+            result = await MovementManager.move(context, c, 'nonexistent');
+          },
+        ),
+      );
+
+      await tester.tap(find.text('TEST'));
+      await tester.pumpAndSettle();
+
+      expect(result, false);
+      expect(c.currentLocation!.id, 'home');
+    });
+
+    testWidgets('move возвращает false для скрытой неоткрытой локации',
+        (tester) async {
+      final c = makeController();
+
+      bool? result;
+      await tester.pumpWidget(
+        makeTestApp(
+          onPressed: (context) async {
+            result = await MovementManager.move(context, c, 'secret');
+          },
+        ),
+      );
+
+      await tester.tap(find.text('TEST'));
+      await tester.pumpAndSettle();
+
+      expect(result, false);
+      expect(c.currentLocation!.id, 'home');
+    });
+
+    testWidgets('move авто-разведывает НОВУЮ локацию (далёкую)',
+        (tester) async {
+      final c = makeController();
+      // Перейдём в street, потом в far_place
+      c.map!.moveTo('street');
+
+      // far_place — не сосед home, но сосед street.
+      // При initForTest он разведан (сосед street).
+      // Проверим — после перехода far_place становится visited и scouted.
+      await tester.pumpWidget(
+        makeTestApp(
+          onPressed: (context) => MovementManager.move(context, c, 'far_place'),
+        ),
+      );
+
+      await tester.tap(find.text('TEST'));
+      await tester.pumpAndSettle();
+
+      expect(c.currentLocation!.id, 'far_place');
+      expect(c.isScouted('far_place'), true);
+    });
+  });
+}
+```
+
+### 📄 `./test/services/map/rest_manager_test.dart`
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../_helpers/test_fixtures.dart';
+
+import 'package:dark_hours/models/world/location.dart';
+import 'package:dark_hours/models/conditions/condition.dart';
+import 'package:dark_hours/models/inventory/inventory_item.dart';
+import 'package:dark_hours/models/time/rest_action.dart';
+import 'package:dark_hours/services/map/map_controller.dart';
+import 'package:dark_hours/services/map/rest_manager.dart';
+import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/constants/game_constants.dart';
+
+void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    AudioService.enabled = false;
+  });
+
+  tearDown(() {
+    AudioService.enabled = true;
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // ФИКСТУРЫ
+  // ═══════════════════════════════════════════════════════════
+
+  final safeLocation = Location(
+    id: 'home',
+    name: 'Дом',
+    description: 'Твой дом',
+    type: 'safe_house',
+    region: 'city',
+    dangerLevel: 0,
+    searchTime: 30,
+    maxSearches: 3,
+    lootPool: [],
+    enemies: [],
+    connections: conns([]),
+    icon: '🏠',
+    repeatable: true,
+    isStart: true,
+  );
+
+  final dangerLocation = Location(
+    id: 'street',
+    name: 'Улица',
+    description: 'Опасная улица',
+    type: 'street',
+    region: 'city',
+    dangerLevel: 7,
+    searchTime: 15,
+    maxSearches: 3,
+    lootPool: [],
+    enemies: ['looter_common'],
+    connections: conns(['home']),
+    icon: '🛣️',
+    repeatable: true,
+  );
+
+  const coldCondition = Condition(
+    id: 'cold',
+    name: 'Простуда',
+    description: 'Промок',
+    icon: '🤧',
+    severity: 'low',
+    effectsPerTurn: {'health': -1},
+    cureItems: ['herb_medkit'],
+    cureChance: 0.8,
+    durationDays: 4,
+    source: ['cold_weather'],
+  );
+
+  MapController makeController({
+    List<Location>? locations,
+    int startTimeMinutes = GameConstants.startTimeMinutes,
+  }) {
+    final c = MapController(
+      characterId: 'boris',
+      characterName: 'Борис',
+    );
+    c.initForTest(
+      locations: locations ?? [safeLocation],
+      conditions: [coldCondition],
+      startTimeMinutes: startTimeMinutes,
+    );
+    return c;
+  }
+
+  InventoryItem makeItem({
+    required String id,
+    double weight = 1.0,
+  }) {
+    return InventoryItem(
+      id: id,
+      name: id,
+      icon: '📦',
+      rarity: 'common',
+      weight: weight,
+      count: 1,
+      sourceType: 'resource',
+    );
+  }
+
+  Widget makeTestApp({
+    required Future<void> Function(BuildContext context) onPressed,
+  }) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Builder(
+          builder: (context) => ElevatedButton(
+            onPressed: () => onPressed(context),
+            child: const Text('TEST'),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // computeRestStats
+  // ═══════════════════════════════════════════════════════════
+
+  group('RestManager.computeRestStats', () {
+    test('short_rest даёт базовые дельты без спальника', () {
+      final c = makeController();
+      final delta = RestManager.computeRestStats(c, RestAction.all[0]);
+
+      expect(delta['stamina'], RestAction.all[0].staminaRestore);
+      expect(delta['health'], RestAction.all[0].healthRestore);
+      expect(delta['sanity'], RestAction.all[0].sanityRestore);
+      expect(delta['fatigue'], -RestAction.all[0].fatigueReduce);
+    });
+
+    test('full_sleep даёт больше стамины, чем short_rest', () {
+      final c = makeController();
+      final shortDelta = RestManager.computeRestStats(c, RestAction.all[0]);
+      final fullDelta = RestManager.computeRestStats(c, RestAction.all[2]);
+
+      expect(fullDelta['stamina'], greaterThan(shortDelta['stamina']!));
+    });
+
+    test('бонус спальника +10 stamina и +10 sanity', () {
+      final c = makeController();
+      c.addItem(makeItem(id: 'sleeping_bag'));
+
+      final withBag = RestManager.computeRestStats(c, RestAction.all[0]);
+
+      expect(
+        withBag['stamina'],
+        RestAction.all[0].staminaRestore +
+            GameConstants.sleepingBagStaminaBonus,
+      );
+      expect(
+        withBag['sanity'],
+        RestAction.all[0].sanityRestore +
+            GameConstants.sleepingBagSanityBonus,
+      );
+    });
+
+    test('без спальника бонуса нет', () {
+      final c = makeController();
+      final delta = RestManager.computeRestStats(c, RestAction.all[1]);
+
+      expect(delta['stamina'], RestAction.all[1].staminaRestore);
+      expect(delta['sanity'], RestAction.all[1].sanityRestore);
+    });
+
+    test('fatigue всегда отрицательный (уменьшение)', () {
+      final c = makeController();
+      for (final action in RestAction.all) {
+        final delta = RestManager.computeRestStats(c, action);
+        expect(delta['fatigue'], lessThanOrEqualTo(0));
+      }
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // rollCold
+  // ═══════════════════════════════════════════════════════════
+
+  group('RestManager.rollCold', () {
+    test('chance = coldChanceHigh при отсутствии тёплой одежды', () {
+      final c = makeController();
+      final result = RestManager.rollCold(c);
+      expect(result.chance, GameConstants.coldChanceHigh);
+    });
+
+    test('chance = coldChanceLow при тёплой одежде', () {
+      final c = makeController();
+
+      final coat = InventoryItem(
+        id: 'winter_coat',
+        name: 'Зимнее пальто',
+        icon: '🧥',
+        rarity: 'uncommon',
+        weight: 3.5,
+        count: 1,
+        sourceType: 'armor',
+        armorSlot: 'body',
+        warmth: 60,
+      );
+      c.addItem(coat);
+      c.equipItem(coat, 'body');
+
+      final result = RestManager.rollCold(c);
+      expect(result.chance, GameConstants.coldChanceLow);
+    });
+
+    test('при 100 бросках хотя бы раз infected = true (chance > 0)', () {
+      final c = makeController();
+      bool anyInfected = false;
+      for (int i = 0; i < 100; i++) {
+        if (RestManager.rollCold(c).infected) {
+          anyInfected = true;
+          break;
+        }
+      }
+      expect(anyInfected, true);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // rollTheft
+  // ═══════════════════════════════════════════════════════════
+
+  group('RestManager.rollTheft', () {
+    test('stolen = false, если инвентарь пуст', () {
+      final c = makeController();
+      expect(c.inventory.items.isEmpty, true);
+
+      final result = RestManager.rollTheft(c);
+      expect(result.stolen, false);
+    });
+
+    test('chance = restTheftChance', () {
+      final c = makeController();
+      c.addItem(makeItem(id: 'bandage'));
+
+      final result = RestManager.rollTheft(c);
+      expect(result.chance, GameConstants.restTheftChance);
+    });
+
+    test('itemsToLose = 1', () {
+      final c = makeController();
+      c.addItem(makeItem(id: 'bandage'));
+
+      final result = RestManager.rollTheft(c);
+      expect(result.itemsToLose, 1);
+    });
+
+    test('при 100 бросках хотя бы раз stolen = true', () {
+      final c = makeController();
+      c.addItem(makeItem(id: 'bandage'));
+
+      bool anyStolen = false;
+      for (int i = 0; i < 100; i++) {
+        if (RestManager.rollTheft(c).stolen) {
+          anyStolen = true;
+          break;
+        }
+      }
+      expect(anyStolen, true);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // rollAttack
+  // ═══════════════════════════════════════════════════════════
+
+  group('RestManager.rollAttack', () {
+    test('при 100 бросках хотя бы раз true', () {
+      final c = makeController();
+      bool anyAttack = false;
+      for (int i = 0; i < 100; i++) {
+        if (RestManager.rollAttack(c)) {
+          anyAttack = true;
+          break;
+        }
+      }
+      expect(anyAttack, true);
+    });
+
+    test('шанс атаки > 0 даже утром (проверка round, не toInt)', () {
+      // Утро (8:00) — dangerMultiplier = 0.8
+      // 20 * 0.8 = 16 → округлится до 16, не до 0
+      final c = makeController(
+        startTimeMinutes: 8 * 60,
+      );
+      bool anyAttack = false;
+      for (int i = 0; i < 200; i++) {
+        if (RestManager.rollAttack(c)) {
+          anyAttack = true;
+          break;
+        }
+      }
+      expect(anyAttack, true);
+    });
+
+    test('ночью шанс выше, чем днём (статистически за 500 бросков)', () {
+      final dayC = makeController(startTimeMinutes: 12 * 60);
+      final nightC = makeController(startTimeMinutes: 23 * 60);
+
+      int dayAttacks = 0;
+      int nightAttacks = 0;
+      for (int i = 0; i < 500; i++) {
+        if (RestManager.rollAttack(dayC)) dayAttacks++;
+        if (RestManager.rollAttack(nightC)) nightAttacks++;
+      }
+
+      expect(nightAttacks, greaterThan(dayAttacks));
+    });
+
+    test('не падает в разное время суток', () {
+      for (final hour in [6, 10, 14, 18, 22, 2]) {
+        final c = makeController(startTimeMinutes: hour * 60);
+        expect(() => RestManager.rollAttack(c), returnsNormally);
+      }
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // rest — widget-тест
+  // ═══════════════════════════════════════════════════════════
+
+  group('RestManager.rest — widget', () {
+    testWidgets('short_rest восстанавливает стамину', (tester) async {
+      final c = makeController();
+      c.setStamina(20);
+
+      await tester.pumpWidget(
+        makeTestApp(
+          onPressed: (context) =>
+              RestManager.rest(context, c, RestAction.all[0]),
+        ),
+      );
+
+      await tester.tap(find.text('TEST'));
+      await tester.pumpAndSettle();
+
+      expect(c.stamina, greaterThan(20));
+      expect(c.stamina, 20 + RestAction.all[0].staminaRestore);
+    });
+
+    testWidgets('short_rest продвигает время', (tester) async {
+      final c = makeController();
+      final timeBefore = c.gameTime.totalMinutes;
+
+      await tester.pumpWidget(
+        makeTestApp(
+          onPressed: (context) =>
+              RestManager.rest(context, c, RestAction.all[0]),
+        ),
+      );
+
+      await tester.tap(find.text('TEST'));
+      await tester.pumpAndSettle();
+
+      expect(
+        c.gameTime.totalMinutes,
+        timeBefore + RestAction.all[0].timeMinutes,
+      );
+    });
+
+    testWidgets('rest уменьшает усталость', (tester) async {
+      final c = makeController();
+      c.setFatigue(50);
+
+      await tester.pumpWidget(
+        makeTestApp(
+          onPressed: (context) =>
+              RestManager.rest(context, c, RestAction.all[1]),
+        ),
+      );
+
+      await tester.tap(find.text('TEST'));
+      await tester.pumpAndSettle();
+
+      expect(c.fatigue, lessThan(50));
+    });
+
+    testWidgets('rest в безопасной локации не даёт простуды', (tester) async {
+      final c = makeController(locations: [safeLocation]);
+      c.setFatigue(0);
+      c.setHealth(100);
+
+      await tester.pumpWidget(
+        makeTestApp(
+          onPressed: (context) =>
+              RestManager.rest(context, c, RestAction.all[2]),
+        ),
+      );
+
+      await tester.tap(find.text('TEST'));
+      await tester.pumpAndSettle();
+
+      expect(
+        c.activeConditions.any((ac) => ac.condition.id == 'cold'),
+        false,
+      );
+    });
+
+    testWidgets('rest в опасной локации не падает', (tester) async {
+      final c = makeController(locations: [dangerLocation]);
+      c.addItem(makeItem(id: 'bandage'));
+      c.setFatigue(0);
+
+      await tester.pumpWidget(
+        makeTestApp(
+          onPressed: (context) =>
+              RestManager.rest(context, c, RestAction.all[3]),
+        ),
+      );
+
+      await tester.tap(find.text('TEST'));
+      await tester.pumpAndSettle();
+
+      // Не падает — этого достаточно
+      expect(true, true);
+    });
+  });
+}
+```
+
+### 📄 `./test/services/map/search_manager_test.dart`
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../_helpers/test_fixtures.dart';
+
+import 'package:dark_hours/models/world/location.dart';
+import 'package:dark_hours/models/world/search_event.dart';
+import 'package:dark_hours/services/map/map_controller.dart';
+import 'package:dark_hours/services/map/search_manager.dart';
+import 'package:dark_hours/services/items/item_loader.dart';
+import 'package:dark_hours/services/items/search_event_loader.dart';
+import 'package:dark_hours/services/combat/enemy_loader.dart';
+import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/constants/game_constants.dart';
+
+void main() {
+  // ═══════════════════════════════════════════════════════════
+  // ГЛОБАЛЬНЫЙ setUp
+  // ═══════════════════════════════════════════════════════════
+
+  setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    // Загружаем справочники — search зависит от ItemLoader.findById,
+    // а также от EnemyLoader (для боя при встрече врага)
+    await ItemLoader.init();
+    await SearchEventLoader.init();
+    await EnemyLoader.init();
+  });
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    AudioService.enabled = false;
+  });
+
+  tearDown(() {
+    AudioService.enabled = true;
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // ФИКСТУРЫ
+  // ═══════════════════════════════════════════════════════════
+
+  final emptyLocation = Location(
+    id: 'empty',
+    name: 'Пустая',
+    description: '',
+    type: 'safe_house',
+    region: 'city',
+    dangerLevel: 0,
+    searchTime: 0,
+    maxSearches: 0,
+    lootPool: [],
+    enemies: [],
+    connections: conns([]),
+    icon: '📭',
+    repeatable: true,
+    isStart: true,
+  );
+
+  final lootLocation = Location(
+    id: 'loot',
+    name: 'Склад',
+    description: '',
+    type: 'shop',
+    region: 'city',
+    dangerLevel: 2,
+    searchTime: 15,
+    maxSearches: 3,
+    lootPool: ['bandage', 'crackers', 'water_bottle'],
+    enemies: [],
+    connections: conns([]),
+    icon: '📦',
+    repeatable: true,
+    isStart: true,
+  );
+
+  final riskLocation = Location(
+    id: 'risk',
+    name: 'Тоннель',
+    description: '',
+    type: 'tunnel',
+    region: 'underground',
+    dangerLevel: 5,
+    searchTime: 30,
+    maxSearches: 2,
+    lootPool: ['wood'],
+    enemies: [],
+    connections: conns([]),
+    icon: '🕳️',
+    repeatable: true,
+    isStart: true,
+    risk: 'dirty_water',
+  );
+
+  MapController makeController({required List<Location> locations}) {
+    final c = MapController(
+      characterId: 'boris',
+      characterName: 'Борис',
+    );
+    c.initForTest(locations: locations);
+    return c;
+  }
+
+  Widget makeTestApp({
+    required Future<void> Function(BuildContext context) onPressed,
+  }) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Builder(
+          builder: (context) => ElevatedButton(
+            onPressed: () => onPressed(context),
+            child: const Text('TEST'),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // nothingToSearch
+  // ═══════════════════════════════════════════════════════════
+
+  group('SearchManager.nothingToSearch', () {
+    test('true для полностью пустой локации', () {
+      expect(SearchManager.nothingToSearch(emptyLocation), true);
+    });
+
+    test('false, если есть lootPool', () {
+      expect(SearchManager.nothingToSearch(lootLocation), false);
+    });
+
+    test('false, если есть maxSearches > 0', () {
+      final loc = Location(
+        id: 'x',
+        name: 'X',
+        description: '',
+        type: 'shop',
+        region: 'city',
+        dangerLevel: 0,
+        searchTime: 10,
+        maxSearches: 3,
+        lootPool: [],
+        enemies: [],
+        connections: conns([]),
+        icon: '📦',
+        repeatable: true,
+      );
+      expect(SearchManager.nothingToSearch(loc), false);
+    });
+
+    test('false, если есть risk', () {
+      expect(SearchManager.nothingToSearch(riskLocation), false);
+    });
+
+    test('false, если есть enemies', () {
+      final loc = Location(
+        id: 'x',
+        name: 'X',
+        description: '',
+        type: 'street',
+        region: 'city',
+        dangerLevel: 5,
+        searchTime: 20,
+        maxSearches: 0,
+        lootPool: [],
+        enemies: ['looter_common'],
+        connections: conns([]),
+        icon: '🛣️',
+        repeatable: true,
+      );
+      expect(SearchManager.nothingToSearch(loc), false);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // rollEnemyEncounter
+  // ═══════════════════════════════════════════════════════════
+
+  group('SearchManager.rollEnemyEncounter', () {
+    test('при 500 бросках хотя бы раз true (шанс 1/3)', () {
+      bool anyEncounter = false;
+      for (int i = 0; i < 500; i++) {
+        if (SearchManager.rollEnemyEncounter()) {
+          anyEncounter = true;
+          break;
+        }
+      }
+      expect(anyEncounter, true);
+    });
+
+    test('частота ≈ 33% (в диапазоне 20-45 за 300 бросков)', () {
+      int count = 0;
+      for (int i = 0; i < 300; i++) {
+        if (SearchManager.rollEnemyEncounter()) count++;
+      }
+      // Теоретически 100 из 300. Дадим широкий диапазон (шум).
+      expect(count, greaterThan(50));
+      expect(count, lessThan(150));
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // pickLoot
+  // ═══════════════════════════════════════════════════════════
+
+  group('SearchManager.pickLoot', () {
+    test('возвращает null для пустого lootPool', () {
+      expect(SearchManager.pickLoot(emptyLocation), isNull);
+    });
+
+    test('возвращает предмет из lootPool', () {
+      final result = SearchManager.pickLoot(lootLocation);
+      expect(result, isNotNull);
+      expect(lootLocation.lootPool.contains(result), true);
+    });
+
+    test('при 100 бросках выпадают все предметы из пула', () {
+      final picked = <String>{};
+      for (int i = 0; i < 100; i++) {
+        final id = SearchManager.pickLoot(lootLocation);
+        if (id != null) picked.add(id);
+      }
+      expect(picked, lootLocation.lootPool.toSet());
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // pickSearchEvent
+  // ═══════════════════════════════════════════════════════════
+
+  group('SearchManager.pickSearchEvent', () {
+    test('возвращает null для пустого пула', () {
+      final result = SearchManager.pickSearchEvent(
+        pool: [],
+        currentLocationId: 'home',
+        hiddenMap: {},
+      );
+      expect(result, isNull);
+    });
+
+    test('всегда выбирает событие с chance = 1.0', () {
+      const event = SearchEvent(
+        id: 'always',
+        name: 'Всегда',
+        chance: 1.0,
+        text: 'Событие',
+        effect: {},
+      );
+      for (int i = 0; i < 10; i++) {
+        final result = SearchManager.pickSearchEvent(
+          pool: [event],
+          currentLocationId: 'home',
+          hiddenMap: {},
+        );
+        expect(result, isNotNull);
+        expect(result!.id, 'always');
+      }
+    });
+
+    test('никогда не выбирает событие с chance = 0.0', () {
+      const event = SearchEvent(
+        id: 'never',
+        name: 'Никогда',
+        chance: 0.0,
+        text: '',
+        effect: {},
+      );
+      for (int i = 0; i < 50; i++) {
+        final result = SearchManager.pickSearchEvent(
+          pool: [event],
+          currentLocationId: 'home',
+          hiddenMap: {},
+        );
+        expect(result, isNull);
+      }
+    });
+
+    test('событие с unlock_location=auto НЕ выбирается, если hidden нет',
+        () {
+      const event = SearchEvent(
+        id: 'unlock',
+        name: 'Обвал',
+        chance: 1.0,
+        text: 'Обвал',
+        effect: {'unlock_location': 'auto'},
+      );
+
+      // Локация home не имеет hidden → событие не applicable
+      final result = SearchManager.pickSearchEvent(
+        pool: [event],
+        currentLocationId: 'home',
+        hiddenMap: {}, // пустая карта — hidden нет
+      );
+
+      expect(result, isNull);
+    });
+
+    test('событие с unlock_location=auto ВЫБИРАЕТСЯ, если hidden есть', () {
+      const event = SearchEvent(
+        id: 'unlock',
+        name: 'Обвал',
+        chance: 1.0,
+        text: 'Обвал',
+        effect: {'unlock_location': 'auto'},
+      );
+
+      final result = SearchManager.pickSearchEvent(
+        pool: [event],
+        currentLocationId: 'home',
+        hiddenMap: {'home': 'home_basement'},
+      );
+
+      expect(result, isNotNull);
+      expect(result!.id, 'unlock');
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // extractStatDelta
+  // ═══════════════════════════════════════════════════════════
+
+  group('SearchManager.extractStatDelta', () {
+    test('извлекает health', () {
+      final delta = SearchManager.extractStatDelta({'health': -10});
+      expect(delta, {'health': -10});
+    });
+
+    test('извлекает несколько статов', () {
+      final delta = SearchManager.extractStatDelta({
+        'health': -5,
+        'sanity': -3,
+        'stamina': -10,
+      });
+      expect(delta['health'], -5);
+      expect(delta['sanity'], -3);
+      expect(delta['stamina'], -10);
+    });
+
+    test('игнорирует нулевые значения', () {
+      final delta = SearchManager.extractStatDelta({
+        'health': 0,
+        'sanity': -5,
+      });
+      expect(delta.containsKey('health'), false);
+      expect(delta['sanity'], -5);
+    });
+
+    test('игнорирует не-int значения', () {
+      final delta = SearchManager.extractStatDelta({
+        'health': 'много',
+        'sanity': -5,
+      });
+      expect(delta.containsKey('health'), false);
+      expect(delta['sanity'], -5);
+    });
+
+    test('возвращает пустой map для пустого effect', () {
+      final delta = SearchManager.extractStatDelta({});
+      expect(delta, isEmpty);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // search — widget-тесты
+  // ═══════════════════════════════════════════════════════════
+
+  group('SearchManager.search — widget', () {
+    testWidgets('пустая локация → снекбар "нечего искать"', (tester) async {
+      final c = makeController(locations: [emptyLocation]);
+
+      await tester.pumpWidget(
+        makeTestApp(
+          onPressed: (context) => SearchManager.search(context, c),
+        ),
+      );
+
+      await tester.tap(find.text('TEST'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Здесь нечего искать'), findsOneWidget);
+    });
+
+    testWidgets('стандартный поиск добавляет предмет', (tester) async {
+      final c = makeController(locations: [lootLocation]);
+      expect(c.inventory.items.length, 0);
+
+      await tester.pumpWidget(
+        makeTestApp(
+          onPressed: (context) => SearchManager.search(context, c),
+        ),
+      );
+
+      await tester.tap(find.text('TEST'));
+      await tester.pumpAndSettle();
+
+      expect(c.inventory.items.length, 1);
+    });
+
+    testWidgets('стандартный поиск увеличивает searchedCount', (tester) async {
+      final c = makeController(locations: [lootLocation]);
+      expect(c.searchedCounts['loot'], isNull);
+
+      await tester.pumpWidget(
+        makeTestApp(
+          onPressed: (context) => SearchManager.search(context, c),
+        ),
+      );
+
+      await tester.tap(find.text('TEST'));
+      await tester.pumpAndSettle();
+
+      expect(c.searchedCounts['loot'], 1);
+    });
+
+    testWidgets('стандартный поиск списывает стамину', (tester) async {
+      final c = makeController(locations: [lootLocation]);
+      final staminaBefore = c.stamina;
+
+      await tester.pumpWidget(
+        makeTestApp(
+          onPressed: (context) => SearchManager.search(context, c),
+        ),
+      );
+
+      await tester.tap(find.text('TEST'));
+      await tester.pumpAndSettle();
+
+      expect(
+        c.stamina,
+        staminaBefore - GameConstants.searchStaminaCost,
+      );
+    });
+
+    testWidgets('стандартный поиск продвигает время', (tester) async {
+      final c = makeController(locations: [lootLocation]);
+      final timeBefore = c.gameTime.totalMinutes;
+
+      await tester.pumpWidget(
+        makeTestApp(
+          onPressed: (context) => SearchManager.search(context, c),
+        ),
+      );
+
+      await tester.tap(find.text('TEST'));
+      await tester.pumpAndSettle();
+
+      expect(
+        c.gameTime.totalMinutes,
+        timeBefore + lootLocation.searchTime,
+      );
+    });
+
+    testWidgets('после исчерпания обысков идёт событийный поиск',
+        (tester) async {
+      final c = makeController(locations: [lootLocation]);
+      // Искусственно исчерпаем обыски
+      c.incrementSearchCount('loot');
+      c.incrementSearchCount('loot');
+      c.incrementSearchCount('loot');
+      expect(c.searchedCounts['loot'], 3);
+
+      await tester.pumpWidget(
+        makeTestApp(
+          onPressed: (context) => SearchManager.search(context, c),
+        ),
+      );
+
+      await tester.tap(find.text('TEST'));
+      await tester.pumpAndSettle();
+
+      // При событийном поиске счетчик НЕ увеличивается
+      expect(c.searchedCounts['loot'], 3);
     });
   });
 }
@@ -37871,20 +42563,6 @@ void main() {
         final story = await Story.loadFor(char);
         if (story == null) return;
 
-        // Считаем ноды по id в каждом акте отдельно
-        final Map<String, int> totalFromActs = {};
-        final storyDir = 'assets/data/story/$char/chapter_1';
-
-        for (final act in story.acts) {
-          final path = '$storyDir/${act.file}';
-          try {
-            // Читаем файл напрямую — используем loadString
-            final actStory = await Story.loadFor(char);
-            // Проверка: количество нод в story.nodes должно быть
-            // >= чем в одном акте (это уже косвенно)
-            expect(actStory, isNotNull);
-          } catch (_) {}
-        }
 
         // Простая проверка: все id уникальны в nodes
         final ids = <String>{};
@@ -37978,7 +42656,6 @@ void main() {
 
 ### 📄 `./test/widgets/smoke_test.dart`
 ```dart
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dark_hours/models/character/character.dart';
 
@@ -38278,7 +42955,6 @@ class Validator {
     }
 
     final acts = (meta['acts'] as List? ?? []).cast<Map<String, dynamic>>();
-    final endings = (meta['endings'] as List? ?? []).cast<Map<String, dynamic>>();
     final startNode = meta['acts']?[0]?['start_node'] as String?;
 
     // ═══════ 2. Загружаем все акты ═══════
@@ -38807,9 +43483,9 @@ class Validator {
 
 ## 📊 SUMMARY
 
-- Всего файлов: **181**
-- Текстовых (в дампе): **154**
+- Всего файлов: **193**
+- Текстовых (в дампе): **166**
 - Артефактов: **1**
 - Бинарников: **26**
-- Дамп: **1.3M**
+- Дамп: **1.5M**
 

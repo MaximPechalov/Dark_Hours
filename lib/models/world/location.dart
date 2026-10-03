@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dark_hours/models/world/search_event.dart';
+import 'package:dark_hours/models/world/map_position.dart';
+import 'package:dark_hours/models/world/connection.dart';
 
 class StoryCondition {
   final int? chapter;
@@ -42,7 +44,10 @@ class Location {
   final int maxSearches;
   final List<String> lootPool;
   final List<String> enemies;
-  final List<String> connections;
+
+  /// Соединения с другими локациями (с временем в пути).
+  final List<Connection> connections;
+
   final String icon;
   final bool repeatable;
   final bool isStart;
@@ -50,6 +55,22 @@ class Location {
   final bool hidden;
   final String? unlockedBy;
   final String? risk;
+
+  /// Позиция локации на карте.
+  final MapPosition mapPosition;
+
+  /// Название зоны.
+  final String? mapZone;
+
+  /// Название локации, как её видит разведчик (может быть неточным).
+  ///
+  /// Если `null` — используется `name`.
+  final String? scoutedName;
+
+  /// Описание локации, как её видит разведчик (неполное, с догадками).
+  ///
+  /// Если `null` — используется `description`.
+  final String? scoutedDescription;
 
   // Сюжетные триггеры
   final String? storyNode;
@@ -77,12 +98,34 @@ class Location {
     this.hidden = false,
     this.unlockedBy,
     this.risk,
+    this.mapPosition = const MapPosition(x: 0.5, y: 0.5),
+    this.mapZone,
+    this.scoutedName,
+    this.scoutedDescription,
     this.storyNode,
     this.storyCondition,
     this.searchEvents = const [],
   });
 
   factory Location.fromJson(Map<String, dynamic> json) {
+    MapPosition position = const MapPosition(x: 0.5, y: 0.5);
+    if (json['mapPosition'] != null) {
+      position = MapPosition.fromJson(
+        Map<String, dynamic>.from(json['mapPosition']),
+      );
+    }
+
+    // Парсим connections — поддерживаем оба формата (строки и объекты).
+    final rawConnections = json['connections'] as List? ?? [];
+    final parsedConnections = rawConnections.map((c) {
+      if (c is String) {
+        return Connection(targetId: c, minutes: 20);
+      } else if (c is Map) {
+        return Connection.fromJson(Map<String, dynamic>.from(c));
+      }
+      return null;
+    }).whereType<Connection>().toList();
+
     return Location(
       id: json['id'],
       name: json['name'],
@@ -94,7 +137,7 @@ class Location {
       maxSearches: json['max_searches'] ?? 0,
       lootPool: List<String>.from(json['loot_pool'] ?? []),
       enemies: List<String>.from(json['enemies'] ?? []),
-      connections: List<String>.from(json['connections'] ?? []),
+      connections: parsedConnections,
       icon: json['icon'],
       repeatable: json['repeatable'] ?? true,
       isStart: json['is_start'] ?? false,
@@ -102,6 +145,10 @@ class Location {
       hidden: json['hidden'] ?? false,
       unlockedBy: json['unlocked_by'],
       risk: json['risk'],
+      mapPosition: position,
+      mapZone: json['map_zone'],
+      scoutedName: json['scouted_name'],
+      scoutedDescription: json['scouted_description'],
       storyNode: json['story_node'],
       storyCondition: json['story_condition'] != null
           ? StoryCondition.fromJson(
@@ -113,6 +160,40 @@ class Location {
           .toList(),
     );
   }
+
+  // ═══════════════════════════════════════════════════════════
+  // ХЕЛПЕРЫ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Список ID соседей (для быстрых проверок).
+  List<String> get connectionIds =>
+      connections.map((c) => c.targetId).toList();
+
+  /// Сколько минут идти до указанной локации.
+  ///
+  /// Возвращает `null`, если локация не соседняя.
+  int? connectionMinutesTo(String targetId) {
+    for (final c in connections) {
+      if (c.targetId == targetId) return c.minutes;
+    }
+    return null;
+  }
+
+  /// Является ли локация соседней.
+  bool isConnectedTo(String targetId) {
+    return connections.any((c) => c.targetId == targetId);
+  }
+
+  /// Название для разведки (fallback на `name`).
+  String get displayScoutedName => scoutedName ?? name;
+
+  /// Описание для разведки (fallback на `description`).
+  String get displayScoutedDescription =>
+      scoutedDescription ?? description;
+
+  // ═══════════════════════════════════════════════════════════
+  // ГЕТТЕРЫ
+  // ═══════════════════════════════════════════════════════════
 
   Color get dangerColor {
     if (dangerLevel <= 2) return Colors.green;
@@ -130,7 +211,7 @@ class Location {
     return 'Смертельно';
   }
 
-  /// Проверка: сработает ли сюжетный триггер в этой локации
+  /// Проверка: сработает ли сюжетный триггер в этой локации.
   bool canTriggerStory({
     required int currentChapter,
     required String currentCharacter,
@@ -140,17 +221,14 @@ class Location {
 
     final cond = storyCondition!;
 
-    // Проверка по главе
     if (cond.chapter != null && currentChapter < cond.chapter!) {
       return false;
     }
 
-    // Проверка по персонажу
     if (cond.character != null && cond.character != currentCharacter) {
       return false;
     }
 
-    // Проверка "только один раз"
     if (cond.once && triggeredNodes.contains(storyNode)) {
       return false;
     }

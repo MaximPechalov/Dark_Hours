@@ -1,19 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:dark_hours/services/map/map_controller.dart';
-import 'package:dark_hours/models/world/location.dart';
-import 'package:dark_hours/models/time/game_time.dart';
 
-/// Карточка текущей локации.
-///
-/// Показывает:
-/// - иконку локации
-/// - метку «ТЫ ЗДЕСЬ» + фазу суток
-/// - значок «🔓 СКРЫТОЕ» (если локация скрытая)
-/// - название локации
-/// - полное описание
-/// - чипы: опасность, время поиска, кол-во врагов, лута, риска,
-///   счётчик обысков
+/// Компактная карточка текущей локации (внизу экрана).
 class MapCurrentLocation extends StatelessWidget {
   final MapController controller;
 
@@ -28,162 +17,127 @@ class MapCurrentLocation extends StatelessWidget {
     if (loc == null) return const SizedBox.shrink();
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 20, 20, 20),
-        borderRadius: BorderRadius.circular(12),
+        color: const Color.fromARGB(255, 18, 18, 18),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: loc.hidden
-              ? const Color.fromARGB(255, 100, 200, 100)
-              : const Color.fromARGB(255, 200, 180, 100),
-          width: 2,
+              ? const Color(0xFF64C864)
+              : const Color(0xFFC8B464),
+          width: 1.5,
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          _buildHeader(loc),
-          const SizedBox(height: 12),
-          _buildDescription(loc),
-          const SizedBox(height: 12),
-          _buildChips(loc),
+          // Верхняя строка: иконка + название
+          Row(
+            children: [
+              Text(
+                loc.icon,
+                style: const TextStyle(fontSize: 22),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  loc.name,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              if (loc.hidden)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 5,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF64C864).withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(3),
+                    border: Border.all(
+                      color: const Color(0xFF64C864),
+                      width: 1,
+                    ),
+                  ),
+                  child: const Text(
+                    '🔓',
+                    style: TextStyle(fontSize: 9),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 6),
+
+          // Описание в одну строку
+          Text(
+            loc.description,
+            style: TextStyle(
+              color: Colors.grey[500],
+              fontSize: 11,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 8),
+
+          // Чипы в одну строку
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _chip('⚠️ ${loc.dangerLevel}', loc.dangerColor),
+                const SizedBox(width: 6),
+                if (loc.searchTime > 0)
+                  _chip(
+                    '⏱️ ${loc.searchTime}м',
+                    Colors.blue[400]!,
+                  ),
+                if (loc.enemies.isNotEmpty) ...[
+                  const SizedBox(width: 6),
+                  _chip('👥 ${loc.enemies.length}', Colors.red[400]!),
+                ],
+                if (loc.lootPool.isNotEmpty) ...[
+                  const SizedBox(width: 6),
+                  _chip('🎁', Colors.green[400]!),
+                ],
+                if (loc.risk != null) ...[
+                  const SizedBox(width: 6),
+                  _chip('☣️', Colors.deepOrange[400]!),
+                ],
+                if (loc.maxSearches > 0) ...[
+                  const SizedBox(width: 6),
+                  _chip(
+                    '🔍 ${(loc.maxSearches - (controller.searchedCounts[loc.id] ?? 0)).clamp(0, loc.maxSearches)}/${loc.maxSearches}',
+                    Colors.cyan[400]!,
+                  ),
+                ],
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // HEADER: иконка + метка + название
-  // ═══════════════════════════════════════════════════════════
-
-  Widget _buildHeader(Location loc) {
-    return Row(
-      children: [
-        Text(loc.icon, style: const TextStyle(fontSize: 40)),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildTopLabelRow(loc),
-              const SizedBox(height: 4),
-              Text(
-                loc.name,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTopLabelRow(Location loc) {
-    return Row(
-      children: [
-        Text(
-          'ТЫ ЗДЕСЬ · ${controller.gameTime.phase.name.toUpperCase()}',
-          style: TextStyle(
-            color: controller.gameTime.phase.color,
-            fontSize: 10,
-            letterSpacing: 2.0,
-          ),
-        ),
-        if (loc.hidden) ...[
-          const SizedBox(width: 6),
-          _buildHiddenBadge(),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildHiddenBadge() {
+  Widget _chip(String text, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 100, 200, 100).withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(
-          color: const Color.fromARGB(255, 100, 200, 100),
-          width: 1,
-        ),
-      ),
-      child: const Text(
-        '🔓 СКРЫТОЕ',
-        style: TextStyle(
-          color: Color.fromARGB(255, 100, 200, 100),
-          fontSize: 9,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // ОПИСАНИЕ
-  // ═══════════════════════════════════════════════════════════
-
-  Widget _buildDescription(Location loc) {
-    return Text(
-      loc.description,
-      style: TextStyle(
-        color: Colors.grey[400],
-        fontSize: 13,
-        height: 1.5,
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // ЧИПЫ
-  // ═══════════════════════════════════════════════════════════
-
-  Widget _buildChips(Location loc) {
-    final searched = controller.searchedCounts[loc.id] ?? 0;
-    final remaining = (loc.maxSearches - searched).clamp(0, loc.maxSearches);
-
-    return Wrap(
-      spacing: 8,
-      runSpacing: 6,
-      children: [
-        _buildChip('⚠️ ${loc.dangerName}', loc.dangerColor),
-        _buildChip('⏱️ ${loc.searchTime} мин', Colors.blue[400]!),
-        if (loc.enemies.isNotEmpty)
-          _buildChip('👥 ${loc.enemies.length}', Colors.red[400]!),
-        if (loc.lootPool.isNotEmpty)
-          _buildChip('🎁 ${loc.lootPool.length}', Colors.green[400]!),
-        if (loc.risk != null)
-          _buildChip('☣️ Опасность', Colors.deepOrange[400]!),
-        if (loc.maxSearches > 0)
-          _buildChip(
-            '🔍 $remaining / ${loc.maxSearches}',
-            remaining > 0 ? Colors.cyan[400]! : Colors.grey[600]!,
-          ),
-      ],
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // ХЕЛПЕР
-  // ═══════════════════════════════════════════════════════════
-
-  Widget _buildChip(String text, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
         color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(3),
         border: Border.all(color: color.withValues(alpha: 0.5), width: 1),
       ),
       child: Text(
         text,
         style: TextStyle(
           color: color,
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: FontWeight.bold,
         ),
       ),

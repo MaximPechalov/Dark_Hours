@@ -3,43 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:dark_hours/services/map/map_controller.dart';
 import 'package:dark_hours/services/map/story_trigger_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
-import 'package:dark_hours/constants/game_constants.dart';
 
 /// Результат попытки перейти в локацию.
 enum MoveResult {
-  /// Переход возможен (или уже выполнен).
   success,
-
-  /// Карта не загружена.
   noMap,
-
-  /// Локация с таким id не найдена.
   notFound,
-
-  /// Локация скрытая и ещё не открыта.
   hidden,
+  notConnected,
 }
 
 /// Управляет перемещением между локациями.
-///
-/// Что делает:
-/// 1. Проверяет, что локация существует и доступна.
-/// 2. Списывает стамину за переход.
-/// 3. Продвигает игровое время.
-/// 4. Меняет текущую локацию в MapController.
-/// 5. Запускает ambience новой локации.
-/// 6. Автосохраняет.
-/// 7. Проверяет сюжетные триггеры.
 class MovementManager {
   /// Перейти в локацию по ID.
-  ///
-  /// Возвращает `true`, если переход удался.
   static Future<bool> move(
     BuildContext context,
     MapController controller,
     String locationId,
   ) async {
-    // ─── 1. Валидация ───
     final validation = validateMove(controller, locationId);
     if (validation != MoveResult.success) {
       debugPrint('⚠️ MovementManager: переход отклонён — $validation');
@@ -48,23 +29,42 @@ class MovementManager {
 
     final map = controller.map!;
     final target = map.getById(locationId)!;
+    final current = controller.currentLocation;
 
-    // ─── 2. Звук клика ───
+    // ─── 1. Время перехода из Connection ───
+    int travelMinutes = 20;
+    if (current != null) {
+      final minutes = current.connectionMinutesTo(locationId);
+      if (minutes != null) {
+        travelMinutes = minutes;
+      }
+    }
+
+    // ─── 2. Расход стамины пропорционально времени ───
+    // 15 мин → 2 стамины, 60 мин → 6, 120 мин → 12, 200 мин → 20 (max).
+    final staminaCost = (travelMinutes / 10).round().clamp(2, 20);
+    controller.setStamina(controller.stamina - staminaCost);
+
+    // ─── 3. Звук клика ───
     AudioService.playClick();
 
-    // ─── 3. Списываем стамину ───
-    controller.setStamina(
-      controller.stamina - GameConstants.moveStaminaCost,
-    );
-
     // ─── 4. Продвигаем время ───
-    await controller.advanceTime(GameConstants.moveTimeMinutes);
+    await controller.advanceTime(travelMinutes);
 
     // ─── 5. Меняем локацию ───
     map.moveTo(locationId);
+
+    // ─── 6. Авто-разведка новой локации ───
+    controller.scoutLocation(locationId);
+    controller.discoverRegion(target.region);
+
+    for (final conn in target.connections) {
+      controller.scoutedLocations.add(conn.targetId);
+    }
+
     controller.refresh();
 
-    // ─── 6. Ambience новой локации ───
+    // ─── 7. Ambience ───
     final ambiencePath = AudioService.ambienceForLocation(
       locationId: target.id,
       type: target.type,
@@ -75,33 +75,29 @@ class MovementManager {
       await AudioService.playAmbience(ambiencePath);
     }
 
-    // ─── 7. Автосохранение ───
+    // ─── 8. Автосохранение ───
     await controller.save();
 
-    // ─── 8. Снекбар ───
+    // ─── 9. Снекбар ───
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Переход: ${target.name}'),
-          duration: const Duration(seconds: 1),
+          content: Text(
+            'Переход: ${target.name} · ${_formatTime(travelMinutes)} · −$staminaCost⚡',
+          ),
+          duration: const Duration(seconds: 2),
           backgroundColor: const Color.fromARGB(255, 200, 180, 100),
         ),
       );
     }
 
-    // ─── 9. Проверка сюжетного триггера ───
+    // ─── 10. Сюжетный триггер ───
     await StoryTriggerManager.checkTrigger(context, controller);
 
     return true;
   }
 
-  /// Чистая валидация перехода — БЕЗ UI.
-  ///
-  /// Возвращает:
-  /// - `success` — переход можно выполнить.
-  /// - `noMap` — карта не загружена.
-  /// - `notFound` — локация с таким id не существует.
-  /// - `hidden` — локация скрытая и ещё не открыта.
+  /// Чистая валидация перехода.
   @visibleForTesting
   static MoveResult validateMove(
     MapController controller,
@@ -117,6 +113,33 @@ class MovementManager {
       return MoveResult.hidden;
     }
 
+    final current = controller.currentLocation;
+    if (current != null && !current.isConnectedTo(locationId)) {
+      return MoveResult.notConnected;
+    }
+
     return MoveResult.success;
+  }
+
+  /// Получить время перехода (в минутах).
+  @visibleForTesting
+  static int getTravelTime(MapController controller, String locationId) {
+    final current = controller.currentLocation;
+    if (current == null) return 20;
+    return current.connectionMinutesTo(locationId) ?? 20;
+  }
+
+  /// Расход стамины на переход.
+  @visibleForTesting
+  static int computeStaminaCost(int travelMinutes) {
+    return (travelMinutes / 10).round().clamp(2, 20);
+  }
+
+  static String _formatTime(int minutes) {
+    if (minutes < 60) return '$minutes мин';
+    final h = minutes ~/ 60;
+    final m = minutes % 60;
+    if (m == 0) return '${h}ч';
+    return '${h}ч ${m}м';
   }
 }

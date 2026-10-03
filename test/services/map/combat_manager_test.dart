@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../_helpers/test_fixtures.dart';
 
 import 'package:dark_hours/models/world/location.dart';
 import 'package:dark_hours/services/map/map_controller.dart';
@@ -25,7 +26,7 @@ void main() {
   // ФИКСТУРЫ
   // ═══════════════════════════════════════════════════════════
 
-  const startLocation = Location(
+  final startLocation = Location(
     id: 'start',
     name: 'Старт',
     description: '',
@@ -36,13 +37,13 @@ void main() {
     maxSearches: 0,
     lootPool: [],
     enemies: [],
-    connections: ['street', 'forest', 'safe_house', 'secret'],
+    connections: conns(['street', 'forest', 'safe_house', 'secret']),
     icon: '🏠',
     repeatable: true,
     isStart: true,
   );
 
-  const streetLocation = Location(
+  final streetLocation = Location(
     id: 'street',
     name: 'Улица',
     description: '',
@@ -53,12 +54,12 @@ void main() {
     maxSearches: 3,
     lootPool: [],
     enemies: [],
-    connections: ['start'],
+    connections: conns(['start']),
     icon: '🛣️',
     repeatable: true,
   );
 
-  const forestLocation = Location(
+  final forestLocation = Location(
     id: 'forest',
     name: 'Лес',
     description: '',
@@ -69,12 +70,12 @@ void main() {
     maxSearches: 3,
     lootPool: [],
     enemies: [],
-    connections: ['start'],
+    connections: conns(['start']),
     icon: '🌲',
     repeatable: true,
   );
 
-  const safeHouseLocation = Location(
+  final safeHouseLocation = Location(
     id: 'safe_house',
     name: 'Убежище',
     description: '',
@@ -85,12 +86,12 @@ void main() {
     maxSearches: 3,
     lootPool: [],
     enemies: [],
-    connections: ['start'],
+    connections: conns(['start']),
     icon: '🏡',
     repeatable: true,
   );
 
-  const hiddenLocation = Location(
+  final hiddenLocation = Location(
     id: 'secret',
     name: 'Секрет',
     description: '',
@@ -101,7 +102,7 @@ void main() {
     maxSearches: 3,
     lootPool: [],
     enemies: [],
-    connections: ['start'],
+    connections: conns(['start']),
     icon: '🔓',
     repeatable: true,
     hidden: true,
@@ -115,7 +116,7 @@ void main() {
     );
     c.initForTest(
       locations: locations ??
-          const [
+          [
             startLocation,
             streetLocation,
             forestLocation,
@@ -238,7 +239,7 @@ void main() {
     });
 
     test('возвращает null, если только одна локация и она текущая', () {
-      final c = makeController(locations: const [startLocation]);
+      final c = makeController(locations: [startLocation]);
       final result = CombatManager.pickSafeLocation(c);
 
       expect(result, isNull);
@@ -246,7 +247,7 @@ void main() {
 
     test('возвращает null, если нет локаций с dangerLevel <= 2', () {
       final c = makeController(
-        locations: const [startLocation, streetLocation],
+        locations: [startLocation, streetLocation],
       );
       final result = CombatManager.pickSafeLocation(c);
 
@@ -298,7 +299,7 @@ void main() {
     });
 
     test('возвращает null, если у текущей локации нет соседей', () {
-      const isolated = Location(
+      final isolated = Location(
         id: 'isolated',
         name: 'Одинокий',
         description: '',
@@ -309,13 +310,13 @@ void main() {
         maxSearches: 0,
         lootPool: [],
         enemies: [],
-        connections: [],
+        connections: conns([]),
         icon: '🏚️',
         repeatable: true,
         isStart: true,
       );
 
-      final c = makeController(locations: const [isolated]);
+      final c = makeController(locations: [isolated]);
       final result = CombatManager.pickNeighborLocation(c);
 
       expect(result, isNull);

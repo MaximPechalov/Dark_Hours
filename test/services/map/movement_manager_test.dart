@@ -3,10 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:dark_hours/models/world/location.dart';
+import 'package:dark_hours/models/world/connection.dart';
 import 'package:dark_hours/services/map/map_controller.dart';
 import 'package:dark_hours/services/map/movement_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
-import 'package:dark_hours/constants/game_constants.dart';
 
 void main() {
   setUp(() {
@@ -22,7 +22,7 @@ void main() {
   // ФИКСТУРЫ
   // ═══════════════════════════════════════════════════════════
 
-  const homeLocation = Location(
+  final homeLocation = Location(
     id: 'home',
     name: 'Дом',
     description: 'Твой дом',
@@ -33,13 +33,16 @@ void main() {
     maxSearches: 3,
     lootPool: [],
     enemies: [],
-    connections: ['street'],
+    connections: const [
+      Connection(targetId: 'street', minutes: 15),
+      Connection(targetId: 'secret', minutes: 30),
+    ],
     icon: '🏠',
     repeatable: true,
     isStart: true,
   );
 
-  const streetLocation = Location(
+  final streetLocation = Location(
     id: 'street',
     name: 'Улица',
     description: 'Пустая улица',
@@ -50,12 +53,33 @@ void main() {
     maxSearches: 3,
     lootPool: [],
     enemies: [],
-    connections: ['home'],
+    connections: const [
+      Connection(targetId: 'home', minutes: 15),
+      Connection(targetId: 'far_place', minutes: 90),
+    ],
     icon: '🛣️',
     repeatable: true,
   );
 
-  const hiddenLocation = Location(
+  final farLocation = Location(
+    id: 'far_place',
+    name: 'Далёкое место',
+    description: 'Далеко',
+    type: 'street',
+    region: 'far',
+    dangerLevel: 4,
+    searchTime: 20,
+    maxSearches: 3,
+    lootPool: [],
+    enemies: [],
+    connections: const [
+      Connection(targetId: 'street', minutes: 90),
+    ],
+    icon: '🏚️',
+    repeatable: true,
+  );
+
+  final hiddenLocation = Location(
     id: 'secret',
     name: 'Секретное место',
     description: 'Скрытая локация',
@@ -66,28 +90,26 @@ void main() {
     maxSearches: 3,
     lootPool: [],
     enemies: [],
-    connections: ['street'],
+    connections: const [
+      Connection(targetId: 'home', minutes: 30),
+    ],
     icon: '🔓',
     repeatable: true,
     hidden: true,
-    unlockedBy: 'street',
+    unlockedBy: 'home',
   );
 
-  MapController makeController({List<Location>? locations}) {
+  MapController makeController() {
     final c = MapController(
       characterId: 'boris',
       characterName: 'Борис',
     );
     c.initForTest(
-      locations: locations ?? const [homeLocation, streetLocation],
+      locations: [homeLocation, streetLocation, farLocation, hiddenLocation],
     );
     return c;
   }
 
-  /// Хелпер: тестовый widget с Scaffold.
-  ///
-  /// `onPressed` получает настоящий `BuildContext`, который
-  /// можно передать в менеджер.
   Widget makeTestApp({
     required Future<void> Function(BuildContext context) onPressed,
   }) {
@@ -104,7 +126,7 @@ void main() {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // validateMove — ЧИСТАЯ ЛОГИКА (без UI)
+  // validateMove
   // ═══════════════════════════════════════════════════════════
 
   group('MovementManager.validateMove', () {
@@ -121,20 +143,31 @@ void main() {
     });
 
     test('hidden для скрытой неоткрытой локации', () {
-      final c = makeController(
-        locations: const [homeLocation, streetLocation, hiddenLocation],
-      );
+      final c = makeController();
       final result = MovementManager.validateMove(c, 'secret');
       expect(result, MoveResult.hidden);
     });
 
     test('success для скрытой ОТКРЫТОЙ локации', () {
-      final c = makeController(
-        locations: const [homeLocation, streetLocation, hiddenLocation],
-      );
+      final c = makeController();
       c.unlockLocation('secret');
       final result = MovementManager.validateMove(c, 'secret');
       expect(result, MoveResult.success);
+    });
+
+    test('notConnected для несоединённой локации', () {
+      // far_place соединён только со street, но не с home.
+      // Из home нельзя попасть в far_place.
+      final c = makeController();
+      // Перейдём в street
+      c.map!.moveTo('street');
+      final result = MovementManager.validateMove(c, 'far_place');
+      expect(result, MoveResult.success); // street → far_place есть
+
+      // А из home — нельзя.
+      c.map!.moveTo('home');
+      final result2 = MovementManager.validateMove(c, 'far_place');
+      expect(result2, MoveResult.notConnected);
     });
 
     test('noMap если карта не загружена', () {
@@ -145,7 +178,35 @@ void main() {
   });
 
   // ═══════════════════════════════════════════════════════════
-  // move — WIDGET-ТЕСТЫ
+  // computeStaminaCost
+  // ═══════════════════════════════════════════════════════════
+
+  group('MovementManager.computeStaminaCost', () {
+    test('минимум 2 стамины (для коротких переходов)', () {
+      expect(MovementManager.computeStaminaCost(5), 2);
+      expect(MovementManager.computeStaminaCost(10), 2);
+    });
+
+    test('15 минут → 2 стамины', () {
+      expect(MovementManager.computeStaminaCost(15), 2);
+    });
+
+    test('60 минут → 6 стамины', () {
+      expect(MovementManager.computeStaminaCost(60), 6);
+    });
+
+    test('120 минут → 12 стамины', () {
+      expect(MovementManager.computeStaminaCost(120), 12);
+    });
+
+    test('максимум 20 стамины', () {
+      expect(MovementManager.computeStaminaCost(500), 20);
+      expect(MovementManager.computeStaminaCost(1000), 20);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // move — widget
   // ═══════════════════════════════════════════════════════════
 
   group('MovementManager.move — widget', () {
@@ -169,26 +230,7 @@ void main() {
       expect(c.currentLocation!.id, 'street');
     });
 
-    testWidgets('move списывает стамину', (tester) async {
-      final c = makeController();
-      final staminaBefore = c.stamina;
-
-      await tester.pumpWidget(
-        makeTestApp(
-          onPressed: (context) => MovementManager.move(context, c, 'street'),
-        ),
-      );
-
-      await tester.tap(find.text('TEST'));
-      await tester.pumpAndSettle();
-
-      expect(
-        c.stamina,
-        staminaBefore - GameConstants.moveStaminaCost,
-      );
-    });
-
-    testWidgets('move продвигает время', (tester) async {
+    testWidgets('move продвигает время на Connection.minutes', (tester) async {
       final c = makeController();
       final timeBefore = c.gameTime.totalMinutes;
 
@@ -201,10 +243,45 @@ void main() {
       await tester.tap(find.text('TEST'));
       await tester.pumpAndSettle();
 
-      expect(
-        c.gameTime.totalMinutes,
-        timeBefore + GameConstants.moveTimeMinutes,
+      expect(c.gameTime.totalMinutes, timeBefore + 15);
+    });
+
+    testWidgets('move тратит стамину через computeStaminaCost', (tester) async {
+      final c = makeController();
+      c.setStamina(80);
+      final staminaBefore = c.stamina;
+
+      await tester.pumpWidget(
+        makeTestApp(
+          onPressed: (context) => MovementManager.move(context, c, 'street'),
+        ),
       );
+
+      await tester.tap(find.text('TEST'));
+      await tester.pumpAndSettle();
+
+      // 15 минут → 2 стамины
+      expect(c.stamina, staminaBefore - 2);
+    });
+
+    testWidgets('долгий переход тратит больше стамины', (tester) async {
+      final c = makeController();
+      // Перейдём в street, потом в far_place (90 мин)
+      c.map!.moveTo('street');
+      c.setStamina(80);
+      final staminaBefore = c.stamina;
+
+      await tester.pumpWidget(
+        makeTestApp(
+          onPressed: (context) => MovementManager.move(context, c, 'far_place'),
+        ),
+      );
+
+      await tester.tap(find.text('TEST'));
+      await tester.pumpAndSettle();
+
+      // 90 минут → 9 стамины
+      expect(c.stamina, staminaBefore - 9);
     });
 
     testWidgets('move возвращает false для несуществующей локации',
@@ -215,8 +292,7 @@ void main() {
       await tester.pumpWidget(
         makeTestApp(
           onPressed: (context) async {
-            result =
-                await MovementManager.move(context, c, 'nonexistent');
+            result = await MovementManager.move(context, c, 'nonexistent');
           },
         ),
       );
@@ -230,9 +306,7 @@ void main() {
 
     testWidgets('move возвращает false для скрытой неоткрытой локации',
         (tester) async {
-      final c = makeController(
-        locations: const [homeLocation, streetLocation, hiddenLocation],
-      );
+      final c = makeController();
 
       bool? result;
       await tester.pumpWidget(
@@ -248,6 +322,28 @@ void main() {
 
       expect(result, false);
       expect(c.currentLocation!.id, 'home');
+    });
+
+    testWidgets('move авто-разведывает НОВУЮ локацию (далёкую)',
+        (tester) async {
+      final c = makeController();
+      // Перейдём в street, потом в far_place
+      c.map!.moveTo('street');
+
+      // far_place — не сосед home, но сосед street.
+      // При initForTest он разведан (сосед street).
+      // Проверим — после перехода far_place становится visited и scouted.
+      await tester.pumpWidget(
+        makeTestApp(
+          onPressed: (context) => MovementManager.move(context, c, 'far_place'),
+        ),
+      );
+
+      await tester.tap(find.text('TEST'));
+      await tester.pumpAndSettle();
+
+      expect(c.currentLocation!.id, 'far_place');
+      expect(c.isScouted('far_place'), true);
     });
   });
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../_helpers/test_fixtures.dart';
 
 import 'package:dark_hours/models/world/location.dart';
 import 'package:dark_hours/models/conditions/condition.dart';
@@ -25,7 +26,7 @@ void main() {
   // ФИКСТУРЫ
   // ═══════════════════════════════════════════════════════════
 
-  const safeLocation = Location(
+  final safeLocation = Location(
     id: 'home',
     name: 'Дом',
     description: 'Твой дом',
@@ -36,13 +37,13 @@ void main() {
     maxSearches: 3,
     lootPool: [],
     enemies: [],
-    connections: [],
+    connections: conns([]),
     icon: '🏠',
     repeatable: true,
     isStart: true,
   );
 
-  const dangerLocation = Location(
+  final dangerLocation = Location(
     id: 'street',
     name: 'Улица',
     description: 'Опасная улица',
@@ -53,7 +54,7 @@ void main() {
     maxSearches: 3,
     lootPool: [],
     enemies: ['looter_common'],
-    connections: ['home'],
+    connections: conns(['home']),
     icon: '🛣️',
     repeatable: true,
   );
@@ -80,8 +81,8 @@ void main() {
       characterName: 'Борис',
     );
     c.initForTest(
-      locations: locations ?? const [safeLocation],
-      conditions: const [coldCondition],
+      locations: locations ?? [safeLocation],
+      conditions: [coldCondition],
       startTimeMinutes: startTimeMinutes,
     );
     return c;
@@ -380,7 +381,7 @@ void main() {
     });
 
     testWidgets('rest в безопасной локации не даёт простуды', (tester) async {
-      final c = makeController(locations: const [safeLocation]);
+      final c = makeController(locations: [safeLocation]);
       c.setFatigue(0);
       c.setHealth(100);
 
@@ -401,7 +402,7 @@ void main() {
     });
 
     testWidgets('rest в опасной локации не падает', (tester) async {
-      final c = makeController(locations: const [dangerLocation]);
+      final c = makeController(locations: [dangerLocation]);
       c.addItem(makeItem(id: 'bandage'));
       c.setFatigue(0);
 

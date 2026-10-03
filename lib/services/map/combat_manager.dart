@@ -11,16 +11,6 @@ import 'package:dark_hours/constants/game_constants.dart';
 import 'package:dark_hours/screens/gameplay/combat_screen.dart';
 
 /// Управляет боем на карте.
-///
-/// Логика:
-/// 1. Запускает экран боя (CombatScreen).
-/// 2. Обрабатывает результат: победа / поражение / побег.
-/// 3. При победе: трекает, показывает снекбар, автосохраняет.
-/// 4. При поражении: вызывает _handleDefeat.
-///    - Тяжёлое поражение (бандит, дезертир, зверь) —
-///      HP=5, кровотечение, потеря 3 предметов, перенос в безопасное место.
-///    - Лёгкое поражение (марaдёр) —
-///      HP=15, потеря 2 предметов, перенос в соседнюю локацию.
 class CombatManager {
   // ═══════════════════════════════════════════════════════════
   // ПУБЛИЧНЫЕ МЕТОДЫ
@@ -65,10 +55,8 @@ class CombatManager {
     String damageType = 'blunt',
     List<CombatAbility> abilities = const [],
   }) async {
-    // ─── 1. Отметить, что бой был ───
     controller.trackCombat();
 
-    // ─── 2. Создать Combatant'ов ───
     final player = Combatant(
       name: controller.characterName,
       health: controller.health,
@@ -93,10 +81,8 @@ class CombatManager {
       abilities: abilities,
     );
 
-    // ─── 3. Остановить ambience ───
     await AudioService.stopAmbience();
 
-    // ─── 4. Запустить экран боя ───
     if (!context.mounted) return;
 
     final rawResult = await Navigator.push(
@@ -106,7 +92,6 @@ class CombatManager {
       ),
     );
 
-    // ─── 5. Вернуть музыку и ambience ───
     await AudioService.playMusic('audio/music/map_theme.ogg');
 
     final loc = controller.currentLocation;
@@ -122,7 +107,6 @@ class CombatManager {
       }
     }
 
-    // ─── 6. Разобрать результат ───
     String result = 'defeat';
     if (rawResult is Map) {
       result = rawResult['result'] ?? 'defeat';
@@ -132,17 +116,14 @@ class CombatManager {
 
       if (controller.health < oldHealth) controller.trackDamage();
 
-      // Обработать статус-эффекты
       _applyStatusEffects(controller, rawResult);
     } else if (rawResult is String) {
       result = rawResult;
       controller.setHealth(player.health);
     }
 
-    // ─── 7. Время на бой ───
     await controller.advanceTime(GameConstants.combatTimeMinutes);
 
-    // ─── 8. Обработка результата ───
     if (result == 'victory') {
       controller.trackVictory();
       if (context.mounted) {
@@ -158,28 +139,19 @@ class CombatManager {
       await _handleDefeat(context, controller, enemyName);
     }
 
-    // ─── 9. Автосохранение ───
     await controller.save();
     controller.refresh();
   }
 
   // ═══════════════════════════════════════════════════════════
-  // ЧИСТАЯ ЛОГИКА (для тестов)
+  // ЧИСТАЯ ЛОГИКА
   // ═══════════════════════════════════════════════════════════
 
-  /// Проверить, является ли враг сюжетным боссом.
-  ///
-  /// При поражении от босса обычные последствия НЕ применяются —
-  /// игрок умирает через DeathManager.
   @visibleForTesting
   static bool isStoryBoss(String enemyName) {
     return GameConstants.storyBosses.contains(enemyName);
   }
 
-  /// Проверить, является ли враг "опасным".
-  ///
-  /// Опасные → тяжёлое поражение (HP=5, кровотечение, 3 предмета).
-  /// Обычные → лёгкое поражение (HP=15, 2 предмета).
   @visibleForTesting
   static bool isDangerousEnemy(String enemyName) {
     return GameConstants.dangerousEnemyKeywords.any(
@@ -187,9 +159,6 @@ class CombatManager {
     );
   }
 
-  /// Найти безопасную локацию (dangerLevel <= 2, не скрытая).
-  ///
-  /// Возвращает `null`, если такой локации нет.
   @visibleForTesting
   static Location? pickSafeLocation(MapController controller) {
     final map = controller.map;
@@ -206,9 +175,7 @@ class CombatManager {
     return safe[Random().nextInt(safe.length)];
   }
 
-  /// Найти соседнюю локацию (включая открытые скрытые).
-  ///
-  /// Возвращает `null`, если соседей нет.
+  /// Найти соседнюю локацию (использует `connectionIds`).
   @visibleForTesting
   static Location? pickNeighborLocation(MapController controller) {
     final map = controller.map;
@@ -226,7 +193,6 @@ class CombatManager {
   // ВНУТРЕННИЕ МЕТОДЫ
   // ═══════════════════════════════════════════════════════════
 
-  /// Применить статус-эффекты из результата боя
   static void _applyStatusEffects(
     MapController controller,
     Map<dynamic, dynamic> rawResult,
@@ -265,13 +231,11 @@ class CombatManager {
     }
   }
 
-  /// Обработать поражение
   static Future<void> _handleDefeat(
     BuildContext context,
     MapController controller,
     String enemyName,
   ) async {
-    // Сюжетный босс — не применяем обычные последствия
     if (isStoryBoss(enemyName)) {
       return;
     }
@@ -287,7 +251,6 @@ class CombatManager {
     }
   }
 
-  /// Тяжёлое поражение
   static Future<void> _applyHeavyDefeat(
     BuildContext context,
     MapController controller,
@@ -310,10 +273,12 @@ class CombatManager {
       'fatigue': GameConstants.heavyDefeatFatigueGain,
     });
 
-    // Перенос в безопасное место
     final target = pickSafeLocation(controller);
     if (target != null) {
       controller.map?.moveTo(target.id);
+      // Авто-разведка нового места
+      controller.scoutLocation(target.id);
+      controller.discoverRegion(target.region);
     }
 
     if (!context.mounted) return;
@@ -330,7 +295,6 @@ class CombatManager {
     );
   }
 
-  /// Лёгкое поражение
   static Future<void> _applyLightDefeat(
     BuildContext context,
     MapController controller,
@@ -347,6 +311,8 @@ class CombatManager {
     final target = pickNeighborLocation(controller);
     if (target != null) {
       controller.map?.moveTo(target.id);
+      controller.scoutLocation(target.id);
+      controller.discoverRegion(target.region);
     }
 
     if (!context.mounted) return;
@@ -362,7 +328,6 @@ class CombatManager {
     );
   }
 
-  /// Найти условие по ID
   static dynamic _findCondition(MapController controller, String id) {
     try {
       return controller.allConditions.firstWhere((c) => c.id == id);
@@ -373,7 +338,6 @@ class CombatManager {
     }
   }
 
-  /// Показать диалог поражения
   static Future<void> _showDefeatDialog(
     BuildContext context,
     MapController controller, {

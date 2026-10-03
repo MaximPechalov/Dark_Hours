@@ -17,9 +17,19 @@ class SaveData {
   final Map<String, dynamic> equipmentItems;
   final List<Map<String, dynamic>> activeConditions;
 
-  // НОВЫЕ ПОЛЯ
+  // Старые поля
   final Map<String, int> searchedCounts;
   final List<String> unlockedLocations;
+
+  // ═══════════════════════════════════════════════════════════
+  // НОВЫЕ ПОЛЯ — ИССЛЕДОВАНИЕ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Разведанные локации (видел снаружи, знаешь название + приблизительное описание).
+  final Set<String> scoutedLocations;
+
+  /// Открытые регионы (был здесь, знаешь силуэты, зоны).
+  final Set<String> discoveredRegions;
 
   final DateTime savedAt;
 
@@ -43,9 +53,13 @@ class SaveData {
     required this.activeConditions,
     Map<String, int>? searchedCounts,
     List<String>? unlockedLocations,
+    Set<String>? scoutedLocations,
+    Set<String>? discoveredRegions,
     required this.savedAt,
   })  : searchedCounts = searchedCounts ?? {},
-        unlockedLocations = unlockedLocations ?? [];
+        unlockedLocations = unlockedLocations ?? [],
+        scoutedLocations = scoutedLocations ?? {},
+        discoveredRegions = discoveredRegions ?? {};
 
   Map<String, dynamic> toJson() {
     return {
@@ -68,6 +82,8 @@ class SaveData {
       'activeConditions': activeConditions,
       'searchedCounts': searchedCounts,
       'unlockedLocations': unlockedLocations,
+      'scoutedLocations': scoutedLocations.toList(),
+      'discoveredRegions': discoveredRegions.toList(),
       'savedAt': savedAt.toIso8601String(),
     };
   }
@@ -103,6 +119,12 @@ class SaveData {
       unlockedLocations: json['unlockedLocations'] != null
           ? List<String>.from(json['unlockedLocations'])
           : [],
+      scoutedLocations: json['scoutedLocations'] != null
+          ? Set<String>.from(json['scoutedLocations'])
+          : {},
+      discoveredRegions: json['discoveredRegions'] != null
+          ? Set<String>.from(json['discoveredRegions'])
+          : {},
       savedAt: DateTime.parse(json['savedAt']),
     );
   }
