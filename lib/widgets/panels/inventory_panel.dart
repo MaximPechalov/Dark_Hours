@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dark_hours/models/inventory/inventory.dart';
 import 'package:dark_hours/models/inventory/inventory_item.dart';
+import 'package:dark_hours/services/items/item_icon_loader.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
 
 class InventoryPanel extends StatelessWidget {
@@ -148,9 +149,11 @@ class InventoryPanel extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              Text(
-                                item.icon,
-                                style: const TextStyle(fontSize: 26),
+                              // ⚡ ИКОНКА: PNG или эмодзи.
+                              ItemIconLoader.buildIcon(
+                                itemId: item.id,
+                                fallbackEmoji: item.icon,
+                                size: 32,
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -325,19 +328,20 @@ class ItemDetailsSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Большая иконка
+            // ⚡ БОЛЬШАЯ ИКОНКА: PNG или эмодзи.
             Container(
-              width: 90,
-              height: 90,
+              width: 100,
+              height: 100,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: rarityColor.withOpacity(0.1),
                 border: Border.all(color: rarityColor, width: 2),
               ),
               child: Center(
-                child: Text(
-                  item.icon,
-                  style: const TextStyle(fontSize: 46),
+                child: ItemIconLoader.buildIcon(
+                  itemId: item.id,
+                  fallbackEmoji: item.icon,
+                  size: 64,
                 ),
               ),
             ),

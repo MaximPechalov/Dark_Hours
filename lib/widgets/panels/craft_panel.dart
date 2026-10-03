@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dark_hours/models/items/recipe.dart';
 import 'package:dark_hours/models/inventory/inventory.dart';
 import 'package:dark_hours/services/items/item_loader.dart';
+import 'package:dark_hours/services/items/item_icon_loader.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
 
 class CraftPanel extends StatefulWidget {
@@ -274,9 +275,11 @@ class _CraftPanelState extends State<CraftPanel> {
           // Заголовок
           Row(
             children: [
-              Text(
-                recipe.resultIcon,
-                style: const TextStyle(fontSize: 28),
+              // ⚡ ИКОНКА РЕЗУЛЬТАТА: PNG или эмодзи.
+              ItemIconLoader.buildIcon(
+                itemId: recipe.resultId,
+                fallbackEmoji: recipe.resultIcon,
+                size: 36,
               ),
               const SizedBox(width: 10),
               Expanded(

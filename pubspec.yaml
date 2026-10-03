@@ -42,6 +42,9 @@ flutter:
     - assets/data/story/andrey/chapter_1/
     - assets/data/story/darya/chapter_1/
 
+    # ===== ИКОНКИ ПРЕДМЕТОВ =====
+    - assets/images/items/weapons/
+
     # ===== ЗВУКИ =====
     - assets/audio/ui/
     - assets/audio/ambience/

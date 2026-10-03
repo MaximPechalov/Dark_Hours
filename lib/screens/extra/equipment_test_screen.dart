@@ -5,6 +5,7 @@ import 'package:dark_hours/models/items/consumable.dart';
 import 'package:dark_hours/models/items/armor.dart';
 import 'package:dark_hours/models/items/resource.dart';
 import 'package:dark_hours/models/items/recipe.dart';
+import 'package:dark_hours/services/items/item_icon_loader.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
 
 class EquipmentTestScreen extends StatefulWidget {
@@ -135,7 +136,11 @@ class _EquipmentTestScreenState extends State<EquipmentTestScreen> {
           color: const Color.fromARGB(255, 20, 20, 20),
           margin: const EdgeInsets.only(bottom: 12.0),
           child: ListTile(
-            leading: Text(w.icon, style: const TextStyle(fontSize: 32)),
+            leading: ItemIconLoader.buildIcon(
+              itemId: w.id,
+              fallbackEmoji: w.icon,
+              size: 40,
+            ),
             title: Row(
               children: [
                 Flexible(
@@ -208,7 +213,11 @@ class _EquipmentTestScreenState extends State<EquipmentTestScreen> {
           color: const Color.fromARGB(255, 20, 20, 20),
           margin: const EdgeInsets.only(bottom: 12.0),
           child: ListTile(
-            leading: Text(t.icon, style: const TextStyle(fontSize: 32)),
+            leading: ItemIconLoader.buildIcon(
+              itemId: t.id,
+              fallbackEmoji: t.icon,
+              size: 40,
+            ),
             title: Row(
               children: [
                 Flexible(
@@ -278,7 +287,11 @@ class _EquipmentTestScreenState extends State<EquipmentTestScreen> {
           color: const Color.fromARGB(255, 20, 20, 20),
           margin: const EdgeInsets.only(bottom: 12.0),
           child: ListTile(
-            leading: Text(c.icon, style: const TextStyle(fontSize: 32)),
+            leading: ItemIconLoader.buildIcon(
+              itemId: c.id,
+              fallbackEmoji: c.icon,
+              size: 40,
+            ),
             title: Row(
               children: [
                 Flexible(
@@ -353,7 +366,11 @@ class _EquipmentTestScreenState extends State<EquipmentTestScreen> {
           color: const Color.fromARGB(255, 20, 20, 20),
           margin: const EdgeInsets.only(bottom: 12.0),
           child: ListTile(
-            leading: Text(a.icon, style: const TextStyle(fontSize: 32)),
+            leading: ItemIconLoader.buildIcon(
+              itemId: a.id,
+              fallbackEmoji: a.icon,
+              size: 40,
+            ),
             title: Row(
               children: [
                 Flexible(
@@ -415,7 +432,11 @@ class _EquipmentTestScreenState extends State<EquipmentTestScreen> {
           color: const Color.fromARGB(255, 20, 20, 20),
           margin: const EdgeInsets.only(bottom: 12.0),
           child: ListTile(
-            leading: Text(r.icon, style: const TextStyle(fontSize: 32)),
+            leading: ItemIconLoader.buildIcon(
+              itemId: r.id,
+              fallbackEmoji: r.icon,
+              size: 40,
+            ),
             title: Row(
               children: [
                 Flexible(
@@ -473,7 +494,11 @@ class _EquipmentTestScreenState extends State<EquipmentTestScreen> {
           color: const Color.fromARGB(255, 20, 20, 20),
           margin: const EdgeInsets.only(bottom: 12.0),
           child: ListTile(
-            leading: Text(r.resultIcon, style: const TextStyle(fontSize: 32)),
+            leading: ItemIconLoader.buildIcon(
+              itemId: r.resultId,
+              fallbackEmoji: r.resultIcon,
+              size: 40,
+            ),
             title: Row(
               children: [
                 Flexible(

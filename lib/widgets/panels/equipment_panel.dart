@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dark_hours/models/inventory/equipment.dart';
 import 'package:dark_hours/models/inventory/inventory_item.dart';
+import 'package:dark_hours/services/items/item_icon_loader.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
 import 'package:dark_hours/widgets/panels/inventory_panel.dart'
     show ItemDetailsSheet;
@@ -222,9 +223,11 @@ class EquipmentPanel extends StatelessWidget {
                 else
                   Row(
                     children: [
-                      Text(
-                        item.icon,
-                        style: const TextStyle(fontSize: 16),
+                      // ⚡ ИКОНКА ПРЕДМЕТА: PNG или эмодзи.
+                      ItemIconLoader.buildIcon(
+                        itemId: item.id,
+                        fallbackEmoji: item.icon,
+                        size: 24,
                       ),
                       const SizedBox(width: 6),
                       Expanded(
@@ -258,10 +261,10 @@ class EquipmentPanel extends StatelessWidget {
       ),
     );
 
-    // Пустой слот — не кликабелен
+    // Пустой слот — не кликабелен.
     if (isEmpty) return content;
 
-    // Надетый предмет — тап открывает детали
+    // Надетый предмет — тап открывает детали.
     return GestureDetector(
       onTap: () {
         AudioService.playTap();
