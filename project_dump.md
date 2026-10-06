@@ -1,8 +1,8 @@
 # PROJECT DUMP
 
-**Generated:** Sat Oct  3 13:36:16 UTC 2026
+**Generated:** Sat Oct  3 15:41:08 UTC 2026
 **Root:** /workspaces/Dark_Hours
-**Files:** 212
+**Files:** 257
 
 ## 📁 STRUCTURE
 
@@ -101,6 +101,27 @@
 ./assets/fonts/RobotoMono-Regular.ttf
 ./assets/images/1
 ./assets/images/items/1
+./assets/images/items/weapons/axe.png
+./assets/images/items/weapons/baseball_bat.png
+./assets/images/items/weapons/bow.png
+./assets/images/items/weapons/brass_knuckles.png
+./assets/images/items/weapons/cleaver.png
+./assets/images/items/weapons/crossbow.png
+./assets/images/items/weapons/crowbar.png
+./assets/images/items/weapons/fire_axe.png
+./assets/images/items/weapons/fists.png
+./assets/images/items/weapons/flare_gun.png
+./assets/images/items/weapons/hunting_knife.png
+./assets/images/items/weapons/kitchen_knife.png
+./assets/images/items/weapons/machete.png
+./assets/images/items/weapons/molotov.png
+./assets/images/items/weapons/pipe_gun.png
+./assets/images/items/weapons/pistol.png
+./assets/images/items/weapons/revolver.png
+./assets/images/items/weapons/rifle.png
+./assets/images/items/weapons/shotgun.png
+./assets/images/items/weapons/sledgehammer.png
+./assets/images/items/weapons/spear.png
 ./dark_hours.iml
 ./dump.sh
 ./lib/constants/game_constants.dart
@@ -160,12 +181,14 @@
 ./lib/services/audio/audio_settings.dart
 ./lib/services/combat/enemy_loader.dart
 ./lib/services/conditions/condition_manager.dart
+./lib/services/items/item_icon_loader.dart
 ./lib/services/items/item_loader.dart
 ./lib/services/items/search_event_loader.dart
 ./lib/services/map/combat_manager.dart
 ./lib/services/map/death_manager.dart
 ./lib/services/map/map_controller.dart
 ./lib/services/map/movement_manager.dart
+./lib/services/map/region_background_cache.dart
 ./lib/services/map/rest_manager.dart
 ./lib/services/map/search_manager.dart
 ./lib/services/map/story_trigger_manager.dart
@@ -193,6 +216,27 @@
 ./mark_future_chapters.sh
 ./pubspec.lock
 ./pubspec.yaml
+./raw_weapons/axe.jpeg
+./raw_weapons/baseball_bat.jpeg
+./raw_weapons/bow.jpeg
+./raw_weapons/brass_knuckles.jpeg
+./raw_weapons/cleaver.jpeg
+./raw_weapons/crossbow.jpeg
+./raw_weapons/crowbar.jpeg
+./raw_weapons/fire_axe.jpeg
+./raw_weapons/fists.jpeg
+./raw_weapons/flare_gun.jpeg
+./raw_weapons/hunting_knife.jpeg
+./raw_weapons/kitchen_knife.jpeg
+./raw_weapons/machete.jpeg
+./raw_weapons/molotov.jpeg
+./raw_weapons/pipe_gun.jpeg
+./raw_weapons/pistol.jpeg
+./raw_weapons/revolver.jpeg
+./raw_weapons/rifle.jpeg
+./raw_weapons/shotgun.jpeg
+./raw_weapons/sledgehammer.jpeg
+./raw_weapons/spear.jpeg
 ./test/_helpers/test_fixtures.dart
 ./test/models/combat_test.dart
 ./test/models/equipment_test.dart
@@ -211,6 +255,7 @@
 ./test/widget_test.dart
 ./test/widgets/smoke_test.dart
 ./tool/README.md 
+./tool/cut_weapon_backgrounds.py
 ./tool/validate.dart
 ./web/favicon.png
 ./web/icons/Icon-192.png
@@ -21062,10 +21107,18 @@ class GameConstants {
 import 'package:flutter/material.dart';
 import 'package:dark_hours/screens/main/splash_screen.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/services/items/item_icon_loader.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Инициализация аудио.
   await AudioService.init();
+
+  // Инициализация загрузчика иконок предметов.
+  // Сканирует assets/images/items/ и строит кеш itemId → путь к PNG.
+  await ItemIconLoader.init();
+
   runApp(const DarkHoursApp());
 }
 
@@ -23092,8 +23145,11 @@ class SaveData {
   // НОВЫЕ ПОЛЯ — ИССЛЕДОВАНИЕ
   // ═══════════════════════════════════════════════════════════
 
-  /// Разведанные локации (видел снаружи, знаешь название + приблизительное описание).
+  /// Разведанные локации (знаешь название + общее описание).
   final Set<String> scoutedLocations;
+
+  /// Локации с уточнённым состоянием (разведка дала детали).
+  final Set<String> detailedLocations;
 
   /// Открытые регионы (был здесь, знаешь силуэты, зоны).
   final Set<String> discoveredRegions;
@@ -23121,11 +23177,13 @@ class SaveData {
     Map<String, int>? searchedCounts,
     List<String>? unlockedLocations,
     Set<String>? scoutedLocations,
+    Set<String>? detailedLocations,
     Set<String>? discoveredRegions,
     required this.savedAt,
   })  : searchedCounts = searchedCounts ?? {},
         unlockedLocations = unlockedLocations ?? [],
         scoutedLocations = scoutedLocations ?? {},
+        detailedLocations = detailedLocations ?? {},
         discoveredRegions = discoveredRegions ?? {};
 
   Map<String, dynamic> toJson() {
@@ -23150,6 +23208,7 @@ class SaveData {
       'searchedCounts': searchedCounts,
       'unlockedLocations': unlockedLocations,
       'scoutedLocations': scoutedLocations.toList(),
+      'detailedLocations': detailedLocations.toList(),
       'discoveredRegions': discoveredRegions.toList(),
       'savedAt': savedAt.toIso8601String(),
     };
@@ -23188,6 +23247,9 @@ class SaveData {
           : [],
       scoutedLocations: json['scoutedLocations'] != null
           ? Set<String>.from(json['scoutedLocations'])
+          : {},
+      detailedLocations: json['detailedLocations'] != null
+          ? Set<String>.from(json['detailedLocations'])
           : {},
       discoveredRegions: json['discoveredRegions'] != null
           ? Set<String>.from(json['discoveredRegions'])
@@ -24782,8 +24844,14 @@ class Location {
     return connections.any((c) => c.targetId == targetId);
   }
 
+  /// Базовое разведанное имя (видно сразу после старта).
   String get displayScoutedName => scoutedName ?? name;
+
+  /// Базовое разведанное описание (видно сразу после старта).
   String get displayScoutedDescription => scoutedDescription ?? description;
+
+  /// Полное описание локации (после посещения).
+  String get displayFullDescription => description;
 
   /// Доступна ли эта локация в текущей главе.
   bool isAvailableAt(int chapter) {
@@ -25830,6 +25898,7 @@ import 'package:dark_hours/models/items/consumable.dart';
 import 'package:dark_hours/models/items/armor.dart';
 import 'package:dark_hours/models/items/resource.dart';
 import 'package:dark_hours/models/items/recipe.dart';
+import 'package:dark_hours/services/items/item_icon_loader.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
 
 class EquipmentTestScreen extends StatefulWidget {
@@ -25960,7 +26029,11 @@ class _EquipmentTestScreenState extends State<EquipmentTestScreen> {
           color: const Color.fromARGB(255, 20, 20, 20),
           margin: const EdgeInsets.only(bottom: 12.0),
           child: ListTile(
-            leading: Text(w.icon, style: const TextStyle(fontSize: 32)),
+            leading: ItemIconLoader.buildIcon(
+              itemId: w.id,
+              fallbackEmoji: w.icon,
+              size: 40,
+            ),
             title: Row(
               children: [
                 Flexible(
@@ -26033,7 +26106,11 @@ class _EquipmentTestScreenState extends State<EquipmentTestScreen> {
           color: const Color.fromARGB(255, 20, 20, 20),
           margin: const EdgeInsets.only(bottom: 12.0),
           child: ListTile(
-            leading: Text(t.icon, style: const TextStyle(fontSize: 32)),
+            leading: ItemIconLoader.buildIcon(
+              itemId: t.id,
+              fallbackEmoji: t.icon,
+              size: 40,
+            ),
             title: Row(
               children: [
                 Flexible(
@@ -26103,7 +26180,11 @@ class _EquipmentTestScreenState extends State<EquipmentTestScreen> {
           color: const Color.fromARGB(255, 20, 20, 20),
           margin: const EdgeInsets.only(bottom: 12.0),
           child: ListTile(
-            leading: Text(c.icon, style: const TextStyle(fontSize: 32)),
+            leading: ItemIconLoader.buildIcon(
+              itemId: c.id,
+              fallbackEmoji: c.icon,
+              size: 40,
+            ),
             title: Row(
               children: [
                 Flexible(
@@ -26178,7 +26259,11 @@ class _EquipmentTestScreenState extends State<EquipmentTestScreen> {
           color: const Color.fromARGB(255, 20, 20, 20),
           margin: const EdgeInsets.only(bottom: 12.0),
           child: ListTile(
-            leading: Text(a.icon, style: const TextStyle(fontSize: 32)),
+            leading: ItemIconLoader.buildIcon(
+              itemId: a.id,
+              fallbackEmoji: a.icon,
+              size: 40,
+            ),
             title: Row(
               children: [
                 Flexible(
@@ -26240,7 +26325,11 @@ class _EquipmentTestScreenState extends State<EquipmentTestScreen> {
           color: const Color.fromARGB(255, 20, 20, 20),
           margin: const EdgeInsets.only(bottom: 12.0),
           child: ListTile(
-            leading: Text(r.icon, style: const TextStyle(fontSize: 32)),
+            leading: ItemIconLoader.buildIcon(
+              itemId: r.id,
+              fallbackEmoji: r.icon,
+              size: 40,
+            ),
             title: Row(
               children: [
                 Flexible(
@@ -26298,7 +26387,11 @@ class _EquipmentTestScreenState extends State<EquipmentTestScreen> {
           color: const Color.fromARGB(255, 20, 20, 20),
           margin: const EdgeInsets.only(bottom: 12.0),
           child: ListTile(
-            leading: Text(r.resultIcon, style: const TextStyle(fontSize: 32)),
+            leading: ItemIconLoader.buildIcon(
+              itemId: r.resultId,
+              fallbackEmoji: r.resultIcon,
+              size: 40,
+            ),
             title: Row(
               children: [
                 Flexible(
@@ -27850,6 +27943,8 @@ class _CreditsScreenState extends State<CreditsScreen>
 ### 📄 `./lib/screens/gameplay/map_screen.dart`
 ```dart
 import 'dart:math' as math;
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 
 import 'package:dark_hours/services/map/map_controller.dart';
@@ -27858,6 +27953,7 @@ import 'package:dark_hours/services/map/search_manager.dart';
 import 'package:dark_hours/services/map/rest_manager.dart';
 import 'package:dark_hours/services/map/death_manager.dart';
 import 'package:dark_hours/services/map/story_trigger_manager.dart';
+import 'package:dark_hours/services/map/region_background_cache.dart';
 import 'package:dark_hours/services/progress/achievement_checker.dart';
 import 'package:dark_hours/services/progress/achievement_manager.dart';
 import 'package:dark_hours/services/time/time_manager.dart';
@@ -27885,7 +27981,6 @@ import 'package:dark_hours/screens/gameplay/widgets/map_edge_painter.dart';
 import 'package:dark_hours/screens/gameplay/widgets/map_node.dart';
 import 'package:dark_hours/screens/gameplay/widgets/map_player_marker.dart';
 import 'package:dark_hours/screens/gameplay/widgets/map_info_sheet.dart';
-import 'package:dark_hours/screens/gameplay/widgets/region_map_painter.dart';
 
 import 'package:dark_hours/models/world/layouts/city_south_layout.dart';
 import 'package:dark_hours/models/world/layouts/city_center_layout.dart';
@@ -27923,6 +28018,21 @@ class _MapScreenState extends State<MapScreen>
 
   Size _viewportSize = const Size(400, 600);
 
+  /// Фон текущего региона (сгенерированная или загруженная картинка).
+  ui.Image? _regionBackground;
+
+  /// ID загруженного региона — чтобы не перезагружать одно и то же.
+  String? _loadedRegionId;
+
+  /// Регион, который отрисован сейчас (для детекта смены).
+  String? _lastRegionId;
+
+  /// Показывать ли оверлей перехода между регионами.
+  bool _showRegionTransition = false;
+
+  /// Название региона для оверлея перехода.
+  String _transitionRegionName = '';
+
   static const double _mapWidth = 800.0;
   static const double _mapHeight = 1200.0;
 
@@ -27950,12 +28060,101 @@ class _MapScreenState extends State<MapScreen>
     _controller.dispose();
     _transformController.dispose();
     _markerController.dispose();
+    // NOTE: не dispose'им _regionBackground — он хранится в кеше
+    // RegionBackgroundCache и переиспользуется.
     super.dispose();
   }
 
   void _onControllerChanged() {
     if (!mounted) return;
+
+    // Детект смены региона.
+    final currentRegion = _controller.currentLocation?.region;
+    if (currentRegion != null && _lastRegionId != null) {
+      if (currentRegion != _lastRegionId) {
+        _onRegionChanged(currentRegion);
+      }
+    }
+    if (currentRegion != null) {
+      _lastRegionId = currentRegion;
+    }
+
     setState(() {});
+  }
+
+  /// Обработчик смены региона — показывает анимацию + загружает фон.
+  void _onRegionChanged(String newRegion) {
+    final name = _regionDisplayName(newRegion);
+
+    setState(() {
+      _showRegionTransition = true;
+      _transitionRegionName = name;
+    });
+
+    // Загружаем фон нового региона.
+    _loadRegionBackground(newRegion);
+
+    // Скрываем оверлей через 1.5 секунды.
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      if (mounted) {
+        setState(() {
+          _showRegionTransition = false;
+        });
+      }
+    });
+
+    // Снекбар.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('🚪 Ты пересёк границу: $name'),
+          duration: const Duration(seconds: 2),
+          backgroundColor: const Color.fromARGB(255, 100, 130, 180),
+        ),
+      );
+    });
+  }
+
+  String _regionDisplayName(String regionId) {
+    switch (regionId) {
+      case 'city_south':
+        return 'Юг города';
+      case 'city_center':
+        return 'Центр города';
+      case 'forest':
+        return 'Лес';
+      case 'highway':
+        return 'Трасса';
+      case 'north':
+        return 'Север';
+      case 'underground':
+        return 'Подземелье';
+      default:
+        return regionId;
+    }
+  }
+
+  /// Загрузить фон региона (из кеша, assets или сгенерировать).
+  Future<void> _loadRegionBackground(String regionId) async {
+    if (_loadedRegionId == regionId && _regionBackground != null) {
+      return; // уже загружен
+    }
+
+    final layout = _getLayoutForRegion(regionId);
+    if (layout == null) return;
+
+    final image = await RegionBackgroundCache.get(
+      regionId: regionId,
+      layout: layout,
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      _regionBackground = image;
+      _loadedRegionId = regionId;
+    });
   }
 
   Future<void> _initController() async {
@@ -27965,6 +28164,23 @@ class _MapScreenState extends State<MapScreen>
     final cur = _controller.currentLocation;
     if (cur != null) {
       _markerPosition = cur.mapPosition;
+      _lastRegionId = cur.region;
+      _loadedRegionId = cur.region;
+
+      // Загружаем фон стартового региона.
+      final layout = _getLayoutForRegion(cur.region);
+      if (layout != null) {
+        final image = await RegionBackgroundCache.get(
+          regionId: cur.region,
+          layout: layout,
+        );
+        if (mounted) {
+          setState(() {
+            _regionBackground = image;
+          });
+        }
+      }
+
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _centerOnLocation(cur);
       });
@@ -28096,8 +28312,13 @@ class _MapScreenState extends State<MapScreen>
 
     final isNeighbor = current.isConnectedTo(loc.id);
     final canMove = isNeighbor && loc.isAvailableAt(_controller.chapter);
-    final canScout = !_controller.isScouted(loc.id) &&
-        !_controller.map!.visitedLocations.contains(loc.id);
+    final isVisited = _controller.map!.visitedLocations.contains(loc.id);
+    final isDetailed = _controller.hasDetails(loc.id);
+
+    final canScoutDetails = isNeighbor &&
+        _controller.isScouted(loc.id) &&
+        !isDetailed &&
+        _controller.stamina >= 10;
 
     await showModalBottomSheet(
       context: context,
@@ -28106,14 +28327,15 @@ class _MapScreenState extends State<MapScreen>
       builder: (_) => MapInfoSheet(
         location: loc,
         canMove: canMove,
-        canScout: canScout,
+        canScout: canScoutDetails,
         isBorder: loc.region != current.region,
         travelMinutes:
             isNeighbor ? current.connectionMinutesTo(loc.id) : null,
-        isVisited: _controller.map!.visitedLocations.contains(loc.id),
+        isVisited: isVisited,
         isScouted: _controller.isScouted(loc.id),
+        hasDetails: isDetailed,
         onMove: canMove ? () => _moveTo(loc.id) : null,
-        onScout: canScout ? () => _scoutSingle(loc.id) : null,
+        onScout: canScoutDetails ? () => _scoutSingle(loc.id) : null,
       ),
     );
 
@@ -28140,7 +28362,11 @@ class _MapScreenState extends State<MapScreen>
     _controller.setStamina(_controller.stamina - 10);
     _controller.setFatigue(_controller.fatigue + 5);
 
-    _controller.scoutAll([locationId]);
+    final ok = _controller.scoutDetails(locationId);
+    if (!ok) {
+      AudioService.playError();
+      return;
+    }
 
     await _controller.advanceTime(30);
     await _controller.save();
@@ -28150,11 +28376,12 @@ class _MapScreenState extends State<MapScreen>
     AudioService.playSuccess();
     final loc = _controller.map?.getById(locationId);
     if (loc != null) {
+      final details = _buildDetailText(loc);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('🔭 Разведано: ${loc.displayScoutedName}'),
+          content: Text('🔭 ${loc.displayScoutedName}: $details'),
           backgroundColor: const Color.fromARGB(255, 100, 130, 180),
-          duration: const Duration(seconds: 2),
+          duration: const Duration(seconds: 3),
         ),
       );
     }
@@ -28166,40 +28393,20 @@ class _MapScreenState extends State<MapScreen>
   // МАССОВАЯ РАЗВЕДКА
   // ═══════════════════════════════════════════════════════════
 
-  /// Кандидаты для разведки — соседи соседей (2-й уровень).
   List<Location> _getScoutCandidates(Location current) {
+    final map = _controller.map;
+    if (map == null) return [];
+
     final result = <Location>[];
-    final seen = <String>{current.id};
 
-    for (final connId in current.connectionIds) {
-      final neighbor = _controller.map?.getById(connId);
-      if (neighbor == null) continue;
-      if (!neighbor.isAvailableAt(_controller.chapter)) continue;
-      if (neighbor.hidden && !_controller.isLocationUnlocked(neighbor.id)) {
-        continue;
-      }
-      if (neighbor.region != current.region) continue;
+    for (final loc in map.locations) {
+      if (loc.region != current.region) continue;
+      if (loc.id == current.id) continue;
+      if (loc.hidden && !_controller.isLocationUnlocked(loc.id)) continue;
+      if (!_controller.isScouted(loc.id)) continue;
+      if (_controller.hasDetails(loc.id)) continue;
 
-      if (seen.contains(neighbor.id)) continue;
-      seen.add(neighbor.id);
-
-      for (final connId2 in neighbor.connectionIds) {
-        final target = _controller.map?.getById(connId2);
-        if (target == null) continue;
-        if (!target.isAvailableAt(_controller.chapter)) continue;
-        if (target.hidden && !_controller.isLocationUnlocked(target.id)) {
-          continue;
-        }
-        if (target.region != current.region) continue;
-
-        if (seen.contains(target.id)) continue;
-        seen.add(target.id);
-
-        if (!_controller.isScouted(target.id) &&
-            !_controller.map!.visitedLocations.contains(target.id)) {
-          result.add(target);
-        }
-      }
+      result.add(loc);
     }
 
     return result;
@@ -28223,7 +28430,7 @@ class _MapScreenState extends State<MapScreen>
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('🔭 Больше нечего разведывать поблизости'),
+          content: Text('🔭 Ты уже знаешь всё об этом районе'),
           backgroundColor: Colors.grey,
         ),
       );
@@ -28250,27 +28457,26 @@ class _MapScreenState extends State<MapScreen>
 
     int count;
     String mood;
-    if (roll < 15) {
+    if (roll < 20) {
       count = 0;
-      mood = 'Ты вглядываешься в темноту. Ничего не видно.';
-    } else if (roll < 55) {
+      mood = 'Ты обходишь район, но ничего нового не замечаешь.';
+    } else if (roll < 60) {
       count = 1;
-      mood = 'Сквозь туман различаешь силуэт...';
-    } else if (roll < 85) {
+      mood = 'Ты прислушиваешься. Один из домов ведёт себя странно...';
+    } else if (roll < 90) {
       count = 2;
-      mood = 'Ты видишь несколько очертаний впереди...';
+      mood = 'Ты замечаешь перемены сразу в двух местах...';
     } else {
       count = 3;
-      mood = 'С высоты ты видишь многое...';
+      mood = 'С высоты ты видишь многое. Район раскрывает свои секреты...';
     }
 
     final scoutedList = <String>[];
     candidates.shuffle(rng);
     for (int i = 0; i < count && i < candidates.length; i++) {
+      _controller.scoutDetails(candidates[i].id);
       scoutedList.add(candidates[i].id);
     }
-
-    _controller.scoutAll(scoutedList);
 
     await _controller.advanceTime(30);
     await _controller.save();
@@ -28309,7 +28515,7 @@ class _MapScreenState extends State<MapScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                '🔭 РАЗВЕДКА',
+                '🔭 РАЗВЕДКА РАЙОНА',
                 style: TextStyle(
                   color: Color(0xFFC8B464),
                   fontSize: 16,
@@ -28335,13 +28541,13 @@ class _MapScreenState extends State<MapScreen>
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(
-                    'Ничего нового.',
+                    'Ничего нового. Район тих — или прячется.',
                     style: TextStyle(color: Colors.grey, fontSize: 13),
                   ),
                 )
               else ...[
                 const Text(
-                  'Обнаружено:',
+                  'Что удалось заметить:',
                   style: TextStyle(
                     color: Color(0xFFC8B464),
                     fontSize: 11,
@@ -28386,6 +28592,8 @@ class _MapScreenState extends State<MapScreen>
   }
 
   Widget _buildScoutedCard(Location loc) {
+    final details = _buildDetailText(loc);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
@@ -28415,9 +28623,9 @@ class _MapScreenState extends State<MapScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  loc.displayScoutedDescription,
+                  details,
                   style: TextStyle(
-                    color: Colors.grey[500],
+                    color: Colors.grey[400],
                     fontSize: 11,
                     fontStyle: FontStyle.italic,
                   ),
@@ -28430,6 +28638,43 @@ class _MapScreenState extends State<MapScreen>
         ],
       ),
     );
+  }
+
+  String _buildDetailText(Location loc) {
+    final parts = <String>[];
+
+    if (loc.dangerLevel >= 8) {
+      parts.add('очень опасно');
+    } else if (loc.dangerLevel >= 6) {
+      parts.add('опасно');
+    } else if (loc.dangerLevel >= 4) {
+      parts.add('настороженно');
+    } else if (loc.dangerLevel >= 2) {
+      parts.add('спокойно');
+    } else {
+      parts.add('тихо');
+    }
+
+    if (loc.enemies.isNotEmpty) {
+      parts.add('${loc.enemies.length} цел. врагов');
+    } else {
+      parts.add('врагов не видно');
+    }
+
+    if (loc.lootPool.isNotEmpty) {
+      final searched = _controller.searchedCounts[loc.id] ?? 0;
+      if (searched < loc.maxSearches) {
+        parts.add('есть чем поживиться');
+      } else {
+        parts.add('уже обчищено');
+      }
+    }
+
+    if (loc.risk != null) {
+      parts.add('⚠️ риск');
+    }
+
+    return parts.join(', ');
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -28716,20 +28961,15 @@ class _MapScreenState extends State<MapScreen>
       return NodeState.hidden;
     }
 
-    // Локация в другом регионе — не показываем на карте.
     if (loc.region != current.region) {
       return NodeState.hidden;
     }
 
     final isNeighbor = current.connectionIds.contains(loc.id);
-
     if (isNeighbor) {
       return NodeState.neighbor;
     }
 
-    if (_controller.map!.visitedLocations.contains(loc.id)) {
-      return NodeState.visited;
-    }
     if (_controller.isScouted(loc.id)) {
       return NodeState.visited;
     }
@@ -28783,47 +29023,123 @@ class _MapScreenState extends State<MapScreen>
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 8, 8, 10),
       appBar: _buildAppBar(),
-      body: Column(
+      body: Stack(
         children: [
-          MapStatusBar(controller: _controller),
-          PenaltiesPanel(penalties: penalties),
-          ConditionsPanel(conditions: _controller.activeConditions),
+          Column(
+            children: [
+              MapStatusBar(controller: _controller),
+              PenaltiesPanel(penalties: penalties),
+              ConditionsPanel(conditions: _controller.activeConditions),
 
-          if (_isMoving)
-            Container(
-              height: 3,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFFC8B464), Colors.transparent],
+              if (_isMoving)
+                Container(
+                  height: 3,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Color(0xFFC8B464), Colors.transparent],
+                    ),
+                  ),
+                ),
+
+              Expanded(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    if (_viewportSize != constraints.biggest) {
+                      _viewportSize = constraints.biggest;
+                    }
+
+                    return InteractiveViewer(
+                      transformationController: _transformController,
+                      minScale: 0.4,
+                      maxScale: 2.0,
+                      boundaryMargin: const EdgeInsets.all(400),
+                      constrained: false,
+                      child: SizedBox(
+                        width: _mapWidth,
+                        height: _mapHeight,
+                        child: _buildMapCanvas(),
+                      ),
+                    );
+                  },
                 ),
               ),
-            ),
 
-          Expanded(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                if (_viewportSize != constraints.biggest) {
-                  _viewportSize = constraints.biggest;
-                }
-
-                return InteractiveViewer(
-                  transformationController: _transformController,
-                  minScale: 0.4,
-                  maxScale: 2.0,
-                  boundaryMargin: const EdgeInsets.all(400),
-                  constrained: false,
-                  child: SizedBox(
-                    width: _mapWidth,
-                    height: _mapHeight,
-                    child: _buildMapCanvas(),
-                  ),
-                );
-              },
-            ),
+              _buildBottomPanel(current),
+            ],
           ),
 
-          _buildBottomPanel(current),
+          _buildRegionTransitionOverlay(),
         ],
+      ),
+    );
+  }
+
+  /// Оверлей анимации перехода между регионами.
+  Widget _buildRegionTransitionOverlay() {
+    return IgnorePointer(
+      ignoring: !_showRegionTransition,
+      child: AnimatedOpacity(
+        opacity: _showRegionTransition ? 1.0 : 0.0,
+        duration: const Duration(milliseconds: 500),
+        child: Container(
+          color: Colors.black.withValues(alpha: 0.85),
+          alignment: Alignment.center,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 24,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF141414),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0xFFC8B464).withValues(alpha: 0.5),
+                    width: 1.5,
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      '◉ ПЕРЕХОД ◉',
+                      style: TextStyle(
+                        color: Color(0xFFC8B464),
+                        fontSize: 11,
+                        letterSpacing: 4.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      _transitionRegionName.toUpperCase(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 3.0,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Color(0xFFC8B464),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -28833,9 +29149,7 @@ class _MapScreenState extends State<MapScreen>
     final current = _controller.currentLocation!;
 
     final regionId = current.region;
-    final layout = _getLayoutForRegion(regionId);
 
-    // Только локации текущего региона.
     final regionLocations = map.locations
         .where((l) =>
             l.region == regionId && l.isAvailableAt(_controller.chapter))
@@ -28845,7 +29159,6 @@ class _MapScreenState extends State<MapScreen>
         .where((loc) => _nodeState(loc) != NodeState.hidden)
         .toList();
 
-    // Ребро к выбранной локации.
     MapEdge? selectedEdge;
     if (_selectedLocation != null) {
       final isNeighbor = current.isConnectedTo(_selectedLocation!.id);
@@ -28863,18 +29176,28 @@ class _MapScreenState extends State<MapScreen>
 
     return Stack(
       children: [
+        // ⚡ ФОН: одна картинка вместо ~500 draw-вызовов.
         Positioned.fill(
-          child: CustomPaint(
-            painter: layout != null
-                ? RegionMapPainter(layout: layout)
-                : null,
-          ),
+          child: _regionBackground != null
+              ? RawImage(
+                  image: _regionBackground,
+                  fit: BoxFit.fill,
+                  filterQuality: FilterQuality.medium,
+                )
+              : _buildFallbackBackground(),
         ),
+
+        // Ребро к выбранной локации.
         Positioned.fill(
           child: CustomPaint(
             painter: MapEdgePainter(edge: selectedEdge),
           ),
         ),
+
+        // Метка региона в углу.
+        _buildRegionLabel(regionId),
+
+        // Локации.
         ...visibleNodes.map((loc) {
           final px = loc.mapPosition.x * _mapWidth;
           final py = loc.mapPosition.y * _mapHeight;
@@ -28887,10 +29210,13 @@ class _MapScreenState extends State<MapScreen>
               location: loc,
               state: state,
               isSelected: _selectedLocation?.id == loc.id,
+              hasDetails: _controller.hasDetails(loc.id),
               onTap: () => _onNodeTap(loc),
             ),
           );
         }),
+
+        // Маркер игрока.
         Positioned(
           left: _markerPosition.x * _mapWidth - 30,
           top: _markerPosition.y * _mapHeight - 30,
@@ -28902,6 +29228,53 @@ class _MapScreenState extends State<MapScreen>
           ),
         ),
       ],
+    );
+  }
+
+  /// Fallback-фон, если картинка ещё не загрузилась.
+  Widget _buildFallbackBackground() {
+    return Container(
+      color: const Color(0xFF0A0A0A),
+      alignment: Alignment.center,
+      child: const CircularProgressIndicator(
+        strokeWidth: 2,
+        valueColor: AlwaysStoppedAnimation<Color>(
+          Color(0xFFC8B464),
+        ),
+      ),
+    );
+  }
+
+  /// Метка региона в правом верхнем углу карты.
+  Widget _buildRegionLabel(String regionId) {
+    return Positioned(
+      top: 20,
+      right: 20,
+      child: IgnorePointer(
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 8,
+          ),
+          decoration: BoxDecoration(
+            color: const Color(0xFF141414).withValues(alpha: 0.85),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color: const Color(0xFFC8B464).withValues(alpha: 0.5),
+              width: 1,
+            ),
+          ),
+          child: Text(
+            _regionDisplayName(regionId).toUpperCase(),
+            style: const TextStyle(
+              color: Color(0xFFC8B464),
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 3.0,
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -29037,13 +29410,11 @@ class _MapScreenState extends State<MapScreen>
       widgets.add(const SizedBox(height: 8));
     }
 
-    // Разведка.
     if (_canScout(current)) {
       widgets.add(_buildScoutButton());
       widgets.add(const SizedBox(height: 8));
     }
 
-    // Кнопки перехода в другие регионы.
     final borderLocations = _getBorderLocations(current);
     for (final border in borderLocations) {
       widgets.add(_buildBorderButton(border));
@@ -29112,7 +29483,7 @@ class _MapScreenState extends State<MapScreen>
         onPressed: _scout,
         icon: const Icon(Icons.visibility_outlined, size: 18),
         label: const Text(
-          '🔭  РАЗВЕДАТЬ ОКРУГУ (30 мин)',
+          '🔭  РАЗВЕДАТЬ РАЙОН (30 мин)',
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.bold,
@@ -30809,6 +31180,11 @@ import 'package:dark_hours/models/world/location.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
 
 /// Модалка с информацией о локации.
+///
+/// Показывает три уровня знания:
+/// - **visited** — игрок был здесь, полное описание + все детали.
+/// - **detailed** — разведано состояние, но не был.
+/// - **scouted** — знает только название и общее описание.
 class MapInfoSheet extends StatelessWidget {
   final Location location;
   final bool canMove;
@@ -30817,6 +31193,7 @@ class MapInfoSheet extends StatelessWidget {
   final int? travelMinutes;
   final bool isVisited;
   final bool isScouted;
+  final bool hasDetails;
   final VoidCallback? onMove;
   final VoidCallback? onScout;
 
@@ -30829,6 +31206,7 @@ class MapInfoSheet extends StatelessWidget {
     this.travelMinutes,
     this.isVisited = false,
     this.isScouted = false,
+    this.hasDetails = false,
     this.onMove,
     this.onScout,
   });
@@ -30836,9 +31214,15 @@ class MapInfoSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final showFull = isVisited;
-    final name = showFull ? location.name : location.displayScoutedName;
+    final showDetails = hasDetails && !isVisited;
+
+    // Название и описание — по уровню знания.
+    final name = showFull
+        ? location.name
+        : location.displayScoutedName;
+
     final description = showFull
-        ? location.description
+        ? location.displayFullDescription
         : location.displayScoutedDescription;
 
     return Container(
@@ -30852,222 +31236,84 @@ class MapInfoSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1A1A1A),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: location.dangerColor,
-                      width: 2,
-                    ),
-                  ),
-                  child: Text(
-                    location.icon,
-                    style: const TextStyle(fontSize: 32),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        name,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      _buildStatusRow(),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+            _buildHeader(name),
             const SizedBox(height: 20),
 
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 20, 20, 20),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: isVisited
-                      ? Colors.grey[850]!
-                      : const Color(0xFFC8B464).withValues(alpha: 0.3),
-                  width: 1,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (!isVisited)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.visibility_outlined,
-                            size: 12,
-                            color: const Color(0xFFC8B464)
-                                .withValues(alpha: 0.7),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            'ПРЕДПОЛОЖЕНИЕ',
-                            style: TextStyle(
-                              color: const Color(0xFFC8B464)
-                                  .withValues(alpha: 0.7),
-                              fontSize: 9,
-                              letterSpacing: 2.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  Text(
-                    description,
-                    style: TextStyle(
-                      color: isVisited ? Colors.grey[300] : Colors.grey[400],
-                      fontSize: 13,
-                      height: 1.5,
-                      fontStyle:
-                          isVisited ? FontStyle.normal : FontStyle.italic,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            _buildDescription(description, showFull, showDetails),
             const SizedBox(height: 16),
 
-            if (isVisited) ...[
-              _buildStatsChips(),
+            // Чипы состояния — только если visited или detailed.
+            if (showFull || showDetails) ...[
+              _buildStatsChips(showFull),
               const SizedBox(height: 20),
             ],
 
+            // Время в пути.
             if (canMove && travelMinutes != null) ...[
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFC8B464).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: const Color(0xFFC8B464).withValues(alpha: 0.4),
-                    width: 1,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.directions_walk,
-                      color: Color(0xFFC8B464),
-                      size: 18,
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      'Время в пути: ${_formatTime(travelMinutes!)}',
-                      style: const TextStyle(
-                        color: Color(0xFFC8B464),
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              _buildTravelInfo(travelMinutes!),
               const SizedBox(height: 16),
             ],
 
+            // Кнопка «Перейти».
             if (canMove && onMove != null) ...[
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    AudioService.playClick();
-                    Navigator.pop(context);
-                    onMove!();
-                  },
-                  icon: const Icon(Icons.arrow_forward, size: 18),
-                  label: const Text(
-                    'ПЕРЕЙТИ',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 2.0,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFC8B464),
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-              ),
+              _buildMoveButton(context),
               const SizedBox(height: 8),
             ],
 
-            if (canScout && !isVisited && onScout != null) ...[
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    AudioService.playClick();
-                    Navigator.pop(context);
-                    onScout!();
-                  },
-                  icon: const Icon(Icons.visibility_outlined, size: 18),
-                  label: const Text(
-                    '🔭  РАЗВЕДАТЬ (30 мин)',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.5,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        const Color.fromARGB(255, 100, 130, 180),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-              ),
+            // Кнопка «Разведать».
+            if (canScout && onScout != null && !isVisited) ...[
+              _buildScoutButton(context),
               const SizedBox(height: 8),
             ],
 
-            SizedBox(
-              width: double.infinity,
-              child: TextButton(
-                onPressed: () {
-                  AudioService.playClick();
-                  Navigator.pop(context);
-                },
-                child: Text(
-                  'ЗАКРЫТЬ',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 12,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-            ),
+            _buildCloseButton(context),
           ],
         ),
       ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ЗАГОЛОВОК
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildHeader(String name) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1A1A1A),
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: location.dangerColor,
+              width: 2,
+            ),
+          ),
+          child: Text(
+            location.icon,
+            style: const TextStyle(fontSize: 32),
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                name,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 4),
+              _buildStatusRow(),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -31121,10 +31367,16 @@ class MapInfoSheet extends StatelessWidget {
         color: Color(0xFF888888),
       );
     }
-    if (isScouted) {
+    if (hasDetails) {
       return const _LocationStatus(
         label: 'РАЗВЕДАНА',
         color: Color(0xFF5F8FBF),
+      );
+    }
+    if (isScouted) {
+      return const _LocationStatus(
+        label: 'ПРЕДПОЛОЖЕНИЕ',
+        color: Color(0xFF888888),
       );
     }
     return const _LocationStatus(
@@ -31133,7 +31385,126 @@ class MapInfoSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsChips() {
+  // ═══════════════════════════════════════════════════════════
+  // ОПИСАНИЕ
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildDescription(String description, bool showFull, bool showDetails) {
+    // Для detailed без visited — генерируем уточнённое описание.
+    final text = showDetails
+        ? _buildDetailedDescription()
+        : description;
+
+    final label = showFull
+        ? null
+        : (showDetails
+            ? 'РАЗВЕДАНО'
+            : 'ПРЕДПОЛОЖЕНИЕ');
+
+    final labelIcon = showDetails
+        ? Icons.visibility_outlined
+        : Icons.help_outline;
+
+    final labelColor = showDetails
+        ? const Color(0xFF5F8FBF)
+        : const Color(0xFFC8B464).withValues(alpha: 0.7);
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 20, 20, 20),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: showFull
+              ? Colors.grey[850]!
+              : (showDetails
+                  ? const Color(0xFF5F8FBF).withValues(alpha: 0.3)
+                  : const Color(0xFFC8B464).withValues(alpha: 0.3)),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (label != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: [
+                  Icon(
+                    labelIcon,
+                    size: 12,
+                    color: labelColor,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: labelColor,
+                      fontSize: 9,
+                      letterSpacing: 2.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          Text(
+            text,
+            style: TextStyle(
+              color: showFull ? Colors.grey[300] : Colors.grey[400],
+              fontSize: 13,
+              height: 1.5,
+              fontStyle: showFull ? FontStyle.normal : FontStyle.italic,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Построить уточнённое описание состояния локации.
+  String _buildDetailedDescription() {
+    final parts = <String>[];
+
+    // Опасность.
+    if (location.dangerLevel >= 8) {
+      parts.add('Очень опасно — лучше не соваться без подготовки.');
+    } else if (location.dangerLevel >= 6) {
+      parts.add('Опасно. Здесь легко нарваться на trouble.');
+    } else if (location.dangerLevel >= 4) {
+      parts.add('Настороженная тишина. Что-то здесь не так.');
+    } else if (location.dangerLevel >= 2) {
+      parts.add('Спокойно. Но расслабляться не стоит.');
+    } else {
+      parts.add('Тихо и безопасно.');
+    }
+
+    // Враги.
+    if (location.enemies.isNotEmpty) {
+      parts.add('Замечено целей: ${location.enemies.length}.');
+    } else {
+      parts.add('Врагов не видно.');
+    }
+
+    // Лут.
+    if (location.lootPool.isNotEmpty) {
+      parts.add('Есть чем поживиться.');
+    }
+
+    // Риск.
+    if (location.risk != null) {
+      parts.add('⚠️ Опасная зона.');
+    }
+
+    return parts.join(' ');
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ЧИПЫ СТАТИСТИКИ
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildStatsChips(bool showFull) {
     return Wrap(
       spacing: 8,
       runSpacing: 6,
@@ -31169,6 +31540,130 @@ class MapInfoSheet extends StatelessWidget {
       ),
     );
   }
+
+  // ═══════════════════════════════════════════════════════════
+  // ВРЕМЯ В ПУТИ
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildTravelInfo(int minutes) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFC8B464).withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: const Color(0xFFC8B464).withValues(alpha: 0.4),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.directions_walk,
+            color: Color(0xFFC8B464),
+            size: 18,
+          ),
+          const SizedBox(width: 10),
+          Text(
+            'Время в пути: ${_formatTime(minutes)}',
+            style: const TextStyle(
+              color: Color(0xFFC8B464),
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // КНОПКИ
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildMoveButton(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          AudioService.playClick();
+          Navigator.pop(context);
+          onMove!();
+        },
+        icon: const Icon(Icons.arrow_forward, size: 18),
+        label: const Text(
+          'ПЕРЕЙТИ',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 2.0,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFFC8B464),
+          foregroundColor: Colors.black,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScoutButton(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          AudioService.playClick();
+          Navigator.pop(context);
+          onScout!();
+        },
+        icon: const Icon(Icons.visibility_outlined, size: 18),
+        label: const Text(
+          '🔭  РАЗВЕДАТЬ СОСТОЯНИЕ (30 мин)',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF5F8FBF),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCloseButton(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: TextButton(
+        onPressed: () {
+          AudioService.playClick();
+          Navigator.pop(context);
+        },
+        child: Text(
+          'ЗАКРЫТЬ',
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontSize: 12,
+            letterSpacing: 2.0,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ХЕЛПЕРЫ
+  // ═══════════════════════════════════════════════════════════
 
   String _formatTime(int minutes) {
     if (minutes < 60) return '$minutes мин';
@@ -31429,6 +31924,10 @@ class MapNode extends StatelessWidget {
   final Location location;
   final NodeState state;
   final bool isSelected;
+
+  /// Разведано ли состояние локации (детальная разведка).
+  final bool hasDetails;
+
   final VoidCallback? onTap;
 
   static const double nodeSize = 56.0;
@@ -31439,6 +31938,7 @@ class MapNode extends StatelessWidget {
     required this.location,
     required this.state,
     this.isSelected = false,
+    this.hasDetails = false,
     this.onTap,
   });
 
@@ -31461,9 +31961,12 @@ class MapNode extends StatelessWidget {
                 alignment: Alignment.center,
                 children: [
                   if (state == NodeState.current) _buildPulse(),
-                  if (isSelected && state != NodeState.current) _buildSelectedPulse(),
+                  if (isSelected && state != NodeState.current)
+                    _buildSelectedPulse(),
                   _buildCircle(),
                   _buildIcon(),
+                  if (hasDetails && state != NodeState.current)
+                    _buildDetailsBadge(),
                 ],
               ),
             ),
@@ -31587,6 +32090,8 @@ class MapNode extends StatelessWidget {
   }
 
   /// Цвет обводки.
+  ///
+  /// Для visited с деталями — синеватый оттенок (разведано).
   Color _getBorderColor() {
     if (isSelected && state != NodeState.current) {
       return const Color(0xFFFFD070);
@@ -31598,6 +32103,10 @@ class MapNode extends StatelessWidget {
       case NodeState.neighbor:
         return const Color(0xFFC8B464).withValues(alpha: 0.75);
       case NodeState.visited:
+        // Разведанные детально — синеватая обводка.
+        if (hasDetails) {
+          return const Color(0xFF5F8FBF).withValues(alpha: 0.8);
+        }
         if (location.isFinal) {
           return const Color(0xFFC8B464).withValues(alpha: 0.6);
         }
@@ -31620,7 +32129,7 @@ class MapNode extends StatelessWidget {
       case NodeState.neighbor:
         return 2.0;
       case NodeState.visited:
-        return 1.0;
+        return hasDetails ? 1.5 : 1.0;
       case NodeState.hidden:
         return 0.0;
     }
@@ -31646,6 +32155,29 @@ class MapNode extends StatelessWidget {
     );
   }
 
+  /// Значок «разведано» — маленький 🔭 в правом верхнем углу.
+  Widget _buildDetailsBadge() {
+    return Positioned(
+      top: 0,
+      right: 0,
+      child: Container(
+        padding: const EdgeInsets.all(2),
+        decoration: BoxDecoration(
+          color: const Color(0xFF141414),
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: const Color(0xFF5F8FBF),
+            width: 1,
+          ),
+        ),
+        child: const Text(
+          '🔭',
+          style: TextStyle(fontSize: 9),
+        ),
+      ),
+    );
+  }
+
   /// Подпись локации.
   Widget _buildLabel() {
     final Color textColor;
@@ -31665,8 +32197,14 @@ class MapNode extends StatelessWidget {
           weight = FontWeight.w600;
           break;
         case NodeState.visited:
-          textColor = Colors.white.withValues(alpha: 0.5);
-          weight = FontWeight.normal;
+          // Разведанные — чуть заметнее.
+          if (hasDetails) {
+            textColor = const Color(0xFF8FB5D8);
+            weight = FontWeight.w500;
+          } else {
+            textColor = Colors.white.withValues(alpha: 0.5);
+            weight = FontWeight.normal;
+          }
           break;
         case NodeState.hidden:
           return const SizedBox.shrink();
@@ -31686,7 +32224,7 @@ class MapNode extends StatelessWidget {
             : null,
       ),
       child: Text(
-        location.name,
+        location.displayScoutedName,
         style: TextStyle(
           color: textColor,
           fontSize: 11,
@@ -32417,6 +32955,10 @@ import 'package:dark_hours/models/world/region_layout.dart';
 
 /// Рисует схематичную карту региона.
 ///
+/// **ВАЖНО:** этот painter теперь используется ТОЛЬКО для генерации
+/// `ui.Image` через `RegionBackgroundCache`. В UI он больше не
+/// вызывается на каждый кадр — вместо него `RawImage`.
+///
 /// Слои (снизу вверх):
 /// 1. Фон (градиент).
 /// 2. Река.
@@ -32427,8 +32969,11 @@ import 'package:dark_hours/models/world/region_layout.dart';
 class RegionMapPainter extends CustomPainter {
   final RegionLayout layout;
 
-  /// Кеш зданий — чтобы не генерировать каждый кадр.
-  final Map<String, List<Building>> _buildingCache = {};
+  /// Кеш зданий — **static**, чтобы переживать пересоздание painter'а.
+  ///
+  /// Ключ: `regionId_quarterId`. Значение: список зданий.
+  /// Первая генерация ~50-100 мс, дальше — мгновенно из кеша.
+  static final Map<String, List<Building>> _buildingCache = {};
 
   RegionMapPainter({required this.layout});
 
@@ -32440,6 +32985,7 @@ class RegionMapPainter extends CustomPainter {
     _drawBuildings(canvas, size);
     _drawParks(canvas, size);
     _drawRoads(canvas, size);
+    _drawRegionStamp(canvas, size);
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -32449,19 +32995,67 @@ class RegionMapPainter extends CustomPainter {
   void _drawBackground(Canvas canvas, Size size) {
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
 
+    // Каждый регион имеет свой базовый фон.
+    // Добавляем лёгкий оттенок, чтобы регионы визуально отличались.
+    final (topColor, midColor, bottomColor) = _regionGradient();
+
     final paint = Paint()
       ..shader = LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [
-          layout.backgroundColor,
-          const Color(0xFF0E0E12),
-          layout.backgroundColor,
-        ],
+        colors: [topColor, midColor, bottomColor],
         stops: const [0.0, 0.5, 1.0],
       ).createShader(rect);
 
     canvas.drawRect(rect, paint);
+  }
+
+  /// Тройка цветов градиента для текущего региона.
+  (Color, Color, Color) _regionGradient() {
+    switch (layout.regionId) {
+      case 'city_south':
+        return (
+          const Color(0xFF14100C), // тёплый верх
+          const Color(0xFF0E0A08), // тёмная середина
+          const Color(0xFF181008), // тёплый низ (река)
+        );
+      case 'city_center':
+        return (
+          const Color(0xFF0C0C14), // холодный верх
+          const Color(0xFF08080E), // холодная середина
+          const Color(0xFF0A0A12), // холодный низ
+        );
+      case 'forest':
+        return (
+          const Color(0xFF0C1410), // зеленоватый верх
+          const Color(0xFF080C0A), // тёмная середина
+          const Color(0xFF0C1410), // зеленоватый низ
+        );
+      case 'highway':
+        return (
+          const Color(0xFF14120C), // желтоватый верх
+          const Color(0xFF0E0C08), // тёмная середина
+          const Color(0xFF14120C), // желтоватый низ
+        );
+      case 'underground':
+        return (
+          const Color(0xFF0C0810), // фиолетовый верх
+          const Color(0xFF060408), // очень тёмная середина
+          const Color(0xFF0C0810), // фиолетовый низ
+        );
+      case 'north':
+        return (
+          const Color(0xFF0A0E14), // синеватый верх
+          const Color(0xFF060810), // тёмная середина
+          const Color(0xFF0A0E14), // синеватый низ
+        );
+      default:
+        return (
+          layout.backgroundColor,
+          const Color(0xFF0E0E12),
+          layout.backgroundColor,
+        );
+    }
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -32474,9 +33068,9 @@ class RegionMapPainter extends CustomPainter {
 
     final path = _smoothPath(river.path, size);
 
-    // Основная вода
+    // Основная вода — синий полупрозрачный.
     final waterPaint = Paint()
-      ..color = const Color(0x3F1E4A6E) // синий полупрозрачный
+      ..color = const Color(0x5F1E4A6E)
       ..style = PaintingStyle.stroke
       ..strokeWidth = river.width * size.width
       ..strokeCap = StrokeCap.round
@@ -32484,9 +33078,9 @@ class RegionMapPainter extends CustomPainter {
 
     canvas.drawPath(path, waterPaint);
 
-    // Светлая линия сверху
+    // Светлая линия сверху — блик.
     final highlightPaint = Paint()
-      ..color = const Color(0x2A5F8FBF)
+      ..color = const Color(0x3A5F8FBF)
       ..style = PaintingStyle.stroke
       ..strokeWidth = river.width * size.width * 0.5
       ..strokeCap = StrokeCap.round;
@@ -32502,21 +33096,67 @@ class RegionMapPainter extends CustomPainter {
     for (final quarter in layout.quarters) {
       final path = _polygonPath(quarter.polygon, size);
 
-      // Заливка
+      // Заливка — цвет квартала зависит от его типа.
+      final fillColor = _quarterFillColor(quarter.type);
       final fillPaint = Paint()
-        ..color = layout.quarterColor
+        ..color = fillColor
         ..style = PaintingStyle.fill;
 
       canvas.drawPath(path, fillPaint);
 
-      // Обводка
+      // Обводка.
       final borderPaint = Paint()
-        ..color = const Color(0x33FFFFFF)
+        ..color = _quarterBorderColor(quarter.type)
         ..strokeWidth = 1.0
         ..style = PaintingStyle.stroke;
 
       canvas.drawPath(path, borderPaint);
     }
+  }
+
+  /// Цвет заливки квартала по типу.
+  Color _quarterFillColor(QuarterType type) {
+    // Добавляем оттенок региона к базовому цвету квартала.
+    final base = layout.quarterColor;
+
+    switch (type) {
+      case QuarterType.residential:
+        return _blend(base, const Color(0xFF2A2418), 0.3);
+      case QuarterType.commercial:
+        return _blend(base, const Color(0xFF1A2030), 0.3);
+      case QuarterType.industrial:
+        return _blend(base, const Color(0xFF2A1810), 0.3);
+      case QuarterType.mixed:
+        return _blend(base, const Color(0xFF221A1A), 0.3);
+      case QuarterType.military:
+        return _blend(base, const Color(0xFF101820), 0.3);
+    }
+  }
+
+  /// Цвет обводки квартала.
+  Color _quarterBorderColor(QuarterType type) {
+    switch (type) {
+      case QuarterType.residential:
+        return const Color(0x33FFE0B0);
+      case QuarterType.commercial:
+        return const Color(0x3360A0FF);
+      case QuarterType.industrial:
+        return const Color(0x33FF8060);
+      case QuarterType.mixed:
+        return const Color(0x33FFFFFF);
+      case QuarterType.military:
+        return const Color(0x3360FFC0);
+    }
+  }
+
+  /// Смешать два цвета с заданной силой `t` (0..1).
+  Color _blend(Color a, Color b, double t) {
+    return Color.fromARGB(
+      (a.alpha + (b.alpha - a.alpha) * t).round(),
+      (a.red + (b.red - a.red) * t).round(),
+      (a.green + (b.green - a.green) * t).round(),
+      (a.blue + (b.blue - a.blue) * t).round(),
+    );
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -32525,12 +33165,14 @@ class RegionMapPainter extends CustomPainter {
 
   void _drawBuildings(Canvas canvas, Size size) {
     for (final quarter in layout.quarters) {
-      // Кеш зданий
-      if (!_buildingCache.containsKey(quarter.id)) {
-        _buildingCache[quarter.id] = layout.generateBuildings(quarter);
+      // Ключ кеша — регион + квартал. Кеш static.
+      final cacheKey = '${layout.regionId}_${quarter.id}';
+
+      if (!_buildingCache.containsKey(cacheKey)) {
+        _buildingCache[cacheKey] = layout.generateBuildings(quarter);
       }
 
-      final buildings = _buildingCache[quarter.id]!;
+      final buildings = _buildingCache[cacheKey]!;
 
       for (final building in buildings) {
         _drawBuilding(canvas, size, building);
@@ -32539,7 +33181,6 @@ class RegionMapPainter extends CustomPainter {
   }
 
   void _drawBuilding(Canvas canvas, Size size, Building building) {
-    // Масштабируем прямоугольник здания
     final rect = Rect.fromLTWH(
       building.rect.left * size.width,
       building.rect.top * size.height,
@@ -32547,16 +33188,16 @@ class RegionMapPainter extends CustomPainter {
       building.rect.height * size.height,
     );
 
-    // Тень (сдвиг вниз-вправо)
+    // Тень (сдвиг вниз-вправо).
     final shadowRect = rect.translate(2, 2);
-    final shadowPaint = Paint()..color = const Color(0x66000000);
+    final shadowPaint = Paint()..color = const Color(0x99000000);
     canvas.drawRect(shadowRect, shadowPaint);
 
-    // Основной корпус
+    // Основной корпус.
     final bodyPaint = Paint()..color = building.color;
     canvas.drawRect(rect, bodyPaint);
 
-    // Крыша (треугольник сверху)
+    // Крыша (треугольник сверху).
     final roofHeight = building.height * size.height;
     final roofPath = Path()
       ..moveTo(rect.left, rect.top)
@@ -32564,23 +33205,21 @@ class RegionMapPainter extends CustomPainter {
       ..lineTo(rect.right, rect.top)
       ..close();
 
-    final roofPaint = Paint()
-      ..color = const Color(0xFF444444);
+    final roofPaint = Paint()..color = const Color(0xFF505058);
     canvas.drawPath(roofPath, roofPaint);
 
-    // Обводка корпуса
+    // Обводка корпуса.
     final borderPaint = Paint()
-      ..color = const Color(0x55FFFFFF)
+      ..color = const Color(0x66FFFFFF)
       ..strokeWidth = 0.8
       ..style = PaintingStyle.stroke;
     canvas.drawRect(rect, borderPaint);
 
-    // Окна (пара точек)
+    // Окна — 2 маленькие точки.
     if (rect.width > 15 && rect.height > 15) {
-      final windowPaint = Paint()..color = const Color(0x55FFD070);
-      const windowSize = 2.0;
+      final windowPaint = Paint()..color = const Color(0x88FFD070);
+      const windowSize = 2.5;
 
-      // 2 окна по горизонтали
       canvas.drawRect(
         Rect.fromLTWH(
           rect.left + rect.width * 0.25 - windowSize / 2,
@@ -32601,7 +33240,7 @@ class RegionMapPainter extends CustomPainter {
       );
     }
 
-    // Труба
+    // Труба.
     if (building.hasChimney) {
       final chimneyRect = Rect.fromLTWH(
         rect.right - 4,
@@ -32609,7 +33248,7 @@ class RegionMapPainter extends CustomPainter {
         2.5,
         5,
       );
-      final chimneyPaint = Paint()..color = const Color(0xFF666666);
+      final chimneyPaint = Paint()..color = const Color(0xFF707070);
       canvas.drawRect(chimneyRect, chimneyPaint);
     }
   }
@@ -32622,20 +33261,19 @@ class RegionMapPainter extends CustomPainter {
     for (final park in layout.parks) {
       final path = _polygonPath(park.polygon, size);
 
-      // Зелёная заливка
+      // Зелёная заливка — сильнее, чем раньше.
       final fillPaint = Paint()
-        ..color = const Color(0x1A22AA22)
+        ..color = const Color(0x3522AA44)
         ..style = PaintingStyle.fill;
       canvas.drawPath(path, fillPaint);
 
-      // Обводка зелёная
+      // Обводка.
       final borderPaint = Paint()
-        ..color = const Color(0x4022AA22)
-        ..strokeWidth = 1.0
+        ..color = const Color(0x6622AA44)
+        ..strokeWidth = 1.2
         ..style = PaintingStyle.stroke;
       canvas.drawPath(path, borderPaint);
 
-      // Деревья
       _drawParkTrees(canvas, size, park);
     }
   }
@@ -32643,7 +33281,6 @@ class RegionMapPainter extends CustomPainter {
   void _drawParkTrees(Canvas canvas, Size size, Park park) {
     final rng = math.Random(park.seed);
 
-    // Bounding box
     double minX = double.infinity;
     double maxX = -double.infinity;
     double minY = double.infinity;
@@ -32657,7 +33294,7 @@ class RegionMapPainter extends CustomPainter {
     }
 
     final treePaint = Paint()
-      ..color = const Color(0x33FFFFFF)
+      ..color = const Color(0x6622AA44)
       ..style = PaintingStyle.fill;
 
     int placed = 0;
@@ -32682,7 +33319,7 @@ class RegionMapPainter extends CustomPainter {
   }
 
   void _drawTree(Canvas canvas, Offset center, double h, Paint paint) {
-    // Простая ёлка — два треугольника
+    // Ёлка — треугольник.
     final path = Path()
       ..moveTo(center.dx, center.dy - h)
       ..lineTo(center.dx - h * 0.6, center.dy + h * 0.5)
@@ -32690,8 +33327,8 @@ class RegionMapPainter extends CustomPainter {
       ..close();
     canvas.drawPath(path, paint);
 
-    // Ствол
-    final trunkPaint = Paint()..color = const Color(0x441A1A1A);
+    // Ствол.
+    final trunkPaint = Paint()..color = const Color(0x661A1A1A);
     canvas.drawRect(
       Rect.fromLTWH(center.dx - 1, center.dy + h * 0.4, 2, 3),
       trunkPaint,
@@ -32706,11 +33343,11 @@ class RegionMapPainter extends CustomPainter {
     for (final road in layout.roads) {
       final path = _smoothPath(road.path, size);
 
-      // Асфальт
+      // Асфальт — толстая серая линия.
       final roadPaint = Paint()
         ..color = road.isMain
-            ? const Color(0x33FFFFFF)
-            : const Color(0x1AFFFFFF)
+            ? const Color(0x4AFFFFFF)
+            : const Color(0x2AFFFFFF)
         ..style = PaintingStyle.stroke
         ..strokeWidth = road.isMain ? 6.0 : 3.0
         ..strokeCap = StrokeCap.round
@@ -32718,15 +33355,16 @@ class RegionMapPainter extends CustomPainter {
 
       canvas.drawPath(path, roadPaint);
 
-      // Разметка для главных
+      // Разметка для главных — пунктир.
       if (road.isMain) {
         final dashPaint = Paint()
-          ..color = const Color(0x44888844)
+          ..color = const Color(0x88888844)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1.0
           ..strokeCap = StrokeCap.round;
 
-        _drawDashedPath(canvas, path, dashPaint, dashLength: 8, gapLength: 8);
+        _drawDashedPath(canvas, path, dashPaint,
+            dashLength: 8, gapLength: 8);
       }
     }
   }
@@ -32750,10 +33388,59 @@ class RegionMapPainter extends CustomPainter {
   }
 
   // ═══════════════════════════════════════════════════════════
+  // МЕТКА РЕГИОНА (прямо на картинке)
+  // ═══════════════════════════════════════════════════════════
+
+  /// Рисует название региона в углу картинки.
+  ///
+  /// Полупрозрачный, чтобы не мешать. Виден и на фоне, и после
+  /// масштабирования.
+  void _drawRegionStamp(Canvas canvas, Size size) {
+    final label = _regionStampText();
+    if (label.isEmpty) return;
+
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: label,
+        style: const TextStyle(
+          color: Color(0x2AC8B464), // очень прозрачный золотой
+          fontSize: 64,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 12.0,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout(maxWidth: size.width - 80);
+
+    textPainter.paint(
+      canvas,
+      Offset(40, size.height - textPainter.height - 40),
+    );
+  }
+
+  String _regionStampText() {
+    switch (layout.regionId) {
+      case 'city_south':
+        return 'ЮГ';
+      case 'city_center':
+        return 'ЦЕНТР';
+      case 'forest':
+        return 'ЛЕС';
+      case 'highway':
+        return 'ТРАССА';
+      case 'underground':
+        return 'ТОННЕЛИ';
+      case 'north':
+        return 'СЕВЕР';
+      default:
+        return '';
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════
   // ХЕЛПЕРЫ
   // ═══════════════════════════════════════════════════════════
 
-  /// Создать Path из полигона (в логических координатах).
   Path _polygonPath(List<Offset> polygon, Size size) {
     final path = Path();
     if (polygon.isEmpty) return path;
@@ -32774,7 +33461,6 @@ class RegionMapPainter extends CustomPainter {
     return path;
   }
 
-  /// Создать гладкий Path из точек (квадратичная интерполяция).
   Path _smoothPath(List<Offset> points, Size size) {
     final path = Path();
     if (points.isEmpty) return path;
@@ -32801,16 +33487,39 @@ class RegionMapPainter extends CustomPainter {
       );
     }
 
-    // Последняя точка
     final last = points.last;
     path.lineTo(last.dx * size.width, last.dy * size.height);
 
     return path;
   }
 
+  // ═══════════════════════════════════════════════════════════
+  // КЕШ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Очистить кеш зданий для конкретного региона.
+  static void clearRegionCache(String regionId) {
+    final keysToRemove = _buildingCache.keys
+        .where((k) => k.startsWith('${regionId}_'))
+        .toList();
+    for (final key in keysToRemove) {
+      _buildingCache.remove(key);
+    }
+  }
+
+  /// Очистить весь кеш.
+  static void clearAllCache() {
+    _buildingCache.clear();
+  }
+
+  /// Размер кеша (для диагностики).
+  static int get cacheSize => _buildingCache.length;
+
   @override
   bool shouldRepaint(covariant RegionMapPainter oldDelegate) {
-    return oldDelegate.layout != layout;
+    // Painter используется только для генерации.
+    // Перерисовка нужна только при смене региона.
+    return oldDelegate.layout.regionId != layout.regionId;
   }
 }
 ```
@@ -35016,6 +35725,187 @@ class ConditionManager {
 }
 ```
 
+### 📄 `./lib/services/items/item_icon_loader.dart`
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+
+/// Загрузчик иконок предметов.
+///
+/// Логика:
+/// - При старте приложения сканирует `assets/images/items/` и
+///   строит карту `itemId → путь к PNG`.
+/// - При запросе иконки:
+///   - Если PNG есть — возвращает `Image.asset`.
+///   - Если нет — возвращает эмодзи (fallback).
+///
+/// Работает для **всех** категорий: weapons, armor, consumables,
+/// tools, resources. Даже если PNG пока только для оружия —
+/// остальные предметы продолжат работать через эмодзи.
+///
+/// Использование:
+/// ```dart
+/// // В main.dart:
+/// await ItemIconLoader.init();
+///
+/// // В UI:
+/// ItemIconLoader.buildIcon(
+///   itemId: 'kitchen_knife',
+///   fallbackEmoji: '🔪',
+///   size: 32,
+/// );
+/// ```
+class ItemIconLoader {
+  ItemIconLoader._();
+
+  /// Кеш: `itemId` → путь к PNG.
+  ///
+  /// Пример: `{ "kitchen_knife": "assets/images/items/weapons/kitchen_knife.png" }`.
+  static final Map<String, String> _pngCache = {};
+
+  /// Флаг инициализации.
+  static bool _isInitialized = false;
+
+  /// Инициализация — сканирует assets и заполняет кеш.
+  ///
+  /// Вызывается один раз при старте приложения.
+  /// Повторные вызовы безопасны — ничего не делают.
+  static Future<void> init() async {
+    if (_isInitialized) return;
+
+    try {
+      final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+      final allAssets = manifest.listAssets();
+
+      int found = 0;
+
+      for (final path in allAssets) {
+        // Интересуют только PNG в assets/images/items/.
+        if (!path.startsWith('assets/images/items/')) continue;
+        if (!path.endsWith('.png')) continue;
+
+        // assets/images/items/weapons/kitchen_knife.png
+        // → fileName = "kitchen_knife.png"
+        // → id = "kitchen_knife"
+        final fileName = path.split('/').last;
+        final id = fileName.substring(0, fileName.length - 4);
+
+        // Если два PNG с одним id в разных категориях — берём первый.
+        // На практике такого быть не должно.
+        _pngCache[id] = path;
+        found++;
+      }
+
+      _isInitialized = true;
+      debugPrint('🖼️ ItemIconLoader: загружено $found иконок');
+    } catch (e, stackTrace) {
+      debugPrint('❌ ItemIconLoader: ошибка инициализации — $e');
+      debugPrint('$stackTrace');
+      _isInitialized = true; // всё равно помечаем — работаем через fallback
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ПУБЛИЧНЫЙ API
+  // ═══════════════════════════════════════════════════════════
+
+  /// Есть ли PNG для предмета.
+  static bool hasPng(String itemId) {
+    return _pngCache.containsKey(itemId);
+  }
+
+  /// Путь к PNG для предмета (или null).
+  static String? getPngPath(String itemId) {
+    return _pngCache[itemId];
+  }
+
+  /// Собрать виджет иконки.
+  ///
+  /// - [itemId] — ID предмета (должен совпадать с именем PNG без .png).
+  /// - [fallbackEmoji] — эмодзи, если PNG нет.
+  /// - [size] — размер иконки в пикселях (ширина = высота).
+  /// - [fit] — как вписывать картинку (по умолчанию `contain`).
+  /// - [color] — если задан, применяется как ColorFilter к PNG (для тонирования).
+  ///
+  /// Возвращает либо `Image.asset`, либо `Text` с эмодзи.
+  static Widget buildIcon({
+    required String itemId,
+    required String fallbackEmoji,
+    double size = 32,
+    BoxFit fit = BoxFit.contain,
+    Color? color,
+  }) {
+    final pngPath = _pngCache[itemId];
+
+    if (pngPath == null) {
+      return _buildEmojiFallback(fallbackEmoji, size, color);
+    }
+
+    return Image.asset(
+      pngPath,
+      width: size,
+      height: size,
+      fit: fit,
+      filterQuality: FilterQuality.medium,
+      color: color,
+      errorBuilder: (context, error, stackTrace) {
+        // Если PNG не загрузился (битый файл, удалён из assets) —
+        // откатываемся на эмодзи.
+        debugPrint('⚠️ ItemIconLoader: не удалось загрузить $pngPath — $error');
+        return _buildEmojiFallback(fallbackEmoji, size, color);
+      },
+    );
+  }
+
+  /// Эмодзи-фолбэк.
+  static Widget _buildEmojiFallback(String emoji, double size, Color? color) {
+    return SizedBox(
+      width: size,
+      height: size,
+      child: Center(
+        child: Text(
+          emoji,
+          style: TextStyle(
+            fontSize: size * 0.8,
+            color: color,
+            height: 1.0,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ДИАГНОСТИКА И ТЕСТЫ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Сколько иконок загружено.
+  static int get loadedCount => _pngCache.length;
+
+  /// Все ID предметов, для которых есть PNG.
+  static Set<String> get availableIds => _pngCache.keys.toSet();
+
+  /// Список всех путей к PNG (для отладки).
+  static List<String> get allPaths =>
+      _pngCache.values.toList()..sort();
+
+  /// Очистить кеш (для тестов).
+  @visibleForTesting
+  static void clearCache() {
+    _pngCache.clear();
+    _isInitialized = false;
+  }
+
+  /// Добавить путь вручную (для тестов).
+  @visibleForTesting
+  static void registerForTest(String itemId, String path) {
+    _pngCache[itemId] = path;
+  }
+}
+```
+
 ### 📄 `./lib/services/items/item_loader.dart`
 ```dart
 import 'package:dark_hours/models/items/weapon.dart';
@@ -36037,8 +36927,16 @@ class MapController extends ChangeNotifier {
   final Map<String, int> searchedCounts = {};
   final Set<String> unlockedLocations = {};
 
-  /// Разведанные локации.
+  /// Разведанные локации — игрок знает их название, иконку, общее описание.
+  ///
+  /// Все локации стартового региона попадают сюда сразу при старте.
+  /// Скрытые (`hidden`) локации попадают только через `unlockLocation`.
   final Set<String> scoutedLocations = {};
+
+  /// Локации с уточнённым состоянием — игрок знает, что там СЕЙЧАС.
+  ///
+  /// Заполняется через `scoutDetails()` — разведку состояния.
+  final Set<String> detailedLocations = {};
 
   /// Открытые регионы.
   final Set<String> discoveredRegions = {};
@@ -36123,8 +37021,12 @@ class MapController extends ChangeNotifier {
 
     gameTime = GameTime(totalMinutes: GameConstants.startTimeMinutes);
 
-    // ТОЛЬКО стартовая локация разведана. Соседи — нет.
-    scoutedLocations.add(startLoc.id);
+    // НОВАЯ ЛОГИКА: все локации стартового региона разведаны сразу.
+    // Игрок живёт в этом городе — он знает, где что.
+    _scoutRegionLocations(locations, startLoc.region);
+
+    // Стартовая локация — ещё и посещена (полное описание).
+    // Остальные — только scouted (краткое описание).
     discoverRegion(startLoc.region);
   }
 
@@ -36149,18 +37051,11 @@ class MapController extends ChangeNotifier {
     scoutedLocations.clear();
     scoutedLocations.addAll(s.scoutedLocations);
 
+    detailedLocations.clear();
+    detailedLocations.addAll(s.detailedLocations);
+
     discoveredRegions.clear();
     discoveredRegions.addAll(s.discoveredRegions);
-
-    // Миграция: если старые сохранения без scouted — добавляем стартовую.
-    if (scoutedLocations.isEmpty) {
-      final startLoc = locations.firstWhere(
-        (l) => l.isStart,
-        orElse: () => locations.first,
-      );
-      scoutedLocations.add(startLoc.id);
-      discoverRegion(startLoc.region);
-    }
 
     inventory.items.clear();
     for (final itemJson in s.inventoryItems) {
@@ -36200,14 +37095,41 @@ class MapController extends ChangeNotifier {
       currentLocationId: startLoc.id,
       visitedLocations: {startLoc.id},
     );
+
+    // МИГРАЦИЯ: если старые сохранения без scoutedLocations —
+    // разведать все локации текущего региона.
+    if (scoutedLocations.isEmpty) {
+      _scoutRegionLocations(locations, startLoc.region);
+      discoverRegion(startLoc.region);
+    }
+
+    // МИГРАЦИЯ: если в сохранении нет detailedLocations — оставить пустым.
+    // Игроку придётся разведывать заново.
+  }
+
+  /// Разведать все локации указанного региона (кроме скрытых).
+  void _scoutRegionLocations(List<Location> locations, String region) {
+    for (final loc in locations) {
+      if (loc.region != region) continue;
+      if (loc.hidden) continue;
+      if (!loc.isAvailableAt(chapter)) continue;
+
+      scoutedLocations.add(loc.id);
+    }
   }
 
   // ═══════════════════════════════════════════════════════════
   // ИССЛЕДОВАНИЕ
   // ═══════════════════════════════════════════════════════════
 
+  /// Знает ли игрок о существовании локации (базовое знание).
   bool isScouted(String locationId) {
     return scoutedLocations.contains(locationId);
+  }
+
+  /// Знает ли игрок текущее состояние локации (детальная разведка).
+  bool hasDetails(String locationId) {
+    return detailedLocations.contains(locationId);
   }
 
   bool isVisited(String locationId) {
@@ -36218,6 +37140,13 @@ class MapController extends ChangeNotifier {
     return discoveredRegions.contains(region);
   }
 
+  /// Разведать локацию — узнать о её существовании.
+  ///
+  /// Теперь используется только для:
+  /// - Соседей из соседних регионов (при переходе).
+  /// - Скрытых локаций (при разведке скрытых).
+  ///
+  /// Все локации текущего региона уже разведаны при старте.
   void scoutLocation(String locationId) {
     if (scoutedLocations.contains(locationId)) return;
     scoutedLocations.add(locationId);
@@ -36230,6 +37159,26 @@ class MapController extends ChangeNotifier {
     refresh();
   }
 
+  /// Разведать состояние локации — узнать, что там СЕЙЧАС.
+  ///
+  /// Это НЕ открывает локацию. Локация уже должна быть scouted.
+  /// Даёт: количество врагов, наличие лута, состояние здания.
+  bool scoutDetails(String locationId) {
+    // Разведать детали можно только у известной локации.
+    if (!scoutedLocations.contains(locationId)) return false;
+
+    // Если детали уже есть — не тратим ресурсы.
+    if (detailedLocations.contains(locationId)) return false;
+
+    detailedLocations.add(locationId);
+    refresh();
+    return true;
+  }
+
+  /// Разведать все локации указанного региона.
+  ///
+  /// Используется при переходе в новый регион — игрок сразу
+  /// видит все локации региона, но без деталей.
   void scoutAll(Iterable<String> locationIds) {
     bool changed = false;
     for (final id in locationIds) {
@@ -36253,6 +37202,14 @@ class MapController extends ChangeNotifier {
   @visibleForTesting
   void setScouted(Set<String> ids) {
     scoutedLocations
+      ..clear()
+      ..addAll(ids);
+    refresh();
+  }
+
+  @visibleForTesting
+  void setDetailed(Set<String> ids) {
+    detailedLocations
       ..clear()
       ..addAll(ids);
     refresh();
@@ -36566,6 +37523,7 @@ class MapController extends ChangeNotifier {
       searchedCounts: searchedCounts,
       unlockedLocations: unlockedLocations.toList(),
       scoutedLocations: scoutedLocations,
+      detailedLocations: detailedLocations,
       discoveredRegions: discoveredRegions,
       savedAt: DateTime.now(),
     );
@@ -36623,6 +37581,9 @@ class MapController extends ChangeNotifier {
     scoutedLocations.clear();
     scoutedLocations.addAll(save.scoutedLocations);
 
+    detailedLocations.clear();
+    detailedLocations.addAll(save.detailedLocations);
+
     discoveredRegions.clear();
     discoveredRegions.addAll(save.discoveredRegions);
 
@@ -36664,8 +37625,8 @@ class MapController extends ChangeNotifier {
 
     gameTime = GameTime(totalMinutes: startTimeMinutes);
 
-    // Стартовая — разведана. Соседи — нет.
-    scoutedLocations.add(startLoc.id);
+    // НОВАЯ ЛОГИКА: разведать все локации стартового региона.
+    _scoutRegionLocations(locations, startLoc.region);
     discoveredRegions.add(startLoc.region);
 
     isLoading = false;
@@ -36839,6 +37800,181 @@ class MovementManager {
     if (m == 0) return '${h}ч';
     return '${h}ч ${m}м';
   }
+}
+```
+
+### 📄 `./lib/services/map/region_background_cache.dart`
+```dart
+import 'dart:async';
+import 'dart:ui' as ui;
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import 'package:dark_hours/models/world/region_layout.dart';
+import 'package:dark_hours/screens/gameplay/widgets/region_map_painter.dart';
+
+/// Кеш фоновых изображений регионов.
+///
+/// Логика работы:
+/// 1. При первом запросе региона — пробует загрузить PNG из
+///    `assets/images/regions/{regionId}.png`.
+/// 2. Если файла нет — рендерит фон через [RegionMapPainter]
+///    в `ui.Image` один раз.
+/// 3. Кеширует результат в памяти.
+/// 4. Возвращает `ui.Image` для отрисовки через `RawImage`.
+///
+/// Зачем: программная отрисовка через CustomPainter каждый кадр
+/// грузит GPU/CPU. `RawImage` — один draw-вызов на кадр.
+/// Разница: ~500 draw-вызовов → 1 draw-вызов.
+class RegionBackgroundCache {
+  RegionBackgroundCache._();
+
+  /// Размер рендера (логические пиксели).
+  ///
+  /// Совпадает с `RegionLayout.logicalSize` по умолчанию (800×1200).
+  /// Если регион использует другой размер — используется он.
+  static const Size _defaultSize = Size(800, 1200);
+
+  /// Кеш: `regionId` → готовая картинка.
+  static final Map<String, ui.Image> _cache = {};
+
+  /// Кеш "загружается сейчас" — чтобы не запускать загрузку дважды.
+  static final Map<String, Future<ui.Image?>> _pending = {};
+
+  /// Получить фон региона.
+  ///
+  /// Возвращает `ui.Image` или `null`, если регион не найден.
+  /// Безопасно вызывать многократно — повторные вызовы возвращают
+  /// закешированное изображение.
+  static Future<ui.Image?> get({
+    required String regionId,
+    required RegionLayout layout,
+  }) async {
+    // 1. Уже в кеше — возвращаем.
+    if (_cache.containsKey(regionId)) {
+      return _cache[regionId];
+    }
+
+    // 2. Загрузка уже идёт — ждём её.
+    if (_pending.containsKey(regionId)) {
+      return _pending[regionId];
+    }
+
+    // 3. Запускаем загрузку.
+    final future = _loadOrGenerate(regionId, layout);
+    _pending[regionId] = future;
+
+    try {
+      final image = await future;
+      if (image != null) {
+        _cache[regionId] = image;
+      }
+      return image;
+    } finally {
+      _pending.remove(regionId);
+    }
+  }
+
+  /// Загрузить PNG из assets или сгенерировать картинку.
+  static Future<ui.Image?> _loadOrGenerate(
+    String regionId,
+    RegionLayout layout,
+  ) async {
+    // ─── Попытка загрузить PNG из assets ───
+    final assetPath = 'assets/images/regions/$regionId.png';
+    try {
+      final data = await rootBundle.load(assetPath);
+      final codec = await ui.instantiateImageCodec(
+        data.buffer.asUint8List(),
+      );
+      final frame = await codec.getNextFrame();
+      debugPrint('🖼️ RegionBackgroundCache: загружен $assetPath '
+          '(${frame.image.width}×${frame.image.height})');
+      return frame.image;
+    } catch (e) {
+      // Файла нет — это нормально, генерируем.
+      debugPrint('🖼️ RegionBackgroundCache: $assetPath не найден, '
+          'генерирую для $regionId');
+    }
+
+    // ─── Генерация через RegionMapPainter ───
+    return _generateFromPainter(regionId, layout);
+  }
+
+  /// Сгенерировать картинку через [RegionMapPainter].
+  ///
+  /// Используем `PictureRecorder` — рисуем всё на canvas,
+  /// затем конвертируем в `ui.Image` через `toImage()`.
+  static Future<ui.Image?> _generateFromPainter(
+    String regionId,
+    RegionLayout layout,
+  ) async {
+    try {
+      final size = layout.logicalSize;
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+
+      // Ограничиваем область рисования.
+      canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
+
+      // Рисуем фон через существующий painter.
+      final painter = RegionMapPainter(layout: layout);
+      painter.paint(canvas, size);
+
+      // Завершаем запись.
+      final picture = recorder.endRecording();
+
+      // Конвертируем в картинку.
+      final image = await picture.toImage(
+        size.width.toInt(),
+        size.height.toInt(),
+      );
+
+      // Освобождаем picture — она больше не нужна.
+      picture.dispose();
+
+      debugPrint('🖼️ RegionBackgroundCache: сгенерирован $regionId '
+          '(${image.width}×${image.height})');
+
+      return image;
+    } catch (e, stackTrace) {
+      debugPrint('❌ RegionBackgroundCache: ошибка генерации '
+          '$regionId — $e');
+      debugPrint('$stackTrace');
+      return null;
+    }
+  }
+
+  /// Очистить кеш (для тестов или при выходе).
+  static void clear() {
+    for (final image in _cache.values) {
+      image.dispose();
+    }
+    _cache.clear();
+    _pending.clear();
+  }
+
+  /// Удалить конкретный регион из кеша.
+  static void evict(String regionId) {
+    _cache[regionId]?.dispose();
+    _cache.remove(regionId);
+    _pending.remove(regionId);
+  }
+
+  /// Проверить, закеширован ли регион.
+  @visibleForTesting
+  static bool isCached(String regionId) {
+    return _cache.containsKey(regionId);
+  }
+
+  /// Размер кеша (для диагностики).
+  @visibleForTesting
+  static int get cacheSize => _cache.length;
+
+  /// Размер по умолчанию — используется, если у layout нет своего.
+  static Size get defaultSize => _defaultSize;
 }
 ```
 
@@ -39952,6 +41088,7 @@ import 'package:flutter/material.dart';
 import 'package:dark_hours/models/items/recipe.dart';
 import 'package:dark_hours/models/inventory/inventory.dart';
 import 'package:dark_hours/services/items/item_loader.dart';
+import 'package:dark_hours/services/items/item_icon_loader.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
 
 class CraftPanel extends StatefulWidget {
@@ -40224,9 +41361,11 @@ class _CraftPanelState extends State<CraftPanel> {
           // Заголовок
           Row(
             children: [
-              Text(
-                recipe.resultIcon,
-                style: const TextStyle(fontSize: 28),
+              // ⚡ ИКОНКА РЕЗУЛЬТАТА: PNG или эмодзи.
+              ItemIconLoader.buildIcon(
+                itemId: recipe.resultId,
+                fallbackEmoji: recipe.resultIcon,
+                size: 36,
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -40451,6 +41590,7 @@ class _CraftPanelState extends State<CraftPanel> {
 import 'package:flutter/material.dart';
 import 'package:dark_hours/models/inventory/equipment.dart';
 import 'package:dark_hours/models/inventory/inventory_item.dart';
+import 'package:dark_hours/services/items/item_icon_loader.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
 import 'package:dark_hours/widgets/panels/inventory_panel.dart'
     show ItemDetailsSheet;
@@ -40672,9 +41812,11 @@ class EquipmentPanel extends StatelessWidget {
                 else
                   Row(
                     children: [
-                      Text(
-                        item.icon,
-                        style: const TextStyle(fontSize: 16),
+                      // ⚡ ИКОНКА ПРЕДМЕТА: PNG или эмодзи.
+                      ItemIconLoader.buildIcon(
+                        itemId: item.id,
+                        fallbackEmoji: item.icon,
+                        size: 24,
                       ),
                       const SizedBox(width: 6),
                       Expanded(
@@ -40708,10 +41850,10 @@ class EquipmentPanel extends StatelessWidget {
       ),
     );
 
-    // Пустой слот — не кликабелен
+    // Пустой слот — не кликабелен.
     if (isEmpty) return content;
 
-    // Надетый предмет — тап открывает детали
+    // Надетый предмет — тап открывает детали.
     return GestureDetector(
       onTap: () {
         AudioService.playTap();
@@ -40741,6 +41883,7 @@ class EquipmentPanel extends StatelessWidget {
 import 'package:flutter/material.dart';
 import 'package:dark_hours/models/inventory/inventory.dart';
 import 'package:dark_hours/models/inventory/inventory_item.dart';
+import 'package:dark_hours/services/items/item_icon_loader.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
 
 class InventoryPanel extends StatelessWidget {
@@ -40888,9 +42031,11 @@ class InventoryPanel extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              Text(
-                                item.icon,
-                                style: const TextStyle(fontSize: 26),
+                              // ⚡ ИКОНКА: PNG или эмодзи.
+                              ItemIconLoader.buildIcon(
+                                itemId: item.id,
+                                fallbackEmoji: item.icon,
+                                size: 32,
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -41065,19 +42210,20 @@ class ItemDetailsSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Большая иконка
+            // ⚡ БОЛЬШАЯ ИКОНКА: PNG или эмодзи.
             Container(
-              width: 90,
-              height: 90,
+              width: 100,
+              height: 100,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: rarityColor.withOpacity(0.1),
                 border: Border.all(color: rarityColor, width: 2),
               ),
               child: Center(
-                child: Text(
-                  item.icon,
-                  style: const TextStyle(fontSize: 46),
+                child: ItemIconLoader.buildIcon(
+                  itemId: item.id,
+                  fallbackEmoji: item.icon,
+                  size: 64,
                 ),
               ),
             ),
@@ -42113,6 +43259,9 @@ flutter:
     - assets/data/story/ivan/chapter_1/
     - assets/data/story/andrey/chapter_1/
     - assets/data/story/darya/chapter_1/
+
+    # ===== ИКОНКИ ПРЕДМЕТОВ =====
+    - assets/images/items/weapons/
 
     # ===== ЗВУКИ =====
     - assets/audio/ui/
@@ -43756,6 +44905,42 @@ void main() {
     repeatable: true,
   );
 
+  /// Локация из другого региона — не должна попасть в scouted.
+  final forestLocation = Location(
+    id: 'forest',
+    name: 'Лес',
+    description: 'Лес',
+    type: 'forest',
+    region: 'forest',
+    dangerLevel: 2,
+    searchTime: 20,
+    maxSearches: 3,
+    lootPool: [],
+    enemies: [],
+    connections: conns(['home']),
+    icon: '🌲',
+    repeatable: true,
+  );
+
+  /// Скрытая локация — не должна попасть в scouted при старте.
+  final hiddenLocation = Location(
+    id: 'secret',
+    name: 'Секрет',
+    description: 'Скрытая',
+    type: 'hidden',
+    region: 'city',
+    dangerLevel: 3,
+    searchTime: 30,
+    maxSearches: 3,
+    lootPool: [],
+    enemies: [],
+    connections: conns(['home']),
+    icon: '🔓',
+    repeatable: true,
+    hidden: true,
+    unlockedBy: 'home',
+  );
+
   const infectionCondition = Condition(
     id: 'infection',
     name: 'Инфекция',
@@ -43859,7 +45044,6 @@ void main() {
 
     test('устанавливает характеристики персонажа из GameConstants', () {
       final c = makeController(characterId: 'boris');
-      // Борис: intelligence: 5, strength: 7
       expect(c.intelligence, 5);
       expect(c.strength, 7);
     });
@@ -43870,6 +45054,186 @@ void main() {
         () => c.initForTest(locations: []),
         throwsArgumentError,
       );
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // НОВАЯ ЛОГИКА РАЗВЕДКИ
+  // ═══════════════════════════════════════════════════════════
+
+  group('MapController — авторазведка при старте', () {
+    test('все локации стартового региона — scouted', () {
+      final c = makeController();
+      expect(c.isScouted('home'), true);
+      expect(c.isScouted('street'), true);
+    });
+
+    test('скрытые локации НЕ попадают в scouted при старте', () {
+      final c = makeController(
+        locations: [homeLocation, streetLocation, hiddenLocation],
+      );
+      expect(c.isScouted('home'), true);
+      expect(c.isScouted('street'), true);
+      expect(c.isScouted('secret'), false);
+    });
+
+    test('локации другого региона НЕ попадают в scouted при старте', () {
+      final c = makeController(
+        locations: [homeLocation, streetLocation, forestLocation],
+      );
+      expect(c.isScouted('home'), true);
+      expect(c.isScouted('street'), true);
+      expect(c.isScouted('forest'), false);
+    });
+
+    test('detailedLocations пуст при старте', () {
+      final c = makeController();
+      expect(c.detailedLocations, isEmpty);
+    });
+
+    test('hasDetails возвращает false при старте', () {
+      final c = makeController();
+      expect(c.hasDetails('home'), false);
+      expect(c.hasDetails('street'), false);
+    });
+
+    test('стартовый регион добавляется в discoveredRegions', () {
+      final c = makeController();
+      expect(c.isRegionDiscovered('city'), true);
+    });
+  });
+
+  group('MapController.scoutLocation', () {
+    test('добавляет новую локацию в scouted', () {
+      final c = makeController(
+        locations: [homeLocation, streetLocation, forestLocation],
+      );
+      expect(c.isScouted('forest'), false);
+
+      c.scoutLocation('forest');
+
+      expect(c.isScouted('forest'), true);
+    });
+
+    test('не дублирует уже разведанные локации', () {
+      final c = makeController();
+      final countBefore = c.scoutedLocations.length;
+      c.scoutLocation('home');
+      expect(c.scoutedLocations.length, countBefore);
+    });
+
+    test('разведывает регион локации', () {
+      final c = makeController(
+        locations: [homeLocation, streetLocation, forestLocation],
+      );
+      expect(c.isRegionDiscovered('forest'), false);
+
+      c.scoutLocation('forest');
+
+      expect(c.isRegionDiscovered('forest'), true);
+    });
+  });
+
+  group('MapController.scoutDetails', () {
+    test('возвращает true для scouted-локации', () {
+      final c = makeController();
+      expect(c.isScouted('street'), true);
+
+      final ok = c.scoutDetails('street');
+
+      expect(ok, true);
+      expect(c.hasDetails('street'), true);
+    });
+
+    test('возвращает false для локации НЕ в scouted', () {
+      final c = makeController(
+        locations: [homeLocation, streetLocation, hiddenLocation],
+      );
+      expect(c.isScouted('secret'), false);
+
+      final ok = c.scoutDetails('secret');
+
+      expect(ok, false);
+      expect(c.hasDetails('secret'), false);
+    });
+
+    test('возвращает false при повторной разведке', () {
+      final c = makeController();
+
+      final first = c.scoutDetails('street');
+      final second = c.scoutDetails('street');
+
+      expect(first, true);
+      expect(second, false);
+    });
+
+    test('добавляет локацию в detailedLocations', () {
+      final c = makeController();
+      expect(c.detailedLocations.contains('street'), false);
+
+      c.scoutDetails('street');
+
+      expect(c.detailedLocations.contains('street'), true);
+    });
+
+    test('вызывает notifyListeners при успехе', () {
+      final c = makeController();
+      int notifyCount = 0;
+      c.addListener(() => notifyCount++);
+
+      c.scoutDetails('street');
+
+      expect(notifyCount, greaterThan(0));
+    });
+
+    test('НЕ вызывает notifyListeners при повторной разведке', () {
+      final c = makeController();
+      c.scoutDetails('street'); // первый раз
+
+      int notifyCount = 0;
+      c.addListener(() => notifyCount++);
+
+      c.scoutDetails('street'); // второй раз — не должно
+
+      expect(notifyCount, 0);
+    });
+  });
+
+  group('MapController.hasDetails', () {
+    test('false для неразведанной локации', () {
+      final c = makeController();
+      expect(c.hasDetails('street'), false);
+    });
+
+    test('true после scoutDetails', () {
+      final c = makeController();
+      c.scoutDetails('street');
+      expect(c.hasDetails('street'), true);
+    });
+
+    test('false для несуществующей локации', () {
+      final c = makeController();
+      expect(c.hasDetails('nonexistent'), false);
+    });
+  });
+
+  group('MapController.setDetailed — тестовый хелпер', () {
+    test('устанавливает detailedLocations', () {
+      final c = makeController();
+      c.setDetailed({'street', 'home'});
+      expect(c.hasDetails('street'), true);
+      expect(c.hasDetails('home'), true);
+    });
+
+    test('очищает предыдущие значения', () {
+      final c = makeController();
+      c.scoutDetails('street');
+      expect(c.hasDetails('street'), true);
+
+      c.setDetailed({'home'});
+
+      expect(c.hasDetails('street'), false);
+      expect(c.hasDetails('home'), true);
     });
   });
 
@@ -43960,7 +45324,7 @@ void main() {
       final c = makeController();
       c.setHunger(100);
       c.setThirst(100);
-      await c.advanceTime(600); // 10 часов — гарантированно видно расход
+      await c.advanceTime(600);
       expect(c.hunger, lessThan(100));
       expect(c.thirst, lessThan(100));
     });
@@ -43982,7 +45346,7 @@ void main() {
     test('тик активных условий снижает health', () async {
       final c = makeController();
       c.setHealth(100);
-      c.addCondition(infectionCondition); // -3 health за тик
+      c.addCondition(infectionCondition);
       await c.advanceTime(60);
       expect(c.health, lessThan(100));
     });
@@ -44027,14 +45391,12 @@ void main() {
       final c = makeController();
       c.addCondition(infectionCondition);
       final ac = c.activeConditions.first;
-      // bandage не подходит для infection
       final cured = c.tryCureCondition(ac, 'bandage');
       expect(cured, false);
       expect(c.activeConditions.length, 1);
     });
 
     test('возвращает true для подходящего (cureChance = 1.0)', () {
-      // Используем условие с гарантированным лечением
       const guaranteedCure = Condition(
         id: 'bleeding',
         name: 'Кровотечение',
@@ -44215,11 +45577,17 @@ void main() {
       expect(c.hasFlag('test_flag'), true);
     });
 
-    test('unlockLocation добавляет локацию в открытые', () {
-      final c = makeController();
-      expect(c.isLocationUnlocked('hidden1'), false);
-      c.unlockLocation('hidden1');
-      expect(c.isLocationUnlocked('hidden1'), true);
+    test('unlockLocation добавляет локацию в открытые + scouted', () {
+      final c = makeController(
+        locations: [homeLocation, streetLocation, hiddenLocation],
+      );
+      expect(c.isLocationUnlocked('secret'), false);
+      expect(c.isScouted('secret'), false);
+
+      c.unlockLocation('secret');
+
+      expect(c.isLocationUnlocked('secret'), true);
+      expect(c.isScouted('secret'), true);
     });
 
     test('incrementSearchCount увеличивает счётчик', () {
@@ -44265,10 +45633,19 @@ void main() {
       c.setFlag('x');
       expect(notifyCount, 1);
     });
+
+    test('scoutDetails вызывает notifyListeners при успехе', () {
+      final c = makeController();
+      int notifyCount = 0;
+      c.addListener(() => notifyCount++);
+
+      c.scoutDetails('street');
+      expect(notifyCount, 1);
+    });
   });
 
   // ═══════════════════════════════════════════════════════════
-  // ГЛАВНАЯ ПРОВЕРКА: initForTest + все справочники
+  // КОМПЛЕКСНЫЕ ПРОВЕРКИ
   // ═══════════════════════════════════════════════════════════
 
   group('MapController — комплексные проверки', () {
@@ -44285,7 +45662,6 @@ void main() {
 
     test('gameTime доступно сразу после initForTest', () {
       final c = makeController();
-      // startTimeMinutes = 8 * 60 = 480
       expect(c.gameTime.totalMinutes, 480);
       expect(c.gameTime.day, 1);
     });
@@ -44294,9 +45670,25 @@ void main() {
       final c = MapController(characterId: 'boris', characterName: 'Борис');
       c.initForTest(
         locations: [homeLocation, streetLocation],
-        startTimeMinutes: 600, // 10:00
+        startTimeMinutes: 600,
       );
       expect(c.gameTime.totalMinutes, 600);
+    });
+
+    test('полный цикл: старт → разведка деталей → hasDetails', () {
+      final c = makeController();
+
+      // Старт: все локации scouted, но без деталей.
+      expect(c.isScouted('street'), true);
+      expect(c.hasDetails('street'), false);
+
+      // Разведка деталей.
+      final ok = c.scoutDetails('street');
+
+      // Проверка.
+      expect(ok, true);
+      expect(c.hasDetails('street'), true);
+      expect(c.detailedLocations.length, 1);
     });
   });
 }
@@ -46130,6 +47522,274 @@ void main() {
 dart run tool/validate.dart
 ```
 
+### 📄 `./tool/cut_weapon_backgrounds.py`
+```python
+#!/usr/bin/env python3
+"""
+Скрипт для вырезания фона с иконок оружия.
+
+Что делает:
+1. Читает все JPEG из raw_weapons/.
+2. Определяет фон (белый, чёрный, серый, шахматный).
+3. Удаляет фон через flood fill от краёв картинки.
+4. Сохраняет PNG с прозрачным фоном в assets/images/items/weapons/.
+
+Запуск:
+    pip install Pillow numpy
+    python tool/cut_weapon_backgrounds.py
+"""
+
+import os
+import sys
+from collections import deque, Counter
+
+try:
+    from PIL import Image
+    import numpy as np
+except ImportError:
+    print("❌ Установи зависимости: pip install Pillow numpy")
+    sys.exit(1)
+
+# ═══════════════════════════════════════════════════════════
+# НАСТРОЙКИ
+# ═══════════════════════════════════════════════════════════
+
+SRC_DIR = "raw_weapons"
+DST_DIR = "assets/images/items/weapons"
+
+# Порог "похожести" пикселя на фон (0-255).
+# 30 — баланс. Если фон остаётся — увеличь. Если ест оружие — уменьши.
+TOLERANCE = 35
+
+# Сглаживать ли края (мягкая альфа).
+SMOOTH_EDGES = True
+
+# ═══════════════════════════════════════════════════════════
+# ЛОГИКА
+# ═══════════════════════════════════════════════════════════
+
+
+def is_similar(pixel, target, tolerance):
+    """Проверка: пиксель похож на target?"""
+    return (
+        abs(int(pixel[0]) - int(target[0])) <= tolerance
+        and abs(int(pixel[1]) - int(target[1])) <= tolerance
+        and abs(int(pixel[2]) - int(target[2])) <= tolerance
+    )
+
+
+def detect_background_colors(img, tolerance):
+    """
+    Определить цвета фона по краям картинки.
+
+    Возвращает список цветов — потому что шахматный фон
+    состоит из двух цветов (белый + серый).
+    """
+    w, h = img.size
+    pixels = img.load()
+
+    # Собираем пиксели по краям (толщиной 2 пикселя).
+    edge_pixels = []
+    for x in range(w):
+        edge_pixels.append(pixels[x, 0])
+        edge_pixels.append(pixels[x, 1])
+        edge_pixels.append(pixels[x, h - 1])
+        edge_pixels.append(pixels[x, h - 2])
+    for y in range(h):
+        edge_pixels.append(pixels[0, y])
+        edge_pixels.append(pixels[1, y])
+        edge_pixels.append(pixels[w - 1, y])
+        edge_pixels.append(pixels[w - 2, y])
+
+    # Округляем до 10-х и считаем частоту.
+    rounded = [
+        (c[0] // 10 * 10, c[1] // 10 * 10, c[2] // 10 * 10)
+        for c in edge_pixels
+    ]
+    counter = Counter(rounded)
+
+    # Берём 1-3 самых частых цвета. Если второй цвет
+    # встречается больше 20% от первого — это шахматка.
+    most_common = counter.most_common(3)
+    if not most_common:
+        return [(255, 255, 255)]
+
+    primary = most_common[0]
+    colors = [primary[0]]
+
+    if len(most_common) > 1:
+        secondary = most_common[1]
+        # Если второй цвет встречается часто — добавляем.
+        if secondary[1] > primary[1] * 0.2:
+            colors.append(secondary[0])
+
+    return colors
+
+
+def flood_fill_transparent(img, bg_colors, tolerance):
+    """
+    Удаляет фон через flood fill от краёв.
+
+    Работает с несколькими цветами фона (для шахматки).
+    Внутренние пиксели, похожие на фон, остаются — они часть оружия.
+    """
+    w, h = img.size
+    img = img.convert("RGBA")
+    pixels = img.load()
+
+    visited = np.zeros((h, w), dtype=bool)
+    queue = deque()
+
+    # Все пиксели на границе — стартовые.
+    for x in range(w):
+        queue.append((x, 0))
+        queue.append((x, h - 1))
+    for y in range(h):
+        queue.append((0, y))
+        queue.append((w - 1, y))
+
+    while queue:
+        x, y = queue.popleft()
+
+        if x < 0 or x >= w or y < 0 or y >= h:
+            continue
+        if visited[y, x]:
+            continue
+
+        pixel = pixels[x, y]
+
+        # Проверяем: похож ли пиксель на ЛЮБОЙ из цветов фона.
+        is_bg = False
+        for bg_color in bg_colors:
+            if is_similar(pixel, bg_color, tolerance):
+                is_bg = True
+                break
+
+        if not is_bg:
+            continue
+
+        visited[y, x] = True
+        pixels[x, y] = (pixel[0], pixel[1], pixel[2], 0)
+
+        queue.append((x + 1, y))
+        queue.append((x - 1, y))
+        queue.append((x, y + 1))
+        queue.append((x, y - 1))
+
+    return img
+
+
+def smooth_alpha_edges(img):
+    """
+    Сглаживает края: пиксели, граничащие с прозрачными,
+    получают частичную альфу.
+    """
+    w, h = img.size
+    img = img.convert("RGBA")
+    pixels = img.load()
+
+    new_alpha = {}
+    for y in range(h):
+        for x in range(w):
+            r, g, b, a = pixels[x, y]
+            if a == 0:
+                continue
+
+            # Смотрим на соседей.
+            transparent_neighbors = 0
+            for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < w and 0 <= ny < h:
+                    if pixels[nx, ny][3] == 0:
+                        transparent_neighbors += 1
+
+            if transparent_neighbors > 0:
+                # Край — мягкая альфа.
+                new_alpha[(x, y)] = max(100, 255 - transparent_neighbors * 60)
+
+    for (x, y), new_a in new_alpha.items():
+        r, g, b, _ = pixels[x, y]
+        pixels[x, y] = (r, g, b, new_a)
+
+    return img
+
+
+def process_image(src_path, dst_path):
+    """Обработать одну картинку."""
+    img = Image.open(src_path)
+
+    # Если уже PNG с альфой — не трогаем.
+    if img.mode == "RGBA":
+        alpha = img.split()[3]
+        if alpha.getextrema()[0] < 255:
+            print(f"    ✅ Уже с прозрачностью — копируем как есть")
+            img.save(dst_path, "PNG", optimize=True)
+            return True
+
+    img = img.convert("RGB")
+
+    # Определяем цвета фона.
+    bg_colors = detect_background_colors(img, TOLERANCE)
+    print(f"    🎨 Фон: {bg_colors}")
+
+    # Удаляем фон.
+    img = flood_fill_transparent(img, bg_colors, TOLERANCE)
+
+    # Сглаживаем края.
+    if SMOOTH_EDGES:
+        img = smooth_alpha_edges(img)
+
+    # Сохраняем.
+    img.save(dst_path, "PNG", optimize=True)
+    print(f"    💾 → {dst_path}")
+    return True
+
+
+def main():
+    if not os.path.isdir(SRC_DIR):
+        print(f"❌ Папка {SRC_DIR} не найдена.")
+        print(f"   Создай её и положи туда исходные JPEG.")
+        return
+
+    os.makedirs(DST_DIR, exist_ok=True)
+
+    files = sorted([
+        f for f in os.listdir(SRC_DIR)
+        if f.lower().endswith((".png", ".jpg", ".jpeg", ".webp"))
+    ])
+
+    if not files:
+        print(f"❌ В папке {SRC_DIR} нет картинок.")
+        return
+
+    print(f"🔪 Найдено {len(files)} картинок")
+    print(f"📁 Источник:     {SRC_DIR}")
+    print(f"📁 Назначение:   {DST_DIR}")
+    print(f"⚙️  Tolerance:    {TOLERANCE}")
+    print(f"⚙️  Сглаживание:  {SMOOTH_EDGES}")
+    print()
+
+    success = 0
+    for filename in files:
+        src = os.path.join(SRC_DIR, filename)
+        name = os.path.splitext(filename)[0]
+        dst = os.path.join(DST_DIR, f"{name}.png")
+
+        print(f"  📷 {filename}")
+        try:
+            if process_image(src, dst):
+                success += 1
+        except Exception as e:
+            print(f"    ❌ Ошибка: {e}")
+
+    print()
+    print(f"✅ Готово: {success} из {len(files)}")
+
+
+if __name__ == "__main__":
+    main()
+```
+
 ### 📄 `./tool/validate.dart`
 ```dart
 // tool/validate.dart
@@ -46908,7 +48568,49 @@ class Validator {
 ./assets/audio/ui/tap.ogg                                              8.0K
 ./assets/fonts/Orbitron-Regular.ttf                                    0
 ./assets/fonts/RobotoMono-Regular.ttf                                  0
+./assets/images/items/weapons/axe.png                                  928K
+./assets/images/items/weapons/baseball_bat.png                         700K
+./assets/images/items/weapons/bow.png                                  704K
+./assets/images/items/weapons/brass_knuckles.png                       1.3M
+./assets/images/items/weapons/cleaver.png                              688K
+./assets/images/items/weapons/crossbow.png                             712K
+./assets/images/items/weapons/crowbar.png                              672K
+./assets/images/items/weapons/fire_axe.png                             784K
+./assets/images/items/weapons/fists.png                                996K
+./assets/images/items/weapons/flare_gun.png                            920K
+./assets/images/items/weapons/hunting_knife.png                        844K
+./assets/images/items/weapons/kitchen_knife.png                        720K
+./assets/images/items/weapons/machete.png                              712K
+./assets/images/items/weapons/molotov.png                              980K
+./assets/images/items/weapons/pipe_gun.png                             804K
+./assets/images/items/weapons/pistol.png                               1.1M
+./assets/images/items/weapons/revolver.png                             644K
+./assets/images/items/weapons/rifle.png                                808K
+./assets/images/items/weapons/shotgun.png                              636K
+./assets/images/items/weapons/sledgehammer.png                         844K
+./assets/images/items/weapons/spear.png                                544K
 ./pubspec.lock                                                         20K
+./raw_weapons/axe.jpeg                                                 288K
+./raw_weapons/baseball_bat.jpeg                                        244K
+./raw_weapons/bow.jpeg                                                 256K
+./raw_weapons/brass_knuckles.jpeg                                      312K
+./raw_weapons/cleaver.jpeg                                             240K
+./raw_weapons/crossbow.jpeg                                            232K
+./raw_weapons/crowbar.jpeg                                             200K
+./raw_weapons/fire_axe.jpeg                                            296K
+./raw_weapons/fists.jpeg                                               276K
+./raw_weapons/flare_gun.jpeg                                           284K
+./raw_weapons/hunting_knife.jpeg                                       244K
+./raw_weapons/kitchen_knife.jpeg                                       248K
+./raw_weapons/machete.jpeg                                             244K
+./raw_weapons/molotov.jpeg                                             308K
+./raw_weapons/pipe_gun.jpeg                                            240K
+./raw_weapons/pistol.jpeg                                              428K
+./raw_weapons/revolver.jpeg                                            216K
+./raw_weapons/rifle.jpeg                                               268K
+./raw_weapons/shotgun.jpeg                                             168K
+./raw_weapons/sledgehammer.jpeg                                        272K
+./raw_weapons/spear.jpeg                                               160K
 ./web/favicon.png                                                      4.0K
 ./web/icons/Icon-192.png                                               8.0K
 ./web/icons/Icon-512.png                                               12K
@@ -46918,9 +48620,9 @@ class Validator {
 
 ## 📊 SUMMARY
 
-- Всего файлов: **212**
-- Текстовых (в дампе): **180**
+- Всего файлов: **257**
+- Текстовых (в дампе): **183**
 - Артефактов: **1**
-- Бинарников: **31**
+- Бинарников: **73**
 - Дамп: **1.6M**
 

@@ -27,7 +27,7 @@
     {
       "id": "matches",
       "name": "Спички",
-      "description": "Коробок из-под чая. Половина отсырела. Но пара ещё чиркнут. Этого хватит.",
+      "description": "Коробок. Половина отсырела. Но пара ещё чиркнут. Этого хватит.",
       "type": "survival",
       "weight": 0.05,
       "durability": 30,
@@ -299,19 +299,6 @@
       "icon": "📻",
       "rarity": "uncommon",
       "uses": 50
-    },
-    {
-      "id": "generator",
-      "name": "Бензогенератор",
-      "description": "Тяжёлый, шумный, прожорливый. Но даёт свет. И привлекает всех в радиусе квартала.",
-      "type": "special",
-      "weight": 30.0,
-      "durability": 100,
-      "special_ability": "Электричество (привлекает врагов)",
-      "icon": "⚡",
-      "rarity": "rare",
-      "uses": 10,
-      "fuel_required": true
     },
     {
       "id": "camera",
