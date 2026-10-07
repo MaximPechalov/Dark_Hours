@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:dark_hours/models/world/location.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/utils/time_format.dart';
 
 /// Модалка с информацией о локации.
 ///
@@ -389,7 +390,7 @@ class MapInfoSheet extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           Text(
-            'Время в пути: ${_formatTime(minutes)}',
+            'Время в пути: ${TimeFormat.duration(minutes)}',
             style: const TextStyle(
               color: Color(0xFFC8B464),
               fontSize: 14,
@@ -483,18 +484,6 @@ class MapInfoSheet extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // ХЕЛПЕРЫ
-  // ═══════════════════════════════════════════════════════════
-
-  String _formatTime(int minutes) {
-    if (minutes < 60) return '$minutes мин';
-    final h = minutes ~/ 60;
-    final m = minutes % 60;
-    if (m == 0) return '${h}ч';
-    return '${h}ч ${m}м';
   }
 }
 

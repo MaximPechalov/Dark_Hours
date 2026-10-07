@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:dark_hours/services/map/map_controller.dart';
 import 'package:dark_hours/services/map/story_trigger_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/utils/time_format.dart';
 
 /// Результат попытки перейти в локацию.
 enum MoveResult {
@@ -84,7 +85,7 @@ class MovementManager {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Переход: ${target.name} · ${_formatTime(travelMinutes)} · −$staminaCost⚡',
+            'Переход: ${target.name} · ${TimeFormat.duration(travelMinutes)} · −$staminaCost⚡',
           ),
           duration: const Duration(seconds: 2),
           backgroundColor: const Color.fromARGB(255, 200, 180, 100),
@@ -136,13 +137,5 @@ class MovementManager {
   @visibleForTesting
   static int computeStaminaCost(int travelMinutes) {
     return (travelMinutes / 10).round().clamp(2, 20);
-  }
-
-  static String _formatTime(int minutes) {
-    if (minutes < 60) return '$minutes мин';
-    final h = minutes ~/ 60;
-    final m = minutes % 60;
-    if (m == 0) return '${h}ч';
-    return '${h}ч ${m}м';
   }
 }
