@@ -3,6 +3,7 @@ import 'package:dark_hours/models/inventory/equipment.dart';
 import 'package:dark_hours/models/inventory/inventory_item.dart';
 import 'package:dark_hours/services/items/item_icon_loader.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/utils/item_display.dart';
 import 'package:dark_hours/widgets/panels/inventory_panel.dart'
     show ItemDetailsSheet;
 
@@ -15,23 +16,6 @@ class EquipmentPanel extends StatelessWidget {
     required this.equipment,
     this.onUnequip,
   });
-
-  Color _rarityColor(String rarity) {
-    switch (rarity) {
-      case 'common':
-        return const Color.fromARGB(255, 150, 150, 150);
-      case 'uncommon':
-        return const Color.fromARGB(255, 100, 200, 100);
-      case 'rare':
-        return const Color.fromARGB(255, 100, 150, 255);
-      case 'epic':
-        return const Color.fromARGB(255, 200, 100, 255);
-      case 'legendary':
-        return const Color.fromARGB(255, 255, 200, 50);
-      default:
-        return Colors.white;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -176,8 +160,9 @@ class EquipmentPanel extends StatelessWidget {
     InventoryItem? item,
   ) {
     final isEmpty = item == null;
-    final rarityColor =
-        isEmpty ? Colors.grey[700]! : _rarityColor(item.rarity);
+    final rarityColor = isEmpty
+        ? Colors.grey[700]!
+        : ItemDisplay.rarityColor(item.rarity);
 
     final content = Container(
       margin: const EdgeInsets.only(bottom: 8),
