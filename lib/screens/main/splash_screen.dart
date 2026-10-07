@@ -45,7 +45,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     // Первый клик — разблокирует аудио в браузере
     // и запускает menu_theme
-    await AudioService.playMusic('audio/music/menu_theme.mp3');
+    await AudioService.playMusic('audio/music/menu_theme.ogg');
 
     if (!mounted) return;
 

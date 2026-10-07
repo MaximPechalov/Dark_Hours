@@ -21,7 +21,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   void initState() {
     super.initState();
     // Если пришли из меню — menu_theme уже играет
-    AudioService.playMusic('audio/music/menu_theme.mp3');
+    AudioService.playMusic('audio/music/menu_theme.ogg');
     _load();
   }
 

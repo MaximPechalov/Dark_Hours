@@ -19,6 +19,19 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  # ===== ШРИФТЫ =====
+  fonts:
+    - family: RobotoMono
+      fonts:
+        - asset: assets/fonts/RobotoMono-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/RobotoMono-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/RobotoMono-Bold.ttf
+          weight: 700
+
+  # ===== АССЕТЫ =====
   assets:
     # ===== БАЗОВЫЕ ДАННЫЕ =====
     - assets/data/weapons.json
@@ -42,8 +55,10 @@ flutter:
     - assets/data/story/andrey/chapter_1/
     - assets/data/story/darya/chapter_1/
 
-    # ===== ИКОНКИ ПРЕДМЕТОВ =====
+    # ===== ИКОНКИ ПРЕДМЕТОВ (все категории) =====
     - assets/images/items/weapons/
+    - assets/images/items/tools/
+    - assets/images/items/resources/
 
     # ===== ЗВУКИ =====
     - assets/audio/ui/

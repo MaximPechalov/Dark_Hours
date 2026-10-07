@@ -19,7 +19,7 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
   void initState() {
     super.initState();
     // Музыка menu_theme уже играет с StartScreen — не перезапускаем
-    AudioService.playMusic('audio/music/menu_theme.mp3');
+    AudioService.playMusic('audio/music/menu_theme.ogg');
   }
 
   Widget _buildStatBar(String label, int value) {

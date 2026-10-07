@@ -29,7 +29,7 @@ class _StartScreenState extends State<StartScreen> {
     super.initState();
     _loadData();
     // На случай, если StartScreen открыт напрямую — включим menu_theme.
-    AudioService.forcePlayMusic('audio/music/menu_theme.mp3');
+    AudioService.forcePlayMusic('audio/music/menu_theme.ogg');
   }
 
   Future<void> _loadData() async {
@@ -67,7 +67,7 @@ class _StartScreenState extends State<StartScreen> {
     ).then((_) {
       _loadData();
       // При возврате в меню — переключаем музыку
-      AudioService.forcePlayMusic('audio/music/menu_theme.mp3');
+      AudioService.forcePlayMusic('audio/music/menu_theme.ogg');
     });
   }
 
@@ -122,7 +122,7 @@ class _StartScreenState extends State<StartScreen> {
       ),
     );
     _loadData();
-    AudioService.forcePlayMusic('audio/music/menu_theme.mp3');
+    AudioService.forcePlayMusic('audio/music/menu_theme.ogg');
   }
 
   Future<void> _openSettings() async {
@@ -132,7 +132,7 @@ class _StartScreenState extends State<StartScreen> {
         builder: (_) => const SettingsScreen(),
       ),
     );
-    AudioService.forcePlayMusic('audio/music/menu_theme.mp3');
+    AudioService.forcePlayMusic('audio/music/menu_theme.ogg');
   }
 
   Future<void> _openMapTest() async {
@@ -145,7 +145,7 @@ class _StartScreenState extends State<StartScreen> {
         ),
       ),
     );
-    AudioService.forcePlayMusic('audio/music/menu_theme.mp3');
+    AudioService.forcePlayMusic('audio/music/menu_theme.ogg');
   }
 
   Future<void> _openEquipmentTest() async {
@@ -155,7 +155,7 @@ class _StartScreenState extends State<StartScreen> {
         builder: (_) => const EquipmentTestScreen(),
       ),
     );
-    AudioService.forcePlayMusic('audio/music/menu_theme.mp3');
+    AudioService.forcePlayMusic('audio/music/menu_theme.ogg');
   }
 
   Future<void> _openCharacterSelect() async {
@@ -166,7 +166,7 @@ class _StartScreenState extends State<StartScreen> {
       ),
     );
     _loadData();
-    AudioService.forcePlayMusic('audio/music/menu_theme.mp3');
+    AudioService.forcePlayMusic('audio/music/menu_theme.ogg');
   }
 
   @override
