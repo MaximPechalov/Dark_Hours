@@ -17,6 +17,7 @@ import 'package:dark_hours/services/progress/run_tracker.dart';
 import 'package:dark_hours/services/progress/achievement_checker.dart';
 import 'package:dark_hours/services/progress/achievement_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/utils/time_format.dart';
 
 import 'package:dark_hours/widgets/panels/inventory_panel.dart';
 import 'package:dark_hours/widgets/panels/equipment_panel.dart';
@@ -764,12 +765,6 @@ class _StoryScreenState extends State<StoryScreen> {
     );
   }
 
-  String _formatTime(int minutes) {
-    final h = minutes ~/ 60;
-    final m = minutes % 60;
-    return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}';
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -1143,7 +1138,8 @@ class _StoryScreenState extends State<StoryScreen> {
         color: const Color.fromARGB(255, 20, 20, 20),
         border: Border(
           bottom: BorderSide(
-            color: const Color.fromARGB(255, 200, 180, 100).withValues(alpha: 0.2),
+            color: const Color.fromARGB(255, 200, 180, 100)
+                .withValues(alpha: 0.2),
           ),
         ),
       ),
@@ -1158,7 +1154,7 @@ class _StoryScreenState extends State<StoryScreen> {
               ),
               const SizedBox(width: 6),
               Text(
-                _formatTime(timeMinutes),
+                TimeFormat.clock(timeMinutes),
                 style: const TextStyle(
                   color: Color.fromARGB(255, 200, 180, 100),
                   fontSize: 14,
