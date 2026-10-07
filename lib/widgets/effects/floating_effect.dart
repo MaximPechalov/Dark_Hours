@@ -98,7 +98,7 @@ class _FloatingEffectState extends State<FloatingEffect>
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: widget.color.withOpacity(0.15),
+                  color: widget.color.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: widget.color,
@@ -106,7 +106,7 @@ class _FloatingEffectState extends State<FloatingEffect>
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: widget.color.withOpacity(0.4),
+                      color: widget.color.withValues(alpha: 0.4),
                       blurRadius: 12,
                       spreadRadius: 2,
                     ),

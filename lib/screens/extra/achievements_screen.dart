@@ -138,7 +138,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                     decoration: BoxDecoration(
                       color: isSelected
                           ? const Color.fromARGB(255, 200, 180, 100)
-                              .withOpacity(0.2)
+                              .withValues(alpha: 0.2)
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(
@@ -189,7 +189,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         color: const Color.fromARGB(255, 20, 20, 20),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color.fromARGB(255, 200, 180, 100).withOpacity(0.3),
+          color: const Color.fromARGB(255, 200, 180, 100).withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -337,12 +337,12 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: unlocked
-            ? achievement.categoryColor.withOpacity(0.05)
+            ? achievement.categoryColor.withValues(alpha: 0.05)
             : const Color.fromARGB(255, 18, 18, 18),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: unlocked
-              ? achievement.categoryColor.withOpacity(0.5)
+              ? achievement.categoryColor.withValues(alpha: 0.5)
               : Colors.grey[800]!,
           width: 1,
         ),
@@ -356,7 +356,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: unlocked
-                  ? achievement.categoryColor.withOpacity(0.15)
+                  ? achievement.categoryColor.withValues(alpha: 0.15)
                   : Colors.grey[900],
               border: Border.all(
                 color: unlocked
@@ -404,7 +404,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: achievement.categoryColor.withOpacity(0.15),
+                        color: achievement.categoryColor.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(3),
                       ),
                       child: Text(

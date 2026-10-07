@@ -80,8 +80,8 @@ class RestPanel extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: isSafeLocation
-                      ? Colors.green.withOpacity(0.2)
-                      : Colors.orange.withOpacity(0.2),
+                      ? Colors.green.withValues(alpha: 0.2)
+                      : Colors.orange.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(4),
                   border: Border.all(
                     color: isSafeLocation ? Colors.green : Colors.orange,
@@ -141,7 +141,7 @@ class RestPanel extends StatelessWidget {
           color: const Color.fromARGB(255, 25, 25, 25),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: riskColor.withOpacity(0.4),
+            color: riskColor.withValues(alpha: 0.4),
             width: 1,
           ),
         ),
@@ -168,7 +168,7 @@ class RestPanel extends StatelessWidget {
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: riskColor.withOpacity(0.2),
+                    color: riskColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(color: riskColor, width: 1),
                   ),
@@ -235,9 +235,9 @@ class RestPanel extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withOpacity(0.5), width: 1),
+        border: Border.all(color: color.withValues(alpha: 0.5), width: 1),
       ),
       child: Text(
         text,

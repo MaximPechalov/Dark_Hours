@@ -90,7 +90,7 @@ class _DeathScreenState extends State<DeathScreen> {
                   color: const Color.fromARGB(255, 20, 10, 10),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: Colors.red.withOpacity(0.4),
+                    color: Colors.red.withValues(alpha: 0.4),
                     width: 1,
                   ),
                 ),

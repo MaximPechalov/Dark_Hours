@@ -269,8 +269,10 @@ class _MapScreenState extends State<MapScreen>
     final tx = viewW / 2 - px;
     final ty = viewH / 2 - py;
 
+    // translateByDouble(x, y, z, w) — современный API.
+    // w = 1 для 2D-трансляции.
     _transformController.value = Matrix4.identity()
-      ..translate(tx, ty);
+      ..translateByDouble(tx, ty, 0, 1);
   }
 
   Future<void> _handleDeath() async {

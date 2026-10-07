@@ -14,6 +14,18 @@ analyzer:
     - build/**
     - android/**
     - web/**
+    - tool/**
+    - test/**
+
+  errors:
+    # Депрекейты показываем как warning, но не блокируем сборку
+    deprecated_member_use: warning
+    deprecated_member_use_from_same_package: warning
+
+    # Не критичные стилистические — просто info
+    prefer_const_constructors: info
+    unnecessary_brace_in_string_interps: info
+    use_build_context_synchronously: info
 
 linter:
   # The lint rules applied to this project can be customized in the
@@ -27,8 +39,15 @@ linter:
   # `// ignore_for_file: name_of_lint` syntax on the line or in the file
   # producing the lint.
   rules:
-    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
-    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+    # Отключаем шумные правила, которые не помогают в нашем проекте.
+    avoid_print: false
+    prefer_const_constructors: false
+    prefer_const_constructors_in_immutables: false
+    prefer_const_declarations: false
+    prefer_const_literals_to_create_immutables: false
+    unnecessary_brace_in_string_interps: false
+    use_build_context_synchronously: false
+    avoid_function_literals_in_foreach_calls: false
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

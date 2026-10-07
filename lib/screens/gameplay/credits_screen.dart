@@ -290,7 +290,7 @@ class _CreditsScreenState extends State<CreditsScreen>
             decoration: BoxDecoration(
               border: Border.all(
                 color: const Color.fromARGB(255, 200, 180, 100)
-                    .withOpacity(0.3),
+                    .withValues(alpha: 0.3),
                 width: 1,
               ),
               borderRadius: BorderRadius.circular(8),

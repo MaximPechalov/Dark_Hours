@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:dark_hours/models/world/search_event.dart';
 import 'package:dark_hours/models/world/map_position.dart';

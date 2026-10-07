@@ -28,7 +28,7 @@ class MapStatusBar extends StatelessWidget {
         color: const Color.fromARGB(255, 20, 20, 20),
         border: Border(
           bottom: BorderSide(
-            color: const Color.fromARGB(255, 200, 180, 100).withOpacity(0.2),
+            color: const Color.fromARGB(255, 200, 180, 100).withValues(alpha: 0.2),
           ),
         ),
       ),

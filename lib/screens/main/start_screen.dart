@@ -231,7 +231,7 @@ class _StartScreenState extends State<StartScreen> {
                     decoration: BoxDecoration(
                       border: Border.all(
                         color: const Color.fromARGB(255, 200, 180, 100)
-                            .withOpacity(0.3),
+                            .withValues(alpha: 0.3),
                       ),
                     ),
                     child: const Text(
@@ -259,11 +259,11 @@ class _StartScreenState extends State<StartScreen> {
                         ),
                         decoration: BoxDecoration(
                           color: const Color.fromARGB(255, 200, 180, 100)
-                              .withOpacity(0.1),
+                              .withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
                             color: const Color.fromARGB(255, 200, 180, 100)
-                                .withOpacity(0.4),
+                                .withValues(alpha: 0.4),
                             width: 1,
                           ),
                         ),

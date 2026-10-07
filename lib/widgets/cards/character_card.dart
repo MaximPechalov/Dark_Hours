@@ -36,7 +36,7 @@ class CharacterCard extends StatelessWidget {
               ? [
                   BoxShadow(
                     color: const Color.fromARGB(255, 200, 180, 100)
-                        .withOpacity(0.3),
+                        .withValues(alpha: 0.3),
                     blurRadius: 15.0,
                     spreadRadius: 2.0,
                   )
@@ -95,7 +95,7 @@ class CharacterCard extends StatelessWidget {
                     character.startingLine,
                     style: TextStyle(
                       color: const Color.fromARGB(255, 200, 180, 100)
-                          .withOpacity(0.8),
+                          .withValues(alpha: 0.8),
                       fontSize: 10,
                       fontStyle: FontStyle.italic,
                     ),

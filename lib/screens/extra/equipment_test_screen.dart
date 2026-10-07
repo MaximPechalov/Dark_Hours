@@ -570,7 +570,7 @@ class _EquipmentTestScreenState extends State<EquipmentTestScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.3),
+        color: color.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(4.0),
         border: Border.all(color: color, width: 1.0),
       ),
@@ -585,9 +585,9 @@ class _EquipmentTestScreenState extends State<EquipmentTestScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(4.0),
-        border: Border.all(color: color.withOpacity(0.5), width: 1.0),
+        border: Border.all(color: color.withValues(alpha: 0.5), width: 1.0),
       ),
       child: Text(
         text,

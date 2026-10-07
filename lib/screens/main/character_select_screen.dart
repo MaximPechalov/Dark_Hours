@@ -81,7 +81,7 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
         color: const Color.fromARGB(255, 20, 20, 20),
         borderRadius: BorderRadius.circular(12.0),
         border: Border.all(
-          color: const Color.fromARGB(255, 200, 180, 100).withOpacity(0.2),
+          color: const Color.fromARGB(255, 200, 180, 100).withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -105,7 +105,7 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
                 ),
                 decoration: BoxDecoration(
                   color: const Color.fromARGB(255, 200, 180, 100)
-                      .withOpacity(0.15),
+                      .withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(4.0),
                 ),
                 child: Text(

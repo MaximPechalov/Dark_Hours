@@ -116,7 +116,7 @@ class _CraftPanelState extends State<CraftPanel> {
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(
                     color: const Color.fromARGB(255, 200, 180, 100)
-                        .withOpacity(0.3),
+                        .withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -181,7 +181,7 @@ class _CraftPanelState extends State<CraftPanel> {
                     decoration: BoxDecoration(
                       color: isSelected
                           ? const Color.fromARGB(255, 200, 180, 100)
-                              .withOpacity(0.2)
+                              .withValues(alpha: 0.2)
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(
@@ -264,7 +264,7 @@ class _CraftPanelState extends State<CraftPanel> {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: canCraft
-              ? rarityColor.withOpacity(0.5)
+              ? rarityColor.withValues(alpha: 0.5)
               : Colors.grey[800]!,
           width: 1,
         ),
@@ -313,7 +313,7 @@ class _CraftPanelState extends State<CraftPanel> {
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.2),
+                    color: Colors.green.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(color: Colors.green, width: 1),
                   ),
@@ -381,13 +381,13 @@ class _CraftPanelState extends State<CraftPanel> {
                 ),
                 decoration: BoxDecoration(
                   color: enough
-                      ? Colors.green.withOpacity(0.15)
-                      : Colors.red.withOpacity(0.15),
+                      ? Colors.green.withValues(alpha: 0.15)
+                      : Colors.red.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(4),
                   border: Border.all(
                     color: enough
-                        ? Colors.green.withOpacity(0.5)
-                        : Colors.red.withOpacity(0.5),
+                        ? Colors.green.withValues(alpha: 0.5)
+                        : Colors.red.withValues(alpha: 0.5),
                     width: 1,
                   ),
                 ),
@@ -482,9 +482,9 @@ class _CraftPanelState extends State<CraftPanel> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withOpacity(0.5), width: 1),
+        border: Border.all(color: color.withValues(alpha: 0.5), width: 1),
       ),
       child: Text(
         text,

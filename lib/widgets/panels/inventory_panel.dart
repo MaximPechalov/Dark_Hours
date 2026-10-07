@@ -3,6 +3,7 @@ import 'package:dark_hours/models/inventory/inventory.dart';
 import 'package:dark_hours/models/inventory/inventory_item.dart';
 import 'package:dark_hours/services/items/item_icon_loader.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/utils/item_display.dart';
 
 class InventoryPanel extends StatelessWidget {
   final Inventory inventory;
@@ -17,23 +18,6 @@ class InventoryPanel extends StatelessWidget {
     this.onEquip,
     this.onDrop,
   });
-
-  Color _rarityColor(String rarity) {
-    switch (rarity) {
-      case 'common':
-        return const Color.fromARGB(255, 150, 150, 150);
-      case 'uncommon':
-        return const Color.fromARGB(255, 100, 200, 100);
-      case 'rare':
-        return const Color.fromARGB(255, 100, 150, 255);
-      case 'epic':
-        return const Color.fromARGB(255, 200, 100, 255);
-      case 'legendary':
-        return const Color.fromARGB(255, 255, 200, 50);
-      default:
-        return Colors.white;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +98,7 @@ class InventoryPanel extends StatelessWidget {
                 itemCount: inventory.items.length,
                 itemBuilder: (context, index) {
                   final item = inventory.items[index];
-                  final rarityColor = _rarityColor(item.rarity);
+                  final rarityColor = ItemDisplay.rarityColor(item.rarity);
 
                   return GestureDetector(
                     onTap: () {
@@ -141,7 +125,7 @@ class InventoryPanel extends StatelessWidget {
                         color: const Color.fromARGB(255, 25, 25, 25),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: rarityColor.withOpacity(0.3),
+                          color: rarityColor.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -186,7 +170,7 @@ class InventoryPanel extends StatelessWidget {
                                     vertical: 4,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: rarityColor.withOpacity(0.2),
+                                    color: rarityColor.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(6),
                                     border: Border.all(
                                       color: rarityColor,
@@ -334,7 +318,7 @@ class ItemDetailsSheet extends StatelessWidget {
               height: 100,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: rarityColor.withOpacity(0.1),
+                color: rarityColor.withValues(alpha: 0.1),
                 border: Border.all(color: rarityColor, width: 2),
               ),
               child: Center(
@@ -370,12 +354,12 @@ class ItemDetailsSheet extends StatelessWidget {
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: rarityColor.withOpacity(0.15),
+                    color: rarityColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(color: rarityColor, width: 1),
                   ),
                   child: Text(
-                    _rarityName(item.rarity),
+                    ItemDisplay.rarityName(item.rarity),
                     style: TextStyle(
                       color: rarityColor,
                       fontSize: 11,
@@ -391,7 +375,7 @@ class ItemDetailsSheet extends StatelessWidget {
                       vertical: 3,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.08),
+                      color: Colors.white.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
@@ -567,7 +551,7 @@ class ItemDetailsSheet extends StatelessWidget {
     if (item.damage > 0) {
       rows.add(_characteristicRow(
         '⚔️ Урон',
-        '${item.damage} (${_damageTypeName(item.damageType)})',
+        '${item.damage} (${ItemDisplay.damageTypeName(item.damageType)})',
         Colors.red,
       ));
     }
@@ -588,7 +572,7 @@ class ItemDetailsSheet extends StatelessWidget {
     if (item.armorSlot != null) {
       rows.add(_characteristicRow(
         '📍 Слот',
-        _slotName(item.armorSlot!),
+        ItemDisplay.slotName(item.armorSlot!),
         Colors.purple,
       ));
     }
@@ -627,7 +611,7 @@ class ItemDetailsSheet extends StatelessWidget {
         rows.add(const SizedBox(height: 4));
         for (final entry in nonZero) {
           rows.add(_characteristicRow(
-            '  ${_resistanceName(entry.key)}',
+            '  ${ItemDisplay.resistanceName(entry.key)}',
             '${entry.value}',
             Colors.green[400]!,
           ));
@@ -793,69 +777,5 @@ class ItemDetailsSheet extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _rarityName(String rarity) {
-    switch (rarity) {
-      case 'common':
-        return 'Обычное';
-      case 'uncommon':
-        return 'Необычное';
-      case 'rare':
-        return 'Редкое';
-      case 'epic':
-        return 'Эпическое';
-      case 'legendary':
-        return 'Легендарное';
-      default:
-        return rarity;
-    }
-  }
-
-  String _damageTypeName(String type) {
-    switch (type) {
-      case 'cutting':
-        return 'режущий';
-      case 'blunt':
-        return 'дробящий';
-      case 'piercing':
-        return 'колющий';
-      case 'firearm':
-        return 'огнестрельный';
-      default:
-        return type;
-    }
-  }
-
-  String _slotName(String slot) {
-    switch (slot) {
-      case 'head':
-        return 'Голова';
-      case 'body':
-        return 'Тело';
-      case 'hands':
-        return 'Руки';
-      case 'feet':
-        return 'Ноги';
-      case 'backpack':
-        return 'Рюкзак';
-      default:
-        return slot;
-    }
-  }
-
-  String _resistanceName(String key) {
-    switch (key) {
-      case 'cutting':
-        return 'Режущий';
-      case 'blunt':
-        return 'Дробящий';
-      case 'piercing':
-        return 'Колющий';
-      case 'firearm':
-        return 'Огнестрельный';
-      default:
-        return key;
-    }
   }
 }

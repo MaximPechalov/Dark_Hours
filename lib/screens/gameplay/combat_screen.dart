@@ -516,7 +516,7 @@ class _CombatScreenState extends State<CombatScreen> {
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: const Color.fromARGB(255, 200, 180, 100)
-                      .withOpacity(0.2),
+                      .withValues(alpha: 0.2),
                 ),
               ),
               child: ListView.builder(
@@ -701,7 +701,7 @@ class _CombatScreenState extends State<CombatScreen> {
         color: const Color.fromARGB(255, 20, 20, 20),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: baseColor.withOpacity(0.4),
+          color: baseColor.withValues(alpha: 0.4),
           width: 2,
         ),
       ),
@@ -796,7 +796,7 @@ class _CombatScreenState extends State<CombatScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(4),
         border: Border.all(color: color, width: 1),
       ),

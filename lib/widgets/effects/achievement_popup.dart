@@ -70,7 +70,7 @@ class _AchievementPopupState extends State<AchievementPopup>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    widget.achievement.categoryColor.withOpacity(0.15),
+                    widget.achievement.categoryColor.withValues(alpha: 0.15),
                     const Color.fromARGB(255, 20, 20, 20),
                   ],
                   begin: Alignment.topLeft,
@@ -83,7 +83,7 @@ class _AchievementPopupState extends State<AchievementPopup>
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: widget.achievement.categoryColor.withOpacity(0.3),
+                    color: widget.achievement.categoryColor.withValues(alpha: 0.3),
                     blurRadius: 20,
                     spreadRadius: 3,
                   ),
@@ -110,7 +110,7 @@ class _AchievementPopupState extends State<AchievementPopup>
                     height: 80,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: widget.achievement.categoryColor.withOpacity(0.15),
+                      color: widget.achievement.categoryColor.withValues(alpha: 0.15),
                       border: Border.all(
                         color: widget.achievement.categoryColor,
                         width: 2,
@@ -155,7 +155,7 @@ class _AchievementPopupState extends State<AchievementPopup>
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: widget.achievement.categoryColor.withOpacity(0.2),
+                      color: widget.achievement.categoryColor.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(

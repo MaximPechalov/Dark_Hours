@@ -83,18 +83,16 @@ class MapController extends ChangeNotifier {
   bool isDead = false;
   String deathReason = '';
 
-  bool _autoSleepTriggered = false;
-  DateTime? _lastCollapseTime;
+  /// Флаг "уже сработал форсированный автосон".
+  ///
+  /// Сбрасывается при любом сне. Нужен, чтобы автосон не срабатывал
+  /// несколько раз подряд.
+  bool autoSleepTriggered = false;
 
-  bool get autoSleepTriggered => _autoSleepTriggered;
-  set autoSleepTriggered(bool value) {
-    _autoSleepTriggered = value;
-  }
-
-  DateTime? get lastCollapseTime => _lastCollapseTime;
-  set lastCollapseTime(DateTime? value) {
-    _lastCollapseTime = value;
-  }
+  /// Время последнего коллапса.
+  ///
+  /// Нужен для проверки "повторный коллапс в течение 24 часов → смерть".
+  DateTime? lastCollapseTime;
 
   // ═══════════════════════════════════════════════════════════
   // КОНСТРУКТОР

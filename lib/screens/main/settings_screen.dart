@@ -147,9 +147,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
                   color: _muted
-                      ? Colors.red.withOpacity(0.5)
+                      ? Colors.red.withValues(alpha: 0.5)
                       : const Color.fromARGB(255, 200, 180, 100)
-                          .withOpacity(0.3),
+                          .withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -191,7 +191,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Switch(
                     value: !_muted,
                     onChanged: (_) => _toggleMute(),
-                    activeColor: const Color.fromARGB(255, 200, 180, 100),
+                    activeThumbColor: const Color.fromARGB(255, 200, 180, 100),
                     inactiveThumbColor: Colors.red,
                   ),
                 ],
@@ -248,7 +248,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.orange[300],
                   side: BorderSide(
-                    color: Colors.orange[300]!.withOpacity(0.5),
+                    color: Colors.orange[300]!.withValues(alpha: 0.5),
                     width: 1,
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 14),
@@ -338,13 +338,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               decoration: BoxDecoration(
                 color: enabled
                     ? const Color.fromARGB(255, 200, 180, 100)
-                        .withOpacity(0.15)
+                        .withValues(alpha: 0.15)
                     : Colors.grey[900],
                 borderRadius: BorderRadius.circular(4),
                 border: Border.all(
                   color: enabled
                       ? const Color.fromARGB(255, 200, 180, 100)
-                          .withOpacity(0.4)
+                          .withValues(alpha: 0.4)
                       : Colors.grey[800]!,
                   width: 1,
                 ),
@@ -375,7 +375,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ? const Color.fromARGB(255, 200, 180, 100)
                 : Colors.grey[600],
             overlayColor: const Color.fromARGB(255, 200, 180, 100)
-                .withOpacity(0.15),
+                .withValues(alpha: 0.15),
             trackHeight: 3,
             thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
           ),

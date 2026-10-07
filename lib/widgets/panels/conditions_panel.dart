@@ -19,7 +19,7 @@ class ConditionsPanel extends StatelessWidget {
         color: const Color.fromARGB(255, 25, 15, 15),
         border: Border(
           bottom: BorderSide(
-            color: Colors.red.withOpacity(0.3),
+            color: Colors.red.withValues(alpha: 0.3),
           ),
         ),
       ),
@@ -67,10 +67,10 @@ class ConditionsPanel extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: ac.condition.severityColor.withOpacity(0.15),
+                    color: ac.condition.severityColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(
-                      color: ac.condition.severityColor.withOpacity(0.5),
+                      color: ac.condition.severityColor.withValues(alpha: 0.5),
                       width: 1,
                     ),
                   ),
@@ -94,7 +94,7 @@ class ConditionsPanel extends StatelessWidget {
                       Text(
                         '(${ac.daysRemaining}д)',
                         style: TextStyle(
-                          color: ac.condition.severityColor.withOpacity(0.7),
+                          color: ac.condition.severityColor.withValues(alpha: 0.7),
                           fontSize: 10,
                         ),
                       ),
@@ -148,7 +148,7 @@ class ConditionDetailsSheet extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.15),
+                    color: color.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                     border: Border.all(color: color, width: 2),
                   ),
@@ -178,10 +178,10 @@ class ConditionDetailsSheet extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: color.withOpacity(0.15),
+                          color: color.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(4),
                           border: Border.all(
-                            color: color.withOpacity(0.5),
+                            color: color.withValues(alpha: 0.5),
                             width: 1,
                           ),
                         ),

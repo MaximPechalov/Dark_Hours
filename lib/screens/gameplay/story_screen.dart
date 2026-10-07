@@ -1038,7 +1038,7 @@ class _StoryScreenState extends State<StoryScreen> {
                                 side: BorderSide(
                                   color: const Color.fromARGB(
                                           255, 200, 180, 100)
-                                      .withOpacity(0.4),
+                                      .withValues(alpha: 0.4),
                                 ),
                                 padding: const EdgeInsets.all(16),
                                 shape: RoundedRectangleBorder(
@@ -1143,7 +1143,7 @@ class _StoryScreenState extends State<StoryScreen> {
         color: const Color.fromARGB(255, 20, 20, 20),
         border: Border(
           bottom: BorderSide(
-            color: const Color.fromARGB(255, 200, 180, 100).withOpacity(0.2),
+            color: const Color.fromARGB(255, 200, 180, 100).withValues(alpha: 0.2),
           ),
         ),
       ),

@@ -24,17 +24,17 @@ class PenaltiesPanel extends StatelessWidget {
 
     if (hasComfort) {
       bgColor = const Color.fromARGB(255, 15, 30, 15);
-      borderColor = Colors.green.withOpacity(0.4);
+      borderColor = Colors.green.withValues(alpha: 0.4);
       textColor = Colors.green;
       iconData = Icons.check_circle;
     } else if (hasCritical) {
       bgColor = const Color.fromARGB(255, 40, 10, 10);
-      borderColor = Colors.red.withOpacity(0.6);
+      borderColor = Colors.red.withValues(alpha: 0.6);
       textColor = Colors.red;
       iconData = Icons.warning;
     } else {
       bgColor = const Color.fromARGB(255, 30, 15, 15);
-      borderColor = Colors.red.withOpacity(0.3);
+      borderColor = Colors.red.withValues(alpha: 0.3);
       textColor = Colors.red;
       iconData = Icons.info_outline;
     }
@@ -97,16 +97,16 @@ class PenaltiesPanel extends StatelessWidget {
                   vertical: 3,
                 ),
                 decoration: BoxDecoration(
-                  color: chipColor.withOpacity(isCritical ? 0.25 : 0.1),
+                  color: chipColor.withValues(alpha: isCritical ? 0.25 : 0.1),
                   borderRadius: BorderRadius.circular(4),
                   border: Border.all(
-                    color: chipColor.withOpacity(isCritical ? 0.8 : 0.4),
+                    color: chipColor.withValues(alpha: isCritical ? 0.8 : 0.4),
                     width: isCritical ? 1.5 : 1,
                   ),
                   boxShadow: isCritical
                       ? [
                           BoxShadow(
-                            color: chipColor.withOpacity(0.3),
+                            color: chipColor.withValues(alpha: 0.3),
                             blurRadius: 6,
                             spreadRadius: 1,
                           ),

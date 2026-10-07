@@ -105,7 +105,7 @@ class _SplashScreenState extends State<SplashScreen>
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: const Color.fromARGB(255, 200, 180, 100)
-                                  .withOpacity(0.3),
+                                  .withValues(alpha: 0.3),
                               width: 2,
                             ),
                           ),
@@ -182,7 +182,7 @@ class _SplashScreenState extends State<SplashScreen>
     return _PulsingText(
       text: 'НАЖМИ, ЧТОБЫ НАЧАТЬ',
       style: TextStyle(
-        color: const Color.fromARGB(255, 200, 180, 100).withOpacity(0.7),
+        color: const Color.fromARGB(255, 200, 180, 100).withValues(alpha: 0.7),
         fontSize: 13,
         letterSpacing: 3.0,
         fontWeight: FontWeight.bold,

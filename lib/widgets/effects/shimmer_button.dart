@@ -62,7 +62,7 @@ class _ShimmerButtonState extends State<ShimmerButton>
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
               BoxShadow(
-                color: widget.baseColor.withOpacity(0.25),
+                color: widget.baseColor.withValues(alpha: 0.25),
                 blurRadius: 12,
                 spreadRadius: 1,
               ),
@@ -82,7 +82,7 @@ class _ShimmerButtonState extends State<ShimmerButton>
                   return LinearGradient(
                     colors: [
                       Colors.transparent,
-                      widget.shimmerColor.withOpacity(0.5),
+                      widget.shimmerColor.withValues(alpha: 0.5),
                       Colors.transparent,
                     ],
                     stops: [

@@ -33,8 +33,8 @@ class MapLocationCard extends StatelessWidget {
         (location.maxSearches - searched).clamp(0, location.maxSearches);
 
     final borderColor = isHidden
-        ? const Color.fromARGB(255, 100, 200, 100).withOpacity(0.5)
-        : location.dangerColor.withOpacity(0.4);
+        ? const Color.fromARGB(255, 100, 200, 100).withValues(alpha: 0.5)
+        : location.dangerColor.withValues(alpha: 0.4);
 
     return GestureDetector(
       onTap: onTap,
@@ -175,9 +175,9 @@ class MapLocationCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withOpacity(0.5), width: 1),
+        border: Border.all(color: color.withValues(alpha: 0.5), width: 1),
       ),
       child: Text(
         text,

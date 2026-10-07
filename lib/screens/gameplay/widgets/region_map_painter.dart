@@ -199,12 +199,19 @@ class RegionMapPainter extends CustomPainter {
   }
 
   /// Смешать два цвета с заданной силой `t` (0..1).
+  ///
+  /// Использует новые double-компоненты Color (r, g, b, a — 0..1)
+  /// вместо устаревших red/green/blue/alpha.
   Color _blend(Color a, Color b, double t) {
-    return Color.fromARGB(
-      (a.alpha + (b.alpha - a.alpha) * t).round(),
-      (a.red + (b.red - a.red) * t).round(),
-      (a.green + (b.green - a.green) * t).round(),
-      (a.blue + (b.blue - a.blue) * t).round(),
+    final newR = a.r + (b.r - a.r) * t;
+    final newG = a.g + (b.g - a.g) * t;
+    final newB = a.b + (b.b - a.b) * t;
+    final newA = a.a + (b.a - a.a) * t;
+    return Color.from(
+      alpha: newA,
+      red: newR,
+      green: newG,
+      blue: newB,
     );
   }
 
