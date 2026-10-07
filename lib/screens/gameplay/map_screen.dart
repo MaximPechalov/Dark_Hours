@@ -86,6 +86,10 @@ class _MapScreenState extends State<MapScreen>
   String? _lastRegionId;
 
   /// Показывать ли оверлей перехода между регионами.
+  ///
+  /// **Непрозрачный** оверлей: скрывает карту до момента,
+  /// пока не загрузится фон нового региона.
+  /// Это решает проблему "новые локации на старом фоне".
   bool _showRegionTransition = false;
 
   /// Название региона для оверлея перехода.
@@ -107,8 +111,7 @@ class _MapScreenState extends State<MapScreen>
     );
     _controller.addListener(_onControllerChanged);
 
-    // Подписка на достижения. Когда AchievementManager.unlockAll
-    // пушит новое достижение — показываем попап.
+    // Подписка на достижения.
     _achievementSub = AchievementManager.unlockStream.listen((ach) {
       if (mounted) AchievementNotifier.showPopup(context, ach);
     });
@@ -128,8 +131,6 @@ class _MapScreenState extends State<MapScreen>
     _controller.dispose();
     _transformController.dispose();
     _markerController.dispose();
-    // NOTE: не dispose'им _regionBackground — он хранится в кеше
-    // RegionBackgroundCache и переиспользуется.
     super.dispose();
   }
 
@@ -150,30 +151,43 @@ class _MapScreenState extends State<MapScreen>
     setState(() {});
   }
 
-  /// Обработчик смены региона — показывает анимацию + загружает фон.
-  void _onRegionChanged(String newRegion) {
+  /// Обработчик смены региона.
+  ///
+  /// **Логика:**
+  /// 1. Показывает **непрозрачный** оверлей (скрывает карту полностью).
+  /// 2. Загружает фон нового региона **под оверлеем**.
+  /// 3. Когда фон готов — обновляет `_regionBackground` и `_loadedRegionId`.
+  /// 4. Держит оверлей ещё 800 ms (чтобы игрок прочитал название).
+  /// 5. Убирает оверлей — карта показывается с **правильным** фоном.
+  Future<void> _onRegionChanged(String newRegion) async {
     final name = _regionDisplayName(newRegion);
 
+    // Показываем непрозрачный оверлей.
     setState(() {
       _showRegionTransition = true;
       _transitionRegionName = name;
+      // Сбрасываем _loadedRegionId, чтобы _loadRegionBackground
+      // не пропустил загрузку (защита от "уже загружен").
+      _loadedRegionId = null;
     });
 
-    // Загружаем фон нового региона.
-    _loadRegionBackground(newRegion);
+    // Загружаем фон ПОД оверлеем.
+    await _loadRegionBackground(newRegion);
 
-    // Скрываем оверлей через 1.5 секунды.
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      if (mounted) {
-        setState(() {
-          _showRegionTransition = false;
-        });
-      }
+    if (!mounted) return;
+
+    // Даём игроку прочитать название региона.
+    await Future.delayed(const Duration(milliseconds: 800));
+
+    if (!mounted) return;
+
+    // Убираем оверлей — карта показывается с новым фоном.
+    setState(() {
+      _showRegionTransition = false;
     });
 
-    // Снекбар.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+    // Снекбар (можно и под оверлеем — не критично).
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('🚪 Ты пересёк границу: $name'),
@@ -181,7 +195,7 @@ class _MapScreenState extends State<MapScreen>
           backgroundColor: const Color.fromARGB(255, 100, 130, 180),
         ),
       );
-    });
+    }
   }
 
   String _regionDisplayName(String regionId) {
@@ -203,7 +217,10 @@ class _MapScreenState extends State<MapScreen>
     }
   }
 
-  /// Загрузить фон региона (из кеша, assets или сгенерировать).
+  /// Загрузить фон региона.
+  ///
+  /// Возвращает Future, который завершится **после** того, как
+  /// `_regionBackground` и `_loadedRegionId` обновятся.
   Future<void> _loadRegionBackground(String regionId) async {
     if (_loadedRegionId == regionId && _regionBackground != null) {
       return; // уже загружен
@@ -281,8 +298,6 @@ class _MapScreenState extends State<MapScreen>
     final tx = viewW / 2 - px;
     final ty = viewH / 2 - py;
 
-    // translateByDouble(x, y, z, w) — современный API.
-    // w = 1 для 2D-трансляции.
     _transformController.value = Matrix4.identity()
       ..translateByDouble(tx, ty, 0, 1);
   }
@@ -874,10 +889,6 @@ class _MapScreenState extends State<MapScreen>
         duration: const Duration(seconds: 2),
       ),
     );
-
-    // Достижения теперь проверяются автоматически через
-    // _controller.advanceTime → AchievementManager.unlockAll.
-    // Попапы покажет подписка на AchievementManager.unlockStream.
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -1141,14 +1152,19 @@ class _MapScreenState extends State<MapScreen>
   }
 
   /// Оверлей анимации перехода между регионами.
+  ///
+  /// **НЕПРОЗРАЧНЫЙ** — полностью закрывает карту, чтобы игрок
+  /// не видел старый фон под новыми локациями.
+  /// Убирается после того, как новый фон загружен.
   Widget _buildRegionTransitionOverlay() {
     return IgnorePointer(
       ignoring: !_showRegionTransition,
       child: AnimatedOpacity(
         opacity: _showRegionTransition ? 1.0 : 0.0,
-        duration: const Duration(milliseconds: 500),
+        duration: const Duration(milliseconds: 400),
         child: Container(
-          color: Colors.black.withValues(alpha: 0.85),
+          // ⚡ НЕПРОЗРАЧНЫЙ фон — гарантирует, что старый регион не виден.
+          color: const Color(0xFF08080A),
           alignment: Alignment.center,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -1215,6 +1231,13 @@ class _MapScreenState extends State<MapScreen>
     final current = _controller.currentLocation!;
 
     final regionId = current.region;
+
+    // ⚡ Пока оверлей активен — не рисуем локации вообще.
+    // Это гарантирует, что старые локации не останутся
+    // поверх нового фона при быстром переключении.
+    if (_showRegionTransition) {
+      return Container(color: const Color(0xFF08080A));
+    }
 
     final regionLocations = map.locations
         .where((l) =>
