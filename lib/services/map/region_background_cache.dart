@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:ui' as ui;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -29,41 +28,25 @@ import 'package:dark_hours/screens/gameplay/widgets/region_map_painter.dart';
 /// При переходе A → B нужны оба региона — игрок может
 /// вернуться назад в течение секунды. Один — мало,
 /// три и больше — избыточно (~12 MB).
-///
-/// **Зачем `RawImage`:**
-/// Программная отрисовка через `CustomPainter` каждый кадр
-/// грузит GPU/CPU. `RawImage` — один draw-вызов на кадр.
-/// Разница: ~500 draw-вызовов → 1 draw-вызов.
 class RegionBackgroundCache {
   RegionBackgroundCache._();
 
   /// Размер рендера (логические пиксели).
-  ///
-  /// Совпадает с `RegionLayout.logicalSize` по умолчанию (800×1200).
-  /// Если регион использует другой размер — используется он.
   static const Size _defaultSize = Size(800, 1200);
 
   /// Максимальное количество регионов в кеше.
-  ///
-  /// См. комментарий к классу.
   static const int maxCached = 2;
 
   /// LRU-кеш: `regionId` → готовая картинка.
   ///
-  /// `LinkedHashMap` сохраняет порядок вставки — мы используем это
+  /// `LinkedHashMap` сохраняет порядок вставки — используем это
   /// для реализации LRU: свежие элементы в конце, старые — в начале.
-  /// При добавлении нового — если размер > [maxCached], удаляем
-  /// первый ключ (самый старый).
   static final LinkedHashMap<String, ui.Image> _cache = LinkedHashMap();
 
   /// Кеш "загружается сейчас" — чтобы не запускать загрузку дважды.
   static final Map<String, Future<ui.Image?>> _pending = {};
 
   /// Получить фон региона.
-  ///
-  /// Возвращает `ui.Image` или `null`, если регион не найден.
-  /// Безопасно вызывать многократно — повторные вызовы возвращают
-  /// закешированное изображение и **обновляют** его позицию в LRU.
   static Future<ui.Image?> get({
     required String regionId,
     required RegionLayout layout,
@@ -140,9 +123,6 @@ class RegionBackgroundCache {
   }
 
   /// Сгенерировать картинку через [RegionMapPainter].
-  ///
-  /// Используем `PictureRecorder` — рисуем всё на canvas,
-  /// затем конвертируем в `ui.Image` через `toImage()`.
   static Future<ui.Image?> _generateFromPainter(
     String regionId,
     RegionLayout layout,
@@ -184,16 +164,12 @@ class RegionBackgroundCache {
   }
 
   /// Удалить конкретный регион из кеша.
-  ///
-  /// Освобождает ресурсы через `dispose()`.
   static void evict(String regionId) {
     _cache.remove(regionId)?.dispose();
     _pending.remove(regionId);
   }
 
   /// Очистить весь кеш (для тестов или при выходе из игры).
-  ///
-  /// Освобождает все `ui.Image` — важно для предотвращения утечек.
   static void clear() {
     for (final image in _cache.values) {
       image.dispose();
@@ -217,11 +193,9 @@ class RegionBackgroundCache {
   static int get cacheSize => _cache.length;
 
   /// Список ID регионов в кеше, в порядке от старых к свежим.
-  ///
-  /// Первый — кандидат на выгрузку при следующей вставке.
   @visibleForTesting
   static List<String> get cachedRegionIds => _cache.keys.toList();
 
-  /// Размер по умолчанию — используется, если у layout нет своего.
+  /// Размер по умолчанию.
   static Size get defaultSize => _defaultSize;
 }

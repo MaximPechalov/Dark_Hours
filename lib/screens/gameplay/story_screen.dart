@@ -7,7 +7,6 @@ import 'package:dark_hours/models/save/save_data.dart';
 import 'package:dark_hours/models/inventory/inventory.dart';
 import 'package:dark_hours/models/inventory/inventory_item.dart';
 import 'package:dark_hours/models/inventory/equipment.dart';
-import 'package:dark_hours/models/combat/combat.dart';
 import 'package:dark_hours/models/conditions/condition.dart';
 import 'package:dark_hours/models/conditions/active_condition.dart';
 import 'package:dark_hours/models/progress/chapter_summary.dart';
@@ -19,7 +18,6 @@ import 'package:dark_hours/services/conditions/condition_manager.dart';
 import 'package:dark_hours/services/progress/run_tracker.dart';
 import 'package:dark_hours/services/progress/achievement_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
-import 'package:dark_hours/utils/time_format.dart';
 
 import 'package:dark_hours/widgets/panels/inventory_panel.dart';
 import 'package:dark_hours/widgets/panels/equipment_panel.dart';
@@ -27,11 +25,12 @@ import 'package:dark_hours/widgets/panels/conditions_panel.dart';
 import 'package:dark_hours/widgets/effects/fade_in_text.dart';
 import 'package:dark_hours/widgets/effects/floating_effect.dart';
 import 'package:dark_hours/widgets/effects/achievement_notifier.dart';
-import 'package:dark_hours/widgets/indicators/animated_stat_bar.dart';
 
-import 'package:dark_hours/screens/gameplay/combat_screen.dart';
 import 'package:dark_hours/screens/gameplay/map_screen.dart';
 import 'package:dark_hours/screens/gameplay/chapter_end_screen.dart';
+import 'package:dark_hours/screens/gameplay/story/story_effects.dart';
+import 'package:dark_hours/screens/gameplay/story/story_status_bar.dart';
+import 'package:dark_hours/screens/gameplay/story/story_combat_launcher.dart';
 
 class StoryScreen extends StatefulWidget {
   final String characterId;
@@ -87,7 +86,6 @@ class _StoryScreenState extends State<StoryScreen> {
     super.initState();
     _playStoryMusic();
 
-    // Подписка на достижения.
     _achievementSub = AchievementManager.unlockStream.listen((ach) {
       if (mounted) AchievementNotifier.showPopup(context, ach);
     });
@@ -123,153 +121,151 @@ class _StoryScreenState extends State<StoryScreen> {
     }
 
     if (widget.resumeFrom != null) {
-      final s = widget.resumeFrom!;
-      hunger = s.hunger;
-      thirst = s.thirst;
-      health = s.health;
-      sanity = s.sanity;
-      stamina = s.stamina;
-      fatigue = s.fatigue;
-      timeMinutes = s.timeMinutes;
-      chapter = s.chapter;
-      _history.addAll(s.history);
-      _flags.addAll(s.history);
-
-      for (final itemJson in s.inventoryItems) {
-        inventory.items.add(InventoryItem.fromJson(itemJson));
-      }
-
-      final restoredEquipment = Equipment.fromJson(s.equipmentItems);
-      equipment.weapon = restoredEquipment.weapon;
-      equipment.head = restoredEquipment.head;
-      equipment.body = restoredEquipment.body;
-      equipment.hands = restoredEquipment.hands;
-      equipment.feet = restoredEquipment.feet;
-      equipment.backpack = restoredEquipment.backpack;
-
-      for (final cJson in s.activeConditions) {
-        final condId = cJson['id'] as String;
-        final days = cJson['daysRemaining'] as int;
-        try {
-          final cond = allConditions.firstWhere((c) => c.id == condId);
-          activeConditions.add(ActiveCondition(
-            condition: cond,
-            daysRemaining: days,
-          ));
-        } catch (e) {
-          // Игнорируем невалидную болезнь
-        }
-      }
-
-      final node =
-          story.getNode(s.currentNodeId) ?? story.getNode(story.startNodeId);
-
-      setState(() {
-        _story = story;
-        _currentNode = node;
-        _isEnd = node?.choices.isEmpty ?? false;
-        _isLoading = false;
-      });
-
-      if (node?.onEnter != null) _applyEffects(node!.onEnter);
+      _restoreFromSave(widget.resumeFrom!, story);
     } else {
-      final stats = await AchievementManager.loadStats();
-      stats.playedCharacters.add(widget.characterId);
-      stats.totalGamesPlayed += 1;
-      await AchievementManager.saveStats(stats);
-
-      setState(() {
-        _story = story;
-        _currentNode = story.getNode(story.startNodeId);
-        _isLoading = false;
-      });
-
-      if (_currentNode?.onEnter != null) _applyEffects(_currentNode!.onEnter);
+      _startNewStory(story);
     }
   }
 
-  void _applyEffects(Map<String, dynamic>? effects) {
-    if (effects == null) return;
+  void _restoreFromSave(SaveData s, Story story) {
+    hunger = s.hunger;
+    thirst = s.thirst;
+    health = s.health;
+    sanity = s.sanity;
+    stamina = s.stamina;
+    fatigue = s.fatigue;
+    timeMinutes = s.timeMinutes;
+    chapter = s.chapter;
+    _history.addAll(s.history);
+    _flags.addAll(s.history);
 
-    if (effects['hunger'] != null) {
-      hunger = (hunger + (effects['hunger'] as int)).clamp(0, 100);
-    }
-    if (effects['thirst'] != null) {
-      thirst = (thirst + (effects['thirst'] as int)).clamp(0, 100);
-    }
-    if (effects['health'] != null) {
-      health = (health + (effects['health'] as int)).clamp(0, 100);
-    }
-    if (effects['sanity'] != null) {
-      sanity = (sanity + (effects['sanity'] as int)).clamp(0, 100);
-    }
-    if (effects['stamina'] != null) {
-      stamina = (stamina + (effects['stamina'] as int)).clamp(0, 100);
-    }
-    if (effects['fatigue'] != null) {
-      fatigue = (fatigue + (effects['fatigue'] as int)).clamp(0, 100);
-    }
-    if (effects['time'] != null) {
-      timeMinutes = (timeMinutes + (effects['time'] as int)).clamp(0, 99999);
+    for (final itemJson in s.inventoryItems) {
+      inventory.items.add(InventoryItem.fromJson(itemJson));
     }
 
-    if (effects['inventory_add'] != null) {
-      final List<dynamic> addIds = effects['inventory_add'];
-      for (final id in addIds) {
-        final item = ItemLoader.findById(id as String);
-        if (item != null) {
-          inventory.addItem(item);
-          tracker.lootedCount += 1;
-        }
-      }
-    }
+    final restoredEquipment = Equipment.fromJson(s.equipmentItems);
+    equipment.weapon = restoredEquipment.weapon;
+    equipment.head = restoredEquipment.head;
+    equipment.body = restoredEquipment.body;
+    equipment.hands = restoredEquipment.hands;
+    equipment.feet = restoredEquipment.feet;
+    equipment.backpack = restoredEquipment.backpack;
 
-    if (effects['inventory_remove'] != null) {
-      final List<dynamic> removeIds = effects['inventory_remove'];
-      for (final id in removeIds) {
-        inventory.removeItem(id as String);
-      }
-    }
-
-    if (effects['flag_set'] != null) {
-      final flag = effects['flag_set'] as String;
-      _flags.add(flag);
-    }
-
-    if (effects['infect'] != null) {
-      final infectData = effects['infect'] as Map<String, dynamic>;
-      final source = infectData['source'] as String;
-      final chance = (infectData['chance'] as num?)?.toDouble() ?? 0.5;
-
-      final newCondition =
-          ConditionManager.tryInfect(allConditions, source, chance);
-      if (newCondition != null &&
-          !ConditionManager.hasCondition(
-              activeConditions, newCondition.id)) {
+    for (final cJson in s.activeConditions) {
+      final condId = cJson['id'] as String;
+      final days = cJson['daysRemaining'] as int;
+      try {
+        final cond = allConditions.firstWhere((c) => c.id == condId);
         activeConditions.add(ActiveCondition(
-          condition: newCondition,
-          daysRemaining: newCondition.durationDays,
+          condition: cond,
+          daysRemaining: days,
         ));
-        tracker.infections += 1;
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                '${newCondition.icon} Ты подхватил: ${newCondition.name}',
-              ),
-              duration: const Duration(seconds: 3),
-              backgroundColor: Colors.red[700],
+      } catch (_) {
+        // Игнорируем невалидную болезнь
+      }
+    }
+
+    final node =
+        story.getNode(s.currentNodeId) ?? story.getNode(story.startNodeId);
+
+    setState(() {
+      _story = story;
+      _currentNode = node;
+      _isEnd = node?.choices.isEmpty ?? false;
+      _isLoading = false;
+    });
+
+    if (node?.onEnter != null) _applyEffects(node!.onEnter);
+  }
+
+  Future<void> _startNewStory(Story story) async {
+    final stats = await AchievementManager.loadStats();
+    stats.playedCharacters.add(widget.characterId);
+    stats.totalGamesPlayed += 1;
+    await AchievementManager.saveStats(stats);
+
+    setState(() {
+      _story = story;
+      _currentNode = story.getNode(story.startNodeId);
+      _isLoading = false;
+    });
+
+    if (_currentNode?.onEnter != null) _applyEffects(_currentNode!.onEnter);
+  }
+
+  /// Применить эффекты из JSON.
+  ///
+  /// Логика вынесена в `StoryEffects.apply`. Здесь мы **применяем
+  /// результат** к нашему state.
+  void _applyEffects(Map<String, dynamic>? effects) {
+    final result = StoryEffects.apply(
+      effects: effects,
+      allConditions: allConditions,
+      activeConditions: activeConditions,
+    );
+
+    // === Статы ===
+    if (result.statDelta['hunger'] != null) {
+      hunger = (hunger + result.statDelta['hunger']!).clamp(0, 100);
+    }
+    if (result.statDelta['thirst'] != null) {
+      thirst = (thirst + result.statDelta['thirst']!).clamp(0, 100);
+    }
+    if (result.statDelta['health'] != null) {
+      health = (health + result.statDelta['health']!).clamp(0, 100);
+    }
+    if (result.statDelta['sanity'] != null) {
+      sanity = (sanity + result.statDelta['sanity']!).clamp(0, 100);
+    }
+    if (result.statDelta['stamina'] != null) {
+      stamina = (stamina + result.statDelta['stamina']!).clamp(0, 100);
+    }
+    if (result.statDelta['fatigue'] != null) {
+      fatigue = (fatigue + result.statDelta['fatigue']!).clamp(0, 100);
+    }
+    if (result.statDelta['time'] != null) {
+      timeMinutes = (timeMinutes + result.statDelta['time']!).clamp(0, 99999);
+    }
+
+    // === Предметы ===
+    for (final id in result.itemsToAdd) {
+      final item = StoryEffects.resolveItem(id);
+      if (item != null) {
+        inventory.addItem(item);
+        tracker.lootedCount += 1;
+      }
+    }
+    for (final id in result.itemsToRemove) {
+      inventory.removeItem(id);
+    }
+
+    // === Флаги ===
+    _flags.addAll(result.flagsToSet);
+
+    // === Новые условия ===
+    for (final condition in result.newConditions) {
+      activeConditions.add(ActiveCondition(
+        condition: condition,
+        daysRemaining: condition.durationDays,
+      ));
+      tracker.infections += 1;
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${condition.icon} Ты подхватил: ${condition.name}',
             ),
-          );
-        }
+            duration: const Duration(seconds: 3),
+            backgroundColor: Colors.red[700],
+          ),
+        );
       }
     }
   }
 
   void _applyConditionsTick() {
-    if (activeConditions.isEmpty) return;
-
-    final deltas = ConditionManager.applyEffects(activeConditions);
+    final deltas = StoryEffects.applyConditionsTick(activeConditions);
     if (deltas['health'] != null) {
       health = (health + deltas['health']!).clamp(0, 100);
     }
@@ -287,12 +283,6 @@ class _StoryScreenState extends State<StoryScreen> {
     }
   }
 
-  /// Проверить достижения после действия в сюжете.
-  ///
-  /// Покрывает: first_blood, sharp_shooter, master_crafter,
-  /// doctor, hoarder, сюжетные достижения.
-  ///
-  /// Не ждём результата — попапы покажет подписка на стрим.
   void _checkAchievements() {
     unawaited(AchievementManager.unlockAll(
       characterId: widget.characterId,
@@ -388,15 +378,10 @@ class _StoryScreenState extends State<StoryScreen> {
 
     // Отмечаем главу как пройденную.
     // Формат ID: "boris_ch1", "alina_ch1" и т.д.
-    // Нужно для достижений *_master — они открываются
-    // только когда глава ЗАВЕРШЕНА, а не когда выбран персонаж.
     stats.completedChapters.add('${widget.characterId}_ch$chapter');
 
     await AchievementManager.saveStats(stats);
 
-    // Проверяем достижения после завершения главы.
-    // Особенно важно для *_master (прохождение за персонажа)
-    // и all_characters (все 5 персонажей).
     await AchievementManager.unlockAll(
       characterId: widget.characterId,
       tracker: tracker,
@@ -488,8 +473,6 @@ class _StoryScreenState extends State<StoryScreen> {
     }
 
     _navigateToNode(choice.next);
-
-    // Проверяем достижения после каждого выбора.
     _checkAchievements();
   }
 
@@ -567,56 +550,32 @@ class _StoryScreenState extends State<StoryScreen> {
     required String defeatNode,
     required String fleeNode,
   }) async {
-    final player = Combatant(
-      name: widget.characterName,
-      health: health,
-      maxHealth: 100,
-      damage: equipment.totalDamage > 0 ? equipment.totalDamage : 3,
-      protection: equipment.totalProtection,
-      strength: 5,
-      damageType: equipment.weaponDamageType,
-      resistances: equipment.totalResistances,
+    final result = await StoryCombatLauncher.launch(
+      context: context,
+      characterName: widget.characterName,
+      playerHealth: health,
+      enemyName: enemyName,
+      enemyHealth: enemyHealth,
+      enemyDamage: enemyDamage,
+      enemyProtection: enemyProtection,
+      enemyStrength: enemyStrength,
+      equipment: equipment,
     );
 
-    final enemy = Combatant(
-      name: enemyName,
-      health: enemyHealth,
-      maxHealth: enemyHealth,
-      damage: enemyDamage,
-      protection: enemyProtection,
-      strength: enemyStrength,
-    );
+    if (result == null) return;
 
-    final rawResult = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => CombatScreen(player: player, enemy: enemy),
-      ),
-    );
+    health = result.playerHealth;
 
-    if (!mounted) return;
-
-    String result = 'defeat';
-    if (rawResult is Map) {
-      result = rawResult['result'] ?? 'defeat';
-      health = (rawResult['playerHealth'] as int? ?? player.health).clamp(0, 100);
-    } else if (rawResult is String) {
-      result = rawResult;
-      health = player.health.clamp(0, 100);
-    }
-
-    if (result == 'victory') {
+    if (result.result == 'victory') {
       tracker.kills += 1;
       _navigateToNode(victoryNode);
-    } else if (result == 'defeat') {
+    } else if (result.result == 'defeat') {
       _navigateToNode(defeatNode);
-    } else if (result == 'fled') {
+    } else if (result.result == 'fled') {
       _navigateToNode(fleeNode);
     }
 
     _autoSave();
-
-    // Проверяем достижения после боя (first_blood, sharp_shooter).
     _checkAchievements();
   }
 
@@ -928,7 +887,17 @@ class _StoryScreenState extends State<StoryScreen> {
       ),
       body: Column(
         children: [
-          _buildStatusBar(),
+          StoryStatusBar(
+            timeMinutes: timeMinutes,
+            fatigue: fatigue,
+            chapter: chapter,
+            historyLength: _history.length,
+            hunger: hunger,
+            thirst: thirst,
+            health: health,
+            sanity: sanity,
+            stamina: stamina,
+          ),
           ConditionsPanel(conditions: activeConditions),
           Expanded(
             child: SingleChildScrollView(
@@ -1172,116 +1141,6 @@ class _StoryScreenState extends State<StoryScreen> {
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatusBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 20, 20, 20),
-        border: Border(
-          bottom: BorderSide(
-            color: const Color.fromARGB(255, 200, 180, 100)
-                .withValues(alpha: 0.2),
-          ),
-        ),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              const Icon(
-                Icons.access_time,
-                color: Color.fromARGB(255, 200, 180, 100),
-                size: 16,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                TimeFormat.clock(timeMinutes),
-                style: const TextStyle(
-                  color: Color.fromARGB(255, 200, 180, 100),
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Spacer(),
-              if (fatigue > 0) ...[
-                Icon(
-                  Icons.bedtime,
-                  color: fatigue > 80
-                      ? Colors.red
-                      : (fatigue > 60 ? Colors.orange : Colors.grey),
-                  size: 14,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  'Устал $fatigue%',
-                  style: TextStyle(
-                    color: fatigue > 80
-                        ? Colors.red
-                        : (fatigue > 60 ? Colors.orange : Colors.grey[500]),
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(width: 12),
-              ],
-              Text(
-                'Глава $chapter · Шаг ${_history.length + 1}',
-                style: TextStyle(
-                  color: Colors.grey[500],
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: AnimatedStatBar(
-                  icon: '🍞',
-                  value: hunger,
-                  color: Colors.orange,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: AnimatedStatBar(
-                  icon: '💧',
-                  value: thirst,
-                  color: Colors.blue,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: AnimatedStatBar(
-                  icon: '❤️',
-                  value: health,
-                  color: Colors.red,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: AnimatedStatBar(
-                  icon: '🧠',
-                  value: sanity,
-                  color: Colors.purple,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: AnimatedStatBar(
-                  icon: '⚡',
-                  value: stamina,
-                  color: Colors.green,
-                ),
-              ),
-            ],
           ),
         ],
       ),
