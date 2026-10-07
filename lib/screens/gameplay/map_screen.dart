@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -10,7 +11,6 @@ import 'package:dark_hours/services/map/rest_manager.dart';
 import 'package:dark_hours/services/map/death_manager.dart';
 import 'package:dark_hours/services/map/story_trigger_manager.dart';
 import 'package:dark_hours/services/map/region_background_cache.dart';
-import 'package:dark_hours/services/progress/achievement_checker.dart';
 import 'package:dark_hours/services/progress/achievement_manager.dart';
 import 'package:dark_hours/services/time/time_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
@@ -21,6 +21,7 @@ import 'package:dark_hours/models/world/region_layout.dart';
 import 'package:dark_hours/models/items/recipe.dart';
 import 'package:dark_hours/models/inventory/inventory_item.dart';
 import 'package:dark_hours/models/time/rest_action.dart';
+import 'package:dark_hours/models/progress/achievement.dart';
 
 import 'package:dark_hours/widgets/panels/penalties_panel.dart';
 import 'package:dark_hours/widgets/panels/conditions_panel.dart';
@@ -30,6 +31,7 @@ import 'package:dark_hours/widgets/panels/equipment_panel.dart';
 import 'package:dark_hours/widgets/panels/rest_panel.dart';
 import 'package:dark_hours/widgets/effects/floating_effect.dart';
 import 'package:dark_hours/widgets/effects/shimmer_button.dart';
+import 'package:dark_hours/widgets/effects/achievement_notifier.dart';
 
 import 'package:dark_hours/screens/gameplay/widgets/map_status_bar.dart';
 import 'package:dark_hours/screens/gameplay/widgets/map_current_location.dart';
@@ -89,6 +91,9 @@ class _MapScreenState extends State<MapScreen>
   /// Название региона для оверлея перехода.
   String _transitionRegionName = '';
 
+  /// Подписка на поток разблокированных достижений.
+  StreamSubscription<Achievement>? _achievementSub;
+
   static const double _mapWidth = 800.0;
   static const double _mapHeight = 1200.0;
 
@@ -102,6 +107,12 @@ class _MapScreenState extends State<MapScreen>
     );
     _controller.addListener(_onControllerChanged);
 
+    // Подписка на достижения. Когда AchievementManager.unlockAll
+    // пушит новое достижение — показываем попап.
+    _achievementSub = AchievementManager.unlockStream.listen((ach) {
+      if (mounted) AchievementNotifier.showPopup(context, ach);
+    });
+
     _markerController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -112,6 +123,7 @@ class _MapScreenState extends State<MapScreen>
 
   @override
   void dispose() {
+    _achievementSub?.cancel();
     _controller.removeListener(_onControllerChanged);
     _controller.dispose();
     _transformController.dispose();
@@ -863,13 +875,9 @@ class _MapScreenState extends State<MapScreen>
       ),
     );
 
-    await AchievementChecker.check(
-      context: context,
-      characterId: widget.characterId,
-      day: _controller.gameTime.day,
-      inventorySize: _controller.inventory.items.length,
-      tracker: _controller.tracker,
-    );
+    // Достижения теперь проверяются автоматически через
+    // _controller.advanceTime → AchievementManager.unlockAll.
+    // Попапы покажет подписка на AchievementManager.unlockStream.
   }
 
   // ═══════════════════════════════════════════════════════════

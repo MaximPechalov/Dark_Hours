@@ -2,7 +2,7 @@ class PlayerStats {
   // Общая статистика
   int totalGamesPlayed;
   int totalDeaths;
-  int totalDefeats; // ← новое: поражения в бою
+  int totalDefeats;
   int totalDaysSurvived;
   int bestRunDays;
   String bestRunCharacter;
@@ -20,6 +20,15 @@ class PlayerStats {
   // Игроки, за которых играли
   Set<String> playedCharacters;
 
+  /// Пройденные главы.
+  ///
+  /// Формат: `boris_ch1`, `alina_ch1`, `ivan_ch2` и т.д.
+  ///
+  /// Нужно для достижений `*_master` — они открываются
+  /// только когда глава за персонажа **завершена**,
+  /// а не когда игрок просто выбрал персонажа.
+  Set<String> completedChapters;
+
   PlayerStats({
     this.totalGamesPlayed = 0,
     this.totalDeaths = 0,
@@ -36,8 +45,10 @@ class PlayerStats {
     this.totalInfections = 0,
     Set<String>? unlockedAchievements,
     Set<String>? playedCharacters,
+    Set<String>? completedChapters,
   })  : unlockedAchievements = unlockedAchievements ?? {},
-        playedCharacters = playedCharacters ?? {};
+        playedCharacters = playedCharacters ?? {},
+        completedChapters = completedChapters ?? {};
 
   Map<String, dynamic> toJson() {
     return {
@@ -56,6 +67,7 @@ class PlayerStats {
       'totalInfections': totalInfections,
       'unlockedAchievements': unlockedAchievements.toList(),
       'playedCharacters': playedCharacters.toList(),
+      'completedChapters': completedChapters.toList(),
     };
   }
 
@@ -78,6 +90,7 @@ class PlayerStats {
         json['unlockedAchievements'] ?? [],
       ),
       playedCharacters: Set<String>.from(json['playedCharacters'] ?? []),
+      completedChapters: Set<String>.from(json['completedChapters'] ?? []),
     );
   }
 }

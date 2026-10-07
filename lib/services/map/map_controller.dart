@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 import 'dart:math';
+
+import 'package:flutter/material.dart';
 
 import 'package:dark_hours/models/world/world_map.dart';
 import 'package:dark_hours/models/world/location.dart';
@@ -19,6 +21,7 @@ import 'package:dark_hours/services/combat/enemy_loader.dart';
 import 'package:dark_hours/services/conditions/condition_manager.dart';
 import 'package:dark_hours/services/time/time_manager.dart';
 import 'package:dark_hours/services/progress/run_tracker.dart';
+import 'package:dark_hours/services/progress/achievement_manager.dart';
 
 import 'package:dark_hours/constants/game_constants.dart';
 
@@ -452,7 +455,9 @@ class MapController extends ChangeNotifier {
 
     _applyConditionsTick();
 
-    if (gameTime.day > oldDay) {
+    final dayChanged = gameTime.day > oldDay;
+
+    if (dayChanged) {
       tracker.nightsPassed += 1;
       if (phaseBefore == TimePhase.night) {
         tracker.nightsSurvived += 1;
@@ -466,6 +471,27 @@ class MapController extends ChangeNotifier {
     }
 
     refresh();
+
+    // Проверяем достижения только при смене дня —
+    // именно тогда меняются счётчики survived_X_days, night_owl.
+    // Попапы покажет подписчик на AchievementManager.unlockStream.
+    if (dayChanged) {
+      unawaited(_checkAchievements());
+    }
+  }
+
+  /// Проверить достижения и разблокировать новые.
+  ///
+  /// Вызывается при смене дня. Не показывает UI — попапы
+  /// покажет подписчик на `AchievementManager.unlockStream`.
+  Future<void> _checkAchievements() async {
+    await AchievementManager.unlockAll(
+      characterId: characterId,
+      tracker: tracker,
+      day: gameTime.day,
+      inventorySize: inventory.items.length,
+      sanityDays: tracker.sanityDaysLow,
+    );
   }
 
   void _applyConditionsTick() {

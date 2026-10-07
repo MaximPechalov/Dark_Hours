@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:dark_hours/models/story/story_node.dart';
@@ -9,12 +11,12 @@ import 'package:dark_hours/models/combat/combat.dart';
 import 'package:dark_hours/models/conditions/condition.dart';
 import 'package:dark_hours/models/conditions/active_condition.dart';
 import 'package:dark_hours/models/progress/chapter_summary.dart';
+import 'package:dark_hours/models/progress/achievement.dart';
 
 import 'package:dark_hours/services/save/save_manager.dart';
 import 'package:dark_hours/services/items/item_loader.dart';
 import 'package:dark_hours/services/conditions/condition_manager.dart';
 import 'package:dark_hours/services/progress/run_tracker.dart';
-import 'package:dark_hours/services/progress/achievement_checker.dart';
 import 'package:dark_hours/services/progress/achievement_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
 import 'package:dark_hours/utils/time_format.dart';
@@ -24,6 +26,7 @@ import 'package:dark_hours/widgets/panels/equipment_panel.dart';
 import 'package:dark_hours/widgets/panels/conditions_panel.dart';
 import 'package:dark_hours/widgets/effects/fade_in_text.dart';
 import 'package:dark_hours/widgets/effects/floating_effect.dart';
+import 'package:dark_hours/widgets/effects/achievement_notifier.dart';
 import 'package:dark_hours/widgets/indicators/animated_stat_bar.dart';
 
 import 'package:dark_hours/screens/gameplay/combat_screen.dart';
@@ -76,11 +79,26 @@ class _StoryScreenState extends State<StoryScreen> {
   // Трекер забега
   final RunTracker tracker = RunTracker();
 
+  /// Подписка на поток разблокированных достижений.
+  StreamSubscription<Achievement>? _achievementSub;
+
   @override
   void initState() {
     super.initState();
     _playStoryMusic();
+
+    // Подписка на достижения.
+    _achievementSub = AchievementManager.unlockStream.listen((ach) {
+      if (mounted) AchievementNotifier.showPopup(context, ach);
+    });
+
     _loadStory();
+  }
+
+  @override
+  void dispose() {
+    _achievementSub?.cancel();
+    super.dispose();
   }
 
   Future<void> _playStoryMusic() async {
@@ -269,6 +287,21 @@ class _StoryScreenState extends State<StoryScreen> {
     }
   }
 
+  /// Проверить достижения после действия в сюжете.
+  ///
+  /// Покрывает: first_blood, sharp_shooter, master_crafter,
+  /// doctor, hoarder, сюжетные достижения.
+  ///
+  /// Не ждём результата — попапы покажет подписка на стрим.
+  void _checkAchievements() {
+    unawaited(AchievementManager.unlockAll(
+      characterId: widget.characterId,
+      tracker: tracker,
+      day: chapter,
+      inventorySize: inventory.items.length,
+    ));
+  }
+
   String _getStartLocationForCharacter() {
     switch (widget.characterId) {
       case 'boris':
@@ -352,17 +385,24 @@ class _StoryScreenState extends State<StoryScreen> {
 
     final stats = await AchievementManager.loadStats();
     tracker.applyToStats(stats);
+
+    // Отмечаем главу как пройденную.
+    // Формат ID: "boris_ch1", "alina_ch1" и т.д.
+    // Нужно для достижений *_master — они открываются
+    // только когда глава ЗАВЕРШЕНА, а не когда выбран персонаж.
+    stats.completedChapters.add('${widget.characterId}_ch$chapter');
+
     await AchievementManager.saveStats(stats);
 
-    if (mounted) {
-      await AchievementChecker.check(
-        context: context,
-        characterId: widget.characterId,
-        day: chapter,
-        inventorySize: inventory.items.length,
-        tracker: tracker,
-      );
-    }
+    // Проверяем достижения после завершения главы.
+    // Особенно важно для *_master (прохождение за персонажа)
+    // и all_characters (все 5 персонажей).
+    await AchievementManager.unlockAll(
+      characterId: widget.characterId,
+      tracker: tracker,
+      day: chapter,
+      inventorySize: inventory.items.length,
+    );
 
     if (!mounted) return;
     Navigator.pushReplacement(
@@ -448,6 +488,9 @@ class _StoryScreenState extends State<StoryScreen> {
     }
 
     _navigateToNode(choice.next);
+
+    // Проверяем достижения после каждого выбора.
+    _checkAchievements();
   }
 
   void _navigateToNode(String nodeId) {
@@ -572,6 +615,9 @@ class _StoryScreenState extends State<StoryScreen> {
     }
 
     _autoSave();
+
+    // Проверяем достижения после боя (first_blood, sharp_shooter).
+    _checkAchievements();
   }
 
   List<StoryChoice> get _availableChoices {
@@ -693,6 +739,7 @@ class _StoryScreenState extends State<StoryScreen> {
 
     inventory.removeItem(item.id);
     _autoSave();
+    _checkAchievements();
   }
 
   void _equipItem(InventoryItem item) {
