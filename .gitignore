@@ -46,3 +46,16 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# === Исходники для генерации ассетов ===
+# Сырые JPEG-иконки оружия (не для сборки, только для tool/скрипта)
+raw_weapons/
+
+# === Скрипты конвертации (уже отработали) ===
+convert_audio.sh
+optimize_icons.sh
+
+# === Бэкапы от наших правок ===
+lib_backup_*/
+assets/audio/*_old/
+assets/images/items/*_old/

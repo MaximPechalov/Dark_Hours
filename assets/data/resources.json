@@ -179,6 +179,36 @@
       "stack_max": 1,
       "icon": "🪪",
       "rarity": "uncommon"
+    },
+    {
+      "id": "keycard",
+      "name": "Ключ-карта",
+      "description": "Пластик с магнитом. Работает в офисном здании. Где-то есть ответы.",
+      "category": "special",
+      "weight": 0.02,
+      "stack_max": 1,
+      "icon": "🪪",
+      "rarity": "uncommon"
+    },
+    {
+      "id": "9mm",
+      "name": "Патроны 9мм",
+      "description": "Коробка пистолетных патронов. Тяжёлая, звенит при встряхивании. Для ПМ и подобных.",
+      "category": "ammo",
+      "weight": 0.15,
+      "stack_max": 30,
+      "icon": "🟡",
+      "rarity": "uncommon"
+    },
+    {
+      "id": "ammo_box",
+      "name": "Ящик с патронами",
+      "description": "Оцинкованный ящик с боеприпасами. Разные калибры, часть — ржавые. Но стрелять можно.",
+      "category": "ammo",
+      "weight": 2.0,
+      "stack_max": 10,
+      "icon": "📦",
+      "rarity": "rare"
     }
   ]
 }

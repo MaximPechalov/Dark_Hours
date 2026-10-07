@@ -41,6 +41,8 @@ class EnemyLoader {
   /// Это «мост» между двумя моделями:
   /// - Enemy — данные из JSON (статичные статы)
   /// - Combatant — боевая модель (мутабельное здоровье, статус-эффекты)
+  ///
+  /// `abilities` уже имеют тип `CombatAbility`, поэтому просто передаём.
   static Combatant toCombatant(Enemy enemy) {
     return Combatant(
       name: enemy.name,
@@ -50,17 +52,7 @@ class EnemyLoader {
       protection: enemy.protection,
       strength: enemy.strength,
       damageType: enemy.damageType,
-      abilities: enemy.abilities.map(_toCombatAbility).toList(),
-    );
-  }
-
-  static CombatAbility _toCombatAbility(EnemyAbility ability) {
-    return CombatAbility(
-      id: ability.id,
-      name: ability.name,
-      description: ability.description,
-      chance: ability.chance,
-      effect: ability.effect,
+      abilities: enemy.abilities,
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
+import 'package:dark_hours/models/combat/combat.dart';
 
 /// Модель врага — загружается из assets/data/enemies.json
 ///
@@ -18,7 +19,7 @@ class Enemy {
   final int protection;
   final int strength;
   final String damageType; // blunt, cutting, piercing, firearm
-  final List<EnemyAbility> abilities;
+  final List<CombatAbility> abilities;
 
   const Enemy({
     required this.id,
@@ -36,7 +37,7 @@ class Enemy {
   factory Enemy.fromJson(Map<String, dynamic> json) {
     final rawAbilities = (json['abilities'] as List? ?? []);
     final abilities = rawAbilities
-        .map((a) => EnemyAbility.fromJson(Map<String, dynamic>.from(a)))
+        .map((a) => _abilityFromJson(Map<String, dynamic>.from(a)))
         .toList();
 
     return Enemy(
@@ -65,26 +66,13 @@ class Enemy {
       return [];
     }
   }
-}
 
-/// Способность врага в бою
-class EnemyAbility {
-  final String id;
-  final String name;
-  final String description;
-  final double chance;
-  final String effect; // skip_turn, poison, infection, bleeding
-
-  const EnemyAbility({
-    required this.id,
-    required this.name,
-    required this.description,
-    required this.chance,
-    required this.effect,
-  });
-
-  factory EnemyAbility.fromJson(Map<String, dynamic> json) {
-    return EnemyAbility(
+  /// Хелпер: собрать CombatAbility из JSON.
+  ///
+  /// Вынесено сюда, чтобы `enemy.dart` не зависел от того,
+  /// как именно поле называется в JSON (`damage_type` vs `damageType`).
+  static CombatAbility _abilityFromJson(Map<String, dynamic> json) {
+    return CombatAbility(
       id: json['id'],
       name: json['name'],
       description: json['description'] ?? '',

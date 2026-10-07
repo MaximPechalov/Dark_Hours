@@ -271,21 +271,6 @@
       "rarity": "common"
     },
     {
-      "id": "match",
-      "name": "Спичка",
-      "description": "Одна спичка. Один шанс развести огонь. Один шанс согреться.",
-      "category": "other",
-      "hunger_restore": 0,
-      "thirst_restore": 0,
-      "health_restore": 0,
-      "sanity_restore": 0,
-      "weight": 0.01,
-      "uses": 1,
-      "spoil_days": 0,
-      "icon": "🪄",
-      "rarity": "common"
-    },
-    {
       "id": "battery",
       "name": "Батарейка",
       "description": "Пальчиковая, ещё с зарядом. Для фонарика или рации. Может, для чего-то ещё.",

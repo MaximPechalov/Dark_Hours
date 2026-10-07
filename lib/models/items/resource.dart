@@ -6,7 +6,7 @@ class GameResource {
   final String id;
   final String name;
   final String description;
-  final String category; // material, special
+  final String category; // material, special, ammo
   final double weight;
   final int stackMax;
   final String icon;
@@ -76,6 +76,8 @@ class GameResource {
         return 'Материал';
       case 'special':
         return 'Особый';
+      case 'ammo':
+        return 'Боеприпасы';
       default:
         return category;
     }

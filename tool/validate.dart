@@ -204,11 +204,12 @@ class Validator {
             }
           }
 
-          // loot_pool
+          // loot_pool — теперь error, не warning!
           final lootPool = (loc['loot_pool'] as List? ?? []).cast<String>();
           for (final item in lootPool) {
             if (!itemIds.contains(item)) {
-              _warn('$fileName/$id: loot_pool → "$item" не найден');
+              _error('$fileName/$id: loot_pool → "$item" не найден');
+              totalErrors++;
             }
           }
 
@@ -256,7 +257,8 @@ class Validator {
             final loot = (effect['random_loot'] as List? ?? []).cast<String>();
             for (final item in loot) {
               if (!itemIds.contains(item)) {
-                _warn('$fileName/$id: search_events[$i].random_loot → "$item" не найден');
+                _error('$fileName/$id: search_events[$i].random_loot → "$item" не найден');
+                totalErrors++;
               }
             }
           }
@@ -407,7 +409,7 @@ class Validator {
           if (addIds != null) {
             for (final itemId in addIds.cast<String>()) {
               if (!itemIds.contains(itemId)) {
-                _warn('$character/$id: choice[$i].effects.inventory_add "$itemId" → предмет не найден');
+                _error('$character/$id: choice[$i].effects.inventory_add "$itemId" → предмет не найден');
               }
             }
           }
@@ -416,7 +418,7 @@ class Validator {
           if (removeIds != null) {
             for (final itemId in removeIds.cast<String>()) {
               if (!itemIds.contains(itemId)) {
-                _warn('$character/$id: choice[$i].effects.inventory_remove "$itemId" → предмет не найден');
+                _error('$character/$id: choice[$i].effects.inventory_remove "$itemId" → предмет не найден');
               }
             }
           }
@@ -430,7 +432,7 @@ class Validator {
           }
           final notItem = requires['not_item'] as String?;
           if (notItem != null && !itemIds.contains(notItem)) {
-            _warn('$character/$id: choice[$i].requires.not_item = "$notItem" → предмет не найден');
+            _error('$character/$id: choice[$i].requires.not_item = "$notItem" → предмет не найден');
           }
         }
       }
@@ -478,7 +480,8 @@ class Validator {
       final resultId = recipe['result_id'] as String?;
 
       if (resultId != null && !itemIds.contains(resultId)) {
-        _warn('Рецепт "$id": result_id "$resultId" не в справочнике');
+        _error('Рецепт "$id": result_id "$resultId" не в справочнике');
+        errors++;
       }
 
       final ingredients =
@@ -527,7 +530,8 @@ class Validator {
 
       for (final item in cureItems) {
         if (!itemIds.contains(item)) {
-          _warn('Состояние "$id": cure_items → "$item" не найден');
+          _error('Состояние "$id": cure_items → "$item" не найден');
+          errors++;
         }
       }
     }
@@ -581,7 +585,8 @@ class Validator {
       final loot = (effect['random_loot'] as List? ?? []).cast<String>();
       for (final item in loot) {
         if (!itemIds.contains(item)) {
-          _warn('Событие "$id": random_loot → "$item" не найден');
+          _error('Событие "$id": random_loot → "$item" не найден');
+          errors++;
         }
       }
     }

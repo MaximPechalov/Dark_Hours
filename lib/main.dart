@@ -10,19 +10,8 @@ void main() async {
   await AudioService.init();
 
   // Инициализация загрузчика иконок предметов.
+  // Сканирует assets/images/items/ и строит кеш itemId → путь к PNG.
   await ItemIconLoader.init();
-
-  // === ВРЕМЕННАЯ ДИАГНОСТИКА ===
-  // УДАЛИТЬ ПОСЛЕ РЕШЕНИЯ ПРОБЛЕМЫ С ИКОНКАМИ
-  debugPrint('═══════════════════════════════════════');
-  debugPrint('🖼️ ItemIconLoader');
-  debugPrint('   Загружено иконок: ${ItemIconLoader.loadedCount}');
-  debugPrint('   Доступные ID: ${ItemIconLoader.availableIds}');
-  debugPrint('   Пути:');
-  for (final path in ItemIconLoader.allPaths) {
-    debugPrint('     $path');
-  }
-  debugPrint('═══════════════════════════════════════');
 
   runApp(const DarkHoursApp());
 }
