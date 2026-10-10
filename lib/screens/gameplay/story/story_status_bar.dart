@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 
 import 'package:dark_hours/utils/time_format.dart';
+import 'package:dark_hours/widgets/cards/character_portrait_from_stats.dart';
 import 'package:dark_hours/widgets/indicators/animated_stat_bar.dart';
 
 /// Статус-бар игрока в StoryScreen.
 ///
-/// Показывает: время, усталость, главу, шаг, 5 полосок статов.
+/// Показывает: портрет, время, усталость, главу, шаг, 5 полосок статов.
 ///
-/// **Чистый StatelessWidget** — только отображает данные,
-/// не управляет ими. Логика остаётся в `StoryScreen`.
+/// **Портрет** — меняется по статам через `CharacterStateCalculator`.
+/// Голоден → голодный портрет. Ранен → раненый. Устал → уставший.
 class StoryStatusBar extends StatelessWidget {
+  final String characterId;
+
   final int timeMinutes;
   final int fatigue;
   final int chapter;
@@ -23,6 +26,7 @@ class StoryStatusBar extends StatelessWidget {
 
   const StoryStatusBar({
     super.key,
+    required this.characterId,
     required this.timeMinutes,
     required this.fatigue,
     required this.chapter,
@@ -60,6 +64,17 @@ class StoryStatusBar extends StatelessWidget {
   Widget _buildTopRow() {
     return Row(
       children: [
+        // ⚡ Портрет персонажа — меняется по статам.
+        CharacterPortraitFromStats(
+          characterId: characterId,
+          health: health,
+          hunger: hunger,
+          fatigue: fatigue,
+          size: 40,
+        ),
+        const SizedBox(width: 10),
+
+        // Время
         const Icon(
           Icons.access_time,
           color: Color.fromARGB(255, 200, 180, 100),
@@ -75,6 +90,8 @@ class StoryStatusBar extends StatelessWidget {
           ),
         ),
         const Spacer(),
+
+        // Усталость
         if (fatigue > 0) ...[
           Icon(
             Icons.bedtime,
@@ -96,6 +113,8 @@ class StoryStatusBar extends StatelessWidget {
           ),
           const SizedBox(width: 12),
         ],
+
+        // Глава и шаг
         Text(
           'Глава $chapter · Шаг ${historyLength + 1}',
           style: TextStyle(

@@ -39,6 +39,9 @@ class StoryCombatLauncher {
     required int enemyProtection,
     required int enemyStrength,
     required Equipment equipment,
+    String? characterId,
+    int playerHunger = 100,
+    int playerFatigue = 0,
   }) async {
     final player = Combatant(
       name: characterName,
@@ -63,7 +66,13 @@ class StoryCombatLauncher {
     final rawResult = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => CombatScreen(player: player, enemy: enemy),
+        builder: (_) => CombatScreen(
+          player: player,
+          enemy: enemy,
+          characterId: characterId,
+          playerHunger: playerHunger,
+          playerFatigue: playerFatigue,
+        ),
       ),
     );
 

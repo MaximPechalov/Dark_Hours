@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dark_hours/models/character/character.dart';
+import 'package:dark_hours/models/character/character_state.dart';
+import 'package:dark_hours/widgets/cards/character_portrait.dart';
 
 class CharacterCard extends StatelessWidget {
   final Character character;
@@ -45,28 +47,11 @@ class CharacterCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Аватар (первая буква имени)
-            Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                color: Colors.grey[900],
-                borderRadius: BorderRadius.circular(30.0),
-                border: Border.all(
-                  color: Colors.grey[700]!,
-                  width: 1.0,
-                ),
-              ),
-              child: Center(
-                child: Text(
-                  character.name[0],
-                  style: const TextStyle(
-                    color: Color.fromARGB(255, 200, 180, 100),
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+            // ⚡ Портрет вместо буквы.
+            CharacterPortrait(
+              characterId: character.id,
+              state: CharacterState.normal,
+              size: 60,
             ),
             const SizedBox(width: 14),
             // Информация о персонаже

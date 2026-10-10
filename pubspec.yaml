@@ -56,10 +56,13 @@ flutter:
     - assets/data/story/andrey/chapter_1/
     - assets/data/story/darya/chapter_1/
 
-    # ===== ИКОНКИ ПРЕДМЕТОВ (все категории) =====
+    # ===== ИКОНКИ ПРЕДМЕТОВ =====
     - assets/images/items/weapons/
     - assets/images/items/tools/
     - assets/images/items/resources/
+
+    # ===== ПОРТРЕТЫ ПЕРСОНАЖЕЙ =====
+    - assets/images/characters/
 
     # ===== ЗВУКИ =====
     - assets/audio/ui/

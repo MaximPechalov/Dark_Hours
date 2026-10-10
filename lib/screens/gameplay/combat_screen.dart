@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:dark_hours/models/combat/combat.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/widgets/cards/character_portrait_from_stats.dart';
 import 'package:dark_hours/widgets/effects/floating_effect.dart';
 import 'package:dark_hours/widgets/effects/shake_widget.dart';
 
@@ -9,10 +10,24 @@ class CombatScreen extends StatefulWidget {
   final Combatant player;
   final Combatant enemy;
 
+  /// ID персонажа игрока — для отображения портрета.
+  ///
+  /// Если `null` — портрет не показывается (fallback на эмодзи).
+  final String? characterId;
+
+  /// Голод игрока — для определения состояния портрета.
+  final int playerHunger;
+
+  /// Усталость игрока — для определения состояния портрета.
+  final int playerFatigue;
+
   const CombatScreen({
     super.key,
     required this.player,
     required this.enemy,
+    this.characterId,
+    this.playerHunger = 100,
+    this.playerFatigue = 0,
   });
 
   @override
@@ -710,10 +725,20 @@ class _CombatScreenState extends State<CombatScreen> {
         children: [
           Row(
             children: [
-              Text(
-                isEnemy ? '👹' : '🧑',
-                style: const TextStyle(fontSize: 20),
-              ),
+              // ⚡ Портрет для игрока, эмодзи для врага.
+              if (!isEnemy && widget.characterId != null)
+                CharacterPortraitFromStats(
+                  characterId: widget.characterId!,
+                  health: c.health,
+                  hunger: widget.playerHunger,
+                  fatigue: widget.playerFatigue,
+                  size: 32,
+                )
+              else
+                Text(
+                  isEnemy ? '👹' : '🧑',
+                  style: const TextStyle(fontSize: 20),
+                ),
               const SizedBox(width: 8),
               Flexible(
                 child: Text(

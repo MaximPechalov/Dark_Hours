@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 import 'package:dark_hours/services/map/map_controller.dart';
+import 'package:dark_hours/widgets/cards/character_portrait_from_stats.dart';
 import 'package:dark_hours/widgets/indicators/time_indicator.dart';
 import 'package:dark_hours/widgets/indicators/animated_stat_bar.dart';
 
-/// Верхняя панель статуса игрока.
+/// Верхняя панель статуса игрока на карте.
 ///
 /// Показывает:
+/// - портрет персонажа (меняется по статам)
 /// - время (TimeIndicator)
 /// - усталость (если > 0)
 /// - счётчик поражений (если > 0)
@@ -43,14 +45,25 @@ class MapStatusBar extends StatelessWidget {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // ВЕРХНИЙ РЯД: время + усталость + поражения + глава
+  // ВЕРХНИЙ РЯД: портрет + время + усталость + поражения + глава
   // ═══════════════════════════════════════════════════════════
 
   Widget _buildTopRow() {
     return Row(
       children: [
+        // ⚡ Портрет персонажа — меняется по статам.
+        CharacterPortraitFromStats(
+          characterId: controller.characterId,
+          health: controller.health,
+          hunger: controller.hunger,
+          fatigue: controller.fatigue,
+          size: 40,
+        ),
+        const SizedBox(width: 10),
+
         TimeIndicator(time: controller.gameTime),
         const Spacer(),
+
         if (controller.fatigue > 0) ...[
           _buildFatigueIndicator(),
           const SizedBox(width: 12),

@@ -1,8 +1,8 @@
 # PROJECT DUMP
 
-**Generated:** Wed Oct  7 10:29:44 UTC 2026
+**Generated:** Sat Oct 10 08:30:49 UTC 2026
 **Root:** /workspaces/Dark_Hours
-**Files:** 302
+**Files:** 306
 
 ## 📁 STRUCTURE
 
@@ -206,6 +206,9 @@
 ./lib/screens/gameplay/combat_screen.dart
 ./lib/screens/gameplay/credits_screen.dart
 ./lib/screens/gameplay/map_screen.dart
+./lib/screens/gameplay/story/story_combat_launcher.dart
+./lib/screens/gameplay/story/story_effects.dart
+./lib/screens/gameplay/story/story_status_bar.dart
 ./lib/screens/gameplay/story_screen.dart
 ./lib/screens/gameplay/widgets/map_current_location.dart
 ./lib/screens/gameplay/widgets/map_edge_painter.dart
@@ -236,11 +239,12 @@
 ./lib/services/map/rest_manager.dart
 ./lib/services/map/search_manager.dart
 ./lib/services/map/story_trigger_manager.dart
-./lib/services/progress/achievement_checker.dart
 ./lib/services/progress/achievement_manager.dart
 ./lib/services/progress/run_tracker.dart
 ./lib/services/save/save_manager.dart
 ./lib/services/time/time_manager.dart
+./lib/utils/item_display.dart
+./lib/utils/time_format.dart
 ./lib/widgets/cards/animated_location_card.dart
 ./lib/widgets/cards/character_card.dart
 ./lib/widgets/effects/achievement_notifier.dart
@@ -450,6 +454,18 @@ app.*.map.json
 # Widget Preview related
 .widget_preview/
 
+# === Исходники для генерации ассетов ===
+# Сырые JPEG-иконки оружия (не для сборки, только для tool/скрипта)
+raw_weapons/
+
+# === Скрипты конвертации (уже отработали) ===
+convert_audio.sh
+optimize_icons.sh
+
+# === Бэкапы от наших правок ===
+lib_backup_*/
+assets/audio/*_old/
+assets/images/items/*_old/
 ```
 
 ### 📄 `./.metadata`
@@ -527,6 +543,18 @@ analyzer:
     - build/**
     - android/**
     - web/**
+    - tool/**
+    - test/**
+
+  errors:
+    # Депрекейты показываем как warning, но не блокируем сборку
+    deprecated_member_use: warning
+    deprecated_member_use_from_same_package: warning
+
+    # Не критичные стилистические — просто info
+    prefer_const_constructors: info
+    unnecessary_brace_in_string_interps: info
+    use_build_context_synchronously: info
 
 linter:
   # The lint rules applied to this project can be customized in the
@@ -540,12 +568,18 @@ linter:
   # `// ignore_for_file: name_of_lint` syntax on the line or in the file
   # producing the lint.
   rules:
-    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
-    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+    # Отключаем шумные правила, которые не помогают в нашем проекте.
+    avoid_print: false
+    prefer_const_constructors: false
+    prefer_const_constructors_in_immutables: false
+    prefer_const_declarations: false
+    prefer_const_literals_to_create_immutables: false
+    unnecessary_brace_in_string_interps: false
+    use_build_context_synchronously: false
+    avoid_function_literals_in_foreach_calls: false
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
-
 ```
 
 ### 📄 `./android/.gitignore`
@@ -2091,21 +2125,6 @@ include(":app")
       "uses": 1,
       "spoil_days": 0,
       "icon": "🚬",
-      "rarity": "common"
-    },
-    {
-      "id": "match",
-      "name": "Спичка",
-      "description": "Одна спичка. Один шанс развести огонь. Один шанс согреться.",
-      "category": "other",
-      "hunger_restore": 0,
-      "thirst_restore": 0,
-      "health_restore": 0,
-      "sanity_restore": 0,
-      "weight": 0.01,
-      "uses": 1,
-      "spoil_days": 0,
-      "icon": "🪄",
       "rarity": "common"
     },
     {
@@ -4977,6 +4996,36 @@ include(":app")
       "stack_max": 1,
       "icon": "🪪",
       "rarity": "uncommon"
+    },
+    {
+      "id": "keycard",
+      "name": "Ключ-карта",
+      "description": "Пластик с магнитом. Работает в офисном здании. Где-то есть ответы.",
+      "category": "special",
+      "weight": 0.02,
+      "stack_max": 1,
+      "icon": "🪪",
+      "rarity": "uncommon"
+    },
+    {
+      "id": "9mm",
+      "name": "Патроны 9мм",
+      "description": "Коробка пистолетных патронов. Тяжёлая, звенит при встряхивании. Для ПМ и подобных.",
+      "category": "ammo",
+      "weight": 0.15,
+      "stack_max": 30,
+      "icon": "🟡",
+      "rarity": "uncommon"
+    },
+    {
+      "id": "ammo_box",
+      "name": "Ящик с патронами",
+      "description": "Оцинкованный ящик с боеприпасами. Разные калибры, часть — ржавые. Но стрелять можно.",
+      "category": "ammo",
+      "weight": 2.0,
+      "stack_max": 10,
+      "icon": "📦",
+      "rarity": "rare"
     }
   ]
 }
@@ -21244,19 +21293,8 @@ void main() async {
   await AudioService.init();
 
   // Инициализация загрузчика иконок предметов.
+  // Сканирует assets/images/items/ и строит кеш itemId → путь к PNG.
   await ItemIconLoader.init();
-
-  // === ВРЕМЕННАЯ ДИАГНОСТИКА ===
-  // УДАЛИТЬ ПОСЛЕ РЕШЕНИЯ ПРОБЛЕМЫ С ИКОНКАМИ
-  debugPrint('═══════════════════════════════════════');
-  debugPrint('🖼️ ItemIconLoader');
-  debugPrint('   Загружено иконок: ${ItemIconLoader.loadedCount}');
-  debugPrint('   Доступные ID: ${ItemIconLoader.availableIds}');
-  debugPrint('   Пути:');
-  for (final path in ItemIconLoader.allPaths) {
-    debugPrint('     $path');
-  }
-  debugPrint('═══════════════════════════════════════');
 
   runApp(const DarkHoursApp());
 }
@@ -21548,6 +21586,7 @@ class Combatant {
 ```dart
 import 'dart:convert';
 import 'package:flutter/services.dart';
+import 'package:dark_hours/models/combat/combat.dart';
 
 /// Модель врага — загружается из assets/data/enemies.json
 ///
@@ -21566,7 +21605,7 @@ class Enemy {
   final int protection;
   final int strength;
   final String damageType; // blunt, cutting, piercing, firearm
-  final List<EnemyAbility> abilities;
+  final List<CombatAbility> abilities;
 
   const Enemy({
     required this.id,
@@ -21584,7 +21623,7 @@ class Enemy {
   factory Enemy.fromJson(Map<String, dynamic> json) {
     final rawAbilities = (json['abilities'] as List? ?? []);
     final abilities = rawAbilities
-        .map((a) => EnemyAbility.fromJson(Map<String, dynamic>.from(a)))
+        .map((a) => _abilityFromJson(Map<String, dynamic>.from(a)))
         .toList();
 
     return Enemy(
@@ -21613,26 +21652,13 @@ class Enemy {
       return [];
     }
   }
-}
 
-/// Способность врага в бою
-class EnemyAbility {
-  final String id;
-  final String name;
-  final String description;
-  final double chance;
-  final String effect; // skip_turn, poison, infection, bleeding
-
-  const EnemyAbility({
-    required this.id,
-    required this.name,
-    required this.description,
-    required this.chance,
-    required this.effect,
-  });
-
-  factory EnemyAbility.fromJson(Map<String, dynamic> json) {
-    return EnemyAbility(
+  /// Хелпер: собрать CombatAbility из JSON.
+  ///
+  /// Вынесено сюда, чтобы `enemy.dart` не зависел от того,
+  /// как именно поле называется в JSON (`damage_type` vs `damageType`).
+  static CombatAbility _abilityFromJson(Map<String, dynamic> json) {
+    return CombatAbility(
       id: json['id'],
       name: json['name'],
       description: json['description'] ?? '',
@@ -22631,7 +22657,7 @@ class GameResource {
   final String id;
   final String name;
   final String description;
-  final String category; // material, special
+  final String category; // material, special, ammo
   final double weight;
   final int stackMax;
   final String icon;
@@ -22701,6 +22727,8 @@ class GameResource {
         return 'Материал';
       case 'special':
         return 'Особый';
+      case 'ammo':
+        return 'Боеприпасы';
       default:
         return category;
     }
@@ -23174,7 +23202,7 @@ class PlayerStats {
   // Общая статистика
   int totalGamesPlayed;
   int totalDeaths;
-  int totalDefeats; // ← новое: поражения в бою
+  int totalDefeats;
   int totalDaysSurvived;
   int bestRunDays;
   String bestRunCharacter;
@@ -23192,6 +23220,15 @@ class PlayerStats {
   // Игроки, за которых играли
   Set<String> playedCharacters;
 
+  /// Пройденные главы.
+  ///
+  /// Формат: `boris_ch1`, `alina_ch1`, `ivan_ch2` и т.д.
+  ///
+  /// Нужно для достижений `*_master` — они открываются
+  /// только когда глава за персонажа **завершена**,
+  /// а не когда игрок просто выбрал персонажа.
+  Set<String> completedChapters;
+
   PlayerStats({
     this.totalGamesPlayed = 0,
     this.totalDeaths = 0,
@@ -23208,8 +23245,10 @@ class PlayerStats {
     this.totalInfections = 0,
     Set<String>? unlockedAchievements,
     Set<String>? playedCharacters,
+    Set<String>? completedChapters,
   })  : unlockedAchievements = unlockedAchievements ?? {},
-        playedCharacters = playedCharacters ?? {};
+        playedCharacters = playedCharacters ?? {},
+        completedChapters = completedChapters ?? {};
 
   Map<String, dynamic> toJson() {
     return {
@@ -23228,6 +23267,7 @@ class PlayerStats {
       'totalInfections': totalInfections,
       'unlockedAchievements': unlockedAchievements.toList(),
       'playedCharacters': playedCharacters.toList(),
+      'completedChapters': completedChapters.toList(),
     };
   }
 
@@ -23250,6 +23290,7 @@ class PlayerStats {
         json['unlockedAchievements'] ?? [],
       ),
       playedCharacters: Set<String>.from(json['playedCharacters'] ?? []),
+      completedChapters: Set<String>.from(json['completedChapters'] ?? []),
     );
   }
 }
@@ -24815,7 +24856,6 @@ class UndergroundLayout {
 ```dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:dark_hours/models/world/search_event.dart';
 import 'package:dark_hours/models/world/map_position.dart';
@@ -25716,7 +25756,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                     decoration: BoxDecoration(
                       color: isSelected
                           ? const Color.fromARGB(255, 200, 180, 100)
-                              .withOpacity(0.2)
+                              .withValues(alpha: 0.2)
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(
@@ -25767,7 +25807,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         color: const Color.fromARGB(255, 20, 20, 20),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color.fromARGB(255, 200, 180, 100).withOpacity(0.3),
+          color: const Color.fromARGB(255, 200, 180, 100).withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -25915,12 +25955,12 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: unlocked
-            ? achievement.categoryColor.withOpacity(0.05)
+            ? achievement.categoryColor.withValues(alpha: 0.05)
             : const Color.fromARGB(255, 18, 18, 18),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: unlocked
-              ? achievement.categoryColor.withOpacity(0.5)
+              ? achievement.categoryColor.withValues(alpha: 0.5)
               : Colors.grey[800]!,
           width: 1,
         ),
@@ -25934,7 +25974,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: unlocked
-                  ? achievement.categoryColor.withOpacity(0.15)
+                  ? achievement.categoryColor.withValues(alpha: 0.15)
                   : Colors.grey[900],
               border: Border.all(
                 color: unlocked
@@ -25982,7 +26022,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: achievement.categoryColor.withOpacity(0.15),
+                        color: achievement.categoryColor.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(3),
                       ),
                       child: Text(
@@ -26602,7 +26642,7 @@ class _EquipmentTestScreenState extends State<EquipmentTestScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.3),
+        color: color.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(4.0),
         border: Border.all(color: color, width: 1.0),
       ),
@@ -26617,9 +26657,9 @@ class _EquipmentTestScreenState extends State<EquipmentTestScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(4.0),
-        border: Border.all(color: color.withOpacity(0.5), width: 1.0),
+        border: Border.all(color: color.withValues(alpha: 0.5), width: 1.0),
       ),
       child: Text(
         text,
@@ -27335,7 +27375,7 @@ class _CombatScreenState extends State<CombatScreen> {
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: const Color.fromARGB(255, 200, 180, 100)
-                      .withOpacity(0.2),
+                      .withValues(alpha: 0.2),
                 ),
               ),
               child: ListView.builder(
@@ -27520,7 +27560,7 @@ class _CombatScreenState extends State<CombatScreen> {
         color: const Color.fromARGB(255, 20, 20, 20),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: baseColor.withOpacity(0.4),
+          color: baseColor.withValues(alpha: 0.4),
           width: 2,
         ),
       ),
@@ -27615,7 +27655,7 @@ class _CombatScreenState extends State<CombatScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(4),
         border: Border.all(color: color, width: 1),
       ),
@@ -27926,7 +27966,7 @@ class _CreditsScreenState extends State<CreditsScreen>
             decoration: BoxDecoration(
               border: Border.all(
                 color: const Color.fromARGB(255, 200, 180, 100)
-                    .withOpacity(0.3),
+                    .withValues(alpha: 0.3),
                 width: 1,
               ),
               borderRadius: BorderRadius.circular(8),
@@ -28081,6 +28121,7 @@ class _CreditsScreenState extends State<CreditsScreen>
 
 ### 📄 `./lib/screens/gameplay/map_screen.dart`
 ```dart
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -28093,7 +28134,6 @@ import 'package:dark_hours/services/map/rest_manager.dart';
 import 'package:dark_hours/services/map/death_manager.dart';
 import 'package:dark_hours/services/map/story_trigger_manager.dart';
 import 'package:dark_hours/services/map/region_background_cache.dart';
-import 'package:dark_hours/services/progress/achievement_checker.dart';
 import 'package:dark_hours/services/progress/achievement_manager.dart';
 import 'package:dark_hours/services/time/time_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
@@ -28104,6 +28144,7 @@ import 'package:dark_hours/models/world/region_layout.dart';
 import 'package:dark_hours/models/items/recipe.dart';
 import 'package:dark_hours/models/inventory/inventory_item.dart';
 import 'package:dark_hours/models/time/rest_action.dart';
+import 'package:dark_hours/models/progress/achievement.dart';
 
 import 'package:dark_hours/widgets/panels/penalties_panel.dart';
 import 'package:dark_hours/widgets/panels/conditions_panel.dart';
@@ -28113,6 +28154,7 @@ import 'package:dark_hours/widgets/panels/equipment_panel.dart';
 import 'package:dark_hours/widgets/panels/rest_panel.dart';
 import 'package:dark_hours/widgets/effects/floating_effect.dart';
 import 'package:dark_hours/widgets/effects/shimmer_button.dart';
+import 'package:dark_hours/widgets/effects/achievement_notifier.dart';
 
 import 'package:dark_hours/screens/gameplay/widgets/map_status_bar.dart';
 import 'package:dark_hours/screens/gameplay/widgets/map_current_location.dart';
@@ -28167,10 +28209,17 @@ class _MapScreenState extends State<MapScreen>
   String? _lastRegionId;
 
   /// Показывать ли оверлей перехода между регионами.
+  ///
+  /// **Непрозрачный** оверлей: скрывает карту до момента,
+  /// пока не загрузится фон нового региона.
+  /// Это решает проблему "новые локации на старом фоне".
   bool _showRegionTransition = false;
 
   /// Название региона для оверлея перехода.
   String _transitionRegionName = '';
+
+  /// Подписка на поток разблокированных достижений.
+  StreamSubscription<Achievement>? _achievementSub;
 
   static const double _mapWidth = 800.0;
   static const double _mapHeight = 1200.0;
@@ -28185,6 +28234,11 @@ class _MapScreenState extends State<MapScreen>
     );
     _controller.addListener(_onControllerChanged);
 
+    // Подписка на достижения.
+    _achievementSub = AchievementManager.unlockStream.listen((ach) {
+      if (mounted) AchievementNotifier.showPopup(context, ach);
+    });
+
     _markerController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -28195,12 +28249,11 @@ class _MapScreenState extends State<MapScreen>
 
   @override
   void dispose() {
+    _achievementSub?.cancel();
     _controller.removeListener(_onControllerChanged);
     _controller.dispose();
     _transformController.dispose();
     _markerController.dispose();
-    // NOTE: не dispose'им _regionBackground — он хранится в кеше
-    // RegionBackgroundCache и переиспользуется.
     super.dispose();
   }
 
@@ -28221,30 +28274,43 @@ class _MapScreenState extends State<MapScreen>
     setState(() {});
   }
 
-  /// Обработчик смены региона — показывает анимацию + загружает фон.
-  void _onRegionChanged(String newRegion) {
+  /// Обработчик смены региона.
+  ///
+  /// **Логика:**
+  /// 1. Показывает **непрозрачный** оверлей (скрывает карту полностью).
+  /// 2. Загружает фон нового региона **под оверлеем**.
+  /// 3. Когда фон готов — обновляет `_regionBackground` и `_loadedRegionId`.
+  /// 4. Держит оверлей ещё 800 ms (чтобы игрок прочитал название).
+  /// 5. Убирает оверлей — карта показывается с **правильным** фоном.
+  Future<void> _onRegionChanged(String newRegion) async {
     final name = _regionDisplayName(newRegion);
 
+    // Показываем непрозрачный оверлей.
     setState(() {
       _showRegionTransition = true;
       _transitionRegionName = name;
+      // Сбрасываем _loadedRegionId, чтобы _loadRegionBackground
+      // не пропустил загрузку (защита от "уже загружен").
+      _loadedRegionId = null;
     });
 
-    // Загружаем фон нового региона.
-    _loadRegionBackground(newRegion);
+    // Загружаем фон ПОД оверлеем.
+    await _loadRegionBackground(newRegion);
 
-    // Скрываем оверлей через 1.5 секунды.
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      if (mounted) {
-        setState(() {
-          _showRegionTransition = false;
-        });
-      }
+    if (!mounted) return;
+
+    // Даём игроку прочитать название региона.
+    await Future.delayed(const Duration(milliseconds: 800));
+
+    if (!mounted) return;
+
+    // Убираем оверлей — карта показывается с новым фоном.
+    setState(() {
+      _showRegionTransition = false;
     });
 
-    // Снекбар.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+    // Снекбар (можно и под оверлеем — не критично).
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('🚪 Ты пересёк границу: $name'),
@@ -28252,7 +28318,7 @@ class _MapScreenState extends State<MapScreen>
           backgroundColor: const Color.fromARGB(255, 100, 130, 180),
         ),
       );
-    });
+    }
   }
 
   String _regionDisplayName(String regionId) {
@@ -28274,7 +28340,10 @@ class _MapScreenState extends State<MapScreen>
     }
   }
 
-  /// Загрузить фон региона (из кеша, assets или сгенерировать).
+  /// Загрузить фон региона.
+  ///
+  /// Возвращает Future, который завершится **после** того, как
+  /// `_regionBackground` и `_loadedRegionId` обновятся.
   Future<void> _loadRegionBackground(String regionId) async {
     if (_loadedRegionId == regionId && _regionBackground != null) {
       return; // уже загружен
@@ -28353,7 +28422,7 @@ class _MapScreenState extends State<MapScreen>
     final ty = viewH / 2 - py;
 
     _transformController.value = Matrix4.identity()
-      ..translate(tx, ty);
+      ..translateByDouble(tx, ty, 0, 1);
   }
 
   Future<void> _handleDeath() async {
@@ -28943,14 +29012,6 @@ class _MapScreenState extends State<MapScreen>
         duration: const Duration(seconds: 2),
       ),
     );
-
-    await AchievementChecker.check(
-      context: context,
-      characterId: widget.characterId,
-      day: _controller.gameTime.day,
-      inventorySize: _controller.inventory.items.length,
-      tracker: _controller.tracker,
-    );
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -29214,14 +29275,19 @@ class _MapScreenState extends State<MapScreen>
   }
 
   /// Оверлей анимации перехода между регионами.
+  ///
+  /// **НЕПРОЗРАЧНЫЙ** — полностью закрывает карту, чтобы игрок
+  /// не видел старый фон под новыми локациями.
+  /// Убирается после того, как новый фон загружен.
   Widget _buildRegionTransitionOverlay() {
     return IgnorePointer(
       ignoring: !_showRegionTransition,
       child: AnimatedOpacity(
         opacity: _showRegionTransition ? 1.0 : 0.0,
-        duration: const Duration(milliseconds: 500),
+        duration: const Duration(milliseconds: 400),
         child: Container(
-          color: Colors.black.withValues(alpha: 0.85),
+          // ⚡ НЕПРОЗРАЧНЫЙ фон — гарантирует, что старый регион не виден.
+          color: const Color(0xFF08080A),
           alignment: Alignment.center,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -29288,6 +29354,13 @@ class _MapScreenState extends State<MapScreen>
     final current = _controller.currentLocation!;
 
     final regionId = current.region;
+
+    // ⚡ Пока оверлей активен — не рисуем локации вообще.
+    // Это гарантирует, что старые локации не останутся
+    // поверх нового фона при быстром переключении.
+    if (_showRegionTransition) {
+      return Container(color: const Color(0xFF08080A));
+    }
 
     final regionLocations = map.locations
         .where((l) =>
@@ -29758,8 +29831,385 @@ class _MapScreenState extends State<MapScreen>
 }
 ```
 
+### 📄 `./lib/screens/gameplay/story/story_combat_launcher.dart`
+```dart
+import 'package:flutter/material.dart';
+
+import 'package:dark_hours/models/combat/combat.dart';
+import 'package:dark_hours/models/inventory/equipment.dart';
+import 'package:dark_hours/screens/gameplay/combat_screen.dart';
+
+/// Результат боя.
+class CombatLaunchResult {
+  /// `'victory'` | `'defeat'` | `'fled'`.
+  final String result;
+
+  /// HP игрока после боя.
+  final int playerHealth;
+
+  const CombatLaunchResult({
+    required this.result,
+    required this.playerHealth,
+  });
+}
+
+/// Запуск боя из `StoryScreen`.
+///
+/// **Чистая логика запуска** — открывает `CombatScreen`, ждёт результат,
+/// возвращает его в вызывающий код. Не управляет `StoryScreen` state'ом.
+class StoryCombatLauncher {
+  StoryCombatLauncher._();
+
+  /// Запустить бой.
+  ///
+  /// Возвращает `CombatLaunchResult` или `null`, если игрок
+  /// закрыл экран без результата (не должно случаться).
+  static Future<CombatLaunchResult?> launch({
+    required BuildContext context,
+    required String characterName,
+    required int playerHealth,
+    required int enemyHealth,
+    required String enemyName,
+    required int enemyDamage,
+    required int enemyProtection,
+    required int enemyStrength,
+    required Equipment equipment,
+  }) async {
+    final player = Combatant(
+      name: characterName,
+      health: playerHealth,
+      maxHealth: 100,
+      damage: equipment.totalDamage > 0 ? equipment.totalDamage : 3,
+      protection: equipment.totalProtection,
+      strength: 5,
+      damageType: equipment.weaponDamageType,
+      resistances: equipment.totalResistances,
+    );
+
+    final enemy = Combatant(
+      name: enemyName,
+      health: enemyHealth,
+      maxHealth: enemyHealth,
+      damage: enemyDamage,
+      protection: enemyProtection,
+      strength: enemyStrength,
+    );
+
+    final rawResult = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CombatScreen(player: player, enemy: enemy),
+      ),
+    );
+
+    if (!context.mounted) return null;
+
+    String result = 'defeat';
+    int newHealth = player.health;
+
+    if (rawResult is Map) {
+      result = rawResult['result'] ?? 'defeat';
+      newHealth = (rawResult['playerHealth'] as int? ?? player.health)
+          .clamp(0, 100);
+    } else if (rawResult is String) {
+      result = rawResult;
+      newHealth = player.health.clamp(0, 100);
+    }
+
+    return CombatLaunchResult(
+      result: result,
+      playerHealth: newHealth,
+    );
+  }
+}
+```
+
+### 📄 `./lib/screens/gameplay/story/story_effects.dart`
+```dart
+import 'package:dark_hours/models/conditions/condition.dart';
+import 'package:dark_hours/models/conditions/active_condition.dart';
+import 'package:dark_hours/services/conditions/condition_manager.dart';
+import 'package:dark_hours/services/items/item_loader.dart';
+import 'package:dark_hours/models/inventory/inventory_item.dart';
+
+/// Результат применения эффектов.
+class EffectsResult {
+  final Map<String, int> statDelta;
+  final List<String> itemsToAdd;
+  final List<String> itemsToRemove;
+  final Set<String> flagsToSet;
+  final List<Condition> newConditions;
+
+  const EffectsResult({
+    this.statDelta = const {},
+    this.itemsToAdd = const [],
+    this.itemsToRemove = const [],
+    this.flagsToSet = const {},
+    this.newConditions = const [],
+  });
+}
+
+/// Применение эффектов из сюжета.
+///
+/// **Чистая логика** — не знает про `StoryScreen` и `BuildContext`.
+/// Только анализирует `Map<String, dynamic>` из JSON и возвращает результат.
+class StoryEffects {
+  StoryEffects._();
+
+  /// Применить эффекты из JSON.
+  ///
+  /// Не изменяет ничего напрямую — только собирает `EffectsResult`.
+  static EffectsResult apply({
+    required Map<String, dynamic>? effects,
+    required List<Condition> allConditions,
+    required List<ActiveCondition> activeConditions,
+  }) {
+    if (effects == null) return const EffectsResult();
+
+    final statDelta = <String, int>{};
+    final itemsToAdd = <String>[];
+    final itemsToRemove = <String>[];
+    final flagsToSet = <String>{};
+    final newConditions = <Condition>[];
+
+    // === Статы ===
+    for (final key in [
+      'hunger', 'thirst', 'health', 'sanity', 'stamina',
+      'fatigue', 'time',
+    ]) {
+      final value = effects[key];
+      if (value is int && value != 0) {
+        statDelta[key] = value;
+      }
+    }
+
+    // === Предметы: добавить ===
+    if (effects['inventory_add'] != null) {
+      final list = effects['inventory_add'] as List;
+      for (final id in list) {
+        itemsToAdd.add(id as String);
+      }
+    }
+
+    // === Предметы: удалить ===
+    if (effects['inventory_remove'] != null) {
+      final list = effects['inventory_remove'] as List;
+      for (final id in list) {
+        itemsToRemove.add(id as String);
+      }
+    }
+
+    // === Флаги ===
+    if (effects['flag_set'] != null) {
+      flagsToSet.add(effects['flag_set'] as String);
+    }
+
+    // === Инфекция ===
+    if (effects['infect'] != null) {
+      final infectData = effects['infect'] as Map<String, dynamic>;
+      final source = infectData['source'] as String;
+      final chance = (infectData['chance'] as num?)?.toDouble() ?? 0.5;
+
+      final newCondition = ConditionManager.tryInfect(
+        allConditions,
+        source,
+        chance,
+      );
+
+      if (newCondition != null &&
+          !ConditionManager.hasCondition(
+              activeConditions, newCondition.id)) {
+        newConditions.add(newCondition);
+      }
+    }
+
+    return EffectsResult(
+      statDelta: statDelta,
+      itemsToAdd: itemsToAdd,
+      itemsToRemove: itemsToRemove,
+      flagsToSet: flagsToSet,
+      newConditions: newConditions,
+    );
+  }
+
+  /// Применить тик активных условий.
+  static Map<String, int> applyConditionsTick(
+    List<ActiveCondition> activeConditions,
+  ) {
+    if (activeConditions.isEmpty) return const {};
+    return ConditionManager.applyEffects(activeConditions);
+  }
+
+  /// Разрешить ID предмета в `InventoryItem`.
+  static InventoryItem? resolveItem(String id) {
+    return ItemLoader.findById(id);
+  }
+}
+```
+
+### 📄 `./lib/screens/gameplay/story/story_status_bar.dart`
+```dart
+import 'package:flutter/material.dart';
+
+import 'package:dark_hours/utils/time_format.dart';
+import 'package:dark_hours/widgets/indicators/animated_stat_bar.dart';
+
+/// Статус-бар игрока в StoryScreen.
+///
+/// Показывает: время, усталость, главу, шаг, 5 полосок статов.
+///
+/// **Чистый StatelessWidget** — только отображает данные,
+/// не управляет ими. Логика остаётся в `StoryScreen`.
+class StoryStatusBar extends StatelessWidget {
+  final int timeMinutes;
+  final int fatigue;
+  final int chapter;
+  final int historyLength;
+
+  final int hunger;
+  final int thirst;
+  final int health;
+  final int sanity;
+  final int stamina;
+
+  const StoryStatusBar({
+    super.key,
+    required this.timeMinutes,
+    required this.fatigue,
+    required this.chapter,
+    required this.historyLength,
+    required this.hunger,
+    required this.thirst,
+    required this.health,
+    required this.sanity,
+    required this.stamina,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 20, 20, 20),
+        border: Border(
+          bottom: BorderSide(
+            color: const Color.fromARGB(255, 200, 180, 100)
+                .withValues(alpha: 0.2),
+          ),
+        ),
+      ),
+      child: Column(
+        children: [
+          _buildTopRow(),
+          const SizedBox(height: 8),
+          _buildStatBars(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTopRow() {
+    return Row(
+      children: [
+        const Icon(
+          Icons.access_time,
+          color: Color.fromARGB(255, 200, 180, 100),
+          size: 16,
+        ),
+        const SizedBox(width: 6),
+        Text(
+          TimeFormat.clock(timeMinutes),
+          style: const TextStyle(
+            color: Color.fromARGB(255, 200, 180, 100),
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const Spacer(),
+        if (fatigue > 0) ...[
+          Icon(
+            Icons.bedtime,
+            color: fatigue > 80
+                ? Colors.red
+                : (fatigue > 60 ? Colors.orange : Colors.grey),
+            size: 14,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            'Устал $fatigue%',
+            style: TextStyle(
+              color: fatigue > 80
+                  ? Colors.red
+                  : (fatigue > 60 ? Colors.orange : Colors.grey[500]),
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(width: 12),
+        ],
+        Text(
+          'Глава $chapter · Шаг ${historyLength + 1}',
+          style: TextStyle(
+            color: Colors.grey[500],
+            fontSize: 12,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatBars() {
+    return Row(
+      children: [
+        Expanded(
+          child: AnimatedStatBar(
+            icon: '🍞',
+            value: hunger,
+            color: Colors.orange,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: AnimatedStatBar(
+            icon: '💧',
+            value: thirst,
+            color: Colors.blue,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: AnimatedStatBar(
+            icon: '❤️',
+            value: health,
+            color: Colors.red,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: AnimatedStatBar(
+            icon: '🧠',
+            value: sanity,
+            color: Colors.purple,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: AnimatedStatBar(
+            icon: '⚡',
+            value: stamina,
+            color: Colors.green,
+          ),
+        ),
+      ],
+    );
+  }
+}
+```
+
 ### 📄 `./lib/screens/gameplay/story_screen.dart`
 ```dart
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:dark_hours/models/story/story_node.dart';
@@ -29767,16 +30217,15 @@ import 'package:dark_hours/models/save/save_data.dart';
 import 'package:dark_hours/models/inventory/inventory.dart';
 import 'package:dark_hours/models/inventory/inventory_item.dart';
 import 'package:dark_hours/models/inventory/equipment.dart';
-import 'package:dark_hours/models/combat/combat.dart';
 import 'package:dark_hours/models/conditions/condition.dart';
 import 'package:dark_hours/models/conditions/active_condition.dart';
 import 'package:dark_hours/models/progress/chapter_summary.dart';
+import 'package:dark_hours/models/progress/achievement.dart';
 
 import 'package:dark_hours/services/save/save_manager.dart';
 import 'package:dark_hours/services/items/item_loader.dart';
 import 'package:dark_hours/services/conditions/condition_manager.dart';
 import 'package:dark_hours/services/progress/run_tracker.dart';
-import 'package:dark_hours/services/progress/achievement_checker.dart';
 import 'package:dark_hours/services/progress/achievement_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
 
@@ -29785,11 +30234,13 @@ import 'package:dark_hours/widgets/panels/equipment_panel.dart';
 import 'package:dark_hours/widgets/panels/conditions_panel.dart';
 import 'package:dark_hours/widgets/effects/fade_in_text.dart';
 import 'package:dark_hours/widgets/effects/floating_effect.dart';
-import 'package:dark_hours/widgets/indicators/animated_stat_bar.dart';
+import 'package:dark_hours/widgets/effects/achievement_notifier.dart';
 
-import 'package:dark_hours/screens/gameplay/combat_screen.dart';
 import 'package:dark_hours/screens/gameplay/map_screen.dart';
 import 'package:dark_hours/screens/gameplay/chapter_end_screen.dart';
+import 'package:dark_hours/screens/gameplay/story/story_effects.dart';
+import 'package:dark_hours/screens/gameplay/story/story_status_bar.dart';
+import 'package:dark_hours/screens/gameplay/story/story_combat_launcher.dart';
 
 class StoryScreen extends StatefulWidget {
   final String characterId;
@@ -29837,11 +30288,25 @@ class _StoryScreenState extends State<StoryScreen> {
   // Трекер забега
   final RunTracker tracker = RunTracker();
 
+  /// Подписка на поток разблокированных достижений.
+  StreamSubscription<Achievement>? _achievementSub;
+
   @override
   void initState() {
     super.initState();
     _playStoryMusic();
+
+    _achievementSub = AchievementManager.unlockStream.listen((ach) {
+      if (mounted) AchievementNotifier.showPopup(context, ach);
+    });
+
     _loadStory();
+  }
+
+  @override
+  void dispose() {
+    _achievementSub?.cancel();
+    super.dispose();
   }
 
   Future<void> _playStoryMusic() async {
@@ -29866,153 +30331,151 @@ class _StoryScreenState extends State<StoryScreen> {
     }
 
     if (widget.resumeFrom != null) {
-      final s = widget.resumeFrom!;
-      hunger = s.hunger;
-      thirst = s.thirst;
-      health = s.health;
-      sanity = s.sanity;
-      stamina = s.stamina;
-      fatigue = s.fatigue;
-      timeMinutes = s.timeMinutes;
-      chapter = s.chapter;
-      _history.addAll(s.history);
-      _flags.addAll(s.history);
-
-      for (final itemJson in s.inventoryItems) {
-        inventory.items.add(InventoryItem.fromJson(itemJson));
-      }
-
-      final restoredEquipment = Equipment.fromJson(s.equipmentItems);
-      equipment.weapon = restoredEquipment.weapon;
-      equipment.head = restoredEquipment.head;
-      equipment.body = restoredEquipment.body;
-      equipment.hands = restoredEquipment.hands;
-      equipment.feet = restoredEquipment.feet;
-      equipment.backpack = restoredEquipment.backpack;
-
-      for (final cJson in s.activeConditions) {
-        final condId = cJson['id'] as String;
-        final days = cJson['daysRemaining'] as int;
-        try {
-          final cond = allConditions.firstWhere((c) => c.id == condId);
-          activeConditions.add(ActiveCondition(
-            condition: cond,
-            daysRemaining: days,
-          ));
-        } catch (e) {
-          // Игнорируем невалидную болезнь
-        }
-      }
-
-      final node =
-          story.getNode(s.currentNodeId) ?? story.getNode(story.startNodeId);
-
-      setState(() {
-        _story = story;
-        _currentNode = node;
-        _isEnd = node?.choices.isEmpty ?? false;
-        _isLoading = false;
-      });
-
-      if (node?.onEnter != null) _applyEffects(node!.onEnter);
+      _restoreFromSave(widget.resumeFrom!, story);
     } else {
-      final stats = await AchievementManager.loadStats();
-      stats.playedCharacters.add(widget.characterId);
-      stats.totalGamesPlayed += 1;
-      await AchievementManager.saveStats(stats);
-
-      setState(() {
-        _story = story;
-        _currentNode = story.getNode(story.startNodeId);
-        _isLoading = false;
-      });
-
-      if (_currentNode?.onEnter != null) _applyEffects(_currentNode!.onEnter);
+      _startNewStory(story);
     }
   }
 
-  void _applyEffects(Map<String, dynamic>? effects) {
-    if (effects == null) return;
+  void _restoreFromSave(SaveData s, Story story) {
+    hunger = s.hunger;
+    thirst = s.thirst;
+    health = s.health;
+    sanity = s.sanity;
+    stamina = s.stamina;
+    fatigue = s.fatigue;
+    timeMinutes = s.timeMinutes;
+    chapter = s.chapter;
+    _history.addAll(s.history);
+    _flags.addAll(s.history);
 
-    if (effects['hunger'] != null) {
-      hunger = (hunger + (effects['hunger'] as int)).clamp(0, 100);
-    }
-    if (effects['thirst'] != null) {
-      thirst = (thirst + (effects['thirst'] as int)).clamp(0, 100);
-    }
-    if (effects['health'] != null) {
-      health = (health + (effects['health'] as int)).clamp(0, 100);
-    }
-    if (effects['sanity'] != null) {
-      sanity = (sanity + (effects['sanity'] as int)).clamp(0, 100);
-    }
-    if (effects['stamina'] != null) {
-      stamina = (stamina + (effects['stamina'] as int)).clamp(0, 100);
-    }
-    if (effects['fatigue'] != null) {
-      fatigue = (fatigue + (effects['fatigue'] as int)).clamp(0, 100);
-    }
-    if (effects['time'] != null) {
-      timeMinutes = (timeMinutes + (effects['time'] as int)).clamp(0, 99999);
+    for (final itemJson in s.inventoryItems) {
+      inventory.items.add(InventoryItem.fromJson(itemJson));
     }
 
-    if (effects['inventory_add'] != null) {
-      final List<dynamic> addIds = effects['inventory_add'];
-      for (final id in addIds) {
-        final item = ItemLoader.findById(id as String);
-        if (item != null) {
-          inventory.addItem(item);
-          tracker.lootedCount += 1;
-        }
-      }
-    }
+    final restoredEquipment = Equipment.fromJson(s.equipmentItems);
+    equipment.weapon = restoredEquipment.weapon;
+    equipment.head = restoredEquipment.head;
+    equipment.body = restoredEquipment.body;
+    equipment.hands = restoredEquipment.hands;
+    equipment.feet = restoredEquipment.feet;
+    equipment.backpack = restoredEquipment.backpack;
 
-    if (effects['inventory_remove'] != null) {
-      final List<dynamic> removeIds = effects['inventory_remove'];
-      for (final id in removeIds) {
-        inventory.removeItem(id as String);
-      }
-    }
-
-    if (effects['flag_set'] != null) {
-      final flag = effects['flag_set'] as String;
-      _flags.add(flag);
-    }
-
-    if (effects['infect'] != null) {
-      final infectData = effects['infect'] as Map<String, dynamic>;
-      final source = infectData['source'] as String;
-      final chance = (infectData['chance'] as num?)?.toDouble() ?? 0.5;
-
-      final newCondition =
-          ConditionManager.tryInfect(allConditions, source, chance);
-      if (newCondition != null &&
-          !ConditionManager.hasCondition(
-              activeConditions, newCondition.id)) {
+    for (final cJson in s.activeConditions) {
+      final condId = cJson['id'] as String;
+      final days = cJson['daysRemaining'] as int;
+      try {
+        final cond = allConditions.firstWhere((c) => c.id == condId);
         activeConditions.add(ActiveCondition(
-          condition: newCondition,
-          daysRemaining: newCondition.durationDays,
+          condition: cond,
+          daysRemaining: days,
         ));
-        tracker.infections += 1;
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                '${newCondition.icon} Ты подхватил: ${newCondition.name}',
-              ),
-              duration: const Duration(seconds: 3),
-              backgroundColor: Colors.red[700],
+      } catch (_) {
+        // Игнорируем невалидную болезнь
+      }
+    }
+
+    final node =
+        story.getNode(s.currentNodeId) ?? story.getNode(story.startNodeId);
+
+    setState(() {
+      _story = story;
+      _currentNode = node;
+      _isEnd = node?.choices.isEmpty ?? false;
+      _isLoading = false;
+    });
+
+    if (node?.onEnter != null) _applyEffects(node!.onEnter);
+  }
+
+  Future<void> _startNewStory(Story story) async {
+    final stats = await AchievementManager.loadStats();
+    stats.playedCharacters.add(widget.characterId);
+    stats.totalGamesPlayed += 1;
+    await AchievementManager.saveStats(stats);
+
+    setState(() {
+      _story = story;
+      _currentNode = story.getNode(story.startNodeId);
+      _isLoading = false;
+    });
+
+    if (_currentNode?.onEnter != null) _applyEffects(_currentNode!.onEnter);
+  }
+
+  /// Применить эффекты из JSON.
+  ///
+  /// Логика вынесена в `StoryEffects.apply`. Здесь мы **применяем
+  /// результат** к нашему state.
+  void _applyEffects(Map<String, dynamic>? effects) {
+    final result = StoryEffects.apply(
+      effects: effects,
+      allConditions: allConditions,
+      activeConditions: activeConditions,
+    );
+
+    // === Статы ===
+    if (result.statDelta['hunger'] != null) {
+      hunger = (hunger + result.statDelta['hunger']!).clamp(0, 100);
+    }
+    if (result.statDelta['thirst'] != null) {
+      thirst = (thirst + result.statDelta['thirst']!).clamp(0, 100);
+    }
+    if (result.statDelta['health'] != null) {
+      health = (health + result.statDelta['health']!).clamp(0, 100);
+    }
+    if (result.statDelta['sanity'] != null) {
+      sanity = (sanity + result.statDelta['sanity']!).clamp(0, 100);
+    }
+    if (result.statDelta['stamina'] != null) {
+      stamina = (stamina + result.statDelta['stamina']!).clamp(0, 100);
+    }
+    if (result.statDelta['fatigue'] != null) {
+      fatigue = (fatigue + result.statDelta['fatigue']!).clamp(0, 100);
+    }
+    if (result.statDelta['time'] != null) {
+      timeMinutes = (timeMinutes + result.statDelta['time']!).clamp(0, 99999);
+    }
+
+    // === Предметы ===
+    for (final id in result.itemsToAdd) {
+      final item = StoryEffects.resolveItem(id);
+      if (item != null) {
+        inventory.addItem(item);
+        tracker.lootedCount += 1;
+      }
+    }
+    for (final id in result.itemsToRemove) {
+      inventory.removeItem(id);
+    }
+
+    // === Флаги ===
+    _flags.addAll(result.flagsToSet);
+
+    // === Новые условия ===
+    for (final condition in result.newConditions) {
+      activeConditions.add(ActiveCondition(
+        condition: condition,
+        daysRemaining: condition.durationDays,
+      ));
+      tracker.infections += 1;
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${condition.icon} Ты подхватил: ${condition.name}',
             ),
-          );
-        }
+            duration: const Duration(seconds: 3),
+            backgroundColor: Colors.red[700],
+          ),
+        );
       }
     }
   }
 
   void _applyConditionsTick() {
-    if (activeConditions.isEmpty) return;
-
-    final deltas = ConditionManager.applyEffects(activeConditions);
+    final deltas = StoryEffects.applyConditionsTick(activeConditions);
     if (deltas['health'] != null) {
       health = (health + deltas['health']!).clamp(0, 100);
     }
@@ -30028,6 +30491,15 @@ class _StoryScreenState extends State<StoryScreen> {
     if (deltas['sanity'] != null) {
       sanity = (sanity + deltas['sanity']!).clamp(0, 100);
     }
+  }
+
+  void _checkAchievements() {
+    unawaited(AchievementManager.unlockAll(
+      characterId: widget.characterId,
+      tracker: tracker,
+      day: chapter,
+      inventorySize: inventory.items.length,
+    ));
   }
 
   String _getStartLocationForCharacter() {
@@ -30113,17 +30585,19 @@ class _StoryScreenState extends State<StoryScreen> {
 
     final stats = await AchievementManager.loadStats();
     tracker.applyToStats(stats);
+
+    // Отмечаем главу как пройденную.
+    // Формат ID: "boris_ch1", "alina_ch1" и т.д.
+    stats.completedChapters.add('${widget.characterId}_ch$chapter');
+
     await AchievementManager.saveStats(stats);
 
-    if (mounted) {
-      await AchievementChecker.check(
-        context: context,
-        characterId: widget.characterId,
-        day: chapter,
-        inventorySize: inventory.items.length,
-        tracker: tracker,
-      );
-    }
+    await AchievementManager.unlockAll(
+      characterId: widget.characterId,
+      tracker: tracker,
+      day: chapter,
+      inventorySize: inventory.items.length,
+    );
 
     if (!mounted) return;
     Navigator.pushReplacement(
@@ -30209,6 +30683,7 @@ class _StoryScreenState extends State<StoryScreen> {
     }
 
     _navigateToNode(choice.next);
+    _checkAchievements();
   }
 
   void _navigateToNode(String nodeId) {
@@ -30285,54 +30760,33 @@ class _StoryScreenState extends State<StoryScreen> {
     required String defeatNode,
     required String fleeNode,
   }) async {
-    final player = Combatant(
-      name: widget.characterName,
-      health: health,
-      maxHealth: 100,
-      damage: equipment.totalDamage > 0 ? equipment.totalDamage : 3,
-      protection: equipment.totalProtection,
-      strength: 5,
-      damageType: equipment.weaponDamageType,
-      resistances: equipment.totalResistances,
+    final result = await StoryCombatLauncher.launch(
+      context: context,
+      characterName: widget.characterName,
+      playerHealth: health,
+      enemyName: enemyName,
+      enemyHealth: enemyHealth,
+      enemyDamage: enemyDamage,
+      enemyProtection: enemyProtection,
+      enemyStrength: enemyStrength,
+      equipment: equipment,
     );
 
-    final enemy = Combatant(
-      name: enemyName,
-      health: enemyHealth,
-      maxHealth: enemyHealth,
-      damage: enemyDamage,
-      protection: enemyProtection,
-      strength: enemyStrength,
-    );
+    if (result == null) return;
 
-    final rawResult = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => CombatScreen(player: player, enemy: enemy),
-      ),
-    );
+    health = result.playerHealth;
 
-    if (!mounted) return;
-
-    String result = 'defeat';
-    if (rawResult is Map) {
-      result = rawResult['result'] ?? 'defeat';
-      health = (rawResult['playerHealth'] as int? ?? player.health).clamp(0, 100);
-    } else if (rawResult is String) {
-      result = rawResult;
-      health = player.health.clamp(0, 100);
-    }
-
-    if (result == 'victory') {
+    if (result.result == 'victory') {
       tracker.kills += 1;
       _navigateToNode(victoryNode);
-    } else if (result == 'defeat') {
+    } else if (result.result == 'defeat') {
       _navigateToNode(defeatNode);
-    } else if (result == 'fled') {
+    } else if (result.result == 'fled') {
       _navigateToNode(fleeNode);
     }
 
     _autoSave();
+    _checkAchievements();
   }
 
   List<StoryChoice> get _availableChoices {
@@ -30454,6 +30908,7 @@ class _StoryScreenState extends State<StoryScreen> {
 
     inventory.removeItem(item.id);
     _autoSave();
+    _checkAchievements();
   }
 
   void _equipItem(InventoryItem item) {
@@ -30524,12 +30979,6 @@ class _StoryScreenState extends State<StoryScreen> {
         },
       ),
     );
-  }
-
-  String _formatTime(int minutes) {
-    final h = minutes ~/ 60;
-    final m = minutes % 60;
-    return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}';
   }
 
   @override
@@ -30648,7 +31097,17 @@ class _StoryScreenState extends State<StoryScreen> {
       ),
       body: Column(
         children: [
-          _buildStatusBar(),
+          StoryStatusBar(
+            timeMinutes: timeMinutes,
+            fatigue: fatigue,
+            chapter: chapter,
+            historyLength: _history.length,
+            hunger: hunger,
+            thirst: thirst,
+            health: health,
+            sanity: sanity,
+            stamina: stamina,
+          ),
           ConditionsPanel(conditions: activeConditions),
           Expanded(
             child: SingleChildScrollView(
@@ -30800,7 +31259,7 @@ class _StoryScreenState extends State<StoryScreen> {
                                 side: BorderSide(
                                   color: const Color.fromARGB(
                                           255, 200, 180, 100)
-                                      .withOpacity(0.4),
+                                      .withValues(alpha: 0.4),
                                 ),
                                 padding: const EdgeInsets.all(16),
                                 shape: RoundedRectangleBorder(
@@ -30892,115 +31351,6 @@ class _StoryScreenState extends State<StoryScreen> {
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatusBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 20, 20, 20),
-        border: Border(
-          bottom: BorderSide(
-            color: const Color.fromARGB(255, 200, 180, 100).withOpacity(0.2),
-          ),
-        ),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              const Icon(
-                Icons.access_time,
-                color: Color.fromARGB(255, 200, 180, 100),
-                size: 16,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                _formatTime(timeMinutes),
-                style: const TextStyle(
-                  color: Color.fromARGB(255, 200, 180, 100),
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Spacer(),
-              if (fatigue > 0) ...[
-                Icon(
-                  Icons.bedtime,
-                  color: fatigue > 80
-                      ? Colors.red
-                      : (fatigue > 60 ? Colors.orange : Colors.grey),
-                  size: 14,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  'Устал $fatigue%',
-                  style: TextStyle(
-                    color: fatigue > 80
-                        ? Colors.red
-                        : (fatigue > 60 ? Colors.orange : Colors.grey[500]),
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(width: 12),
-              ],
-              Text(
-                'Глава $chapter · Шаг ${_history.length + 1}',
-                style: TextStyle(
-                  color: Colors.grey[500],
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: AnimatedStatBar(
-                  icon: '🍞',
-                  value: hunger,
-                  color: Colors.orange,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: AnimatedStatBar(
-                  icon: '💧',
-                  value: thirst,
-                  color: Colors.blue,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: AnimatedStatBar(
-                  icon: '❤️',
-                  value: health,
-                  color: Colors.red,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: AnimatedStatBar(
-                  icon: '🧠',
-                  value: sanity,
-                  color: Colors.purple,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: AnimatedStatBar(
-                  icon: '⚡',
-                  value: stamina,
-                  color: Colors.green,
-                ),
-              ),
-            ],
           ),
         ],
       ),
@@ -31317,6 +31667,7 @@ import 'package:flutter/material.dart';
 
 import 'package:dark_hours/models/world/location.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/utils/time_format.dart';
 
 /// Модалка с информацией о локации.
 ///
@@ -31704,7 +32055,7 @@ class MapInfoSheet extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           Text(
-            'Время в пути: ${_formatTime(minutes)}',
+            'Время в пути: ${TimeFormat.duration(minutes)}',
             style: const TextStyle(
               color: Color(0xFFC8B464),
               fontSize: 14,
@@ -31799,18 +32150,6 @@ class MapInfoSheet extends StatelessWidget {
       ),
     );
   }
-
-  // ═══════════════════════════════════════════════════════════
-  // ХЕЛПЕРЫ
-  // ═══════════════════════════════════════════════════════════
-
-  String _formatTime(int minutes) {
-    if (minutes < 60) return '$minutes мин';
-    final h = minutes ~/ 60;
-    final m = minutes % 60;
-    if (m == 0) return '${h}ч';
-    return '${h}ч ${m}м';
-  }
 }
 
 class _LocationStatus {
@@ -31858,8 +32197,8 @@ class MapLocationCard extends StatelessWidget {
         (location.maxSearches - searched).clamp(0, location.maxSearches);
 
     final borderColor = isHidden
-        ? const Color.fromARGB(255, 100, 200, 100).withOpacity(0.5)
-        : location.dangerColor.withOpacity(0.4);
+        ? const Color.fromARGB(255, 100, 200, 100).withValues(alpha: 0.5)
+        : location.dangerColor.withValues(alpha: 0.4);
 
     return GestureDetector(
       onTap: onTap,
@@ -32000,9 +32339,9 @@ class MapLocationCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withOpacity(0.5), width: 1),
+        border: Border.all(color: color.withValues(alpha: 0.5), width: 1),
       ),
       child: Text(
         text,
@@ -32553,7 +32892,7 @@ class MapStatusBar extends StatelessWidget {
         color: const Color.fromARGB(255, 20, 20, 20),
         border: Border(
           bottom: BorderSide(
-            color: const Color.fromARGB(255, 200, 180, 100).withOpacity(0.2),
+            color: const Color.fromARGB(255, 200, 180, 100).withValues(alpha: 0.2),
           ),
         ),
       ),
@@ -33289,12 +33628,19 @@ class RegionMapPainter extends CustomPainter {
   }
 
   /// Смешать два цвета с заданной силой `t` (0..1).
+  ///
+  /// Использует новые double-компоненты Color (r, g, b, a — 0..1)
+  /// вместо устаревших red/green/blue/alpha.
   Color _blend(Color a, Color b, double t) {
-    return Color.fromARGB(
-      (a.alpha + (b.alpha - a.alpha) * t).round(),
-      (a.red + (b.red - a.red) * t).round(),
-      (a.green + (b.green - a.green) * t).round(),
-      (a.blue + (b.blue - a.blue) * t).round(),
+    final newR = a.r + (b.r - a.r) * t;
+    final newG = a.g + (b.g - a.g) * t;
+    final newB = a.b + (b.b - a.b) * t;
+    final newA = a.a + (b.a - a.a) * t;
+    return Color.from(
+      alpha: newA,
+      red: newR,
+      green: newG,
+      blue: newB,
     );
   }
 
@@ -33748,7 +34094,7 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
         color: const Color.fromARGB(255, 20, 20, 20),
         borderRadius: BorderRadius.circular(12.0),
         border: Border.all(
-          color: const Color.fromARGB(255, 200, 180, 100).withOpacity(0.2),
+          color: const Color.fromARGB(255, 200, 180, 100).withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -33772,7 +34118,7 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
                 ),
                 decoration: BoxDecoration(
                   color: const Color.fromARGB(255, 200, 180, 100)
-                      .withOpacity(0.15),
+                      .withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(4.0),
                 ),
                 child: Text(
@@ -34040,7 +34386,7 @@ class _DeathScreenState extends State<DeathScreen> {
                   color: const Color.fromARGB(255, 20, 10, 10),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: Colors.red.withOpacity(0.4),
+                    color: Colors.red.withValues(alpha: 0.4),
                     width: 1,
                   ),
                 ),
@@ -34267,9 +34613,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
                   color: _muted
-                      ? Colors.red.withOpacity(0.5)
+                      ? Colors.red.withValues(alpha: 0.5)
                       : const Color.fromARGB(255, 200, 180, 100)
-                          .withOpacity(0.3),
+                          .withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -34311,7 +34657,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Switch(
                     value: !_muted,
                     onChanged: (_) => _toggleMute(),
-                    activeColor: const Color.fromARGB(255, 200, 180, 100),
+                    activeThumbColor: const Color.fromARGB(255, 200, 180, 100),
                     inactiveThumbColor: Colors.red,
                   ),
                 ],
@@ -34368,7 +34714,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.orange[300],
                   side: BorderSide(
-                    color: Colors.orange[300]!.withOpacity(0.5),
+                    color: Colors.orange[300]!.withValues(alpha: 0.5),
                     width: 1,
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 14),
@@ -34458,13 +34804,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               decoration: BoxDecoration(
                 color: enabled
                     ? const Color.fromARGB(255, 200, 180, 100)
-                        .withOpacity(0.15)
+                        .withValues(alpha: 0.15)
                     : Colors.grey[900],
                 borderRadius: BorderRadius.circular(4),
                 border: Border.all(
                   color: enabled
                       ? const Color.fromARGB(255, 200, 180, 100)
-                          .withOpacity(0.4)
+                          .withValues(alpha: 0.4)
                       : Colors.grey[800]!,
                   width: 1,
                 ),
@@ -34495,7 +34841,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ? const Color.fromARGB(255, 200, 180, 100)
                 : Colors.grey[600],
             overlayColor: const Color.fromARGB(255, 200, 180, 100)
-                .withOpacity(0.15),
+                .withValues(alpha: 0.15),
             trackHeight: 3,
             thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
           ),
@@ -34619,7 +34965,7 @@ class _SplashScreenState extends State<SplashScreen>
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: const Color.fromARGB(255, 200, 180, 100)
-                                  .withOpacity(0.3),
+                                  .withValues(alpha: 0.3),
                               width: 2,
                             ),
                           ),
@@ -34696,7 +35042,7 @@ class _SplashScreenState extends State<SplashScreen>
     return _PulsingText(
       text: 'НАЖМИ, ЧТОБЫ НАЧАТЬ',
       style: TextStyle(
-        color: const Color.fromARGB(255, 200, 180, 100).withOpacity(0.7),
+        color: const Color.fromARGB(255, 200, 180, 100).withValues(alpha: 0.7),
         fontSize: 13,
         letterSpacing: 3.0,
         fontWeight: FontWeight.bold,
@@ -34992,7 +35338,7 @@ class _StartScreenState extends State<StartScreen> {
                     decoration: BoxDecoration(
                       border: Border.all(
                         color: const Color.fromARGB(255, 200, 180, 100)
-                            .withOpacity(0.3),
+                            .withValues(alpha: 0.3),
                       ),
                     ),
                     child: const Text(
@@ -35020,11 +35366,11 @@ class _StartScreenState extends State<StartScreen> {
                         ),
                         decoration: BoxDecoration(
                           color: const Color.fromARGB(255, 200, 180, 100)
-                              .withOpacity(0.1),
+                              .withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
                             color: const Color.fromARGB(255, 200, 180, 100)
-                                .withOpacity(0.4),
+                                .withValues(alpha: 0.4),
                             width: 1,
                           ),
                         ),
@@ -35766,6 +36112,8 @@ class EnemyLoader {
   /// Это «мост» между двумя моделями:
   /// - Enemy — данные из JSON (статичные статы)
   /// - Combatant — боевая модель (мутабельное здоровье, статус-эффекты)
+  ///
+  /// `abilities` уже имеют тип `CombatAbility`, поэтому просто передаём.
   static Combatant toCombatant(Enemy enemy) {
     return Combatant(
       name: enemy.name,
@@ -35775,17 +36123,7 @@ class EnemyLoader {
       protection: enemy.protection,
       strength: enemy.strength,
       damageType: enemy.damageType,
-      abilities: enemy.abilities.map(_toCombatAbility).toList(),
-    );
-  }
-
-  static CombatAbility _toCombatAbility(EnemyAbility ability) {
-    return CombatAbility(
-      id: ability.id,
-      name: ability.name,
-      description: ability.description,
-      chance: ability.chance,
-      effect: ability.effect,
+      abilities: enemy.abilities,
     );
   }
 }
@@ -35867,7 +36205,6 @@ class ConditionManager {
 ### 📄 `./lib/services/items/item_icon_loader.dart`
 ```dart
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 /// Загрузчик иконок предметов.
@@ -37001,8 +37338,10 @@ class DeathManager {
 
 ### 📄 `./lib/services/map/map_controller.dart`
 ```dart
-import 'package:flutter/material.dart';
+import 'dart:async';
 import 'dart:math';
+
+import 'package:flutter/material.dart';
 
 import 'package:dark_hours/models/world/world_map.dart';
 import 'package:dark_hours/models/world/location.dart';
@@ -37022,6 +37361,7 @@ import 'package:dark_hours/services/combat/enemy_loader.dart';
 import 'package:dark_hours/services/conditions/condition_manager.dart';
 import 'package:dark_hours/services/time/time_manager.dart';
 import 'package:dark_hours/services/progress/run_tracker.dart';
+import 'package:dark_hours/services/progress/achievement_manager.dart';
 
 import 'package:dark_hours/constants/game_constants.dart';
 
@@ -37086,18 +37426,16 @@ class MapController extends ChangeNotifier {
   bool isDead = false;
   String deathReason = '';
 
-  bool _autoSleepTriggered = false;
-  DateTime? _lastCollapseTime;
+  /// Флаг "уже сработал форсированный автосон".
+  ///
+  /// Сбрасывается при любом сне. Нужен, чтобы автосон не срабатывал
+  /// несколько раз подряд.
+  bool autoSleepTriggered = false;
 
-  bool get autoSleepTriggered => _autoSleepTriggered;
-  set autoSleepTriggered(bool value) {
-    _autoSleepTriggered = value;
-  }
-
-  DateTime? get lastCollapseTime => _lastCollapseTime;
-  set lastCollapseTime(DateTime? value) {
-    _lastCollapseTime = value;
-  }
+  /// Время последнего коллапса.
+  ///
+  /// Нужен для проверки "повторный коллапс в течение 24 часов → смерть".
+  DateTime? lastCollapseTime;
 
   // ═══════════════════════════════════════════════════════════
   // КОНСТРУКТОР
@@ -37457,7 +37795,9 @@ class MapController extends ChangeNotifier {
 
     _applyConditionsTick();
 
-    if (gameTime.day > oldDay) {
+    final dayChanged = gameTime.day > oldDay;
+
+    if (dayChanged) {
       tracker.nightsPassed += 1;
       if (phaseBefore == TimePhase.night) {
         tracker.nightsSurvived += 1;
@@ -37471,6 +37811,27 @@ class MapController extends ChangeNotifier {
     }
 
     refresh();
+
+    // Проверяем достижения только при смене дня —
+    // именно тогда меняются счётчики survived_X_days, night_owl.
+    // Попапы покажет подписчик на AchievementManager.unlockStream.
+    if (dayChanged) {
+      unawaited(_checkAchievements());
+    }
+  }
+
+  /// Проверить достижения и разблокировать новые.
+  ///
+  /// Вызывается при смене дня. Не показывает UI — попапы
+  /// покажет подписчик на `AchievementManager.unlockStream`.
+  Future<void> _checkAchievements() async {
+    await AchievementManager.unlockAll(
+      characterId: characterId,
+      tracker: tracker,
+      day: gameTime.day,
+      inventorySize: inventory.items.length,
+      sanityDays: tracker.sanityDaysLow,
+    );
   }
 
   void _applyConditionsTick() {
@@ -37797,6 +38158,7 @@ import 'package:flutter/material.dart';
 import 'package:dark_hours/services/map/map_controller.dart';
 import 'package:dark_hours/services/map/story_trigger_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/utils/time_format.dart';
 
 /// Результат попытки перейти в локацию.
 enum MoveResult {
@@ -37878,7 +38240,7 @@ class MovementManager {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Переход: ${target.name} · ${_formatTime(travelMinutes)} · −$staminaCost⚡',
+            'Переход: ${target.name} · ${TimeFormat.duration(travelMinutes)} · −$staminaCost⚡',
           ),
           duration: const Duration(seconds: 2),
           backgroundColor: const Color.fromARGB(255, 200, 180, 100),
@@ -37931,23 +38293,15 @@ class MovementManager {
   static int computeStaminaCost(int travelMinutes) {
     return (travelMinutes / 10).round().clamp(2, 20);
   }
-
-  static String _formatTime(int minutes) {
-    if (minutes < 60) return '$minutes мин';
-    final h = minutes ~/ 60;
-    final m = minutes % 60;
-    if (m == 0) return '${h}ч';
-    return '${h}ч ${m}м';
-  }
 }
 ```
 
 ### 📄 `./lib/services/map/region_background_cache.dart`
 ```dart
 import 'dart:async';
+import 'dart:collection';
 import 'dart:ui' as ui;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -37956,7 +38310,7 @@ import 'package:dark_hours/screens/gameplay/widgets/region_map_painter.dart';
 
 /// Кеш фоновых изображений регионов.
 ///
-/// Логика работы:
+/// **Логика работы:**
 /// 1. При первом запросе региона — пробует загрузить PNG из
 ///    `assets/images/regions/{regionId}.png`.
 /// 2. Если файла нет — рендерит фон через [RegionMapPainter]
@@ -37964,36 +38318,44 @@ import 'package:dark_hours/screens/gameplay/widgets/region_map_painter.dart';
 /// 3. Кеширует результат в памяти.
 /// 4. Возвращает `ui.Image` для отрисовки через `RawImage`.
 ///
-/// Зачем: программная отрисовка через CustomPainter каждый кадр
-/// грузит GPU/CPU. `RawImage` — один draw-вызов на кадр.
-/// Разница: ~500 draw-вызовов → 1 draw-вызов.
+/// **LRU-кеш:**
+/// Хранится не больше [maxCached] регионов одновременно.
+/// При превышении — самый старый выгружается (`dispose()` + удаление).
+/// Это критично на слабых устройствах: 1 регион = ~3.8 MB,
+/// 6 регионов = ~23 MB — потенциальный OOM.
+///
+/// Почему [maxCached] = 2:
+/// При переходе A → B нужны оба региона — игрок может
+/// вернуться назад в течение секунды. Один — мало,
+/// три и больше — избыточно (~12 MB).
 class RegionBackgroundCache {
   RegionBackgroundCache._();
 
   /// Размер рендера (логические пиксели).
-  ///
-  /// Совпадает с `RegionLayout.logicalSize` по умолчанию (800×1200).
-  /// Если регион использует другой размер — используется он.
   static const Size _defaultSize = Size(800, 1200);
 
-  /// Кеш: `regionId` → готовая картинка.
-  static final Map<String, ui.Image> _cache = {};
+  /// Максимальное количество регионов в кеше.
+  static const int maxCached = 2;
+
+  /// LRU-кеш: `regionId` → готовая картинка.
+  ///
+  /// `LinkedHashMap` сохраняет порядок вставки — используем это
+  /// для реализации LRU: свежие элементы в конце, старые — в начале.
+  static final LinkedHashMap<String, ui.Image> _cache = LinkedHashMap();
 
   /// Кеш "загружается сейчас" — чтобы не запускать загрузку дважды.
   static final Map<String, Future<ui.Image?>> _pending = {};
 
   /// Получить фон региона.
-  ///
-  /// Возвращает `ui.Image` или `null`, если регион не найден.
-  /// Безопасно вызывать многократно — повторные вызовы возвращают
-  /// закешированное изображение.
   static Future<ui.Image?> get({
     required String regionId,
     required RegionLayout layout,
   }) async {
-    // 1. Уже в кеше — возвращаем.
+    // 1. Уже в кеше — обновляем позицию и возвращаем.
     if (_cache.containsKey(regionId)) {
-      return _cache[regionId];
+      final image = _cache.remove(regionId)!;
+      _cache[regionId] = image; // перемещаем в конец (recently used)
+      return image;
     }
 
     // 2. Загрузка уже идёт — ждём её.
@@ -38008,11 +38370,29 @@ class RegionBackgroundCache {
     try {
       final image = await future;
       if (image != null) {
-        _cache[regionId] = image;
+        _put(regionId, image);
       }
       return image;
     } finally {
       _pending.remove(regionId);
+    }
+  }
+
+  /// Положить регион в кеш с соблюдением LRU-лимита.
+  static void _put(String regionId, ui.Image image) {
+    // Если регион уже в кеше — сначала удаляем старую запись.
+    if (_cache.containsKey(regionId)) {
+      _cache.remove(regionId)?.dispose();
+    }
+
+    _cache[regionId] = image;
+
+    // Если превысили лимит — выгружаем самый старый.
+    while (_cache.length > maxCached) {
+      final oldestKey = _cache.keys.first;
+      final oldestImage = _cache.remove(oldestKey);
+      oldestImage?.dispose();
+      debugPrint('🗑️ RegionBackgroundCache: выгружен "$oldestKey" (LRU)');
     }
   }
 
@@ -38043,9 +38423,6 @@ class RegionBackgroundCache {
   }
 
   /// Сгенерировать картинку через [RegionMapPainter].
-  ///
-  /// Используем `PictureRecorder` — рисуем всё на canvas,
-  /// затем конвертируем в `ui.Image` через `toImage()`.
   static Future<ui.Image?> _generateFromPainter(
     String regionId,
     RegionLayout layout,
@@ -38086,7 +38463,13 @@ class RegionBackgroundCache {
     }
   }
 
-  /// Очистить кеш (для тестов или при выходе).
+  /// Удалить конкретный регион из кеша.
+  static void evict(String regionId) {
+    _cache.remove(regionId)?.dispose();
+    _pending.remove(regionId);
+  }
+
+  /// Очистить весь кеш (для тестов или при выходе из игры).
   static void clear() {
     for (final image in _cache.values) {
       image.dispose();
@@ -38095,12 +38478,9 @@ class RegionBackgroundCache {
     _pending.clear();
   }
 
-  /// Удалить конкретный регион из кеша.
-  static void evict(String regionId) {
-    _cache[regionId]?.dispose();
-    _cache.remove(regionId);
-    _pending.remove(regionId);
-  }
+  // ═══════════════════════════════════════════════════════════
+  // ТЕСТИРОВАНИЕ И ДИАГНОСТИКА
+  // ═══════════════════════════════════════════════════════════
 
   /// Проверить, закеширован ли регион.
   @visibleForTesting
@@ -38112,7 +38492,11 @@ class RegionBackgroundCache {
   @visibleForTesting
   static int get cacheSize => _cache.length;
 
-  /// Размер по умолчанию — используется, если у layout нет своего.
+  /// Список ID регионов в кеше, в порядке от старых к свежим.
+  @visibleForTesting
+  static List<String> get cachedRegionIds => _cache.keys.toList();
+
+  /// Размер по умолчанию.
   static Size get defaultSize => _defaultSize;
 }
 ```
@@ -39101,69 +39485,72 @@ class StoryTriggerManager {
 }
 ```
 
-### 📄 `./lib/services/progress/achievement_checker.dart`
-```dart
-import 'package:flutter/material.dart';
-import 'package:dark_hours/models/progress/achievement.dart';
-import 'package:dark_hours/services/progress/achievement_manager.dart';
-import 'package:dark_hours/services/progress/run_tracker.dart';
-import 'package:dark_hours/widgets/effects/achievement_notifier.dart';
-
-class AchievementChecker {
-  /// Проверить достижения после действия
-  /// Возвращает список новых достижений
-  static Future<List<Achievement>> check({
-    required BuildContext? context,
-    required String characterId,
-    required int day,
-    required int inventorySize,
-    required RunTracker tracker,
-    int sanityDays = 0,
-    bool? noCombat,
-    bool? noDamage,
-    bool? noDefeats,
-  }) async {
-    final stats = await AchievementManager.loadStats();
-
-    final newUnlocked = await AchievementManager.runCheck(
-      stats: stats,
-      currentDay: day,
-      currentKills: tracker.kills,
-      currentInventorySize: inventorySize,
-      currentCraftedCount: tracker.craftedCount,
-      currentMedicineUsed: tracker.medicineUsed,
-      currentSanityDays: sanityDays,
-      currentNights: tracker.nightsSurvived,
-      currentDefeats: tracker.defeats,
-      noCombat: noCombat ?? !tracker.hadCombat,
-      noDamage: noDamage ?? !tracker.hadDamage,
-      noDefeats: noDefeats ?? (tracker.defeats == 0),
-      characterId: characterId,
-      alchemistCrafted: tracker.alchemistCrafted,
-    );
-
-    if (newUnlocked.isNotEmpty && context != null && context.mounted) {
-      await AchievementNotifier.showAll(context, newUnlocked);
-    }
-
-    return newUnlocked;
-  }
-}
-```
-
 ### 📄 `./lib/services/progress/achievement_manager.dart`
 ```dart
+import 'dart:async';
 import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:dark_hours/models/progress/achievement.dart';
 import 'package:dark_hours/models/progress/player_stats.dart';
+import 'package:dark_hours/services/progress/run_tracker.dart';
 
+/// Менеджер достижений.
+///
+/// **Архитектура:**
+/// - `AchievementManager` — чистая логика, работает без BuildContext.
+/// - Когда достижение разблокировано — оно **пушится в `unlockStream`**.
+/// - UI (MapScreen, StoryScreen) подписывается на поток и показывает попапы.
 class AchievementManager {
+  AchievementManager._();
+
   static const String _statsKey = 'dark_hours_stats';
   static const String _achievementsKey = 'dark_hours_achievements';
 
+  /// Версия схемы сохранения.
+  ///
+  /// Меняется при несовместимых изменениях в логике достижений.
+  /// При несовпадении — сбрасываются некоторые достижения.
+  ///
+  /// v1: до Streams-рефакторинга. `survived_1_day` и `*_master`
+  ///     могли открываться ложно.
+  /// v2: правильно — `survived_X_days` через `nightsPassed`,
+  ///     `*_master` через `completedChapters`.
+  static const int _schemaVersion = 2;
+  static const String _schemaVersionKey = 'achievement_schema_version';
+
+  /// Достижения, которые надо сбросить при миграции v1 → v2.
+  ///
+  /// Они могли быть открыты **ошибочно** — из-за старой логики.
+  static const List<String> _migrationV2Resets = [
+    'survived_1_day',
+    'survived_7_days',
+    'survived_30_days',
+    'boris_master',
+    'alina_master',
+    'ivan_master',
+    'andrey_master',
+    'darya_master',
+  ];
+
   static List<Achievement>? _allAchievements;
   static PlayerStats? _cachedStats;
+
+  /// Поток новых разблокированных достижений.
+  ///
+  /// UI подписывается и показывает попапы.
+  /// **Broadcast** — чтобы несколько подписчиков могли слушать.
+  static final StreamController<Achievement> _unlockController =
+      StreamController<Achievement>.broadcast();
+
+  /// Стрим для подписки на разблокировку достижений.
+  static Stream<Achievement> get unlockStream => _unlockController.stream;
+
+  // ═══════════════════════════════════════════════════════════
+  // ЗАГРУЗКА / СОХРАНЕНИЕ
+  // ═══════════════════════════════════════════════════════════
 
   static Future<List<Achievement>> loadAll() async {
     if (_allAchievements != null) return _allAchievements!;
@@ -39177,12 +39564,19 @@ class AchievementManager {
     try {
       final prefs = await SharedPreferences.getInstance();
       final jsonString = prefs.getString(_statsKey);
+
       if (jsonString == null) {
         _cachedStats = PlayerStats();
+        await prefs.setInt(_schemaVersionKey, _schemaVersion);
         return _cachedStats!;
       }
+
       final json = jsonDecode(jsonString);
       _cachedStats = PlayerStats.fromJson(json);
+
+      // Миграция схемы.
+      await _migrateIfNeeded(prefs);
+
       return _cachedStats!;
     } catch (e) {
       _cachedStats = PlayerStats();
@@ -39190,32 +39584,60 @@ class AchievementManager {
     }
   }
 
+  /// Миграция старого сохранения.
+  ///
+  /// Если версия схемы < текущей — сбрасываем проблемные достижения,
+  /// чтобы они разблокировались заново по правильной логике.
+  static Future<void> _migrateIfNeeded(SharedPreferences prefs) async {
+    final savedVersion = prefs.getInt(_schemaVersionKey) ?? 1;
+
+    if (savedVersion >= _schemaVersion) return;
+
+    debugPrint('🔧 AchievementManager: миграция схемы '
+        'v$savedVersion → v$_schemaVersion');
+
+    // Сбрасываем "проблемные" достижения.
+    if (_cachedStats != null) {
+      for (final id in _migrationV2Resets) {
+        _cachedStats!.unlockedAchievements.remove(id);
+      }
+      await saveStats(_cachedStats!);
+    }
+
+    await prefs.setInt(_schemaVersionKey, _schemaVersion);
+    debugPrint('✅ AchievementManager: миграция завершена');
+  }
+
   static Future<void> saveStats(PlayerStats stats) async {
     _cachedStats = stats;
     final prefs = await SharedPreferences.getInstance();
     final jsonString = jsonEncode(stats.toJson());
     await prefs.setString(_statsKey, jsonString);
+    await prefs.setInt(_schemaVersionKey, _schemaVersion);
   }
 
-  /// Главный метод — проверить все достижения
-  /// Возвращает список НОВЫХ разблокированных
-  static Future<List<Achievement>> runCheck({
-    required PlayerStats stats,
-    required int currentDay,
-    required int currentKills,
-    required int currentInventorySize,
-    required int currentCraftedCount,
-    required int currentMedicineUsed,
-    required int currentSanityDays,
-    required int currentNights,
-    required int currentDefeats,
-    required bool noCombat,
-    required bool noDamage,
-    required bool noDefeats,
+  // ═══════════════════════════════════════════════════════════
+  // ГЛАВНЫЙ МЕТОД — ПРОВЕРКА БЕЗ CONTEXT
+  // ═══════════════════════════════════════════════════════════
+
+  /// Проверить все достижения.
+  ///
+  /// **Не требует BuildContext.** Разблокированные достижения
+  /// пушатся в `unlockStream` — UI подписан и покажет попапы.
+  ///
+  /// Возвращает список **новых** разблокированных достижений.
+  static Future<List<Achievement>> unlockAll({
     required String characterId,
-    required bool alchemistCrafted,
+    required RunTracker tracker,
+    required int day,
+    required int inventorySize,
+    int sanityDays = 0,
+    bool? noCombat,
+    bool? noDamage,
+    bool? noDefeats,
   }) async {
     final all = await loadAll();
+    final stats = await loadStats();
     final newUnlocked = <Achievement>[];
 
     // Игрок играл этим персонажем
@@ -39224,102 +39646,129 @@ class AchievementManager {
     for (final achievement in all) {
       if (stats.unlockedAchievements.contains(achievement.id)) continue;
 
-      bool shouldUnlock = false;
-
-      switch (achievement.id) {
-        case 'first_blood':
-          shouldUnlock = currentKills >= 1;
-          break;
-        case 'pacifist':
-          // Проверяется отдельно при выходе с главы (флаг noCombat)
-          break;
-        case 'survived_1_day':
-          shouldUnlock = currentDay >= 1;
-          break;
-        case 'survived_7_days':
-          shouldUnlock = currentDay >= 7;
-          break;
-        case 'survived_30_days':
-          shouldUnlock = currentDay >= 30;
-          break;
-        case 'reached_station':
-          // Отдельно — при финале
-          break;
-        case 'master_crafter':
-          shouldUnlock = currentCraftedCount >= 10;
-          break;
-        case 'alchemist':
-          shouldUnlock = alchemistCrafted;
-          break;
-        case 'hoarder':
-          shouldUnlock = currentInventorySize >= 20;
-          break;
-        case 'sharp_shooter':
-          shouldUnlock = currentKills >= 5;
-          break;
-        case 'iron_will':
-          shouldUnlock = currentSanityDays >= 3;
-          break;
-        case 'doctor':
-          shouldUnlock = currentMedicineUsed >= 10;
-          break;
-        case 'survived_infection':
-          shouldUnlock = stats.totalInfections >= 3;
-          break;
-        case 'all_characters':
-          shouldUnlock = stats.playedCharacters.length >= 5;
-          break;
-        case 'boris_master':
-          shouldUnlock = stats.playedCharacters.contains('boris');
-          break;
-        case 'alina_master':
-          shouldUnlock = stats.playedCharacters.contains('alina');
-          break;
-        case 'ivan_master':
-          shouldUnlock = stats.playedCharacters.contains('ivan');
-          break;
-        case 'andrey_master':
-          shouldUnlock = stats.playedCharacters.contains('andrey');
-          break;
-        case 'darya_master':
-          shouldUnlock = stats.playedCharacters.contains('darya');
-          break;
-        case 'no_damage':
-          shouldUnlock = noDamage;
-          break;
-        case 'night_owl':
-          shouldUnlock = currentNights >= 10;
-          break;
-        case 'generous':
-          shouldUnlock = stats.totalItemsGivenToSurvivors >= 5;
-          break;
-
-        // ===== НОВЫЕ ДОСТИЖЕНИЯ (после этапа B) =====
-        case 'phoenix':
-          shouldUnlock = currentDefeats >= 5;
-          break;
-        case 'scarred':
-          shouldUnlock = stats.totalDefeats >= 10;
-          break;
-        case 'no_defeats':
-          shouldUnlock = noDefeats;
-          break;
-      }
+      final shouldUnlock = _shouldUnlock(
+        achievement: achievement,
+        stats: stats,
+        tracker: tracker,
+        day: day,
+        inventorySize: inventorySize,
+        sanityDays: sanityDays,
+        noCombat: noCombat,
+        noDamage: noDamage,
+        noDefeats: noDefeats,
+      );
 
       if (shouldUnlock) {
         stats.unlockedAchievements.add(achievement.id);
         newUnlocked.add(achievement);
+
+        if (!_unlockController.isClosed) {
+          _unlockController.add(achievement);
+        }
       }
     }
 
-    if (newUnlocked.isNotEmpty || currentDay > 0) {
+    if (newUnlocked.isNotEmpty) {
       await saveStats(stats);
     }
 
     return newUnlocked;
   }
 
-  /// Разблокировать конкретное достижение по ID
+  /// Чистая логика: должно ли открыться это достижение?
+  static bool _shouldUnlock({
+    required Achievement achievement,
+    required PlayerStats stats,
+    required RunTracker tracker,
+    required int day,
+    required int inventorySize,
+    required int sanityDays,
+    required bool? noCombat,
+    required bool? noDamage,
+    required bool? noDefeats,
+  }) {
+    switch (achievement.id) {
+      // === БОЙ ===
+      case 'first_blood':
+        return tracker.kills >= 1;
+      case 'sharp_shooter':
+        return tracker.kills >= 5;
+      case 'phoenix':
+        return tracker.defeats >= 5;
+      case 'scarred':
+        return stats.totalDefeats >= 10;
+      case 'no_damage':
+        return noDamage ?? false;
+      case 'no_defeats':
+        return noDefeats ?? false;
+      case 'pacifist':
+        return noCombat ?? false;
+
+      // === ВЫЖИВАНИЕ ===
+      //
+      // "Проживи N дней" = "переживи N смен дня".
+      // Это правильнее, чем day >= N: день начинается с 1,
+      // поэтому day >= 1 срабатывает сразу.
+      case 'survived_1_day':
+        return tracker.nightsPassed >= 1;
+      case 'survived_7_days':
+        return tracker.nightsPassed >= 7;
+      case 'survived_30_days':
+        return tracker.nightsPassed >= 30;
+      case 'night_owl':
+        return tracker.nightsSurvived >= 10;
+      case 'iron_will':
+        return sanityDays >= 3;
+
+      // === КРАФТ / ДОБЫЧА ===
+      case 'master_crafter':
+        return tracker.craftedCount >= 10;
+      case 'alchemist':
+        return tracker.alchemistCrafted;
+      case 'hoarder':
+        return inventorySize >= 20;
+
+      // === МЕДИЦИНА ===
+      case 'doctor':
+        return tracker.medicineUsed >= 10;
+      case 'survived_infection':
+        return stats.totalInfections >= 3;
+
+      // === СЮЖЕТ ===
+      //
+      // all_characters: просто поиграть за всех 5.
+      case 'all_characters':
+        return stats.playedCharacters.length >= 5;
+
+      // *_master: требуют ЗАВЕРШЕНИЯ главы за персонажа.
+      case 'boris_master':
+        return stats.completedChapters.contains('boris_ch1');
+      case 'alina_master':
+        return stats.completedChapters.contains('alina_ch1');
+      case 'ivan_master':
+        return stats.completedChapters.contains('ivan_ch1');
+      case 'andrey_master':
+        return stats.completedChapters.contains('andrey_ch1');
+      case 'darya_master':
+        return stats.completedChapters.contains('darya_ch1');
+
+      case 'generous':
+        return stats.totalItemsGivenToSurvivors >= 5;
+
+      // === ОТДЕЛЬНЫЕ (вручную) ===
+      case 'reached_station':
+        return false; // вызывается через unlock()
+
+      default:
+        return false;
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // РУЧНАЯ РАЗБЛОКИРОВКА
+  // ═══════════════════════════════════════════════════════════
+
+  /// Разблокировать конкретное достижение по ID.
   static Future<Achievement?> unlock(String achievementId) async {
     final all = await loadAll();
     final stats = await loadStats();
@@ -39330,11 +39779,20 @@ class AchievementManager {
       final achievement = all.firstWhere((a) => a.id == achievementId);
       stats.unlockedAchievements.add(achievementId);
       await saveStats(stats);
+
+      if (!_unlockController.isClosed) {
+        _unlockController.add(achievement);
+      }
+
       return achievement;
     } catch (e) {
       return null;
     }
   }
+
+  // ═══════════════════════════════════════════════════════════
+  // УТИЛИТЫ
+  // ═══════════════════════════════════════════════════════════
 
   static Future<int> getTotalPoints() async {
     final stats = await loadStats();
@@ -39349,11 +39807,27 @@ class AchievementManager {
     return total;
   }
 
+  /// Полный сброс: удаляет всю статистику и достижения.
+  ///
+  /// **Осторожно:** после сброса игрок теряет всё.
   static Future<void> reset() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_statsKey);
     await prefs.remove(_achievementsKey);
+    await prefs.remove(_schemaVersionKey);
     _cachedStats = null;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ТЕСТИРОВАНИЕ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Закрыть стрим (для тестов).
+  @visibleForTesting
+  static Future<void> disposeStream() async {
+    if (!_unlockController.isClosed) {
+      await _unlockController.close();
+    }
   }
 }
 ```
@@ -39624,6 +40098,173 @@ class TimeManager {
 }
 ```
 
+### 📄 `./lib/utils/item_display.dart`
+```dart
+import 'package:flutter/material.dart';
+
+/// Утилиты для отображения предметов в UI.
+///
+/// Все функции — чистые, без побочных эффектов. Не зависят ни от чего,
+/// кроме переданного значения.
+///
+/// Использование:
+/// ```dart
+/// Text(
+///   ItemDisplay.rarityName(item.rarity),
+///   style: TextStyle(color: ItemDisplay.rarityColor(item.rarity)),
+/// )
+/// ```
+class ItemDisplay {
+  ItemDisplay._(); // нельзя создавать экземпляры
+
+  // ═══════════════════════════════════════════════════════════
+  // РЕДКОСТЬ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Цвет по редкости предмета.
+  ///
+  /// Используется для обводки, текста, подсветки.
+  static Color rarityColor(String rarity) {
+    switch (rarity) {
+      case 'common':
+        return const Color.fromARGB(255, 150, 150, 150);
+      case 'uncommon':
+        return const Color.fromARGB(255, 100, 200, 100);
+      case 'rare':
+        return const Color.fromARGB(255, 100, 150, 255);
+      case 'epic':
+        return const Color.fromARGB(255, 200, 100, 255);
+      case 'legendary':
+        return const Color.fromARGB(255, 255, 200, 50);
+      default:
+        return Colors.white;
+    }
+  }
+
+  /// Русское название редкости.
+  static String rarityName(String rarity) {
+    switch (rarity) {
+      case 'common':
+        return 'Обычное';
+      case 'uncommon':
+        return 'Необычное';
+      case 'rare':
+        return 'Редкое';
+      case 'epic':
+        return 'Эпическое';
+      case 'legendary':
+        return 'Легендарное';
+      default:
+        return rarity;
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ТИП УРОНА
+  // ═══════════════════════════════════════════════════════════
+
+  /// Русское название типа урона.
+  static String damageTypeName(String damageType) {
+    switch (damageType) {
+      case 'cutting':
+        return 'режущий';
+      case 'blunt':
+        return 'дробящий';
+      case 'piercing':
+        return 'колющий';
+      case 'firearm':
+        return 'огнестрельный';
+      default:
+        return damageType;
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // СЛОТЫ ЭКИПИРОВКИ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Русское название слота экипировки.
+  static String slotName(String slot) {
+    switch (slot) {
+      case 'weapon':
+        return 'Оружие';
+      case 'head':
+        return 'Голова';
+      case 'body':
+        return 'Тело';
+      case 'hands':
+        return 'Руки';
+      case 'feet':
+        return 'Ноги';
+      case 'backpack':
+        return 'Рюкзак';
+      default:
+        return slot;
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // СОПРОТИВЛЕНИЯ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Русское название сопротивления (для брони).
+  static String resistanceName(String key) {
+    switch (key) {
+      case 'cutting':
+        return 'Режущий';
+      case 'blunt':
+        return 'Дробящий';
+      case 'piercing':
+        return 'Колющий';
+      case 'firearm':
+        return 'Огнестрельный';
+      default:
+        return key;
+    }
+  }
+}
+```
+
+### 📄 `./lib/utils/time_format.dart`
+```dart
+/// Утилиты для форматирования игрового времени.
+///
+/// Все функции — чистые. Работают с минутами.
+class TimeFormat {
+  TimeFormat._(); // нельзя создавать экземпляры
+
+  /// Форматирует длительность в минутах.
+  ///
+  /// Примеры:
+  /// - 5   → "5 мин"
+  /// - 45  → "45 мин"
+  /// - 60  → "1ч"
+  /// - 90  → "1ч 30м"
+  /// - 125 → "2ч 5м"
+  static String duration(int minutes) {
+    if (minutes < 60) return '$minutes мин';
+
+    final h = minutes ~/ 60;
+    final m = minutes % 60;
+
+    if (m == 0) return '${h}ч';
+    return '${h}ч ${m}м';
+  }
+
+  /// Короткий формат — только время дня.
+  ///
+  /// Примеры:
+  /// - 480  → "08:00"
+  /// - 845  → "14:05"
+  /// - 1380 → "23:00"
+  static String clock(int totalMinutes) {
+    final h = (totalMinutes ~/ 60) % 24;
+    final m = totalMinutes % 60;
+    return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}';
+  }
+}
+```
+
 ### 📄 `./lib/widgets/cards/animated_location_card.dart`
 ```dart
 import 'package:flutter/material.dart';
@@ -39734,7 +40375,7 @@ class CharacterCard extends StatelessWidget {
               ? [
                   BoxShadow(
                     color: const Color.fromARGB(255, 200, 180, 100)
-                        .withOpacity(0.3),
+                        .withValues(alpha: 0.3),
                     blurRadius: 15.0,
                     spreadRadius: 2.0,
                   )
@@ -39793,7 +40434,7 @@ class CharacterCard extends StatelessWidget {
                     character.startingLine,
                     style: TextStyle(
                       color: const Color.fromARGB(255, 200, 180, 100)
-                          .withOpacity(0.8),
+                          .withValues(alpha: 0.8),
                       fontSize: 10,
                       fontStyle: FontStyle.italic,
                     ),
@@ -39840,10 +40481,28 @@ import 'package:flutter/material.dart';
 import 'package:dark_hours/models/progress/achievement.dart';
 import 'achievement_popup.dart';
 
+/// Показывает всплывающие попапы для достижений.
+///
+/// **Использование:**
+/// ```dart
+/// _achievementSub = AchievementManager.unlockStream.listen((ach) {
+///   AchievementNotifier.showPopup(context, ach);
+/// });
+/// ```
 class AchievementNotifier {
-  /// Показать попап достижения
-  static void show(BuildContext context, Achievement achievement) {
-    showDialog(
+  AchievementNotifier._();
+
+  /// Показать попап одного достижения.
+  ///
+  /// Ждёт, пока игрок закроет попап (нажмёт на него),
+  /// потом возвращает управление.
+  static Future<void> showPopup(
+    BuildContext context,
+    Achievement achievement,
+  ) async {
+    if (!context.mounted) return;
+
+    await showDialog(
       context: context,
       barrierDismissible: false,
       barrierColor: Colors.black87,
@@ -39854,22 +40513,17 @@ class AchievementNotifier {
     );
   }
 
-  /// Показать список достижений по очереди
+  /// Показать несколько попапов по очереди.
+  ///
+  /// Оставлено для обратной совместимости. Обычно не нужно —
+  /// стрим вызывает `showPopup` по одному достижению.
   static Future<void> showAll(
     BuildContext context,
     List<Achievement> achievements,
   ) async {
     for (final a in achievements) {
       if (!context.mounted) return;
-      await showDialog(
-        context: context,
-        barrierDismissible: false,
-        barrierColor: Colors.black87,
-        builder: (_) => AchievementPopup(
-          achievement: a,
-          onClose: () {},
-        ),
-      );
+      await showPopup(context, a);
     }
   }
 }
@@ -39949,7 +40603,7 @@ class _AchievementPopupState extends State<AchievementPopup>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    widget.achievement.categoryColor.withOpacity(0.15),
+                    widget.achievement.categoryColor.withValues(alpha: 0.15),
                     const Color.fromARGB(255, 20, 20, 20),
                   ],
                   begin: Alignment.topLeft,
@@ -39962,7 +40616,7 @@ class _AchievementPopupState extends State<AchievementPopup>
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: widget.achievement.categoryColor.withOpacity(0.3),
+                    color: widget.achievement.categoryColor.withValues(alpha: 0.3),
                     blurRadius: 20,
                     spreadRadius: 3,
                   ),
@@ -39989,7 +40643,7 @@ class _AchievementPopupState extends State<AchievementPopup>
                     height: 80,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: widget.achievement.categoryColor.withOpacity(0.15),
+                      color: widget.achievement.categoryColor.withValues(alpha: 0.15),
                       border: Border.all(
                         color: widget.achievement.categoryColor,
                         width: 2,
@@ -40034,7 +40688,7 @@ class _AchievementPopupState extends State<AchievementPopup>
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: widget.achievement.categoryColor.withOpacity(0.2),
+                      color: widget.achievement.categoryColor.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -40254,7 +40908,7 @@ class _FloatingEffectState extends State<FloatingEffect>
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: widget.color.withOpacity(0.15),
+                  color: widget.color.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: widget.color,
@@ -40262,7 +40916,7 @@ class _FloatingEffectState extends State<FloatingEffect>
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: widget.color.withOpacity(0.4),
+                      color: widget.color.withValues(alpha: 0.4),
                       blurRadius: 12,
                       spreadRadius: 2,
                     ),
@@ -40471,7 +41125,7 @@ class _ShimmerButtonState extends State<ShimmerButton>
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
               BoxShadow(
-                color: widget.baseColor.withOpacity(0.25),
+                color: widget.baseColor.withValues(alpha: 0.25),
                 blurRadius: 12,
                 spreadRadius: 1,
               ),
@@ -40491,7 +41145,7 @@ class _ShimmerButtonState extends State<ShimmerButton>
                   return LinearGradient(
                     colors: [
                       Colors.transparent,
-                      widget.shimmerColor.withOpacity(0.5),
+                      widget.shimmerColor.withValues(alpha: 0.5),
                       Colors.transparent,
                     ],
                     stops: [
@@ -40760,7 +41414,7 @@ class ConditionsPanel extends StatelessWidget {
         color: const Color.fromARGB(255, 25, 15, 15),
         border: Border(
           bottom: BorderSide(
-            color: Colors.red.withOpacity(0.3),
+            color: Colors.red.withValues(alpha: 0.3),
           ),
         ),
       ),
@@ -40808,10 +41462,10 @@ class ConditionsPanel extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: ac.condition.severityColor.withOpacity(0.15),
+                    color: ac.condition.severityColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(
-                      color: ac.condition.severityColor.withOpacity(0.5),
+                      color: ac.condition.severityColor.withValues(alpha: 0.5),
                       width: 1,
                     ),
                   ),
@@ -40835,7 +41489,7 @@ class ConditionsPanel extends StatelessWidget {
                       Text(
                         '(${ac.daysRemaining}д)',
                         style: TextStyle(
-                          color: ac.condition.severityColor.withOpacity(0.7),
+                          color: ac.condition.severityColor.withValues(alpha: 0.7),
                           fontSize: 10,
                         ),
                       ),
@@ -40889,7 +41543,7 @@ class ConditionDetailsSheet extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.15),
+                    color: color.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                     border: Border.all(color: color, width: 2),
                   ),
@@ -40919,10 +41573,10 @@ class ConditionDetailsSheet extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: color.withOpacity(0.15),
+                          color: color.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(4),
                           border: Border.all(
-                            color: color.withOpacity(0.5),
+                            color: color.withValues(alpha: 0.5),
                             width: 1,
                           ),
                         ),
@@ -41341,7 +41995,7 @@ class _CraftPanelState extends State<CraftPanel> {
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(
                     color: const Color.fromARGB(255, 200, 180, 100)
-                        .withOpacity(0.3),
+                        .withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -41406,7 +42060,7 @@ class _CraftPanelState extends State<CraftPanel> {
                     decoration: BoxDecoration(
                       color: isSelected
                           ? const Color.fromARGB(255, 200, 180, 100)
-                              .withOpacity(0.2)
+                              .withValues(alpha: 0.2)
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(
@@ -41489,7 +42143,7 @@ class _CraftPanelState extends State<CraftPanel> {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: canCraft
-              ? rarityColor.withOpacity(0.5)
+              ? rarityColor.withValues(alpha: 0.5)
               : Colors.grey[800]!,
           width: 1,
         ),
@@ -41538,7 +42192,7 @@ class _CraftPanelState extends State<CraftPanel> {
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.2),
+                    color: Colors.green.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(color: Colors.green, width: 1),
                   ),
@@ -41606,13 +42260,13 @@ class _CraftPanelState extends State<CraftPanel> {
                 ),
                 decoration: BoxDecoration(
                   color: enough
-                      ? Colors.green.withOpacity(0.15)
-                      : Colors.red.withOpacity(0.15),
+                      ? Colors.green.withValues(alpha: 0.15)
+                      : Colors.red.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(4),
                   border: Border.all(
                     color: enough
-                        ? Colors.green.withOpacity(0.5)
-                        : Colors.red.withOpacity(0.5),
+                        ? Colors.green.withValues(alpha: 0.5)
+                        : Colors.red.withValues(alpha: 0.5),
                     width: 1,
                   ),
                 ),
@@ -41707,9 +42361,9 @@ class _CraftPanelState extends State<CraftPanel> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withOpacity(0.5), width: 1),
+        border: Border.all(color: color.withValues(alpha: 0.5), width: 1),
       ),
       child: Text(
         text,
@@ -41731,6 +42385,7 @@ import 'package:dark_hours/models/inventory/equipment.dart';
 import 'package:dark_hours/models/inventory/inventory_item.dart';
 import 'package:dark_hours/services/items/item_icon_loader.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/utils/item_display.dart';
 import 'package:dark_hours/widgets/panels/inventory_panel.dart'
     show ItemDetailsSheet;
 
@@ -41743,23 +42398,6 @@ class EquipmentPanel extends StatelessWidget {
     required this.equipment,
     this.onUnequip,
   });
-
-  Color _rarityColor(String rarity) {
-    switch (rarity) {
-      case 'common':
-        return const Color.fromARGB(255, 150, 150, 150);
-      case 'uncommon':
-        return const Color.fromARGB(255, 100, 200, 100);
-      case 'rare':
-        return const Color.fromARGB(255, 100, 150, 255);
-      case 'epic':
-        return const Color.fromARGB(255, 200, 100, 255);
-      case 'legendary':
-        return const Color.fromARGB(255, 255, 200, 50);
-      default:
-        return Colors.white;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -41904,8 +42542,9 @@ class EquipmentPanel extends StatelessWidget {
     InventoryItem? item,
   ) {
     final isEmpty = item == null;
-    final rarityColor =
-        isEmpty ? Colors.grey[700]! : _rarityColor(item.rarity);
+    final rarityColor = isEmpty
+        ? Colors.grey[700]!
+        : ItemDisplay.rarityColor(item.rarity);
 
     final content = Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -42024,6 +42663,7 @@ import 'package:dark_hours/models/inventory/inventory.dart';
 import 'package:dark_hours/models/inventory/inventory_item.dart';
 import 'package:dark_hours/services/items/item_icon_loader.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/utils/item_display.dart';
 
 class InventoryPanel extends StatelessWidget {
   final Inventory inventory;
@@ -42038,23 +42678,6 @@ class InventoryPanel extends StatelessWidget {
     this.onEquip,
     this.onDrop,
   });
-
-  Color _rarityColor(String rarity) {
-    switch (rarity) {
-      case 'common':
-        return const Color.fromARGB(255, 150, 150, 150);
-      case 'uncommon':
-        return const Color.fromARGB(255, 100, 200, 100);
-      case 'rare':
-        return const Color.fromARGB(255, 100, 150, 255);
-      case 'epic':
-        return const Color.fromARGB(255, 200, 100, 255);
-      case 'legendary':
-        return const Color.fromARGB(255, 255, 200, 50);
-      default:
-        return Colors.white;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -42135,7 +42758,7 @@ class InventoryPanel extends StatelessWidget {
                 itemCount: inventory.items.length,
                 itemBuilder: (context, index) {
                   final item = inventory.items[index];
-                  final rarityColor = _rarityColor(item.rarity);
+                  final rarityColor = ItemDisplay.rarityColor(item.rarity);
 
                   return GestureDetector(
                     onTap: () {
@@ -42162,7 +42785,7 @@ class InventoryPanel extends StatelessWidget {
                         color: const Color.fromARGB(255, 25, 25, 25),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: rarityColor.withOpacity(0.3),
+                          color: rarityColor.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -42207,7 +42830,7 @@ class InventoryPanel extends StatelessWidget {
                                     vertical: 4,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: rarityColor.withOpacity(0.2),
+                                    color: rarityColor.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(6),
                                     border: Border.all(
                                       color: rarityColor,
@@ -42355,7 +42978,7 @@ class ItemDetailsSheet extends StatelessWidget {
               height: 100,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: rarityColor.withOpacity(0.1),
+                color: rarityColor.withValues(alpha: 0.1),
                 border: Border.all(color: rarityColor, width: 2),
               ),
               child: Center(
@@ -42391,12 +43014,12 @@ class ItemDetailsSheet extends StatelessWidget {
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: rarityColor.withOpacity(0.15),
+                    color: rarityColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(color: rarityColor, width: 1),
                   ),
                   child: Text(
-                    _rarityName(item.rarity),
+                    ItemDisplay.rarityName(item.rarity),
                     style: TextStyle(
                       color: rarityColor,
                       fontSize: 11,
@@ -42412,7 +43035,7 @@ class ItemDetailsSheet extends StatelessWidget {
                       vertical: 3,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.08),
+                      color: Colors.white.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
@@ -42588,7 +43211,7 @@ class ItemDetailsSheet extends StatelessWidget {
     if (item.damage > 0) {
       rows.add(_characteristicRow(
         '⚔️ Урон',
-        '${item.damage} (${_damageTypeName(item.damageType)})',
+        '${item.damage} (${ItemDisplay.damageTypeName(item.damageType)})',
         Colors.red,
       ));
     }
@@ -42609,7 +43232,7 @@ class ItemDetailsSheet extends StatelessWidget {
     if (item.armorSlot != null) {
       rows.add(_characteristicRow(
         '📍 Слот',
-        _slotName(item.armorSlot!),
+        ItemDisplay.slotName(item.armorSlot!),
         Colors.purple,
       ));
     }
@@ -42648,7 +43271,7 @@ class ItemDetailsSheet extends StatelessWidget {
         rows.add(const SizedBox(height: 4));
         for (final entry in nonZero) {
           rows.add(_characteristicRow(
-            '  ${_resistanceName(entry.key)}',
+            '  ${ItemDisplay.resistanceName(entry.key)}',
             '${entry.value}',
             Colors.green[400]!,
           ));
@@ -42815,70 +43438,6 @@ class ItemDetailsSheet extends StatelessWidget {
       ),
     );
   }
-
-  String _rarityName(String rarity) {
-    switch (rarity) {
-      case 'common':
-        return 'Обычное';
-      case 'uncommon':
-        return 'Необычное';
-      case 'rare':
-        return 'Редкое';
-      case 'epic':
-        return 'Эпическое';
-      case 'legendary':
-        return 'Легендарное';
-      default:
-        return rarity;
-    }
-  }
-
-  String _damageTypeName(String type) {
-    switch (type) {
-      case 'cutting':
-        return 'режущий';
-      case 'blunt':
-        return 'дробящий';
-      case 'piercing':
-        return 'колющий';
-      case 'firearm':
-        return 'огнестрельный';
-      default:
-        return type;
-    }
-  }
-
-  String _slotName(String slot) {
-    switch (slot) {
-      case 'head':
-        return 'Голова';
-      case 'body':
-        return 'Тело';
-      case 'hands':
-        return 'Руки';
-      case 'feet':
-        return 'Ноги';
-      case 'backpack':
-        return 'Рюкзак';
-      default:
-        return slot;
-    }
-  }
-
-  String _resistanceName(String key) {
-    switch (key) {
-      case 'cutting':
-        return 'Режущий';
-      case 'blunt':
-        return 'Дробящий';
-      case 'piercing':
-        return 'Колющий';
-      case 'firearm':
-        return 'Огнестрельный';
-      default:
-        return key;
-    }
-  }
 }
 ```
 
@@ -42910,17 +43469,17 @@ class PenaltiesPanel extends StatelessWidget {
 
     if (hasComfort) {
       bgColor = const Color.fromARGB(255, 15, 30, 15);
-      borderColor = Colors.green.withOpacity(0.4);
+      borderColor = Colors.green.withValues(alpha: 0.4);
       textColor = Colors.green;
       iconData = Icons.check_circle;
     } else if (hasCritical) {
       bgColor = const Color.fromARGB(255, 40, 10, 10);
-      borderColor = Colors.red.withOpacity(0.6);
+      borderColor = Colors.red.withValues(alpha: 0.6);
       textColor = Colors.red;
       iconData = Icons.warning;
     } else {
       bgColor = const Color.fromARGB(255, 30, 15, 15);
-      borderColor = Colors.red.withOpacity(0.3);
+      borderColor = Colors.red.withValues(alpha: 0.3);
       textColor = Colors.red;
       iconData = Icons.info_outline;
     }
@@ -42983,16 +43542,16 @@ class PenaltiesPanel extends StatelessWidget {
                   vertical: 3,
                 ),
                 decoration: BoxDecoration(
-                  color: chipColor.withOpacity(isCritical ? 0.25 : 0.1),
+                  color: chipColor.withValues(alpha: isCritical ? 0.25 : 0.1),
                   borderRadius: BorderRadius.circular(4),
                   border: Border.all(
-                    color: chipColor.withOpacity(isCritical ? 0.8 : 0.4),
+                    color: chipColor.withValues(alpha: isCritical ? 0.8 : 0.4),
                     width: isCritical ? 1.5 : 1,
                   ),
                   boxShadow: isCritical
                       ? [
                           BoxShadow(
-                            color: chipColor.withOpacity(0.3),
+                            color: chipColor.withValues(alpha: 0.3),
                             blurRadius: 6,
                             spreadRadius: 1,
                           ),
@@ -43101,8 +43660,8 @@ class RestPanel extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: isSafeLocation
-                      ? Colors.green.withOpacity(0.2)
-                      : Colors.orange.withOpacity(0.2),
+                      ? Colors.green.withValues(alpha: 0.2)
+                      : Colors.orange.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(4),
                   border: Border.all(
                     color: isSafeLocation ? Colors.green : Colors.orange,
@@ -43162,7 +43721,7 @@ class RestPanel extends StatelessWidget {
           color: const Color.fromARGB(255, 25, 25, 25),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: riskColor.withOpacity(0.4),
+            color: riskColor.withValues(alpha: 0.4),
             width: 1,
           ),
         ),
@@ -43189,7 +43748,7 @@ class RestPanel extends StatelessWidget {
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: riskColor.withOpacity(0.2),
+                    color: riskColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(color: riskColor, width: 1),
                   ),
@@ -43256,9 +43815,9 @@ class RestPanel extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withOpacity(0.5), width: 1),
+        border: Border.all(color: color.withValues(alpha: 0.5), width: 1),
       ),
       child: Text(
         text,
@@ -43475,6 +44034,7 @@ dependencies:
     sdk: flutter
   shared_preferences: ^2.2.2
   audioplayers: ^6.1.0
+  meta: ^1.16.0
 
 dev_dependencies:
   flutter_test:
@@ -48259,11 +48819,12 @@ class Validator {
             }
           }
 
-          // loot_pool
+          // loot_pool — теперь error, не warning!
           final lootPool = (loc['loot_pool'] as List? ?? []).cast<String>();
           for (final item in lootPool) {
             if (!itemIds.contains(item)) {
-              _warn('$fileName/$id: loot_pool → "$item" не найден');
+              _error('$fileName/$id: loot_pool → "$item" не найден');
+              totalErrors++;
             }
           }
 
@@ -48311,7 +48872,8 @@ class Validator {
             final loot = (effect['random_loot'] as List? ?? []).cast<String>();
             for (final item in loot) {
               if (!itemIds.contains(item)) {
-                _warn('$fileName/$id: search_events[$i].random_loot → "$item" не найден');
+                _error('$fileName/$id: search_events[$i].random_loot → "$item" не найден');
+                totalErrors++;
               }
             }
           }
@@ -48462,7 +49024,7 @@ class Validator {
           if (addIds != null) {
             for (final itemId in addIds.cast<String>()) {
               if (!itemIds.contains(itemId)) {
-                _warn('$character/$id: choice[$i].effects.inventory_add "$itemId" → предмет не найден');
+                _error('$character/$id: choice[$i].effects.inventory_add "$itemId" → предмет не найден');
               }
             }
           }
@@ -48471,7 +49033,7 @@ class Validator {
           if (removeIds != null) {
             for (final itemId in removeIds.cast<String>()) {
               if (!itemIds.contains(itemId)) {
-                _warn('$character/$id: choice[$i].effects.inventory_remove "$itemId" → предмет не найден');
+                _error('$character/$id: choice[$i].effects.inventory_remove "$itemId" → предмет не найден');
               }
             }
           }
@@ -48485,7 +49047,7 @@ class Validator {
           }
           final notItem = requires['not_item'] as String?;
           if (notItem != null && !itemIds.contains(notItem)) {
-            _warn('$character/$id: choice[$i].requires.not_item = "$notItem" → предмет не найден');
+            _error('$character/$id: choice[$i].requires.not_item = "$notItem" → предмет не найден');
           }
         }
       }
@@ -48533,7 +49095,8 @@ class Validator {
       final resultId = recipe['result_id'] as String?;
 
       if (resultId != null && !itemIds.contains(resultId)) {
-        _warn('Рецепт "$id": result_id "$resultId" не в справочнике');
+        _error('Рецепт "$id": result_id "$resultId" не в справочнике');
+        errors++;
       }
 
       final ingredients =
@@ -48582,7 +49145,8 @@ class Validator {
 
       for (final item in cureItems) {
         if (!itemIds.contains(item)) {
-          _warn('Состояние "$id": cure_items → "$item" не найден');
+          _error('Состояние "$id": cure_items → "$item" не найден');
+          errors++;
         }
       }
     }
@@ -48636,7 +49200,8 @@ class Validator {
       final loot = (effect['random_loot'] as List? ?? []).cast<String>();
       for (final item in loot) {
         if (!itemIds.contains(item)) {
-          _warn('Событие "$id": random_loot → "$item" не найден');
+          _error('Событие "$id": random_loot → "$item" не найден');
+          errors++;
         }
       }
     }
@@ -48926,8 +49491,8 @@ class Validator {
 
 ## 📊 SUMMARY
 
-- Всего файлов: **302**
-- Текстовых (в дампе): **183**
+- Всего файлов: **306**
+- Текстовых (в дампе): **187**
 - Артефактов: **1**
 - Бинарников: **118**
 - Дамп: **1.7M**

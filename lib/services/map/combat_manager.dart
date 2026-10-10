@@ -88,7 +88,13 @@ class CombatManager {
     final rawResult = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => CombatScreen(player: player, enemy: enemy),
+        builder: (_) => CombatScreen(
+          player: player,
+          enemy: enemy,
+          characterId: controller.characterId,
+          playerHunger: controller.hunger,
+          playerFatigue: controller.fatigue,
+        ),
       ),
     );
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:dark_hours/models/character/character.dart';
+import 'package:dark_hours/models/character/character_state.dart';
 import 'package:dark_hours/widgets/cards/character_card.dart';
+import 'package:dark_hours/widgets/cards/character_portrait.dart';
 import 'package:dark_hours/services/progress/achievement_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
 import '../gameplay/story_screen.dart';
@@ -87,38 +89,53 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ⚡ Большой портрет + имя и возраст рядом.
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                character.name,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+              CharacterPortrait(
+                characterId: character.id,
+                state: CharacterState.normal,
+                size: 100,
               ),
-              const SizedBox(width: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 200, 180, 100)
-                      .withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(4.0),
-                ),
-                child: Text(
-                  character.age,
-                  style: const TextStyle(
-                    color: Color.fromARGB(255, 200, 180, 100),
-                    fontSize: 12,
-                  ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      character.name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 200, 180, 100)
+                            .withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      child: Text(
+                        character.age,
+                        style: const TextStyle(
+                          color: Color.fromARGB(255, 200, 180, 100),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
             character.profession,
             style: TextStyle(color: Colors.grey[400], fontSize: 14),
@@ -176,7 +193,6 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
               onPressed: () async {
                 AudioService.playClick();
 
-                // Отмечаем персонажа как игранного
                 final stats = await AchievementManager.loadStats();
                 stats.playedCharacters.add(character.id);
                 stats.totalGamesPlayed += 1;

@@ -194,9 +194,6 @@ class _StoryScreenState extends State<StoryScreen> {
   }
 
   /// Применить эффекты из JSON.
-  ///
-  /// Логика вынесена в `StoryEffects.apply`. Здесь мы **применяем
-  /// результат** к нашему state.
   void _applyEffects(Map<String, dynamic>? effects) {
     final result = StoryEffects.apply(
       effects: effects,
@@ -560,6 +557,9 @@ class _StoryScreenState extends State<StoryScreen> {
       enemyProtection: enemyProtection,
       enemyStrength: enemyStrength,
       equipment: equipment,
+      characterId: widget.characterId,
+      playerHunger: hunger,
+      playerFatigue: fatigue,
     );
 
     if (result == null) return;
@@ -888,6 +888,7 @@ class _StoryScreenState extends State<StoryScreen> {
       body: Column(
         children: [
           StoryStatusBar(
+            characterId: widget.characterId,
             timeMinutes: timeMinutes,
             fatigue: fatigue,
             chapter: chapter,
