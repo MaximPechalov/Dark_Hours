@@ -34,16 +34,37 @@ import 'package:dark_hours/screens/gameplay/story/story_effects.dart';
 import 'package:dark_hours/screens/gameplay/story/story_status_bar.dart';
 import 'package:dark_hours/screens/gameplay/story/story_combat_launcher.dart';
 
+/// Экран проигрывания **одного** акта главы.
+///
+/// **Что изменилось:**
+/// - Теперь принимает `actId` — ID акта для загрузки (`act_1`, `act_2`).
+/// - Обрабатывает `on_exit` — какое действие выполнить после акта.
+/// - Обрабатывает `auto_next` — авто-переход по флагам.
+/// - Возвращает результат через `Navigator.pop` — что делать дальше.
 class StoryScreen extends StatefulWidget {
   final String characterId;
   final String characterName;
   final SaveData? resumeFrom;
+
+  /// ID конкретного акта для загрузки.
+  ///
+  /// Если `null` — загружается **первый** акт главы.
+  /// Формат: `act_1`, `act_2`, ..., `act_8`.
+  final String? actId;
+
+  /// Режим запуска:
+  /// - `start` — начать главу с начала.
+  /// - `trigger` — продолжить с текущего акта (после карты).
+  /// - `final` — финальный акт (ChapterEnd после него).
+  final String mode;
 
   const StoryScreen({
     super.key,
     required this.characterId,
     required this.characterName,
     this.resumeFrom,
+    this.actId,
+    this.mode = 'start',
   });
 
   @override
@@ -56,7 +77,13 @@ class _StoryScreenState extends State<StoryScreen> {
   bool _isLoading = true;
   bool _isEnd = false;
 
-  // Ресурсы
+  /// Флаг: акт завершён, надо закрыть экран.
+  bool _shouldExit = false;
+
+  /// Действие при выходе (`on_exit` из акта).
+  String? _onExitAction;
+
+  /// Ресурсы
   int hunger = 100;
   int thirst = 100;
   int health = 100;
@@ -70,17 +97,13 @@ class _StoryScreenState extends State<StoryScreen> {
   final Inventory inventory = Inventory(maxWeight: 30.0);
   final Equipment equipment = Equipment();
 
-  // Болезни
   List<Condition> allConditions = [];
   final List<ActiveCondition> activeConditions = [];
 
-  // Флаги
   final Set<String> _flags = {};
 
-  // Трекер забега
   final RunTracker tracker = RunTracker();
 
-  /// Подписка на поток разблокированных достижений.
   StreamSubscription<Achievement>? _achievementSub;
 
   @override
@@ -162,18 +185,34 @@ class _StoryScreenState extends State<StoryScreen> {
           condition: cond,
           daysRemaining: days,
         ));
-      } catch (_) {
-        // Игнорируем невалидную болезнь
-      }
+      } catch (_) {}
     }
 
-    final node =
-        story.getNode(s.currentNodeId) ?? story.getNode(story.startNodeId);
+    // === Определяем, какую ноду грузить ===
+    String? startNodeId;
+
+    if (widget.actId != null) {
+      // Ищем акт по ID
+      final act = story.acts.firstWhere(
+        (a) => a.id == widget.actId,
+        orElse: () => story.acts.first,
+      );
+      startNodeId = act.startNode;
+    } else {
+      // Fallback: старый способ через currentNodeId
+      startNodeId = s.currentNodeId;
+    }
+
+    final node = (startNodeId != null
+            ? story.getNode(startNodeId)
+            : null) ??
+        story.getNode(story.startNodeId);
 
     setState(() {
       _story = story;
       _currentNode = node;
       _isEnd = node?.choices.isEmpty ?? false;
+      _onExitAction = _findActOnExit(story, node);
       _isLoading = false;
     });
 
@@ -186,13 +225,51 @@ class _StoryScreenState extends State<StoryScreen> {
     stats.totalGamesPlayed += 1;
     await AchievementManager.saveStats(stats);
 
+    // === Определяем, какую ноду грузить ===
+    String? startNodeId;
+    if (widget.actId != null) {
+      final act = story.acts.firstWhere(
+        (a) => a.id == widget.actId,
+        orElse: () => story.acts.first,
+      );
+      startNodeId = act.startNode;
+    } else {
+      startNodeId = story.startNodeId;
+    }
+
+    final node = (startNodeId != null
+            ? story.getNode(startNodeId)
+            : null) ??
+        story.getNode(story.startNodeId);
+
     setState(() {
       _story = story;
-      _currentNode = story.getNode(story.startNodeId);
+      _currentNode = node;
       _isLoading = false;
+      _onExitAction = _findActOnExit(story, node);
     });
 
-    if (_currentNode?.onEnter != null) _applyEffects(_currentNode!.onEnter);
+    if (node?.onEnter != null) _applyEffects(node!.onEnter);
+  }
+
+  /// Найти `on_exit` акта, к которому принадлежит нода.
+  String? _findActOnExit(Story story, StoryNode? node) {
+    if (node == null) return null;
+
+    // Прямой on_exit в ноде
+    if (node.onExit != null) return node.onExit;
+
+    // Ищем по акту
+    final actNum = story.getActForNode(node.id);
+    if (actNum != null) {
+      final act = story.acts.firstWhere(
+        (a) => a.number == actNum,
+        orElse: () => story.acts.first,
+      );
+      return act.onExit;
+    }
+
+    return null;
   }
 
   /// Применить эффекты из JSON.
@@ -203,7 +280,6 @@ class _StoryScreenState extends State<StoryScreen> {
       activeConditions: activeConditions,
     );
 
-    // === Статы ===
     if (result.statDelta['hunger'] != null) {
       hunger = (hunger + result.statDelta['hunger']!).clamp(0, 100);
     }
@@ -226,7 +302,6 @@ class _StoryScreenState extends State<StoryScreen> {
       timeMinutes = (timeMinutes + result.statDelta['time']!).clamp(0, 99999);
     }
 
-    // === Предметы ===
     for (final id in result.itemsToAdd) {
       final item = StoryEffects.resolveItem(id);
       if (item != null) {
@@ -238,10 +313,8 @@ class _StoryScreenState extends State<StoryScreen> {
       inventory.removeItem(id);
     }
 
-    // === Флаги ===
     _flags.addAll(result.flagsToSet);
 
-    // === Новые условия ===
     for (final condition in result.newConditions) {
       activeConditions.add(ActiveCondition(
         condition: condition,
@@ -342,109 +415,19 @@ class _StoryScreenState extends State<StoryScreen> {
     await SaveManager.save(data);
   }
 
-  Future<void> _goToMap() async {
-    final save = SaveData(
-      characterId: widget.characterId,
-      characterName: widget.characterName,
-      currentNodeId: _currentNode?.id ?? 'END',
-      currentLocationId: _getStartLocationForCharacter(),
-      onMap: true,
-      hunger: hunger,
-      thirst: thirst,
-      health: health,
-      sanity: sanity,
-      stamina: stamina,
-      fatigue: fatigue,
-      timeMinutes: timeMinutes,
-      chapter: chapter + 1,
-      history: [..._history, ..._flags],
-      inventoryItems: inventory.toJson(),
-      equipmentItems: equipment.toJson(),
-      activeConditions: activeConditions
-          .map((ac) => ({
-                'id': ac.condition.id,
-                'daysRemaining': ac.daysRemaining,
-              }))
-          .toList(),
-      searchedCounts: const {},
-      unlockedLocations: const [],
-      savedAt: DateTime.now(),
-    );
-    await SaveManager.save(save);
-
-    final stats = await AchievementManager.loadStats();
-    tracker.applyToStats(stats);
-
-    // Отмечаем главу как пройденную.
-    // Формат ID: "boris_ch1", "alina_ch1" и т.д.
-    stats.completedChapters.add('${widget.characterId}_ch$chapter');
-
-    await AchievementManager.saveStats(stats);
-
-    await AchievementManager.unlockAll(
-      characterId: widget.characterId,
-      tracker: tracker,
-      day: chapter,
-      inventorySize: inventory.items.length,
-    );
-
-    if (!mounted) return;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => MapScreen(
-          characterId: widget.characterId,
-          characterName: widget.characterName,
-          resumeFrom: save,
-        ),
-      ),
-    );
-  }
-
-  void _showChapterEnd() {
-    if (_currentNode == null) return;
-
-    final save = SaveData(
-      characterId: widget.characterId,
-      characterName: widget.characterName,
-      currentNodeId: _currentNode!.id,
-      currentLocationId: _getStartLocationForCharacter(),
-      onMap: false,
-      hunger: hunger,
-      thirst: thirst,
-      health: health,
-      sanity: sanity,
-      stamina: stamina,
-      fatigue: fatigue,
-      timeMinutes: timeMinutes,
-      chapter: chapter,
-      history: [..._history, ..._flags],
-      inventoryItems: inventory.toJson(),
-      equipmentItems: equipment.toJson(),
-      activeConditions: activeConditions
-          .map((ac) => ({
-                'id': ac.condition.id,
-                'daysRemaining': ac.daysRemaining,
-              }))
-          .toList(),
-      searchedCounts: const {},
-      unlockedLocations: const [],
-      savedAt: DateTime.now(),
-    );
-
-    final summary = ChapterSummary.fromSaveAndTracker(
-      save,
-      tracker,
-      daysSurvived: chapter,
-      finalNode: _currentNode!.id,
-    );
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ChapterEndScreen(summary: summary),
-      ),
-    );
+  /// Закрыть акт и сообщить `ChapterManager`, что делать дальше.
+  ///
+  /// Возвращает результат через `Navigator.pop`:
+  /// ```
+  /// { 'action': 'return_to_map' | 'chapter_end' | 'return_to_story' }
+  /// ```
+  void _exitAct() {
+    final action = _onExitAction ?? 'return_to_map';
+    Navigator.pop(context, {
+      'action': action,
+      'flags': _flags.toList(),
+      'inventory': inventory.items.map((i) => i.id).toList(),
+    });
   }
 
   void _selectChoice(StoryChoice choice) {
@@ -475,9 +458,17 @@ class _StoryScreenState extends State<StoryScreen> {
     _checkAchievements();
   }
 
+  /// Перейти на ноду по ID.
+  ///
+  /// Обрабатывает:
+  /// 1. `on_enter` — эффекты при входе.
+  /// 2. `flags_set` — установка флагов.
+  /// 3. `auto_next` — авто-переход по флагам.
+  /// 4. `on_exit` — завершение акта.
   void _navigateToNode(String nodeId) {
     final nextNode = _story!.getNode(nodeId);
     if (nextNode == null) {
+      // Нода не найдена — завершаем акт
       setState(() => _isEnd = true);
       _autoSave();
       return;
@@ -494,13 +485,41 @@ class _StoryScreenState extends State<StoryScreen> {
       }
     }
 
-    if (nextNode.choices.isNotEmpty) {
-      setState(() => _currentNode = nextNode);
+    // === AUTO_NEXT: авто-переход по флагам ===
+    if (nextNode.hasAutoNext) {
+      final target = _resolveAutoNext(nextNode.autoNext!);
+      if (target != null) {
+        _navigateToNode(target);
+        return;
+      }
+      // Если auto_next не сработал — просто показываем ноду
+    }
+
+    // === ON_EXIT: завершение акта ===
+    if (nextNode.hasOnExit) {
+      setState(() {
+        _currentNode = nextNode;
+        _isEnd = true;
+        _onExitAction = nextNode.onExit;
+      });
       _autoSave();
       return;
     }
 
+    // === END_*: финальная нода ===
     if (nextNode.id.startsWith('END_')) {
+      setState(() {
+        _currentNode = nextNode;
+        _isEnd = true;
+        // Для END_* действие = chapter_end (по умолчанию)
+        _onExitAction = 'chapter_end';
+      });
+      _autoSave();
+      return;
+    }
+
+    // === Обычная нода ===
+    if (nextNode.choices.isEmpty) {
       setState(() {
         _currentNode = nextNode;
         _isEnd = true;
@@ -509,34 +528,60 @@ class _StoryScreenState extends State<StoryScreen> {
       return;
     }
 
-    final currentActNumber = _story!.getActForNode(nextNode.id);
+    setState(() => _currentNode = nextNode);
+    _autoSave();
+  }
 
-    if (currentActNumber != null) {
-      final nextAct = _story!.getNextAct(currentActNumber);
+  /// Разрешить `auto_next` по флагам.
+  ///
+  /// Формат:
+  /// ```json
+  /// {
+  ///   "conditions": [
+  ///     { "if": { "flags_all": ["with_lena"] }, "next": "node_a" },
+  ///     { "if": { "flags_all": ["left_lena"] }, "next": "node_b" },
+  ///     { "default": true, "next": "node_c" }
+  ///   ]
+  /// }
+  /// ```
+  String? _resolveAutoNext(Map<String, dynamic> autoNext) {
+    final conditions =
+        (autoNext['conditions'] as List? ?? []).cast<Map<String, dynamic>>();
 
-      if (nextAct != null && nextAct.entryNodes.isNotEmpty) {
-        final entryNodeId = nextAct.entryNodes.first;
-        final entryNode = _story!.getNode(entryNodeId);
+    String? defaultTarget;
 
-        if (entryNode != null) {
-          if (entryNode.onEnter != null) _applyEffects(entryNode.onEnter);
+    for (final cond in conditions) {
+      // Default
+      if (cond['default'] == true) {
+        defaultTarget = cond['next'] as String?;
+        continue;
+      }
 
-          setState(() {
-            _currentNode = entryNode;
-            _isEnd = false;
-          });
+      // If
+      final ifCond = cond['if'] as Map<String, dynamic>?;
+      if (ifCond == null) continue;
 
-          _autoSave();
-          return;
-        }
+      if (_checkCondition(ifCond)) {
+        return cond['next'] as String?;
       }
     }
 
-    setState(() {
-      _currentNode = nextNode;
-      _isEnd = true;
-    });
-    _autoSave();
+    return defaultTarget;
+  }
+
+  /// Проверить условие по флагам.
+  bool _checkCondition(Map<String, dynamic> condition) {
+    final flagsAll = (condition['flags_all'] as List? ?? []).cast<String>();
+    for (final f in flagsAll) {
+      if (!_flags.contains(f)) return false;
+    }
+
+    final flagsNot = (condition['flags_not'] as List? ?? []).cast<String>();
+    for (final f in flagsNot) {
+      if (_flags.contains(f)) return false;
+    }
+
+    return true;
   }
 
   Future<void> _startCombat({
@@ -810,6 +855,14 @@ class _StoryScreenState extends State<StoryScreen> {
       );
     }
 
+    // Если акт завершён и есть on_exit — автоматически закрываем
+    if (_isEnd && _onExitAction != null && !_shouldExit) {
+      _shouldExit = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _exitAct();
+      });
+    }
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 10, 10, 10),
       appBar: AppBar(
@@ -868,23 +921,6 @@ class _StoryScreenState extends State<StoryScreen> {
                 ),
             ],
           ),
-          IconButton(
-            icon: const Icon(Icons.save_outlined),
-            tooltip: 'Сохранить',
-            onPressed: () async {
-              AudioService.playClick();
-              await _autoSave();
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Прогресс сохранён'),
-                    duration: Duration(seconds: 1),
-                    backgroundColor: Color.fromARGB(255, 200, 180, 100),
-                  ),
-                );
-              }
-            },
-          ),
         ],
       ),
       body: Column(
@@ -942,103 +978,8 @@ class _StoryScreenState extends State<StoryScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    if (_isEnd) ...[
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: const Color.fromARGB(255, 200, 180, 100),
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Text(
-                          '🎬 КОНЕЦ ГЛАВЫ',
-                          style: TextStyle(
-                            color: Color.fromARGB(255, 200, 180, 100),
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 2.0,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            AudioService.playClick();
-                            _showChapterEnd();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromARGB(255, 200, 180, 100),
-                            foregroundColor: Colors.black,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: const Text(
-                            '🎬  ЗАВЕРШИТЬ ГЛАВУ',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 2.0,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton(
-                          onPressed: () {
-                            AudioService.playClick();
-                            _goToMap();
-                          },
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor:
-                                const Color.fromARGB(255, 100, 200, 100),
-                            side: const BorderSide(
-                              color: Color.fromARGB(255, 100, 200, 100),
-                              width: 1,
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: const Text(
-                            '🗺️  ВЫЙТИ НА КАРТУ (без титров)',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 2.0,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      SizedBox(
-                        width: double.infinity,
-                        child: TextButton(
-                          onPressed: () {
-                            AudioService.playClick();
-                            Navigator.pop(context);
-                          },
-                          child: Text(
-                            'ВЕРНУТЬСЯ В МЕНЮ',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 2.0,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+
+                    // === ВЫБОРЫ ===
                     if (!_isEnd)
                       ..._availableChoices.map((choice) {
                         return Padding(
@@ -1072,6 +1013,8 @@ class _StoryScreenState extends State<StoryScreen> {
                           ),
                         );
                       }).toList(),
+
+                    // === ЗАБЛОКИРОВАННЫЕ ВЫБОРЫ ===
                     if (!_isEnd && _lockedChoices.isNotEmpty) ...[
                       const SizedBox(height: 8),
                       ..._lockedChoices.map((choice) {
@@ -1139,6 +1082,59 @@ class _StoryScreenState extends State<StoryScreen> {
                           ),
                         );
                       }).toList(),
+                    ],
+
+                    // === ЗАВЕРШЕНИЕ АКТА ===
+                    //
+                    // Если _isEnd и _onExitAction == null — показываем
+                    // старые кнопки (для обратной совместимости).
+                    if (_isEnd && _onExitAction == null) ...[
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: const Color.fromARGB(255, 200, 180, 100),
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          '🎬 КОНЕЦ АКТА',
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 200, 180, 100),
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 2.0,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            AudioService.playClick();
+                            _exitAct();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(255, 200, 180, 100),
+                            foregroundColor: Colors.black,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text(
+                            '🎬  ПРОДОЛЖИТЬ',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 2.0,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ],
                 ),

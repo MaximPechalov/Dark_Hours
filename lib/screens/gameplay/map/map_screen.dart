@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:dark_hours/services/map/map_controller.dart';
 import 'package:dark_hours/services/map/death_manager.dart';
 import 'package:dark_hours/services/map/region_background_cache.dart';
+import 'package:dark_hours/services/map/map_goal_tracker.dart';
+import 'package:dark_hours/services/story/side_quest_manager.dart';
 import 'package:dark_hours/services/progress/achievement_manager.dart';
 import 'package:dark_hours/services/time/time_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
@@ -16,6 +18,7 @@ import 'package:dark_hours/services/audio/audio_service.dart';
 import 'package:dark_hours/models/world/location.dart';
 import 'package:dark_hours/models/world/region_layout.dart';
 import 'package:dark_hours/models/progress/achievement.dart';
+import 'package:dark_hours/models/story/chapter_step.dart';
 
 import 'package:dark_hours/widgets/panels/penalties_panel.dart';
 import 'package:dark_hours/widgets/panels/conditions_panel.dart';
@@ -45,16 +48,28 @@ import 'map_region_transition.dart';
 /// - Делегирует bottom-sheet'ы в [MapPanelCoordinator].
 /// - Делегирует кнопки в [MapActionButtonsBuilder].
 /// - Делегирует оверлей перехода в [MapRegionTransition].
+/// - **Проверяет цель карты** через [MapGoalTracker].
+/// - **Следит за побочными квестами** через [SideQuestManager].
 class MapScreen extends StatefulWidget {
   final String characterId;
   final String characterName;
   final dynamic resumeFrom;
+
+  /// Шаг главы (если запускается из ChapterRunner).
+  ///
+  /// Если `null` — карта работает в "свободном режиме" (тест).
+  final ChapterStep? chapterStep;
+
+  /// Колбэк, вызывается когда цель карты достигнута.
+  final VoidCallback? onGoalComplete;
 
   const MapScreen({
     super.key,
     required this.characterId,
     required this.characterName,
     this.resumeFrom,
+    this.chapterStep,
+    this.onGoalComplete,
   });
 
   @override
@@ -69,7 +84,6 @@ class MapScreenState extends State<MapScreen>
 
   late final MapController _controller;
 
-  /// Публичный геттер — нужен хендлерам и координаторам.
   MapController get controller => _controller;
 
   String get characterId => widget.characterId;
@@ -84,23 +98,24 @@ class MapScreenState extends State<MapScreen>
 
   Size _viewportSize = const Size(400, 600);
 
-  /// Фон текущего региона (сгенерированная или загруженная картинка).
   ui.Image? _regionBackground;
-
-  /// ID загруженного региона.
   String? _loadedRegionId;
-
-  /// Регион, который отрисован сейчас (для детекта смены).
   String? _lastRegionId;
 
-  /// Флаг: показывать ли оверлей перехода между регионами.
   bool _showRegionTransition = false;
-
-  /// Название региона для оверлея перехода.
   String _transitionRegionName = '';
 
-  /// Выбранная локация (для подсветки и ребра).
   Location? _selectedLocation;
+
+  // ═══════════════════════════════════════════════════════════
+  // НОВОЕ: ЦЕЛЬ И КВЕСТЫ
+  // ═══════════════════════════════════════════════════════════
+
+  MapGoalTracker? _goalTracker;
+  SideQuestManager? _sideQuestManager;
+
+  /// Защита от повторного показа попапа цели.
+  bool _goalPopupShown = false;
 
   // ═══════════════════════════════════════════════════════════
   // ГЕТТЕРЫ И СЕТТЕРЫ ДЛЯ ХЕНДЛЕРОВ
@@ -145,7 +160,6 @@ class MapScreenState extends State<MapScreen>
 
   late AnimationController _markerController;
 
-  /// Публичный доступ для хендлера.
   AnimationController get markerController => _markerController;
 
   // ═══════════════════════════════════════════════════════════
@@ -196,7 +210,6 @@ class MapScreenState extends State<MapScreen>
       vsync: this,
     );
 
-    // Инициализируем хендлеры.
     _movementHandler = MapMovementHandler(this);
     _panelCoordinator = MapPanelCoordinator(this);
     _actionButtonsBuilder = MapActionButtonsBuilder(this);
@@ -232,6 +245,9 @@ class MapScreenState extends State<MapScreen>
     }
 
     setState(() {});
+
+    // Проверяем цель и квесты
+    _checkGoalAndQuests();
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -249,7 +265,6 @@ class MapScreenState extends State<MapScreen>
       _lastRegionId = cur.region;
       _loadedRegionId = cur.region;
 
-      // Загружаем фон стартового региона.
       final layout = getLayoutForRegion(cur.region);
       if (layout != null) {
         final image = await RegionBackgroundCache.get(
@@ -282,21 +297,268 @@ class MapScreenState extends State<MapScreen>
       await _movementHandler.handleDeath();
       return;
     }
+
+    // ═══════════════════════════════════════════════════════════
+    // ИНИЦИАЛИЗАЦИЯ ЦЕЛИ И КВЕСТОВ
+    // ═══════════════════════════════════════════════════════════
+
+    final step = widget.chapterStep;
+    if (step != null && step.isMap && step.goal != null) {
+      // Устанавливаем время старта цели
+      _controller.setMapGoalStartedAt(_controller.gameTime.totalMinutes);
+
+      // Создаём трекер
+      _goalTracker = MapGoalTracker(
+        goal: step.goal!,
+        controller: _controller,
+        goalStartedAtMinutes: _controller.gameTime.totalMinutes,
+      );
+
+      // Активируем квесты
+      _sideQuestManager = SideQuestManager(
+        controller: _controller,
+        characterId: widget.characterId,
+        chapter: _controller.chapter,
+      );
+      await _sideQuestManager!.activateForMap(step.sideQuests);
+
+      debugPrint('🎯 MapScreen: цель="${step.goal!.type}", '
+          'квестов=${step.sideQuests.length}');
+
+      // Проверяем цель сразу после входа (вдруг игрок уже здесь)
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _checkGoalAndQuests();
+      });
+    }
+
     if (mounted) setState(() {});
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ПРОВЕРКА ЦЕЛИ И КВЕСТОВ
+  // ═══════════════════════════════════════════════════════════
+
+  Future<void> _checkGoalAndQuests() async {
+    if (!mounted) return;
+
+    // 1. Квесты
+    if (_sideQuestManager != null) {
+      await _sideQuestManager!.checkProgress();
+      await _sideQuestManager!.checkExpiry();
+
+      final currentLoc = _controller.currentLocation;
+      if (currentLoc != null) {
+        final triggered =
+            await _sideQuestManager!.checkTriggers(currentLoc);
+        for (final quest in triggered) {
+          if (mounted) {
+            _showQuestTriggered(quest.title, quest.description);
+          }
+        }
+      }
+    }
+
+    // 2. Цель карты
+    if (_goalTracker == null) return;
+    if (_goalPopupShown) return;
+
+    if (_goalTracker!.isComplete()) {
+      _goalPopupShown = true;
+      final message =
+          _goalTracker!.getCompleteMessage() ?? 'Цель достигнута.';
+      if (mounted) {
+        _showGoalComplete(message);
+      }
+      return;
+    }
+
+    if (_goalTracker!.isTimedOut()) {
+      _goalPopupShown = true;
+      final message =
+          _goalTracker!.getTimeoutMessage() ?? 'Время вышло.';
+      final flag = _goalTracker!.getTimeoutFlag();
+      if (flag != null) {
+        _controller.setFlag(flag);
+      }
+      if (mounted) {
+        _showGoalFailed(message);
+      }
+    }
+  }
+
+  void _showGoalComplete(String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: const Color.fromARGB(255, 15, 30, 15),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(
+            color: Color(0xFFC8B464),
+            width: 2,
+          ),
+        ),
+        title: const Text(
+          '✅ ЦЕЛЬ ДОСТИГНУТА',
+          style: TextStyle(
+            color: Color(0xFFC8B464),
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 2.0,
+          ),
+        ),
+        content: Text(
+          message,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 14,
+            height: 1.5,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              AudioService.playClick();
+              Navigator.pop(dialogContext);
+              widget.onGoalComplete?.call();
+            },
+            child: const Text(
+              'ПРОДОЛЖИТЬ →',
+              style: TextStyle(
+                color: Color(0xFFC8B464),
+                fontWeight: FontWeight.bold,
+                letterSpacing: 2.0,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showGoalFailed(String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: const Color.fromARGB(255, 30, 15, 15),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: Colors.red, width: 2),
+        ),
+        title: const Text(
+          '💀 ЦЕЛЬ ПРОВАЛЕНА',
+          style: TextStyle(
+            color: Colors.red,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 2.0,
+          ),
+        ),
+        content: Text(
+          message,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 14,
+            height: 1.5,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              AudioService.playClick();
+              Navigator.pop(dialogContext);
+              widget.onGoalComplete?.call();
+            },
+            child: const Text(
+              'ПРОДОЛЖИТЬ →',
+              style: TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 2.0,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showQuestTriggered(String title, String description) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: const Color.fromARGB(255, 15, 20, 30),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(
+            color: Color(0xFF5F8FBF),
+            width: 2,
+          ),
+        ),
+        title: const Text(
+          '🎯 НОВЫЙ КВЕСТ',
+          style: TextStyle(
+            color: Color(0xFF5F8FBF),
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 2.0,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              description,
+              style: TextStyle(
+                color: Colors.grey[400],
+                fontSize: 13,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              AudioService.playClick();
+              Navigator.pop(dialogContext);
+            },
+            child: const Text(
+              'ПОНЯТНО',
+              style: TextStyle(
+                color: Color(0xFF5F8FBF),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   // ═══════════════════════════════════════════════════════════
   // ПУБЛИЧНЫЕ ХЕЛПЕРЫ (для хендлеров)
   // ═══════════════════════════════════════════════════════════
 
-  /// Обновить viewport size (вызывается из LayoutBuilder).
   void updateViewportSize(Size size) {
     if (_viewportSize != size) {
       _viewportSize = size;
     }
   }
 
-  /// Получить layout для региона.
   RegionLayout? getLayoutForRegion(String regionId) {
     switch (regionId) {
       case 'city_south':
@@ -308,7 +570,6 @@ class MapScreenState extends State<MapScreen>
     }
   }
 
-  /// Человекочитаемое название региона.
   String regionDisplayName(String regionId) {
     switch (regionId) {
       case 'city_south':
@@ -328,12 +589,10 @@ class MapScreenState extends State<MapScreen>
     }
   }
 
-  /// Вызвать перерисовку.
   void rebuild() {
     if (mounted) setState(() {});
   }
 
-  /// Обработчик тапа на локацию.
   void onNodeTap(Location loc) {
     AudioService.playTap();
 
@@ -626,7 +885,6 @@ class MapScreenState extends State<MapScreen>
     final current = _controller.currentLocation!;
     final regionId = current.region;
 
-    // Пока оверлей активен — не рисуем локации.
     if (_showRegionTransition) {
       return Container(color: const Color(0xFF08080A));
     }
@@ -753,7 +1011,7 @@ class MapScreenState extends State<MapScreen>
 
   Widget _buildBottomPanel(Location current) {
     return Container(
-      constraints: const BoxConstraints(maxHeight: 220),
+      constraints: const BoxConstraints(maxHeight: 260),
       decoration: BoxDecoration(
         color: const Color.fromARGB(255, 12, 12, 12),
         border: Border(
@@ -768,6 +1026,58 @@ class MapScreenState extends State<MapScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Цель карты
+            if (_goalTracker != null) ...[
+              Container(
+                padding: const EdgeInsets.all(10),
+                margin: const EdgeInsets.only(bottom: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFC8B464).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: const Color(0xFFC8B464).withValues(alpha: 0.5),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.flag,
+                      color: Color(0xFFC8B464),
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'ТЕКУЩАЯ ЦЕЛЬ',
+                            style: TextStyle(
+                              color: Color(0xFFC8B464),
+                              fontSize: 9,
+                              letterSpacing: 2.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            widget.chapterStep?.goal?.hint ??
+                                widget.chapterStep?.description ??
+                                'Достигни цели',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
             MapCurrentLocation(controller: _controller),
             const SizedBox(height: 8),
             ..._actionButtonsBuilder.build(current),

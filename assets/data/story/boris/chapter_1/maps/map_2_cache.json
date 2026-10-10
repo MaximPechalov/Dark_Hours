@@ -1,0 +1,36 @@
+{
+  "id": "map_2_cache",
+  "title": "Лесной схрон",
+  "description": "Пётр сказал: в тупике тоннеля есть тайник. Там что-то важное.",
+
+  "entry_from_act": "act_2",
+  "next_act": "act_3",
+
+  "goal": {
+    "type": "find_item",
+    "target": "note",
+    "hint": "Записка Алексея спрятана в тупике тоннеля",
+    "on_complete": {
+      "flag_set": "map_2_complete",
+      "message": "Ты нашёл записку. Кто-то знал правду."
+    }
+  },
+
+  "side_quests": ["sq_hunter_cache"],
+
+  "restrictions": {
+    "block_locations": [],
+    "time_limit_minutes": 0
+  },
+
+  "hints": [
+    {
+      "on_enter_location": "tunnel_entrance",
+      "text": "Тупик — дальше по тоннелю. Там что-то есть."
+    },
+    {
+      "on_enter_location": "tunnel_dead_end",
+      "text": "Вот он, тупик. Здесь должен быть тайник."
+    }
+  ]
+}

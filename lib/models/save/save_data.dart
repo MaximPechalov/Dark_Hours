@@ -22,17 +22,45 @@ class SaveData {
   final List<String> unlockedLocations;
 
   // ═══════════════════════════════════════════════════════════
-  // НОВЫЕ ПОЛЯ — ИССЛЕДОВАНИЕ
+  // ИССЛЕДОВАНИЕ
   // ═══════════════════════════════════════════════════════════
 
-  /// Разведанные локации (знаешь название + общее описание).
   final Set<String> scoutedLocations;
-
-  /// Локации с уточнённым состоянием (разведка дала детали).
   final Set<String> detailedLocations;
-
-  /// Открытые регионы (был здесь, знаешь силуэты, зоны).
   final Set<String> discoveredRegions;
+
+  // ═══════════════════════════════════════════════════════════
+  // НОВОЕ — ПОСЛЕДОВАТЕЛЬНОСТЬ ГЛАВЫ
+  // ═══════════════════════════════════════════════════════════
+
+  /// ID текущего шага в последовательности главы.
+  ///
+  /// Например: `act_1`, `map_1_tunnel`, `act_2`.
+  final String? currentChapterStepId;
+
+  /// Индекс шага в последовательности.
+  final int chapterStepIndex;
+
+  /// Время начала текущей цели карты (для `time_limit`).
+  ///
+  /// Хранится в игровых минутах.
+  final int? mapGoalStartedAt;
+
+  // ═══════════════════════════════════════════════════════════
+  // НОВОЕ — ПОБОЧНЫЕ КВЕСТЫ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Активные побочные квесты.
+  ///
+  /// Формат: `{ "sq_petr": "active", "sq_nina": "completed" }`.
+  final Map<String, String> activeSideQuests;
+
+  /// ID завершённых побочных квестов.
+  final Set<String> completedSideQuests;
+
+  // ═══════════════════════════════════════════════════════════
+  // МЕТА
+  // ═══════════════════════════════════════════════════════════
 
   final DateTime savedAt;
 
@@ -59,12 +87,19 @@ class SaveData {
     Set<String>? scoutedLocations,
     Set<String>? detailedLocations,
     Set<String>? discoveredRegions,
+    this.currentChapterStepId,
+    this.chapterStepIndex = 0,
+    this.mapGoalStartedAt,
+    Map<String, String>? activeSideQuests,
+    Set<String>? completedSideQuests,
     required this.savedAt,
   })  : searchedCounts = searchedCounts ?? {},
         unlockedLocations = unlockedLocations ?? [],
         scoutedLocations = scoutedLocations ?? {},
         detailedLocations = detailedLocations ?? {},
-        discoveredRegions = discoveredRegions ?? {};
+        discoveredRegions = discoveredRegions ?? {},
+        activeSideQuests = activeSideQuests ?? {},
+        completedSideQuests = completedSideQuests ?? {};
 
   Map<String, dynamic> toJson() {
     return {
@@ -90,6 +125,11 @@ class SaveData {
       'scoutedLocations': scoutedLocations.toList(),
       'detailedLocations': detailedLocations.toList(),
       'discoveredRegions': discoveredRegions.toList(),
+      'currentChapterStepId': currentChapterStepId,
+      'chapterStepIndex': chapterStepIndex,
+      'mapGoalStartedAt': mapGoalStartedAt,
+      'activeSideQuests': activeSideQuests,
+      'completedSideQuests': completedSideQuests.toList(),
       'savedAt': savedAt.toIso8601String(),
     };
   }
@@ -133,6 +173,15 @@ class SaveData {
           : {},
       discoveredRegions: json['discoveredRegions'] != null
           ? Set<String>.from(json['discoveredRegions'])
+          : {},
+      currentChapterStepId: json['currentChapterStepId'] as String?,
+      chapterStepIndex: json['chapterStepIndex'] as int? ?? 0,
+      mapGoalStartedAt: json['mapGoalStartedAt'] as int?,
+      activeSideQuests: json['activeSideQuests'] != null
+          ? Map<String, String>.from(json['activeSideQuests'])
+          : {},
+      completedSideQuests: json['completedSideQuests'] != null
+          ? Set<String>.from(json['completedSideQuests'])
           : {},
       savedAt: DateTime.parse(json['savedAt']),
     );

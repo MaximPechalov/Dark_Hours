@@ -4,60 +4,304 @@
   "chapter": 1,
   "title": "Тёмные часы. Глава 1",
   "subtitle": "Первый день",
-  "description": "Первые часы после блекаута. Ты — Борис, слесарь. Ты знаешь город снизу. Тебе нужно решить, что делать.",
-  "acts": [
+  "description": "Первые часы после блекаута. Ты — Борис, слесарь. Ты живёшь в подвале двенадцать лет. Ты знаешь город снизу. Тебе нужно решить, что делать — и с кем.",
+  "estimated_minutes": 120,
+
+  "sequence": [
     {
-      "number": 1,
+      "type": "act",
       "id": "act_1",
-      "title": "Пробуждение",
       "file": "act_1.json",
-      "start_node": "intro",
-      "description": "Первые минуты после блекаута"
+      "title": "Подвал",
+      "entry_location": "home_boris"
     },
     {
-      "number": 2,
+      "type": "map",
+      "id": "map_1_tunnel",
+      "title": "Спуск в тоннель",
+      "description": "Найди люк в тоннель и спустись",
+      "goal": {
+        "type": "reach_location",
+        "target": "tunnel_entrance"
+      },
+      "side_quests": ["sq_petr", "sq_hunter_cache"],
+      "on_complete": {
+        "flag_set": "map_1_complete"
+      }
+    },
+    {
+      "type": "act",
       "id": "act_2",
-      "title": "Тоннели",
       "file": "act_2.json",
-      "entry_nodes": ["a2_street_choice", "a2_tunnel_entrance", "a2_store_approach"],
-      "description": "Первые шаги в мёртвом городе"
+      "title": "Тоннели",
+      "entry_location": "tunnel_entrance"
     },
     {
-      "number": 3,
+      "type": "map",
+      "id": "map_2_cache",
+      "title": "Лесной схрон",
+      "description": "Пётр сказал: в тупике тоннеля есть тайник. Там что-то важное.",
+      "goal": {
+        "type": "find_item",
+        "target": "note"
+      },
+      "side_quests": ["sq_hunter_cache"],
+      "on_complete": {
+        "flag_set": "map_2_complete"
+      }
+    },
+    {
+      "type": "act",
       "id": "act_3",
-      "title": "Убежище или союз",
       "file": "act_3.json",
-      "entry_nodes": ["a3_night_falls"],
-      "description": "Финальный выбор первого дня"
+      "title": "Схрон",
+      "entry_location": "tunnel_dead_end"
+    },
+    {
+      "type": "map",
+      "id": "map_3_shelter",
+      "title": "Первая ночь",
+      "description": "Найди убежище и пережди ночь",
+      "goal": {
+        "type": "survive_night"
+      },
+      "side_quests": ["sq_nina"],
+      "on_complete": {
+        "flag_set": "map_3_complete"
+      }
+    },
+    {
+      "type": "act",
+      "id": "act_4",
+      "file": "act_4.json",
+      "title": "Первая ночь",
+      "entry_flag": "slept_first_night"
+    },
+    {
+      "type": "map",
+      "id": "map_4_home",
+      "title": "Возвращение домой",
+      "description": "Вернись в свой подвал. Там безопасно. Там твой дом.",
+      "goal": {
+        "type": "reach_location",
+        "target": "home_boris"
+      },
+      "on_complete": {
+        "flag_set": "map_4_complete"
+      }
+    },
+    {
+      "type": "act",
+      "id": "act_5",
+      "file": "act_5.json",
+      "title": "Сергей",
+      "entry_location": "home_boris"
+    },
+    {
+      "type": "map",
+      "id": "map_5_hospital",
+      "title": "За лекарствами",
+      "description": "Лена просит найти аптечку для Веры. Девочка при смерти. Время идёт.",
+      "goal": {
+        "type": "find_item",
+        "target": "first_aid_kit"
+      },
+      "time_limit_minutes": 1440,
+      "on_timeout": {
+        "flag_set": "vera_died"
+      },
+      "on_complete": {
+        "flag_set": "found_medicine"
+      }
+    },
+    {
+      "type": "act",
+      "id": "act_6",
+      "file": "act_6.json",
+      "title": "Лена",
+      "entry_flag": "found_medicine"
+    },
+    {
+      "type": "map",
+      "id": "map_6_station",
+      "title": "Путь на вокзал",
+      "description": "Доберись до автовокзала. Оттуда идут автобусы на север. Это твой последний шанс.",
+      "goal": {
+        "type": "reach_location",
+        "target": "bus_station"
+      },
+      "on_complete": {
+        "flag_set": "map_6_complete"
+      }
+    },
+    {
+      "type": "act",
+      "id": "act_7",
+      "file": "act_7.json",
+      "title": "Ночь перед выходом",
+      "entry_location": "bus_station"
+    },
+    {
+      "type": "act",
+      "id": "act_8",
+      "file": "act_8.json",
+      "title": "Развилка",
+      "entry_flag": "ready_to_leave"
     }
   ],
+
   "endings": [
     {
-      "id": "END_shelter",
-      "title": "Убежище",
-      "description": "Ты остался в подвале"
-    },
-    {
       "id": "END_alliance",
-      "title": "Союз",
-      "description": "Ты присоединился к Роману"
+      "title": "Семья",
+      "description": "Ты выходишь из города не один. С тобой — Лена, Вера, Сергей и Дима.",
+      "requires": {
+        "flags_all": ["with_lena", "with_sergey", "stay_with_group"]
+      }
     },
     {
       "id": "END_lena",
-      "title": "С Леной",
-      "description": "Ты идёшь с Леной и Верой"
+      "title": "Защитник",
+      "description": "Ты выходишь с Леной и Верой. Ты защищаешь их. Ты доведёшь их до станции.",
+      "requires": {
+        "flags_all": ["with_lena", "stay_with_group"],
+        "flags_not": ["with_sergey"]
+      }
     },
     {
-      "id": "END_sergey",
-      "title": "С Сергеем",
-      "description": "Ты идёшь с Сергеем и его группой"
+      "id": "END_serega",
+      "title": "Солдат",
+      "description": "Ты выходишь с Сергеем и Димой. Военное братство. Те, кто прикроет спину.",
+      "requires": {
+        "flags_all": ["with_sergey", "stay_with_group"],
+        "flags_not": ["with_lena"]
+      }
     },
     {
-      "id": "END_died",
-      "title": "Смерть",
-      "description": "Ты погиб в первый день"
+      "id": "END_institute",
+      "title": "Правдоискатель",
+      "description": "Ты идёшь не на север, а к институту биологии. Искать ответы. Ты нашёл карту.",
+      "requires": {
+        "flags_all": ["knows_about_institute", "chose_institute"]
+      }
+    },
+    {
+      "id": "END_solo",
+      "title": "Одиночка",
+      "description": "Ты выходишь из города один. Только ты и твой лом. Только ты и твоя жизнь.",
+      "requires": {
+        "flags_all": ["solo_decision"]
+      }
+    },
+    {
+      "id": "END_hermit",
+      "title": "Отшельник",
+      "description": "Ты остаёшься в городе. В подвале. В тишине. В горе. Ты ждёшь.",
+      "requires": {
+        "flags_all": ["chose_back"]
+      }
     }
   ],
-  "total_nodes": 74,
-  "estimated_minutes": 75
+
+  "side_quests": [
+    {
+      "id": "sq_petr",
+      "title": "Раненый в тоннеле",
+      "file": "side_quests/sq_petr.json",
+      "available_on_map": "map_1_tunnel"
+    },
+    {
+      "id": "sq_hunter_cache",
+      "title": "Схрон браконьера",
+      "file": "side_quests/sq_hunter_cache.json",
+      "available_on_map": "map_1_tunnel"
+    },
+    {
+      "id": "sq_nina",
+      "title": "Старушка в магазине",
+      "file": "side_quests/sq_nina.json",
+      "available_on_map": "map_3_shelter"
+    }
+  ],
+
+  "key_flags": [
+    {
+      "id": "with_lena",
+      "description": "Борис взял Лену и Веру под защиту",
+      "set_in": ["act_1", "act_4", "act_5"]
+    },
+    {
+      "id": "with_sergey",
+      "description": "Борис объединился с Сергеем",
+      "set_in": ["act_5"]
+    },
+    {
+      "id": "solo_decision",
+      "description": "Борис решил идти один",
+      "set_in": ["act_5", "act_7"]
+    },
+    {
+      "id": "stay_with_group",
+      "description": "Борис остался с группой до утра",
+      "set_in": ["act_7"]
+    },
+    {
+      "id": "stayed_in_city",
+      "description": "Борис решил остаться в городе",
+      "set_in": ["act_7"]
+    },
+    {
+      "id": "ready_to_leave",
+      "description": "Борис готов выйти из города (вход в акт 8)",
+      "set_in": ["act_7"]
+    },
+    {
+      "id": "knows_about_institute",
+      "description": "Борис знает про институт биологии",
+      "set_in": ["act_2", "act_3"]
+    },
+    {
+      "id": "saved_petr",
+      "description": "Борис спас Петра в тоннеле",
+      "set_in": ["act_2", "sq_petr"]
+    },
+    {
+      "id": "robbed_petr",
+      "description": "Борис обобрал Петра в тоннеле",
+      "set_in": ["act_2", "sq_petr"]
+    },
+    {
+      "id": "knows_about_sabotage",
+      "description": "Борис узнал от Валеры про саботаж на ТЭЦ",
+      "set_in": ["act_1"]
+    },
+    {
+      "id": "heard_panic_voice",
+      "description": "Борис слышал паническое радиосообщение",
+      "set_in": ["act_1"]
+    },
+    {
+      "id": "knows_rumors",
+      "description": "Борис слышал слухи от Петра",
+      "set_in": ["act_2"]
+    },
+    {
+      "id": "heard_soldier_phrase",
+      "description": "Борис слышал фразу военного: «Они отключили свет...»",
+      "set_in": ["act_2"]
+    },
+    {
+      "id": "chose_institute",
+      "description": "Борис выбрал идти к институту",
+      "set_in": ["act_8"]
+    },
+    {
+      "id": "chose_back",
+      "description": "Борис выбрал вернуться в город",
+      "set_in": ["act_8"]
+    }
+  ],
+
+  "total_nodes": 0,
+  "estimated_minutes": 120
 }

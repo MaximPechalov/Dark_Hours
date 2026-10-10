@@ -6,9 +6,9 @@ import 'package:dark_hours/models/character/character_state.dart';
 import 'package:dark_hours/widgets/cards/character_card.dart';
 import 'package:dark_hours/widgets/cards/character_portrait.dart';
 import 'package:dark_hours/services/progress/achievement_manager.dart';
+import 'package:dark_hours/services/story/chapter_runner.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
 import 'package:dark_hours/constants/game_constants.dart';
-import '../gameplay/story_screen.dart';
 
 class CharacterSelectScreen extends StatefulWidget {
   const CharacterSelectScreen({super.key});
@@ -19,11 +19,11 @@ class CharacterSelectScreen extends StatefulWidget {
 
 class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
   String? _selectedCharacterId;
+  bool _isStarting = false;
 
   @override
   void initState() {
     super.initState();
-    // Музыка menu_theme уже играет с StartScreen — не перезапускаем
     AudioService.playMusic('audio/music/menu_theme.ogg');
   }
 
@@ -31,7 +31,6 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
   // ХЕЛПЕРЫ: текстовые эффекты характеристик
   // ═══════════════════════════════════════════════════════════
 
-  /// Цвет полоски для характеристики.
   Color _statColor(String label) {
     switch (label) {
       case 'СИЛА':
@@ -47,19 +46,13 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
     }
   }
 
-  /// Короткая подсказка, что даёт характеристика.
-  ///
-  /// Использует те же формулы, что и в бою/крафте/разведке,
-  /// чтобы игрок видел реальные числа.
   String _statEffect(String label, int value) {
     switch (label) {
       case 'СИЛА':
-        // strength влияет на урон и шанс побега (базовый бонус)
         final fleeBonus = ((value - GameConstants.baseStat) * 5).clamp(-15, 25);
         return 'урон, побег ${fleeBonus >= 0 ? '+' : ''}$fleeBonus%';
 
       case 'ИНТ':
-        // intelligence влияет на крафт (требования рецептов)
         return 'крафт, взлом';
 
       case 'ХИТР':
@@ -73,7 +66,6 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
     }
   }
 
-  /// Что даёт cunning — короткая строка.
   String _cunningEffect(int cunning) {
     final dodge = (GameConstants.cunningDodgeBonus(cunning) * 100).round();
     final scout = GameConstants.cunningScoutBonus(cunning);
@@ -90,7 +82,6 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
     return parts.join(', ');
   }
 
-  /// Что даёт endurance — короткая строка.
   String _enduranceEffect(int endurance) {
     final moveMult = GameConstants.enduranceMoveMultiplier(endurance);
     final movePercent = ((1.0 - moveMult) * 100).round();
@@ -121,7 +112,6 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ─── Строка: ЛЕЙБЛ + ЧИСЛО ───
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -146,7 +136,6 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
         ),
         const SizedBox(height: 3),
 
-        // ─── Полоска ───
         Container(
           height: 4,
           decoration: BoxDecoration(
@@ -165,7 +154,6 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
         ),
         const SizedBox(height: 4),
 
-        // ─── Эффект (мелким шрифтом) ───
         Text(
           effect,
           style: TextStyle(
@@ -179,6 +167,49 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
         ),
       ],
     );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // СТАРТ ИГРЫ
+  // ═══════════════════════════════════════════════════════════
+
+  Future<void> _startGame(Character character) async {
+    if (_isStarting) return;
+    setState(() => _isStarting = true);
+
+    AudioService.playClick();
+
+    // Обновляем статистику
+    final stats = await AchievementManager.loadStats();
+    stats.playedCharacters.add(character.id);
+    stats.totalGamesPlayed += 1;
+    await AchievementManager.saveStats(stats);
+
+    if (!mounted) return;
+
+    // Запускаем главу через ChapterRunner
+    final runner = ChapterRunner(
+      characterId: character.id,
+      characterName: character.name,
+    );
+
+    final loaded = await runner.load();
+    if (!loaded || !mounted) {
+      setState(() => _isStarting = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('❌ Не удалось загрузить главу'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    await runner.start(context);
+
+    if (mounted) {
+      setState(() => _isStarting = false);
+    }
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -199,7 +230,6 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ⚡ Большой портрет + имя и возраст рядом.
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -286,25 +316,16 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
           ),
           const SizedBox(height: 12),
 
-          // ─── Характеристики ───
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: _buildStatBar('СИЛА', character.strength),
-              ),
+              Expanded(child: _buildStatBar('СИЛА', character.strength)),
               const SizedBox(width: 8),
-              Expanded(
-                child: _buildStatBar('ИНТ', character.intelligence),
-              ),
+              Expanded(child: _buildStatBar('ИНТ', character.intelligence)),
               const SizedBox(width: 8),
-              Expanded(
-                child: _buildStatBar('ХИТР', character.cunning),
-              ),
+              Expanded(child: _buildStatBar('ХИТР', character.cunning)),
               const SizedBox(width: 8),
-              Expanded(
-                child: _buildStatBar('ВЫН', character.endurance),
-              ),
+              Expanded(child: _buildStatBar('ВЫН', character.endurance)),
             ],
           ),
 
@@ -312,25 +333,7 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () async {
-                AudioService.playClick();
-
-                final stats = await AchievementManager.loadStats();
-                stats.playedCharacters.add(character.id);
-                stats.totalGamesPlayed += 1;
-                await AchievementManager.saveStats(stats);
-
-                if (!mounted) return;
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => StoryScreen(
-                      characterId: character.id,
-                      characterName: character.name,
-                    ),
-                  ),
-                );
-              },
+              onPressed: _isStarting ? null : () => _startGame(character),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 200, 180, 100),
                 foregroundColor: Colors.black,
@@ -339,14 +342,25 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
                   borderRadius: BorderRadius.circular(8.0),
                 ),
               ),
-              child: const Text(
-                'ВЫБРАТЬ И ИГРАТЬ',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2.0,
-                ),
-              ),
+              child: _isStarting
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.black,
+                        ),
+                      ),
+                    )
+                  : const Text(
+                      'ВЫБРАТЬ И ИГРАТЬ',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2.0,
+                      ),
+                    ),
             ),
           ),
         ],

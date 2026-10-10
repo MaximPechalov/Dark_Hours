@@ -1,0 +1,36 @@
+{
+  "id": "map_3_shelter",
+  "title": "Первая ночь",
+  "description": "Найди убежище и пережди ночь. Утром будет новый день.",
+
+  "entry_from_act": "act_3",
+  "next_act": "act_4",
+
+  "goal": {
+    "type": "survive_night",
+    "target": "slept_first_night",
+    "hint": "Найди безопасное место и отдохни",
+    "on_complete": {
+      "flag_set": "map_3_complete",
+      "message": "Ты выжил первую ночь. Утро."
+    }
+  },
+
+  "side_quests": ["sq_nina"],
+
+  "restrictions": {
+    "block_locations": [],
+    "time_limit_minutes": 0
+  },
+
+  "hints": [
+    {
+      "on_enter_location": "supermarket",
+      "text": "В подсобке кто-то есть. Может, стоит проверить."
+    },
+    {
+      "on_enter_location": "home_boris",
+      "text": "Твой подвал — безопасное место. Здесь можно переждать ночь."
+    }
+  ]
+}

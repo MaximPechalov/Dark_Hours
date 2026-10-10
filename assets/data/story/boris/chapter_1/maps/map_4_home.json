@@ -1,0 +1,32 @@
+{
+  "id": "map_4_home",
+  "title": "Возвращение домой",
+  "description": "Вернись в свой подвал. Там безопасно. Там твой дом.",
+
+  "entry_from_act": "act_4",
+  "next_act": "act_5",
+
+  "goal": {
+    "type": "reach_location",
+    "target": "home_boris",
+    "hint": "Твой подвал ждёт тебя",
+    "on_complete": {
+      "flag_set": "map_4_complete",
+      "message": "Ты дома. Пора отдохнуть."
+    }
+  },
+
+  "side_quests": [],
+
+  "restrictions": {
+    "block_locations": [],
+    "time_limit_minutes": 0
+  },
+
+  "hints": [
+    {
+      "on_enter_location": "street_south",
+      "text": "Твой дом — на юге города. Недалеко."
+    }
+  ]
+}

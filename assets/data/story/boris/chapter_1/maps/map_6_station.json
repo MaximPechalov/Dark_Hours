@@ -1,0 +1,32 @@
+{
+  "id": "map_6_station",
+  "title": "Путь на вокзал",
+  "description": "Доберись до автовокзала. Оттуда идут автобусы на север. Это твой последний шанс.",
+
+  "entry_from_act": "act_6",
+  "next_act": "act_7",
+
+  "goal": {
+    "type": "reach_location",
+    "target": "bus_station",
+    "hint": "Автовокзал — на выезде из города. Это последняя точка.",
+    "on_complete": {
+      "flag_set": "map_6_complete",
+      "message": "Ты на вокзале. Ночь. Завтра — выход."
+    }
+  },
+
+  "side_quests": [],
+
+  "restrictions": {
+    "block_locations": [],
+    "time_limit_minutes": 0
+  },
+
+  "hints": [
+    {
+      "on_enter_location": "highway_entrance",
+      "text": "Ты почти у цели. Вокзал — рядом."
+    }
+  ]
+}

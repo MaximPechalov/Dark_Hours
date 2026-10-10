@@ -1,0 +1,41 @@
+{
+  "id": "sq_hunter_cache",
+  "title": "Схрон браконьера",
+  "description": "В тупике тоннеля, под камнями, кто-то спрятал тайник.",
+
+  "trigger": {
+    "location_id": "tunnel_dead_end",
+    "event": "on_enter",
+    "condition": {
+      "flags_all": ["found_petr"]
+    },
+    "hint": "Под камнем в углу — что-то есть"
+  },
+
+  "steps": [
+    {
+      "id": "step_1",
+      "type": "interact",
+      "target": "cache_hidden",
+      "hint": "Осмотреть камни в углу",
+      "requires": {
+        "has_item_or": ["crowbar", "key"]
+      }
+    }
+  ],
+
+  "outcomes": [
+    {
+      "id": "found",
+      "condition": {
+        "flags_all": ["found_cache"]
+      },
+      "flag_set": "found_hunter_cache",
+      "reward": {
+        "items": ["raw_meat", "bandage", "bandage", "whistle"],
+        "sanity": 5,
+        "message": "Ты отодвинул камни. Под ними — старый рюкзак браконьера. Есть чем поживиться."
+      }
+    }
+  ]
+}

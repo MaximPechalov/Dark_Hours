@@ -1,8 +1,8 @@
 # PROJECT DUMP
 
-**Generated:** Sat Oct 10 10:50:40 UTC 2026
+**Generated:** Sat Oct 10 12:02:57 UTC 2026
 **Root:** /workspaces/Dark_Hours
-**Files:** 339
+**Files:** 340
 
 ## 📁 STRUCTURE
 
@@ -320,6 +320,7 @@
 ./raw_weapons/sledgehammer.jpeg
 ./raw_weapons/spear.jpeg
 ./test/_helpers/test_fixtures.dart
+./test/constants/game_constants_test.dart
 ./test/models/combat_test.dart
 ./test/models/equipment_test.dart
 ./test/models/inventory_test.dart
@@ -2489,6 +2490,53 @@ include(":app")
 {
   "locations": [
     {
+      "id": "home_andrey",
+      "name": "Квартира Андрея",
+      "scouted_name": "Высотка ЖК «Алые Паруса»",
+      "description": "Твоя квартира на 15-м этаже. Панорамные окна, серверная, запас кофе.",
+      "scouted_description": "Высотка в центре. Ты знаешь это место.",
+      "type": "safe_house",
+      "region": "city_center",
+      "danger_level": 0,
+      "search_time": 30,
+      "max_searches": 3,
+      "loot_pool": ["battery", "electronics", "coffee", "chocolate"],
+      "enemies": [],
+      "connections": [
+        { "id": "office_tower", "minutes": 5 },
+        { "id": "cafe_center", "minutes": 10 },
+        { "id": "gym", "minutes": 10 },
+        { "id": "street_center", "minutes": 15 }
+      ],
+      "icon": "🏙️",
+      "repeatable": true,
+      "mapPosition": { "x": 0.65, "y": 0.45 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "home_darya",
+      "name": "Квартира Дарьи",
+      "scouted_name": "Дом напротив больницы",
+      "description": "Твоя квартира. Напротив — городская больница. В шкафу — медсумка и запас на смену.",
+      "scouted_description": "Жилой дом. Ты знаешь это место.",
+      "type": "safe_house",
+      "region": "city_center",
+      "danger_level": 0,
+      "search_time": 30,
+      "max_searches": 3,
+      "loot_pool": ["bandage", "painkiller_pill", "water_bottle"],
+      "enemies": [],
+      "connections": [
+        { "id": "hospital", "minutes": 10 },
+        { "id": "metro_station_center", "minutes": 15 },
+        { "id": "clinic_south", "minutes": 25 }
+      ],
+      "icon": "🏠",
+      "repeatable": true,
+      "mapPosition": { "x": 0.20, "y": 0.90 },
+      "map_zone": "city_center"
+    },
+    {
       "id": "hospital",
       "name": "Городская больница",
       "scouted_name": "Большое серое здание",
@@ -2516,7 +2564,7 @@ include(":app")
         "character": "ivan",
         "once": true
       },
-      "mapPosition": { "x": 0.15, "y": 0.15 },
+      "mapPosition": { "x": 0.25, "y": 0.85 },
       "map_zone": "city_center"
     },
     {
@@ -2544,7 +2592,7 @@ include(":app")
       ],
       "icon": "🛣️",
       "repeatable": true,
-      "mapPosition": { "x": 0.34, "y": 0.30 },
+      "mapPosition": { "x": 0.45, "y": 0.70 },
       "map_zone": "city_center"
     },
     {
@@ -2572,7 +2620,7 @@ include(":app")
         "character": "alina",
         "once": true
       },
-      "mapPosition": { "x": 0.85, "y": 0.15 },
+      "mapPosition": { "x": 0.70, "y": 0.20 },
       "map_zone": "city_center"
     },
     {
@@ -2595,7 +2643,7 @@ include(":app")
       ],
       "icon": "🏢",
       "repeatable": true,
-      "mapPosition": { "x": 0.75, "y": 0.50 },
+      "mapPosition": { "x": 0.70, "y": 0.50 },
       "map_zone": "city_center"
     },
     {
@@ -2617,7 +2665,7 @@ include(":app")
       "icon": "🌃",
       "repeatable": true,
       "risk": "fall",
-      "mapPosition": { "x": 0.80, "y": 0.55 },
+      "mapPosition": { "x": 0.65, "y": 0.55 },
       "map_zone": "city_center"
     },
     {
@@ -2640,7 +2688,7 @@ include(":app")
       "repeatable": true,
       "hidden": true,
       "unlocked_by": "hospital",
-      "mapPosition": { "x": 0.20, "y": 0.20 },
+      "mapPosition": { "x": 0.28, "y": 0.92 },
       "map_zone": "city_center"
     },
     {
@@ -2662,7 +2710,7 @@ include(":app")
       ],
       "icon": "📚",
       "repeatable": true,
-      "mapPosition": { "x": 0.15, "y": 0.40 },
+      "mapPosition": { "x": 0.20, "y": 0.30 },
       "map_zone": "city_center"
     },
     {
@@ -2685,7 +2733,7 @@ include(":app")
       ],
       "icon": "🎭",
       "repeatable": true,
-      "mapPosition": { "x": 0.15, "y": 0.55 },
+      "mapPosition": { "x": 0.15, "y": 0.45 },
       "map_zone": "city_center"
     },
     {
@@ -2708,7 +2756,7 @@ include(":app")
       ],
       "icon": "🏛️",
       "repeatable": true,
-      "mapPosition": { "x": 0.50, "y": 0.42 },
+      "mapPosition": { "x": 0.50, "y": 0.35 },
       "map_zone": "city_center"
     },
     {
@@ -2732,7 +2780,7 @@ include(":app")
       ],
       "icon": "🌳",
       "repeatable": true,
-      "mapPosition": { "x": 0.15, "y": 0.50 },
+      "mapPosition": { "x": 0.20, "y": 0.10 },
       "map_zone": "city_center"
     },
     {
@@ -2755,7 +2803,7 @@ include(":app")
       ],
       "icon": "☕",
       "repeatable": true,
-      "mapPosition": { "x": 0.40, "y": 0.40 },
+      "mapPosition": { "x": 0.45, "y": 0.45 },
       "map_zone": "city_center"
     },
     {
@@ -2778,7 +2826,7 @@ include(":app")
       "icon": "🚇",
       "repeatable": true,
       "risk": "dirty_water",
-      "mapPosition": { "x": 0.50, "y": 0.65 },
+      "mapPosition": { "x": 0.20, "y": 0.65 },
       "map_zone": "city_center"
     },
     {
@@ -2823,7 +2871,7 @@ include(":app")
       ],
       "icon": "⛪",
       "repeatable": true,
-      "mapPosition": { "x": 0.15, "y": 0.75 },
+      "mapPosition": { "x": 0.60, "y": 0.85 },
       "map_zone": "city_center"
     },
     {
@@ -2846,7 +2894,7 @@ include(":app")
       "icon": "📡",
       "repeatable": true,
       "risk": "fall",
-      "mapPosition": { "x": 0.85, "y": 0.65 },
+      "mapPosition": { "x": 0.75, "y": 0.10 },
       "map_zone": "city_center"
     },
     {
@@ -2868,7 +2916,7 @@ include(":app")
       ],
       "icon": "🏛️",
       "repeatable": true,
-      "mapPosition": { "x": 0.50, "y": 0.15 },
+      "mapPosition": { "x": 0.50, "y": 0.20 },
       "map_zone": "city_center"
     },
     {
@@ -2890,7 +2938,7 @@ include(":app")
       ],
       "icon": "🏦",
       "repeatable": true,
-      "mapPosition": { "x": 0.50, "y": 0.75 },
+      "mapPosition": { "x": 0.50, "y": 0.55 },
       "map_zone": "city_center"
     },
     {
@@ -2911,7 +2959,7 @@ include(":app")
       ],
       "icon": "🦁",
       "repeatable": true,
-      "mapPosition": { "x": 0.05, "y": 0.40 },
+      "mapPosition": { "x": 0.05, "y": 0.15 },
       "map_zone": "city_center"
     },
     {
@@ -2933,7 +2981,7 @@ include(":app")
       ],
       "icon": "🪐",
       "repeatable": true,
-      "mapPosition": { "x": 0.85, "y": 0.35 },
+      "mapPosition": { "x": 0.75, "y": 0.35 },
       "map_zone": "city_center"
     },
     {
@@ -2955,7 +3003,7 @@ include(":app")
       ],
       "icon": "🏋️",
       "repeatable": true,
-      "mapPosition": { "x": 0.85, "y": 0.75 },
+      "mapPosition": { "x": 0.80, "y": 0.70 },
       "map_zone": "city_center"
     }
   ]
@@ -2986,7 +3034,54 @@ include(":app")
       "icon": "🏠",
       "repeatable": true,
       "is_start": true,
-      "mapPosition": { "x": 0.12, "y": 0.85 },
+      "mapPosition": { "x": 0.10, "y": 0.70 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "home_alina",
+      "name": "Квартира Алины",
+      "scouted_name": "Дом с спортивной вывеской",
+      "description": "Твоя квартира на 9-м этаже. Через дорогу — «Магнит». Всё ещё пахнет утренним кофе.",
+      "scouted_description": "Высотка напротив магазина. Ты знаешь это место.",
+      "type": "safe_house",
+      "region": "city_south",
+      "danger_level": 0,
+      "search_time": 30,
+      "max_searches": 3,
+      "loot_pool": ["water_bottle", "crackers", "bandage"],
+      "enemies": [],
+      "connections": [
+        { "id": "supermarket", "minutes": 5 },
+        { "id": "street_south", "minutes": 15 },
+        { "id": "pizzeria", "minutes": 10 },
+        { "id": "parking", "minutes": 15 }
+      ],
+      "icon": "🏢",
+      "repeatable": true,
+      "mapPosition": { "x": 0.65, "y": 0.25 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "home_ivan",
+      "name": "Дом Ивана Ильича",
+      "scouted_name": "Частный дом у леса",
+      "description": "Твой дом на краю города. Забор, яблоня, подвал с припасами. Рядом — лес.",
+      "scouted_description": "Одноэтажный дом с забором. Ты знаешь это место.",
+      "type": "safe_house",
+      "region": "city_south",
+      "danger_level": 0,
+      "search_time": 30,
+      "max_searches": 4,
+      "loot_pool": ["canned_stew", "water_bottle", "wood", "matches"],
+      "enemies": [],
+      "connections": [
+        { "id": "park_south", "minutes": 10 },
+        { "id": "fire_station", "minutes": 15 },
+        { "id": "school_south", "minutes": 20 }
+      ],
+      "icon": "🏡",
+      "repeatable": true,
+      "mapPosition": { "x": 0.15, "y": 0.35 },
       "map_zone": "city_south"
     },
     {
@@ -3015,7 +3110,7 @@ include(":app")
       ],
       "icon": "🛣️",
       "repeatable": true,
-      "mapPosition": { "x": 0.32, "y": 0.50 },
+      "mapPosition": { "x": 0.40, "y": 0.48 },
       "map_zone": "city_south"
     },
     {
@@ -3044,7 +3139,7 @@ include(":app")
         "character": "boris",
         "once": true
       },
-      "mapPosition": { "x": 0.50, "y": 0.50 },
+      "mapPosition": { "x": 0.55, "y": 0.30 },
       "map_zone": "city_south"
     },
     {
@@ -3073,7 +3168,7 @@ include(":app")
         "character": "darya",
         "once": true
       },
-      "mapPosition": { "x": 0.45, "y": 0.30 },
+      "mapPosition": { "x": 0.45, "y": 0.08 },
       "map_zone": "city_south"
     },
     {
@@ -3102,7 +3197,7 @@ include(":app")
         "character": "andrey",
         "once": true
       },
-      "mapPosition": { "x": 0.80, "y": 0.75 },
+      "mapPosition": { "x": 0.50, "y": 0.90 },
       "map_zone": "city_south"
     },
     {
@@ -3124,7 +3219,7 @@ include(":app")
       ],
       "icon": "🅿️",
       "repeatable": true,
-      "mapPosition": { "x": 0.85, "y": 0.45 },
+      "mapPosition": { "x": 0.85, "y": 0.65 },
       "map_zone": "city_south"
     },
     {
@@ -3148,7 +3243,7 @@ include(":app")
       ],
       "icon": "📦",
       "repeatable": true,
-      "mapPosition": { "x": 0.15, "y": 0.75 },
+      "mapPosition": { "x": 0.15, "y": 0.55 },
       "map_zone": "city_south"
     },
     {
@@ -3171,7 +3266,7 @@ include(":app")
       "repeatable": true,
       "hidden": true,
       "unlocked_by": "supermarket",
-      "mapPosition": { "x": 0.55, "y": 0.55 },
+      "mapPosition": { "x": 0.55, "y": 0.35 },
       "map_zone": "city_south"
     },
     {
@@ -3194,7 +3289,7 @@ include(":app")
       "repeatable": true,
       "hidden": true,
       "unlocked_by": "warehouse",
-      "mapPosition": { "x": 0.10, "y": 0.70 },
+      "mapPosition": { "x": 0.12, "y": 0.50 },
       "map_zone": "city_south"
     },
     {
@@ -3217,7 +3312,7 @@ include(":app")
       ],
       "icon": "🏫",
       "repeatable": true,
-      "mapPosition": { "x": 0.50, "y": 0.15 },
+      "mapPosition": { "x": 0.55, "y": 0.15 },
       "map_zone": "city_south"
     },
     {
@@ -3243,7 +3338,7 @@ include(":app")
       ],
       "icon": "🌳",
       "repeatable": true,
-      "mapPosition": { "x": 0.20, "y": 0.48 },
+      "mapPosition": { "x": 0.20, "y": 0.45 },
       "map_zone": "city_south"
     },
     {
@@ -3266,7 +3361,7 @@ include(":app")
       "icon": "🏗️",
       "repeatable": true,
       "risk": "fall",
-      "mapPosition": { "x": 0.15, "y": 0.60 },
+      "mapPosition": { "x": 0.20, "y": 0.65 },
       "map_zone": "city_south"
     },
     {
@@ -3288,7 +3383,7 @@ include(":app")
       ],
       "icon": "🏥",
       "repeatable": true,
-      "mapPosition": { "x": 0.85, "y": 0.15 },
+      "mapPosition": { "x": 0.80, "y": 0.20 },
       "map_zone": "city_south"
     },
     {
@@ -3311,7 +3406,7 @@ include(":app")
       ],
       "icon": "🔧",
       "repeatable": true,
-      "mapPosition": { "x": 0.85, "y": 0.85 },
+      "mapPosition": { "x": 0.80, "y": 0.85 },
       "map_zone": "city_south"
     },
     {
@@ -3334,7 +3429,7 @@ include(":app")
       ],
       "icon": "🗑️",
       "repeatable": true,
-      "mapPosition": { "x": 0.05, "y": 0.95 },
+      "mapPosition": { "x": 0.10, "y": 0.88 },
       "map_zone": "city_south"
     },
     {
@@ -3357,7 +3452,7 @@ include(":app")
       ],
       "icon": "🚒",
       "repeatable": true,
-      "mapPosition": { "x": 0.20, "y": 0.20 },
+      "mapPosition": { "x": 0.30, "y": 0.12 },
       "map_zone": "city_south"
     },
     {
@@ -3402,7 +3497,7 @@ include(":app")
       ],
       "icon": "🍕",
       "repeatable": true,
-      "mapPosition": { "x": 0.55, "y": 0.45 },
+      "mapPosition": { "x": 0.65, "y": 0.35 },
       "map_zone": "city_south"
     },
     {
@@ -45462,6 +45557,462 @@ List<Connection> conns(List<String> ids, {int minutes = 10}) {
 }
 ```
 
+### 📄 `./test/constants/game_constants_test.dart`
+```dart
+// test/constants/game_constants_test.dart
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:dark_hours/constants/game_constants.dart';
+
+void main() {
+  // ═══════════════════════════════════════════════════════════
+  // СТАТЫ ПЕРСОНАЖЕЙ
+  // ═══════════════════════════════════════════════════════════
+
+  group('GameConstants.statsFor', () {
+    test('возвращает статы для boris', () {
+      final stats = GameConstants.statsFor('boris');
+      expect(stats['intelligence'], 5);
+      expect(stats['strength'], 7);
+      expect(stats['cunning'], 4);
+      expect(stats['endurance'], 6);
+    });
+
+    test('возвращает статы для alina', () {
+      final stats = GameConstants.statsFor('alina');
+      expect(stats['intelligence'], 4);
+      expect(stats['strength'], 3);
+      expect(stats['cunning'], 6);
+      expect(stats['endurance'], 9);
+    });
+
+    test('возвращает статы для ivan', () {
+      final stats = GameConstants.statsFor('ivan');
+      expect(stats['intelligence'], 8);
+      expect(stats['strength'], 4);
+      expect(stats['cunning'], 8);
+      expect(stats['endurance'], 3);
+    });
+
+    test('возвращает статы для andrey', () {
+      final stats = GameConstants.statsFor('andrey');
+      expect(stats['intelligence'], 9);
+      expect(stats['strength'], 2);
+      expect(stats['cunning'], 4);
+      expect(stats['endurance'], 4);
+    });
+
+    test('возвращает статы для darya', () {
+      final stats = GameConstants.statsFor('darya');
+      expect(stats['intelligence'], 7);
+      expect(stats['strength'], 4);
+      expect(stats['cunning'], 6);
+      expect(stats['endurance'], 6);
+    });
+
+    test('возвращает дефолтные статы для неизвестного персонажа', () {
+      final stats = GameConstants.statsFor('nonexistent');
+      expect(stats['intelligence'], GameConstants.defaultIntelligence);
+      expect(stats['strength'], GameConstants.defaultStrength);
+      expect(stats['cunning'], GameConstants.defaultCunning);
+      expect(stats['endurance'], GameConstants.defaultEndurance);
+    });
+  });
+
+  group('GameConstants.cunningFor / enduranceFor', () {
+    test('cunningFor возвращает правильное значение', () {
+      expect(GameConstants.cunningFor('boris'), 4);
+      expect(GameConstants.cunningFor('alina'), 6);
+      expect(GameConstants.cunningFor('ivan'), 8);
+      expect(GameConstants.cunningFor('andrey'), 4);
+      expect(GameConstants.cunningFor('darya'), 6);
+    });
+
+    test('enduranceFor возвращает правильное значение', () {
+      expect(GameConstants.enduranceFor('boris'), 6);
+      expect(GameConstants.enduranceFor('alina'), 9);
+      expect(GameConstants.enduranceFor('ivan'), 3);
+      expect(GameConstants.enduranceFor('andrey'), 4);
+      expect(GameConstants.enduranceFor('darya'), 6);
+    });
+
+    test('cunningFor возвращает дефолт для неизвестного', () {
+      expect(
+        GameConstants.cunningFor('nonexistent'),
+        GameConstants.defaultCunning,
+      );
+    });
+
+    test('enduranceFor возвращает дефолт для неизвестного', () {
+      expect(
+        GameConstants.enduranceFor('nonexistent'),
+        GameConstants.defaultEndurance,
+      );
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // CUNNING — УКЛОНЕНИЕ
+  // ═══════════════════════════════════════════════════════════
+
+  group('GameConstants.cunningDodgeBonus', () {
+    test('cunning 5 (baseStat) → 0', () {
+      expect(GameConstants.cunningDodgeBonus(5), 0.0);
+    });
+
+    test('cunning 8 → +0.09 (3 * 0.03)', () {
+      expect(GameConstants.cunningDodgeBonus(8), closeTo(0.09, 0.001));
+    });
+
+    test('cunning 10 → клампится к max 0.15', () {
+      expect(GameConstants.cunningDodgeBonus(10), 0.15);
+    });
+
+    test('cunning 1 → клампится к min -0.10', () {
+      expect(GameConstants.cunningDodgeBonus(1), -0.10);
+    });
+
+    test('cunning 3 → штраф -0.06 (2 пункта ниже базы * 0.03)', () {
+      expect(GameConstants.cunningDodgeBonus(3), closeTo(-0.06, 0.001));
+    });
+
+    test('cunning 6 → +0.03', () {
+      expect(GameConstants.cunningDodgeBonus(6), closeTo(0.03, 0.001));
+    });
+
+    test('cunning 4 → -0.03', () {
+      expect(GameConstants.cunningDodgeBonus(4), closeTo(-0.03, 0.001));
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // CUNNING — РАЗВЕДКА
+  // ═══════════════════════════════════════════════════════════
+
+  group('GameConstants.cunningScoutBonus', () {
+    test('cunning 5 → 0', () {
+      expect(GameConstants.cunningScoutBonus(5), 0);
+    });
+
+    test('cunning 8 → +3 локации', () {
+      expect(GameConstants.cunningScoutBonus(8), 3);
+    });
+
+    test('cunning 10 → клампится к max 5', () {
+      expect(GameConstants.cunningScoutBonus(10), 5);
+    });
+
+    test('cunning 3 → 0 (кламп снизу, штрафа нет)', () {
+      expect(GameConstants.cunningScoutBonus(3), 0);
+    });
+
+    test('cunning 4 → 0 (штрафа нет)', () {
+      expect(GameConstants.cunningScoutBonus(4), 0);
+    });
+
+    test('cunning 6 → +1 локация', () {
+      expect(GameConstants.cunningScoutBonus(6), 1);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // CUNNING — ПОБЕГ
+  // ═══════════════════════════════════════════════════════════
+
+  group('GameConstants.cunningFleeBonus', () {
+    test('cunning 5 → 0', () {
+      expect(GameConstants.cunningFleeBonus(5), 0.0);
+    });
+
+    test('cunning 8 → +0.12 (3 * 0.04)', () {
+      expect(GameConstants.cunningFleeBonus(8), closeTo(0.12, 0.001));
+    });
+
+    test('cunning 10 → клампится к max 0.20', () {
+      expect(GameConstants.cunningFleeBonus(10), 0.20);
+    });
+
+    test('cunning 3 → 0 (штрафа нет, flee всегда ≥ 0)', () {
+      expect(GameConstants.cunningFleeBonus(3), 0.0);
+    });
+
+    test('cunning 1 → 0 (штрафа нет)', () {
+      expect(GameConstants.cunningFleeBonus(1), 0.0);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // CUNNING — ВРЕМЯ КРАФТА
+  // ═══════════════════════════════════════════════════════════
+
+  group('GameConstants.cunningCraftTimeSave', () {
+    test('cunning 5 → 0', () {
+      expect(GameConstants.cunningCraftTimeSave(5), 0);
+    });
+
+    test('cunning 8 → -3 минуты', () {
+      expect(GameConstants.cunningCraftTimeSave(8), 3);
+    });
+
+    test('cunning 10 → клампится к max 5', () {
+      expect(GameConstants.cunningCraftTimeSave(10), 5);
+    });
+
+    test('cunning 3 → 0 (штрафа нет)', () {
+      expect(GameConstants.cunningCraftTimeSave(3), 0);
+    });
+
+    test('cunning 6 → -1 минута', () {
+      expect(GameConstants.cunningCraftTimeSave(6), 1);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // ENDURANCE — СТОИМОСТЬ ПЕРЕМЕЩЕНИЯ
+  // ═══════════════════════════════════════════════════════════
+
+  group('GameConstants.enduranceMoveMultiplier', () {
+    test('endurance 5 (baseStat) → 1.0 (база)', () {
+      expect(GameConstants.enduranceMoveMultiplier(5), closeTo(1.0, 0.001));
+    });
+
+    test('endurance 9 → 0.80 (на 20% дешевле)', () {
+      expect(GameConstants.enduranceMoveMultiplier(9), closeTo(0.80, 0.001));
+    });
+
+    test('endurance 10 → клампится к 0.75', () {
+      expect(GameConstants.enduranceMoveMultiplier(10), 0.75);
+    });
+
+    test('endurance 3 → 1.10 (на 10% дороже)', () {
+      expect(GameConstants.enduranceMoveMultiplier(3), closeTo(1.10, 0.001));
+    });
+
+    test('endurance 1 → клампится к 1.20 (максимум +20%)', () {
+      expect(GameConstants.enduranceMoveMultiplier(1), 1.20);
+    });
+
+    test('endurance 6 → 0.95 (на 5% дешевле)', () {
+      expect(GameConstants.enduranceMoveMultiplier(6), closeTo(0.95, 0.001));
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // ENDURANCE — ОТДЫХ
+  // ═══════════════════════════════════════════════════════════
+
+  group('GameConstants.enduranceRestBonus', () {
+    test('endurance 5 → 0', () {
+      expect(GameConstants.enduranceRestBonus(5), 0);
+    });
+
+    test('endurance 9 → +8 (4 * 2)', () {
+      expect(GameConstants.enduranceRestBonus(9), 8);
+    });
+
+    test('endurance 10 → клампится к max 10', () {
+      expect(GameConstants.enduranceRestBonus(10), 10);
+    });
+
+    test('endurance 1 → клампится к min -6', () {
+      expect(GameConstants.enduranceRestBonus(1), -6);
+    });
+
+    test('endurance 3 → -4 ((3-5)*2)', () {
+      expect(GameConstants.enduranceRestBonus(3), -4);
+    });
+
+    test('endurance 6 → +2', () {
+      expect(GameConstants.enduranceRestBonus(6), 2);
+    });
+
+    test('endurance 2 → клампится к min -6', () {
+      expect(GameConstants.enduranceRestBonus(2), -6);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // ENDURANCE — ПОБЕГ
+  // ═══════════════════════════════════════════════════════════
+
+  group('GameConstants.enduranceFleeBonus', () {
+    test('endurance 5 → 0', () {
+      expect(GameConstants.enduranceFleeBonus(5), 0.0);
+    });
+
+    test('endurance 9 → +0.16 (4 * 0.04)', () {
+      expect(GameConstants.enduranceFleeBonus(9), closeTo(0.16, 0.001));
+    });
+
+    test('endurance 10 → клампится к max 0.20', () {
+      expect(GameConstants.enduranceFleeBonus(10), 0.20);
+    });
+
+    test('endurance 3 → 0 (штрафа нет)', () {
+      expect(GameConstants.enduranceFleeBonus(3), 0.0);
+    });
+
+    test('endurance 6 → +0.04', () {
+      expect(GameConstants.enduranceFleeBonus(6), closeTo(0.04, 0.001));
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // ENDURANCE — УСТАЛОСТЬ
+  // ═══════════════════════════════════════════════════════════
+
+  group('GameConstants.enduranceFatigueMultiplier', () {
+    test('endurance 5 → 1.0', () {
+      expect(
+        GameConstants.enduranceFatigueMultiplier(5),
+        closeTo(1.0, 0.001),
+      );
+    });
+
+    test('endurance 9 → 0.80 (на 20% меньше усталости)', () {
+      expect(
+        GameConstants.enduranceFatigueMultiplier(9),
+        closeTo(0.80, 0.001),
+      );
+    });
+
+    test('endurance 10 → клампится к 0.75', () {
+      expect(GameConstants.enduranceFatigueMultiplier(10), 0.75);
+    });
+
+    test('endurance 1 → клампится к 1.10 (максимум +10%)', () {
+      expect(GameConstants.enduranceFatigueMultiplier(1), 1.10);
+    });
+
+    test('endurance 3 → 1.10 (штраф +10%)', () {
+      expect(
+        GameConstants.enduranceFatigueMultiplier(3),
+        closeTo(1.10, 0.001),
+      );
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // ИНТЕГРАЦИОННЫЕ ПРОВЕРКИ
+  // ═══════════════════════════════════════════════════════════
+
+  group('Сравнение персонажей по формулам', () {
+    test('Иван (cunning 8) уклоняется лучше Бориса (cunning 4)', () {
+      final ivanDodge = GameConstants.cunningDodgeBonus(8);
+      final borisDodge = GameConstants.cunningDodgeBonus(4);
+      expect(ivanDodge, greaterThan(borisDodge));
+    });
+
+    test('Иван (cunning 8) разведывает больше Бориса (cunning 4)', () {
+      final ivanScout = GameConstants.cunningScoutBonus(8);
+      final borisScout = GameConstants.cunningScoutBonus(4);
+      expect(ivanScout, greaterThan(borisScout));
+    });
+
+    test('Алина (endurance 9) бегает дешевле Ивана (endurance 3)', () {
+      final alina = GameConstants.enduranceMoveMultiplier(9);
+      final ivan = GameConstants.enduranceMoveMultiplier(3);
+      expect(alina, lessThan(ivan));
+    });
+
+    test('Алина (endurance 9) лучше убегает, чем Борис (endurance 6)', () {
+      final alina = GameConstants.enduranceFleeBonus(9);
+      final boris = GameConstants.enduranceFleeBonus(6);
+      expect(alina, greaterThan(boris));
+    });
+
+    test('Иван (cunning 8) крафтит быстрее Андрея (cunning 4)', () {
+      final ivan = GameConstants.cunningCraftTimeSave(8);
+      final andrey = GameConstants.cunningCraftTimeSave(4);
+      expect(ivan, greaterThan(andrey));
+    });
+
+    test('Алина (endurance 9) устаёт медленнее Ивана (endurance 3)', () {
+      final alina = GameConstants.enduranceFatigueMultiplier(9);
+      final ivan = GameConstants.enduranceFatigueMultiplier(3);
+      expect(alina, lessThan(ivan));
+    });
+
+    test('Алина (endurance 9) восстанавливается лучше Ивана (3) на отдыхе',
+        () {
+      final alina = GameConstants.enduranceRestBonus(9);
+      final ivan = GameConstants.enduranceRestBonus(3);
+      expect(alina, greaterThan(ivan));
+    });
+  });
+
+  group('Границы и клампы', () {
+    test('cunningDodgeBonus всегда в [-0.10, 0.15]', () {
+      for (int c = 0; c <= 10; c++) {
+        final v = GameConstants.cunningDodgeBonus(c);
+        expect(v, greaterThanOrEqualTo(GameConstants.cunningDodgeMin));
+        expect(v, lessThanOrEqualTo(GameConstants.cunningDodgeMax));
+      }
+    });
+
+    test('cunningScoutBonus всегда в [0, 5]', () {
+      for (int c = 0; c <= 10; c++) {
+        final v = GameConstants.cunningScoutBonus(c);
+        expect(v, greaterThanOrEqualTo(0));
+        expect(v, lessThanOrEqualTo(GameConstants.cunningScoutMax));
+      }
+    });
+
+    test('cunningFleeBonus всегда в [0, 0.20]', () {
+      for (int c = 0; c <= 10; c++) {
+        final v = GameConstants.cunningFleeBonus(c);
+        expect(v, greaterThanOrEqualTo(0.0));
+        expect(v, lessThanOrEqualTo(GameConstants.cunningFleeMax));
+      }
+    });
+
+    test('cunningCraftTimeSave всегда в [0, 5]', () {
+      for (int c = 0; c <= 10; c++) {
+        final v = GameConstants.cunningCraftTimeSave(c);
+        expect(v, greaterThanOrEqualTo(0));
+        expect(v, lessThanOrEqualTo(GameConstants.cunningCraftTimeSaveMax));
+      }
+    });
+
+    test('enduranceMoveMultiplier всегда в [0.75, 1.20]', () {
+      final minMult = 1.0 - GameConstants.enduranceMoveCostMaxSave;
+      final maxMult = 1.0 + GameConstants.enduranceMoveCostMaxPenalty;
+      for (int e = 0; e <= 10; e++) {
+        final v = GameConstants.enduranceMoveMultiplier(e);
+        expect(v, greaterThanOrEqualTo(minMult - 0.001));
+        expect(v, lessThanOrEqualTo(maxMult + 0.001));
+      }
+    });
+
+    test('enduranceRestBonus всегда в [-6, 10]', () {
+      for (int e = 0; e <= 10; e++) {
+        final v = GameConstants.enduranceRestBonus(e);
+        expect(v, greaterThanOrEqualTo(GameConstants.enduranceRestBonusMin));
+        expect(v, lessThanOrEqualTo(GameConstants.enduranceRestBonusMax));
+      }
+    });
+
+    test('enduranceFleeBonus всегда в [0, 0.20]', () {
+      for (int e = 0; e <= 10; e++) {
+        final v = GameConstants.enduranceFleeBonus(e);
+        expect(v, greaterThanOrEqualTo(0.0));
+        expect(v, lessThanOrEqualTo(GameConstants.enduranceFleeMax));
+      }
+    });
+
+    test('enduranceFatigueMultiplier всегда в [0.75, 1.10]', () {
+      final minMult = 1.0 - GameConstants.enduranceFatigueResistMax;
+      final maxMult = 1.0 - GameConstants.enduranceFatigueResistMin;
+      for (int e = 0; e <= 10; e++) {
+        final v = GameConstants.enduranceFatigueMultiplier(e);
+        expect(v, greaterThanOrEqualTo(minMult - 0.001));
+        expect(v, lessThanOrEqualTo(maxMult + 0.001));
+      }
+    });
+  });
+}
+```
+
 ### 📄 `./test/models/combat_test.dart`
 ```dart
 import 'package:flutter_test/flutter_test.dart';
@@ -47037,6 +47588,8 @@ void main() {
 
 ### 📄 `./test/services/map/map_controller_test.dart`
 ```dart
+// test/services/map/map_controller_test.dart
+
 import 'package:flutter_test/flutter_test.dart';
 import '../../_helpers/test_fixtures.dart';
 
@@ -47044,6 +47597,7 @@ import 'package:dark_hours/models/world/location.dart';
 import 'package:dark_hours/models/conditions/condition.dart';
 import 'package:dark_hours/models/inventory/inventory_item.dart';
 import 'package:dark_hours/services/map/map_controller.dart';
+import 'package:dark_hours/constants/game_constants.dart';
 
 void main() {
   // ═══════════════════════════════════════════════════════════
@@ -47366,12 +47920,12 @@ void main() {
 
     test('НЕ вызывает notifyListeners при повторной разведке', () {
       final c = makeController();
-      c.scoutDetails('street'); // первый раз
+      c.scoutDetails('street');
 
       int notifyCount = 0;
       c.addListener(() => notifyCount++);
 
-      c.scoutDetails('street'); // второй раз — не должно
+      c.scoutDetails('street');
 
       expect(notifyCount, 0);
     });
@@ -47823,6 +48377,147 @@ void main() {
   });
 
   // ═══════════════════════════════════════════════════════════
+  // ХАРАКТЕРИСТИКИ — CUNNING / ENDURANCE
+  // ═══════════════════════════════════════════════════════════
+
+  group('MapController — cunning и endurance из GameConstants', () {
+    test('boris: cunning=4, endurance=6', () {
+      final c = makeController(characterId: 'boris');
+      expect(c.cunning, 4);
+      expect(c.endurance, 6);
+    });
+
+    test('alina: cunning=6, endurance=9', () {
+      final c = makeController(characterId: 'alina');
+      expect(c.cunning, 6);
+      expect(c.endurance, 9);
+    });
+
+    test('ivan: cunning=8, endurance=3', () {
+      final c = makeController(characterId: 'ivan');
+      expect(c.cunning, 8);
+      expect(c.endurance, 3);
+    });
+
+    test('andrey: cunning=4, endurance=4', () {
+      final c = makeController(characterId: 'andrey');
+      expect(c.cunning, 4);
+      expect(c.endurance, 4);
+    });
+
+    test('darya: cunning=6, endurance=6', () {
+      final c = makeController(characterId: 'darya');
+      expect(c.cunning, 6);
+      expect(c.endurance, 6);
+    });
+
+    test('без override берёт из GameConstants.statsFor', () {
+      final c = makeController(characterId: 'ivan');
+      final expected = GameConstants.statsFor('ivan');
+      expect(c.cunning, expected['cunning']);
+      expect(c.endurance, expected['endurance']);
+    });
+  });
+
+  group('MapController — overrideCunning / overrideEndurance', () {
+    test('overrideCunning переопределяет значение', () {
+      final c = MapController(
+        characterId: 'boris',
+        characterName: 'Борис',
+      );
+      c.initForTest(
+        locations: [homeLocation, streetLocation],
+        overrideCunning: 10,
+      );
+      expect(c.cunning, 10);
+    });
+
+    test('overrideEndurance переопределяет значение', () {
+      final c = MapController(
+        characterId: 'boris',
+        characterName: 'Борис',
+      );
+      c.initForTest(
+        locations: [homeLocation, streetLocation],
+        overrideEndurance: 1,
+      );
+      expect(c.endurance, 1);
+    });
+
+    test('overrideCunning и overrideEndurance работают одновременно', () {
+      final c = MapController(
+        characterId: 'boris',
+        characterName: 'Борис',
+      );
+      c.initForTest(
+        locations: [homeLocation, streetLocation],
+        overrideCunning: 9,
+        overrideEndurance: 2,
+      );
+      expect(c.cunning, 9);
+      expect(c.endurance, 2);
+    });
+
+    test('overrideCunning НЕ трогает endurance', () {
+      final c = MapController(
+        characterId: 'boris',
+        characterName: 'Борис',
+      );
+      c.initForTest(
+        locations: [homeLocation, streetLocation],
+        overrideCunning: 10,
+      );
+      // endurance должен остаться из GameConstants (boris = 6)
+      expect(c.endurance, 6);
+    });
+
+    test('overrideEndurance НЕ трогает cunning', () {
+      final c = MapController(
+        characterId: 'boris',
+        characterName: 'Борис',
+      );
+      c.initForTest(
+        locations: [homeLocation, streetLocation],
+        overrideEndurance: 1,
+      );
+      // cunning должен остаться из GameConstants (boris = 4)
+      expect(c.cunning, 4);
+    });
+  });
+
+  group('MapController — setCunning / setEndurance', () {
+    test('setCunning устанавливает значение', () {
+      final c = makeController();
+      c.setCunning(7);
+      expect(c.cunning, 7);
+    });
+
+    test('setEndurance устанавливает значение', () {
+      final c = makeController();
+      c.setEndurance(8);
+      expect(c.endurance, 8);
+    });
+
+    test('setCunning вызывает notifyListeners', () {
+      final c = makeController();
+      int notifyCount = 0;
+      c.addListener(() => notifyCount++);
+
+      c.setCunning(7);
+      expect(notifyCount, 1);
+    });
+
+    test('setEndurance вызывает notifyListeners', () {
+      final c = makeController();
+      int notifyCount = 0;
+      c.addListener(() => notifyCount++);
+
+      c.setEndurance(7);
+      expect(notifyCount, 1);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
   // КОМПЛЕКСНЫЕ ПРОВЕРКИ
   // ═══════════════════════════════════════════════════════════
 
@@ -47856,17 +48551,31 @@ void main() {
     test('полный цикл: старт → разведка деталей → hasDetails', () {
       final c = makeController();
 
-      // Старт: все локации scouted, но без деталей.
       expect(c.isScouted('street'), true);
       expect(c.hasDetails('street'), false);
 
-      // Разведка деталей.
       final ok = c.scoutDetails('street');
 
-      // Проверка.
       expect(ok, true);
       expect(c.hasDetails('street'), true);
       expect(c.detailedLocations.length, 1);
+    });
+
+    test('полный цикл: характеристики задаются при initForTest', () {
+      final c = MapController(
+        characterId: 'custom',
+        characterName: 'Custom',
+      );
+      c.initForTest(
+        locations: [homeLocation, streetLocation],
+        overrideCunning: 9,
+        overrideEndurance: 9,
+      );
+
+      expect(c.cunning, 9);
+      expect(c.endurance, 9);
+      expect(c.strength, GameConstants.defaultStrength);
+      expect(c.intelligence, GameConstants.defaultIntelligence);
     });
   });
 }
@@ -47874,6 +48583,8 @@ void main() {
 
 ### 📄 `./test/services/map/movement_manager_test.dart`
 ```dart
+// test/services/map/movement_manager_test.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -47883,6 +48594,7 @@ import 'package:dark_hours/models/world/connection.dart';
 import 'package:dark_hours/services/map/map_controller.dart';
 import 'package:dark_hours/services/map/movement_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/constants/game_constants.dart';
 
 void main() {
   setUp(() {
@@ -47975,10 +48687,10 @@ void main() {
     unlockedBy: 'home',
   );
 
-  MapController makeController() {
+  MapController makeController({String characterId = 'boris'}) {
     final c = MapController(
-      characterId: 'boris',
-      characterName: 'Борис',
+      characterId: characterId,
+      characterName: characterId,
     );
     c.initForTest(
       locations: [homeLocation, streetLocation, farLocation, hiddenLocation],
@@ -48032,15 +48744,11 @@ void main() {
     });
 
     test('notConnected для несоединённой локации', () {
-      // far_place соединён только со street, но не с home.
-      // Из home нельзя попасть в far_place.
       final c = makeController();
-      // Перейдём в street
       c.map!.moveTo('street');
       final result = MovementManager.validateMove(c, 'far_place');
-      expect(result, MoveResult.success); // street → far_place есть
+      expect(result, MoveResult.success);
 
-      // А из home — нельзя.
       c.map!.moveTo('home');
       final result2 = MovementManager.validateMove(c, 'far_place');
       expect(result2, MoveResult.notConnected);
@@ -48054,35 +48762,126 @@ void main() {
   });
 
   // ═══════════════════════════════════════════════════════════
-  // computeStaminaCost
+  // computeStaminaCost — базовая стоимость (endurance = 5)
   // ═══════════════════════════════════════════════════════════
 
-  group('MovementManager.computeStaminaCost', () {
-    test('минимум 2 стамины (для коротких переходов)', () {
-      expect(MovementManager.computeStaminaCost(5), 2);
-      expect(MovementManager.computeStaminaCost(10), 2);
+  group('MovementManager.computeStaminaCost — базовая стоимость', () {
+    // endurance = 5 (baseStat) → множитель 1.0, чистая база.
+    const base = GameConstants.baseStat;
+
+    test('минимум 2 стамины для очень коротких переходов', () {
+      expect(MovementManager.computeStaminaCost(5, base), 2);
+      expect(MovementManager.computeStaminaCost(10, base), 2);
     });
 
     test('15 минут → 2 стамины', () {
-      expect(MovementManager.computeStaminaCost(15), 2);
+      expect(MovementManager.computeStaminaCost(15, base), 2);
     });
 
     test('60 минут → 6 стамины', () {
-      expect(MovementManager.computeStaminaCost(60), 6);
+      expect(MovementManager.computeStaminaCost(60, base), 6);
     });
 
     test('120 минут → 12 стамины', () {
-      expect(MovementManager.computeStaminaCost(120), 12);
+      expect(MovementManager.computeStaminaCost(120, base), 12);
     });
 
-    test('максимум 20 стамины', () {
-      expect(MovementManager.computeStaminaCost(500), 20);
-      expect(MovementManager.computeStaminaCost(1000), 20);
+    test('максимум 20 стамины (кламп)', () {
+      expect(MovementManager.computeStaminaCost(500, base), 20);
+      expect(MovementManager.computeStaminaCost(1000, base), 20);
     });
   });
 
   // ═══════════════════════════════════════════════════════════
-  // move — widget
+  // computeStaminaCost — влияние endurance
+  // ═══════════════════════════════════════════════════════════
+
+  group('MovementManager.computeStaminaCost — влияние endurance', () {
+    test('endurance 9 (Алина) — дешевле базовой стоимости', () {
+      // 60 мин → база 6, множитель для endurance 9 = 0.80 → 4.8 → 5
+      final cost = MovementManager.computeStaminaCost(60, 9);
+      final baseCost = MovementManager.computeStaminaCost(60, 5);
+
+      expect(cost, lessThan(baseCost));
+      expect(cost, 5);
+    });
+
+    test('endurance 3 (Иван) — дороже базовой стоимости', () {
+      // 60 мин → база 6, множитель для endurance 3 = 1.10 → 6.6 → 7
+      final cost = MovementManager.computeStaminaCost(60, 3);
+      final baseCost = MovementManager.computeStaminaCost(60, 5);
+
+      expect(cost, greaterThan(baseCost));
+      expect(cost, 7);
+    });
+
+    test('endurance 10 — скидка 25%', () {
+      // 60 мин → база 6, множитель 0.75 → 4.5 → 5
+      final cost = MovementManager.computeStaminaCost(60, 10);
+      expect(cost, 5);
+    });
+
+    test('endurance 1 — максимальный штраф 20%', () {
+      // 60 мин → база 6, множитель 1.20 → 7.2 → 7
+      final cost = MovementManager.computeStaminaCost(60, 1);
+      expect(cost, 7);
+    });
+
+    test('endurance 6 (Борис) — почти база, округляется вверх', () {
+      // 60 мин → база 6, множитель 0.95 → 5.7 → 6
+      final cost = MovementManager.computeStaminaCost(60, 6);
+      expect(cost, 6);
+    });
+
+    test('минимум 1 стамина даже при endurance 10', () {
+      // 5 минут → база 2, множитель 0.75 → 1.5 → 2
+      final cost = MovementManager.computeStaminaCost(5, 10);
+      expect(cost, greaterThanOrEqualTo(1));
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // СРАВНЕНИЕ ПЕРСОНАЖЕЙ
+  // ═══════════════════════════════════════════════════════════
+
+  group('MovementManager — сравнение персонажей', () {
+    test('Алина (endurance 9) тратит меньше стамины, чем Борис (6)', () {
+      final alina = makeController(characterId: 'alina');
+      final boris = makeController(characterId: 'boris');
+
+      expect(alina.endurance, 9);
+      expect(boris.endurance, 6);
+
+      final alinaCost =
+          MovementManager.computeStaminaCost(60, alina.endurance);
+      final borisCost =
+          MovementManager.computeStaminaCost(60, boris.endurance);
+
+      expect(alinaCost, lessThan(borisCost));
+      expect(alinaCost, 5);
+      expect(borisCost, 6);
+    });
+
+    test('Иван (endurance 3) тратит больше стамины, чем Борис (6)', () {
+      final ivan = makeController(characterId: 'ivan');
+      final boris = makeController(characterId: 'boris');
+
+      expect(ivan.endurance, 3);
+      expect(boris.endurance, 6);
+
+      final ivanCost =
+          MovementManager.computeStaminaCost(60, ivan.endurance);
+      final borisCost =
+          MovementManager.computeStaminaCost(60, boris.endurance);
+
+      expect(ivanCost, greaterThan(borisCost));
+      expect(ivanCost, 7);
+      expect(borisCost, 6);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // move — widget-тесты
   // ═══════════════════════════════════════════════════════════
 
   group('MovementManager.move — widget', () {
@@ -48106,7 +48905,8 @@ void main() {
       expect(c.currentLocation!.id, 'street');
     });
 
-    testWidgets('move продвигает время на Connection.minutes', (tester) async {
+    testWidgets('move продвигает время на Connection.minutes',
+        (tester) async {
       final c = makeController();
       final timeBefore = c.gameTime.totalMinutes;
 
@@ -48122,7 +48922,10 @@ void main() {
       expect(c.gameTime.totalMinutes, timeBefore + 15);
     });
 
-    testWidgets('move тратит стамину через computeStaminaCost', (tester) async {
+    testWidgets('move тратит стамину через computeStaminaCost с endurance',
+        (tester) async {
+      // boris: endurance 6 → множитель 0.95
+      // 15 мин → база 2 → 2 * 0.95 = 1.9 → 2
       final c = makeController();
       c.setStamina(80);
       final staminaBefore = c.stamina;
@@ -48136,27 +48939,27 @@ void main() {
       await tester.tap(find.text('TEST'));
       await tester.pumpAndSettle();
 
-      // 15 минут → 2 стамины
       expect(c.stamina, staminaBefore - 2);
     });
 
     testWidgets('долгий переход тратит больше стамины', (tester) async {
+      // boris: endurance 6 → множитель 0.95
+      // 90 мин → база 9 → 9 * 0.95 = 8.55 → 9
       final c = makeController();
-      // Перейдём в street, потом в far_place (90 мин)
       c.map!.moveTo('street');
       c.setStamina(80);
       final staminaBefore = c.stamina;
 
       await tester.pumpWidget(
         makeTestApp(
-          onPressed: (context) => MovementManager.move(context, c, 'far_place'),
+          onPressed: (context) =>
+              MovementManager.move(context, c, 'far_place'),
         ),
       );
 
       await tester.tap(find.text('TEST'));
       await tester.pumpAndSettle();
 
-      // 90 минут → 9 стамины
       expect(c.stamina, staminaBefore - 9);
     });
 
@@ -48203,15 +49006,12 @@ void main() {
     testWidgets('move авто-разведывает НОВУЮ локацию (далёкую)',
         (tester) async {
       final c = makeController();
-      // Перейдём в street, потом в far_place
       c.map!.moveTo('street');
 
-      // far_place — не сосед home, но сосед street.
-      // При initForTest он разведан (сосед street).
-      // Проверим — после перехода far_place становится visited и scouted.
       await tester.pumpWidget(
         makeTestApp(
-          onPressed: (context) => MovementManager.move(context, c, 'far_place'),
+          onPressed: (context) =>
+              MovementManager.move(context, c, 'far_place'),
         ),
       );
 
@@ -48227,6 +49027,8 @@ void main() {
 
 ### 📄 `./test/services/map/rest_manager_test.dart`
 ```dart
+// test/services/map/rest_manager_test.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -48302,12 +49104,13 @@ void main() {
   );
 
   MapController makeController({
+    String characterId = 'boris',
     List<Location>? locations,
     int startTimeMinutes = GameConstants.startTimeMinutes,
   }) {
     final c = MapController(
-      characterId: 'boris',
-      characterName: 'Борис',
+      characterId: characterId,
+      characterName: characterId,
     );
     c.initForTest(
       locations: locations ?? [safeLocation],
@@ -48348,12 +49151,14 @@ void main() {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // computeRestStats
+  // computeRestStats — базовые значения
   // ═══════════════════════════════════════════════════════════
 
-  group('RestManager.computeRestStats', () {
-    test('short_rest даёт базовые дельты без спальника', () {
+  group('RestManager.computeRestStats — базовые значения', () {
+    test('short_rest даёт базовые дельты без спальника, endurance 5', () {
       final c = makeController();
+      c.setEndurance(5);
+
       final delta = RestManager.computeRestStats(c, RestAction.all[0]);
 
       expect(delta['stamina'], RestAction.all[0].staminaRestore);
@@ -48364,14 +49169,33 @@ void main() {
 
     test('full_sleep даёт больше стамины, чем short_rest', () {
       final c = makeController();
+      c.setEndurance(5);
+
       final shortDelta = RestManager.computeRestStats(c, RestAction.all[0]);
       final fullDelta = RestManager.computeRestStats(c, RestAction.all[2]);
 
       expect(fullDelta['stamina'], greaterThan(shortDelta['stamina']!));
     });
 
-    test('бонус спальника +10 stamina и +10 sanity', () {
+    test('fatigue всегда отрицательный (уменьшение)', () {
       final c = makeController();
+      c.setEndurance(5);
+
+      for (final action in RestAction.all) {
+        final delta = RestManager.computeRestStats(c, action);
+        expect(delta['fatigue'], lessThanOrEqualTo(0));
+      }
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // computeRestStats — бонус спальника
+  // ═══════════════════════════════════════════════════════════
+
+  group('RestManager.computeRestStats — бонус спальника', () {
+    test('бонус +10 stamina и +10 sanity', () {
+      final c = makeController();
+      c.setEndurance(5);
       c.addItem(makeItem(id: 'sleeping_bag'));
 
       final withBag = RestManager.computeRestStats(c, RestAction.all[0]);
@@ -48390,18 +49214,90 @@ void main() {
 
     test('без спальника бонуса нет', () {
       final c = makeController();
+      c.setEndurance(5);
+
       final delta = RestManager.computeRestStats(c, RestAction.all[1]);
 
       expect(delta['stamina'], RestAction.all[1].staminaRestore);
       expect(delta['sanity'], RestAction.all[1].sanityRestore);
     });
+  });
 
-    test('fatigue всегда отрицательный (уменьшение)', () {
+  // ═══════════════════════════════════════════════════════════
+  // computeRestStats — бонус endurance
+  // ═══════════════════════════════════════════════════════════
+
+  group('RestManager.computeRestStats — бонус endurance', () {
+    test('Алина (endurance 9) восстанавливает больше стамины, чем Иван (3)',
+        () {
+      final alina = makeController(characterId: 'alina');
+      final ivan = makeController(characterId: 'ivan');
+
+      expect(alina.endurance, 9);
+      expect(ivan.endurance, 3);
+
+      final alinaDelta = RestManager.computeRestStats(alina, RestAction.all[1]);
+      final ivanDelta = RestManager.computeRestStats(ivan, RestAction.all[1]);
+
+      expect(alinaDelta['stamina'], greaterThan(ivanDelta['stamina']!));
+    });
+
+    test('endurance 5 (baseStat) — бонус 0', () {
       final c = makeController();
-      for (final action in RestAction.all) {
-        final delta = RestManager.computeRestStats(c, action);
-        expect(delta['fatigue'], lessThanOrEqualTo(0));
-      }
+      c.setEndurance(5);
+
+      final delta = RestManager.computeRestStats(c, RestAction.all[1]);
+
+      expect(delta['stamina'], RestAction.all[1].staminaRestore);
+    });
+
+    test('endurance 10 — бонус +10 к стамине', () {
+      final c = makeController();
+      c.setEndurance(10);
+
+      final delta = RestManager.computeRestStats(c, RestAction.all[1]);
+
+      expect(
+        delta['stamina'],
+        RestAction.all[1].staminaRestore +
+            GameConstants.enduranceRestBonusMax,
+      );
+    });
+
+    test('endurance 1 — штраф -6 к стамине', () {
+      final c = makeController();
+      c.setEndurance(1);
+
+      final delta = RestManager.computeRestStats(c, RestAction.all[1]);
+
+      expect(
+        delta['stamina'],
+        RestAction.all[1].staminaRestore +
+            GameConstants.enduranceRestBonusMin,
+      );
+    });
+
+    test('спальник + endurance стакаются', () {
+      final c = makeController(characterId: 'alina');
+      c.addItem(makeItem(id: 'sleeping_bag'));
+
+      final delta = RestManager.computeRestStats(c, RestAction.all[2]);
+
+      final expected = RestAction.all[2].staminaRestore +
+          GameConstants.sleepingBagStaminaBonus +
+          GameConstants.enduranceRestBonus(9);
+
+      expect(delta['stamina'], expected);
+    });
+
+    test('endurance НЕ влияет на health и sanity', () {
+      final c = makeController();
+      c.setEndurance(10);
+
+      final delta = RestManager.computeRestStats(c, RestAction.all[1]);
+
+      expect(delta['health'], RestAction.all[1].healthRestore);
+      expect(delta['sanity'], RestAction.all[1].sanityRestore);
     });
   });
 
@@ -48511,7 +49407,7 @@ void main() {
       expect(anyAttack, true);
     });
 
-    test('шанс атаки > 0 даже утром (проверка round, не toInt)', () {
+    test('шанс атаки > 0 даже утром (round, не toInt)', () {
       // Утро (8:00) — dangerMultiplier = 0.8
       // 20 * 0.8 = 16 → округлится до 16, не до 0
       final c = makeController(
@@ -48527,7 +49423,7 @@ void main() {
       expect(anyAttack, true);
     });
 
-    test('ночью шанс выше, чем днём (статистически за 500 бросков)', () {
+    test('ночью шанс выше, чем днём (за 500 бросков)', () {
       final dayC = makeController(startTimeMinutes: 12 * 60);
       final nightC = makeController(startTimeMinutes: 23 * 60);
 
@@ -48550,12 +49446,37 @@ void main() {
   });
 
   // ═══════════════════════════════════════════════════════════
-  // rest — widget-тест
+  // rest — widget-тесты
   // ═══════════════════════════════════════════════════════════
 
   group('RestManager.rest — widget', () {
-    testWidgets('short_rest восстанавливает стамину', (tester) async {
+    testWidgets('short_rest восстанавливает стамину с учётом endurance',
+        (tester) async {
+      // Борис: endurance 6 → enduranceRestBonus(6) = +2
+      // stamina до = 20, short_rest = +20, endurance = +2 → 42
       final c = makeController();
+      c.setStamina(20);
+      final enduranceBonus = GameConstants.enduranceRestBonus(c.endurance);
+
+      await tester.pumpWidget(
+        makeTestApp(
+          onPressed: (context) =>
+              RestManager.rest(context, c, RestAction.all[0]),
+        ),
+      );
+
+      await tester.tap(find.text('TEST'));
+      await tester.pumpAndSettle();
+
+      final expected = (20 + RestAction.all[0].staminaRestore + enduranceBonus)
+          .clamp(0, 100);
+
+      expect(c.stamina, expected);
+    });
+
+    testWidgets('short_rest с endurance 5 даёт чистое значение', (tester) async {
+      final c = makeController();
+      c.setEndurance(5);
       c.setStamina(20);
 
       await tester.pumpWidget(
@@ -48568,7 +49489,6 @@ void main() {
       await tester.tap(find.text('TEST'));
       await tester.pumpAndSettle();
 
-      expect(c.stamina, greaterThan(20));
       expect(c.stamina, 20 + RestAction.all[0].staminaRestore);
     });
 
@@ -48645,7 +49565,6 @@ void main() {
       await tester.tap(find.text('TEST'));
       await tester.pumpAndSettle();
 
-      // Не падает — этого достаточно
       expect(true, true);
     });
   });
@@ -50873,9 +51792,9 @@ class Validator {
 
 ## 📊 SUMMARY
 
-- Всего файлов: **339**
-- Текстовых (в дампе): **195**
+- Всего файлов: **340**
+- Текстовых (в дампе): **196**
 - Артефактов: **1**
 - Бинарников: **143**
-- Дамп: **1.7M**
+- Дамп: **1.8M**
 

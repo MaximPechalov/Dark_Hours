@@ -1,0 +1,41 @@
+{
+  "id": "map_5_hospital",
+  "title": "За лекарствами",
+  "description": "Лена просит найти аптечку для Веры. Девочка при смерти. Время идёт.",
+
+  "entry_from_act": "act_5",
+  "next_act": "act_6",
+
+  "goal": {
+    "type": "find_item",
+    "target": "first_aid_kit",
+    "hint": "Аптечка может быть в больнице или аптеке",
+    "on_complete": {
+      "flag_set": "found_medicine",
+      "message": "Ты нашёл аптечку. Вера будет жить."
+    }
+  },
+
+  "side_quests": [],
+
+  "restrictions": {
+    "block_locations": [],
+    "time_limit_minutes": 1440
+  },
+
+  "on_timeout": {
+    "flag_set": "vera_died",
+    "message": "Ты не успел. Вера умерла. Лена не смотрит на тебя."
+  },
+
+  "hints": [
+    {
+      "on_enter_location": "hospital",
+      "text": "Больница. Здесь должна быть аптечка. На втором этаже."
+    },
+    {
+      "on_enter_location": "pharmacy",
+      "text": "Аптека. Здесь тоже может быть аптечка."
+    }
+  ]
+}

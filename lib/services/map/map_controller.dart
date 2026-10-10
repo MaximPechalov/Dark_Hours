@@ -54,13 +54,6 @@ class MapController extends ChangeNotifier {
   int chapter = 1;
 
   // ─── Характеристики персонажа ───
-  //
-  // 4 характеристики, влияют на геймплей:
-  // - intelligence: крафт, взлом, разведка
-  // - strength: урон, крит, побег
-  // - cunning: уклонение, разведка, побег, время крафта
-  // - endurance: расход стамины, отдых, побег, усталость
-
   int intelligence = GameConstants.defaultIntelligence;
   int strength = GameConstants.defaultStrength;
   int cunning = GameConstants.defaultCunning;
@@ -79,14 +72,9 @@ class MapController extends ChangeNotifier {
   final Set<String> unlockedLocations = {};
 
   /// Разведанные локации — игрок знает их название, иконку, общее описание.
-  ///
-  /// Все локации стартового региона попадают сюда сразу при старте.
-  /// Скрытые (`hidden`) локации попадают только через `unlockLocation`.
   final Set<String> scoutedLocations = {};
 
   /// Локации с уточнённым состоянием — игрок знает, что там СЕЙЧАС.
-  ///
-  /// Заполняется через `scoutDetails()` — разведку состояния.
   final Set<String> detailedLocations = {};
 
   /// Открытые регионы.
@@ -99,15 +87,35 @@ class MapController extends ChangeNotifier {
   String deathReason = '';
 
   /// Флаг "уже сработал форсированный автосон".
-  ///
-  /// Сбрасывается при любом сне. Нужен, чтобы автосон не срабатывал
-  /// несколько раз подряд.
   bool autoSleepTriggered = false;
 
   /// Время последнего коллапса.
-  ///
-  /// Нужен для проверки "повторный коллапс в течение 24 часов → смерть".
   DateTime? lastCollapseTime;
+
+  // ═══════════════════════════════════════════════════════════
+  // НОВОЕ — ПОСЛЕДОВАТЕЛЬНОСТЬ ГЛАВЫ
+  // ═══════════════════════════════════════════════════════════
+
+  /// ID текущего шага последовательности главы.
+  String? currentChapterStepId;
+
+  /// Индекс текущего шага.
+  int chapterStepIndex = 0;
+
+  /// Время начала текущей цели карты (для `time_limit_minutes`).
+  int? mapGoalStartedAt;
+
+  // ═══════════════════════════════════════════════════════════
+  // НОВОЕ — ПОБОЧНЫЕ КВЕСТЫ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Статус квестов.
+  ///
+  /// Возможные значения: `active`, `completed`, `failed`, `expired`.
+  final Map<String, String> activeSideQuests = {};
+
+  /// ID завершённых квестов.
+  final Set<String> completedSideQuests = {};
 
   // ═══════════════════════════════════════════════════════════
   // КОНСТРУКТОР
@@ -173,12 +181,7 @@ class MapController extends ChangeNotifier {
 
     gameTime = GameTime(totalMinutes: GameConstants.startTimeMinutes);
 
-    // НОВАЯ ЛОГИКА: все локации стартового региона разведаны сразу.
-    // Игрок живёт в этом городе — он знает, где что.
     _scoutRegionLocations(locations, startLoc.region);
-
-    // Стартовая локация — ещё и посещена (полное описание).
-    // Остальные — только scouted (краткое описание).
     discoverRegion(startLoc.region);
   }
 
@@ -191,6 +194,17 @@ class MapController extends ChangeNotifier {
     fatigue = s.fatigue;
     gameTime = GameTime.fromSave(s.timeMinutes);
     chapter = s.chapter;
+
+    // Новые поля
+    currentChapterStepId = s.currentChapterStepId;
+    chapterStepIndex = s.chapterStepIndex;
+    mapGoalStartedAt = s.mapGoalStartedAt;
+
+    activeSideQuests.clear();
+    activeSideQuests.addAll(s.activeSideQuests);
+
+    completedSideQuests.clear();
+    completedSideQuests.addAll(s.completedSideQuests);
 
     flags.addAll(s.history);
 
@@ -248,18 +262,12 @@ class MapController extends ChangeNotifier {
       visitedLocations: {startLoc.id},
     );
 
-    // МИГРАЦИЯ: если старые сохранения без scoutedLocations —
-    // разведать все локации текущего региона.
     if (scoutedLocations.isEmpty) {
       _scoutRegionLocations(locations, startLoc.region);
       discoverRegion(startLoc.region);
     }
-
-    // МИГРАЦИЯ: если в сохранении нет detailedLocations — оставить пустым.
-    // Игроку придётся разведывать заново.
   }
 
-  /// Разведать все локации указанного региона (кроме скрытых).
   void _scoutRegionLocations(List<Location> locations, String region) {
     for (final loc in locations) {
       if (loc.region != region) continue;
@@ -274,12 +282,10 @@ class MapController extends ChangeNotifier {
   // ИССЛЕДОВАНИЕ
   // ═══════════════════════════════════════════════════════════
 
-  /// Знает ли игрок о существовании локации (базовое знание).
   bool isScouted(String locationId) {
     return scoutedLocations.contains(locationId);
   }
 
-  /// Знает ли игрок текущее состояние локации (детальная разведка).
   bool hasDetails(String locationId) {
     return detailedLocations.contains(locationId);
   }
@@ -292,13 +298,6 @@ class MapController extends ChangeNotifier {
     return discoveredRegions.contains(region);
   }
 
-  /// Разведать локацию — узнать о её существовании.
-  ///
-  /// Теперь используется только для:
-  /// - Соседей из соседних регионов (при переходе).
-  /// - Скрытых локаций (при разведке скрытых).
-  ///
-  /// Все локации текущего региона уже разведаны при старте.
   void scoutLocation(String locationId) {
     if (scoutedLocations.contains(locationId)) return;
     scoutedLocations.add(locationId);
@@ -311,15 +310,8 @@ class MapController extends ChangeNotifier {
     refresh();
   }
 
-  /// Разведать состояние локации — узнать, что там СЕЙЧАС.
-  ///
-  /// Это НЕ открывает локацию. Локация уже должна быть scouted.
-  /// Даёт: количество врагов, наличие лута, состояние здания.
   bool scoutDetails(String locationId) {
-    // Разведать детали можно только у известной локации.
     if (!scoutedLocations.contains(locationId)) return false;
-
-    // Если детали уже есть — не тратим ресурсы.
     if (detailedLocations.contains(locationId)) return false;
 
     detailedLocations.add(locationId);
@@ -327,10 +319,6 @@ class MapController extends ChangeNotifier {
     return true;
   }
 
-  /// Разведать все локации указанного региона.
-  ///
-  /// Используется при переходе в новый регион — игрок сразу
-  /// видит все локации региона, но без деталей.
   void scoutAll(Iterable<String> locationIds) {
     bool changed = false;
     for (final id in locationIds) {
@@ -468,6 +456,51 @@ class MapController extends ChangeNotifier {
   }
 
   // ═══════════════════════════════════════════════════════════
+  // НОВОЕ — ШАГИ ГЛАВЫ И КВЕСТЫ
+  // ═══════════════════════════════════════════════════════════
+
+  void setChapterStep(String stepId, int index) {
+    currentChapterStepId = stepId;
+    chapterStepIndex = index;
+    refresh();
+  }
+
+  void setMapGoalStartedAt(int minute) {
+    mapGoalStartedAt = minute;
+    refresh();
+  }
+
+  void activateSideQuest(String questId) {
+    if (completedSideQuests.contains(questId)) return;
+    activeSideQuests[questId] = 'active';
+    refresh();
+  }
+
+  void completeSideQuest(String questId) {
+    activeSideQuests[questId] = 'completed';
+    completedSideQuests.add(questId);
+    refresh();
+  }
+
+  void failSideQuest(String questId) {
+    activeSideQuests[questId] = 'failed';
+    refresh();
+  }
+
+  void expireSideQuest(String questId) {
+    activeSideQuests[questId] = 'expired';
+    refresh();
+  }
+
+  bool isSideQuestActive(String questId) {
+    return activeSideQuests[questId] == 'active';
+  }
+
+  bool isSideQuestCompleted(String questId) {
+    return completedSideQuests.contains(questId);
+  }
+
+  // ═══════════════════════════════════════════════════════════
   // ИГРОВОЕ ВРЕМЯ
   // ═══════════════════════════════════════════════════════════
 
@@ -511,18 +544,11 @@ class MapController extends ChangeNotifier {
 
     refresh();
 
-    // Проверяем достижения только при смене дня —
-    // именно тогда меняются счётчики survived_X_days, night_owl.
-    // Попапы покажет подписчик на AchievementManager.unlockStream.
     if (dayChanged) {
       unawaited(_checkAchievements());
     }
   }
 
-  /// Проверить достижения и разблокировать новые.
-  ///
-  /// Вызывается при смене дня. Не показывает UI — попапы
-  /// покажет подписчик на `AchievementManager.unlockStream`.
   Future<void> _checkAchievements() async {
     await AchievementManager.unlockAll(
       characterId: characterId,
@@ -699,7 +725,7 @@ class MapController extends ChangeNotifier {
     final data = SaveData(
       characterId: characterId,
       characterName: characterName,
-      currentNodeId: 'map',
+      currentNodeId: currentChapterStepId ?? 'map',
       currentLocationId: map!.currentLocationId,
       onMap: true,
       hunger: hunger,
@@ -724,6 +750,11 @@ class MapController extends ChangeNotifier {
       scoutedLocations: scoutedLocations,
       detailedLocations: detailedLocations,
       discoveredRegions: discoveredRegions,
+      currentChapterStepId: currentChapterStepId,
+      chapterStepIndex: chapterStepIndex,
+      mapGoalStartedAt: mapGoalStartedAt,
+      activeSideQuests: activeSideQuests,
+      completedSideQuests: completedSideQuests,
       savedAt: DateTime.now(),
     );
 
@@ -742,6 +773,16 @@ class MapController extends ChangeNotifier {
     fatigue = save.fatigue;
     gameTime = GameTime.fromSave(save.timeMinutes);
     chapter = save.chapter;
+
+    currentChapterStepId = save.currentChapterStepId;
+    chapterStepIndex = save.chapterStepIndex;
+    mapGoalStartedAt = save.mapGoalStartedAt;
+
+    activeSideQuests.clear();
+    activeSideQuests.addAll(save.activeSideQuests);
+
+    completedSideQuests.clear();
+    completedSideQuests.addAll(save.completedSideQuests);
 
     inventory.items.clear();
     for (final itemJson in save.inventoryItems) {
@@ -811,8 +852,6 @@ class MapController extends ChangeNotifier {
     allConditions = conditions;
     allRecipes = recipes;
 
-    // Характеристики из GameConstants + возможность переопределить
-    // в тестах (например, чтобы проверить влияние cunning 10).
     final stats = GameConstants.statsFor(characterId);
     intelligence = overrideIntelligence ??
         stats['intelligence'] ??
@@ -840,7 +879,6 @@ class MapController extends ChangeNotifier {
 
     gameTime = GameTime(totalMinutes: startTimeMinutes);
 
-    // НОВАЯ ЛОГИКА: разведать все локации стартового региона.
     _scoutRegionLocations(locations, startLoc.region);
     discoveredRegions.add(startLoc.region);
 

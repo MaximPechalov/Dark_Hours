@@ -51,6 +51,8 @@ flutter:
 
     # ===== СЮЖЕТ =====
     - assets/data/story/boris/chapter_1/
+    - assets/data/story/boris/chapter_1/maps/
+    - assets/data/story/boris/chapter_1/side_quests/
     - assets/data/story/alina/chapter_1/
     - assets/data/story/ivan/chapter_1/
     - assets/data/story/andrey/chapter_1/

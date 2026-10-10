@@ -1,0 +1,76 @@
+{
+  "id": "sq_petr",
+  "title": "Раненый в тоннеле",
+  "description": "В тоннеле кто-то зовёт на помощь. Голос слабый, но живой.",
+
+  "trigger": {
+    "location_id": "tunnel_entrance",
+    "event": "on_enter",
+    "hint": "Из темноты доносится слабый стон"
+  },
+
+  "steps": [
+    {
+      "id": "step_1",
+      "type": "reach_location",
+      "target": "tunnel_dead_end",
+      "hint": "Голос доносится из тупика",
+      "on_complete": {
+        "flag_set": "found_petr"
+      }
+    },
+    {
+      "id": "step_2",
+      "type": "use_item",
+      "target": "bandage",
+      "hint": "Нужен бинт, чтобы перевязать рану",
+      "optional": true,
+      "on_complete": {
+        "flag_set": "used_bandage_on_petr"
+      }
+    }
+  ],
+
+  "outcomes": [
+    {
+      "id": "saved",
+      "condition": {
+        "flags_all": ["found_petr", "used_bandage_on_petr"]
+      },
+      "flag_set": "saved_petr",
+      "reward": {
+        "items": ["key"],
+        "sanity": 10,
+        "message": "Пётр перевязан. Он даёт тебе ключ от склада и просит идти дальше."
+      }
+    },
+    {
+      "id": "helped_no_bandage",
+      "condition": {
+        "flags_all": ["found_petr"],
+        "flags_not": ["used_bandage_on_petr", "robbed_petr"]
+      },
+      "flag_set": "helped_petr_basic",
+      "reward": {
+        "sanity": 5,
+        "message": "Ты дал Петру воды. Больше ничем помочь не можешь — бинта нет."
+      }
+    },
+    {
+      "id": "robbed",
+      "condition": {
+        "flags_all": ["robbed_petr"]
+      },
+      "flag_set": "robbed_petr",
+      "penalty": {
+        "sanity": -15,
+        "message": "Ты забрал ключ и ушёл. Пётр остался умирать в темноте."
+      }
+    }
+  ],
+
+  "expires_on": {
+    "flag_set": "map_2_complete",
+    "message": "Ты ушёл из тоннеля. Пётр остался там."
+  }
+}

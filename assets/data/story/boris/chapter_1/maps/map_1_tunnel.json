@@ -1,0 +1,36 @@
+{
+  "id": "map_1_tunnel",
+  "title": "Спуск в тоннель",
+  "description": "Найди люк в тоннель и спустись. Под землёй ты в безопасности.",
+
+  "entry_from_act": "act_1",
+  "next_act": "act_2",
+
+  "goal": {
+    "type": "reach_location",
+    "target": "tunnel_entrance",
+    "hint": "Люк в тоннель — на старой улице, рядом с домом",
+    "on_complete": {
+      "flag_set": "map_1_complete",
+      "message": "Ты нашёл люк. Пора спускаться."
+    }
+  },
+
+  "side_quests": ["sq_petr"],
+
+  "restrictions": {
+    "block_locations": [],
+    "time_limit_minutes": 0
+  },
+
+  "hints": [
+    {
+      "on_enter_location": "home_boris",
+      "text": "Ты помнишь: люк в тоннель — на старой улице. Надо дойти."
+    },
+    {
+      "on_enter_location": "street_south",
+      "text": "Люк где-то здесь. Ты знаешь этот район."
+    }
+  ]
+}

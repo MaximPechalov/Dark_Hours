@@ -1,0 +1,53 @@
+{
+  "id": "sq_nina",
+  "title": "Старушка в магазине",
+  "description": "В подсобке магазина прячется пожилая женщина.",
+
+  "trigger": {
+    "location_id": "supermarket",
+    "event": "on_enter",
+    "hint": "Из подсобки доносится шорох"
+  },
+
+  "steps": [
+    {
+      "id": "step_1",
+      "type": "find_npc",
+      "target": "nina",
+      "hint": "Загляни в подсобку"
+    },
+    {
+      "id": "step_2",
+      "type": "give_item",
+      "target": "water_bottle",
+      "hint": "Дай ей воды",
+      "optional": true
+    }
+  ],
+
+  "outcomes": [
+    {
+      "id": "helped",
+      "condition": {
+        "flags_all": ["gave_water_to_nina"]
+      },
+      "flag_set": "helped_nina",
+      "reward": {
+        "items": ["canned_stew", "canned_stew"],
+        "sanity": 15,
+        "message": "Нина Петровна благодарит тебя. Из своей сумки она достаёт две банки тушёнки."
+      }
+    },
+    {
+      "id": "left",
+      "condition": {
+        "flags_all": ["left_nina"]
+      },
+      "flag_set": "left_nina",
+      "penalty": {
+        "sanity": -10,
+        "message": "Ты ушёл. Нина Петровна осталась одна в тёмной подсобке."
+      }
+    }
+  ]
+}
