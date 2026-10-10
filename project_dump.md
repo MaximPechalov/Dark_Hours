@@ -1,8 +1,8 @@
 # PROJECT DUMP
 
-**Generated:** Sat Oct 10 08:30:49 UTC 2026
+**Generated:** Sat Oct 10 09:54:33 UTC 2026
 **Root:** /workspaces/Dark_Hours
-**Files:** 306
+**Files:** 335
 
 ## 📁 STRUCTURE
 
@@ -100,6 +100,31 @@
 ./assets/fonts/RobotoMono-Bold.ttf
 ./assets/fonts/RobotoMono-Medium.ttf
 ./assets/fonts/RobotoMono-Regular.ttf
+./assets/images/characters/alina_critical.png
+./assets/images/characters/alina_hungry.png
+./assets/images/characters/alina_normal.png
+./assets/images/characters/alina_tired.png
+./assets/images/characters/alina_wounded.png
+./assets/images/characters/andrey_critical.png
+./assets/images/characters/andrey_hungry.png
+./assets/images/characters/andrey_normal.png
+./assets/images/characters/andrey_tired.png
+./assets/images/characters/andrey_wounded.png
+./assets/images/characters/boris_critical.png
+./assets/images/characters/boris_hungry.png
+./assets/images/characters/boris_normal.png
+./assets/images/characters/boris_tired.png
+./assets/images/characters/boris_wounded.png
+./assets/images/characters/darya_critical.png
+./assets/images/characters/darya_hungry.png
+./assets/images/characters/darya_normal.png
+./assets/images/characters/darya_tired.png
+./assets/images/characters/darya_wounded.png
+./assets/images/characters/ivan_critical.png
+./assets/images/characters/ivan_hungry.png
+./assets/images/characters/ivan_normal.png
+./assets/images/characters/ivan_tired.png
+./assets/images/characters/ivan_wounded.png
 ./assets/images/items/resources/car_battery.png
 ./assets/images/items/resources/cloth.png
 ./assets/images/items/resources/electronics.png
@@ -171,6 +196,8 @@
 ./lib/constants/game_constants.dart
 ./lib/main.dart
 ./lib/models/character/character.dart
+./lib/models/character/character_state.dart
+./lib/models/character/character_state_calculator.dart
 ./lib/models/combat/combat.dart
 ./lib/models/combat/enemy.dart
 ./lib/models/conditions/active_condition.dart
@@ -247,6 +274,8 @@
 ./lib/utils/time_format.dart
 ./lib/widgets/cards/animated_location_card.dart
 ./lib/widgets/cards/character_card.dart
+./lib/widgets/cards/character_portrait.dart
+./lib/widgets/cards/character_portrait_from_stats.dart
 ./lib/widgets/effects/achievement_notifier.dart
 ./lib/widgets/effects/achievement_popup.dart
 ./lib/widgets/effects/fade_in_text.dart
@@ -319,7 +348,7 @@
 
 ### 📄 `./.flutter-plugins-dependencies`
 ```
-{"info":"This is a generated file; do not edit or check into version control.","plugins":{"ios":[{"name":"audioplayers_darwin","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_darwin-6.5.0/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_foundation-2.6.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.7/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false}],"android":[{"name":"audioplayers_android","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_android-5.3.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni-1.1.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni_flutter","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni_flutter-1.0.3/","native_build":true,"dependencies":["jni"],"dev_dependency":false},{"name":"path_provider_android","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_android-2.3.1/","native_build":false,"dependencies":["jni","jni_flutter"],"dev_dependency":false},{"name":"shared_preferences_android","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.28/","native_build":true,"dependencies":[],"dev_dependency":false}],"macos":[{"name":"audioplayers_darwin","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_darwin-6.5.0/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_foundation-2.6.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.7/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false}],"linux":[{"name":"audioplayers_linux","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_linux-4.3.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni-1.1.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_linux","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.2/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_linux","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_linux-2.4.1/","native_build":false,"dependencies":["path_provider_linux"],"dev_dependency":false}],"windows":[{"name":"audioplayers_windows","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_windows-4.4.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni-1.1.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_windows","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_windows","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_windows-2.4.1/","native_build":false,"dependencies":["path_provider_windows"],"dev_dependency":false}],"web":[{"name":"audioplayers_web","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_web-5.3.0/","dependencies":[],"dev_dependency":false},{"name":"shared_preferences_web","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_web-2.4.3/","dependencies":[],"dev_dependency":false}]},"dependencyGraph":[{"name":"audioplayers","dependencies":["audioplayers_android","audioplayers_darwin","audioplayers_linux","audioplayers_web","audioplayers_windows","path_provider"]},{"name":"audioplayers_android","dependencies":[]},{"name":"audioplayers_darwin","dependencies":[]},{"name":"audioplayers_linux","dependencies":[]},{"name":"audioplayers_web","dependencies":[]},{"name":"audioplayers_windows","dependencies":[]},{"name":"jni","dependencies":[]},{"name":"jni_flutter","dependencies":["jni"]},{"name":"path_provider","dependencies":["path_provider_android","path_provider_foundation","path_provider_linux","path_provider_windows"]},{"name":"path_provider_android","dependencies":["jni","jni_flutter"]},{"name":"path_provider_foundation","dependencies":[]},{"name":"path_provider_linux","dependencies":[]},{"name":"path_provider_windows","dependencies":[]},{"name":"shared_preferences","dependencies":["shared_preferences_android","shared_preferences_foundation","shared_preferences_linux","shared_preferences_web","shared_preferences_windows"]},{"name":"shared_preferences_android","dependencies":[]},{"name":"shared_preferences_foundation","dependencies":[]},{"name":"shared_preferences_linux","dependencies":["path_provider_linux"]},{"name":"shared_preferences_web","dependencies":[]},{"name":"shared_preferences_windows","dependencies":["path_provider_windows"]}],"date_created":"2026-10-07 10:23:41.446290","version":"3.47.6","swift_package_manager_enabled":{"ios":false,"macos":false}}
+{"info":"This is a generated file; do not edit or check into version control.","plugins":{"ios":[{"name":"audioplayers_darwin","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_darwin-6.5.0/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_foundation-2.6.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.7/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false}],"android":[{"name":"audioplayers_android","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_android-5.3.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni-1.1.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni_flutter","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni_flutter-1.0.3/","native_build":true,"dependencies":["jni"],"dev_dependency":false},{"name":"path_provider_android","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_android-2.3.1/","native_build":false,"dependencies":["jni","jni_flutter"],"dev_dependency":false},{"name":"shared_preferences_android","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.28/","native_build":true,"dependencies":[],"dev_dependency":false}],"macos":[{"name":"audioplayers_darwin","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_darwin-6.5.0/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_foundation-2.6.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_foundation","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.7/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false}],"linux":[{"name":"audioplayers_linux","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_linux-4.3.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni-1.1.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_linux","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.2/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_linux","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_linux-2.4.1/","native_build":false,"dependencies":["path_provider_linux"],"dev_dependency":false}],"windows":[{"name":"audioplayers_windows","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_windows-4.4.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni","path":"/home/codespace/.pub-cache/hosted/pub.dev/jni-1.1.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_windows","path":"/home/codespace/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_windows","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_windows-2.4.1/","native_build":false,"dependencies":["path_provider_windows"],"dev_dependency":false}],"web":[{"name":"audioplayers_web","path":"/home/codespace/.pub-cache/hosted/pub.dev/audioplayers_web-5.3.0/","dependencies":[],"dev_dependency":false},{"name":"shared_preferences_web","path":"/home/codespace/.pub-cache/hosted/pub.dev/shared_preferences_web-2.4.3/","dependencies":[],"dev_dependency":false}]},"dependencyGraph":[{"name":"audioplayers","dependencies":["audioplayers_android","audioplayers_darwin","audioplayers_linux","audioplayers_web","audioplayers_windows","path_provider"]},{"name":"audioplayers_android","dependencies":[]},{"name":"audioplayers_darwin","dependencies":[]},{"name":"audioplayers_linux","dependencies":[]},{"name":"audioplayers_web","dependencies":[]},{"name":"audioplayers_windows","dependencies":[]},{"name":"jni","dependencies":[]},{"name":"jni_flutter","dependencies":["jni"]},{"name":"path_provider","dependencies":["path_provider_android","path_provider_foundation","path_provider_linux","path_provider_windows"]},{"name":"path_provider_android","dependencies":["jni","jni_flutter"]},{"name":"path_provider_foundation","dependencies":[]},{"name":"path_provider_linux","dependencies":[]},{"name":"path_provider_windows","dependencies":[]},{"name":"shared_preferences","dependencies":["shared_preferences_android","shared_preferences_foundation","shared_preferences_linux","shared_preferences_web","shared_preferences_windows"]},{"name":"shared_preferences_android","dependencies":[]},{"name":"shared_preferences_foundation","dependencies":[]},{"name":"shared_preferences_linux","dependencies":["path_provider_linux"]},{"name":"shared_preferences_web","dependencies":[]},{"name":"shared_preferences_windows","dependencies":["path_provider_windows"]}],"date_created":"2026-10-10 09:05:27.010070","version":"3.47.6","swift_package_manager_enabled":{"ios":false,"macos":false}}
 ```
 
 ### 📄 `./.github/workflows/build-apk.yml`
@@ -21442,6 +21471,93 @@ class Character {
 }
 ```
 
+### 📄 `./lib/models/character/character_state.dart`
+```dart
+/// Состояние персонажа для отображения портрета.
+///
+/// Соответствует именам файлов:
+/// `assets/images/characters/{id}_{state}.png`
+enum CharacterState {
+  /// Нормальное состояние — `normal`.
+  normal,
+
+  /// Устал — `tired`.
+  tired,
+
+  /// Голоден — `hungry`.
+  hungry,
+
+  /// Ранен — `wounded`.
+  wounded,
+
+  /// При смерти — `critical`.
+  critical;
+
+  /// Имя файла без расширения для этого состояния.
+  ///
+  /// Например, для `CharacterState.critical` вернёт `"critical"`.
+  String get fileName => name;
+}
+```
+
+### 📄 `./lib/models/character/character_state_calculator.dart`
+```dart
+import 'package:dark_hours/models/character/character_state.dart';
+
+/// Логика определения состояния персонажа по его статам.
+///
+/// Приоритет состояний:
+/// 1. `critical`  — health < 20 ИЛИ fatigue > 85
+/// 2. `wounded`   — health < 50
+/// 3. `hungry`    — hunger < 30
+/// 4. `tired`     — fatigue > 60
+/// 5. `normal`    — по умолчанию
+///
+/// Тяжёлое состояние приоритетнее лёгкого:
+/// если игрок при смерти, он не должен видеть «просто уставший».
+class CharacterStateCalculator {
+  CharacterStateCalculator._();
+
+  /// Пороги для состояний.
+  static const int criticalHealthThreshold = 20;
+  static const int criticalFatigueThreshold = 85;
+  static const int woundedHealthThreshold = 50;
+  static const int hungryHungerThreshold = 30;
+  static const int tiredFatigueThreshold = 60;
+
+  /// Определить состояние персонажа.
+  static CharacterState compute({
+    required int health,
+    required int hunger,
+    required int fatigue,
+  }) {
+    // При смерти — самое важное.
+    if (health < criticalHealthThreshold ||
+        fatigue > criticalFatigueThreshold) {
+      return CharacterState.critical;
+    }
+
+    // Ранен.
+    if (health < woundedHealthThreshold) {
+      return CharacterState.wounded;
+    }
+
+    // Голоден.
+    if (hunger < hungryHungerThreshold) {
+      return CharacterState.hungry;
+    }
+
+    // Устал.
+    if (fatigue > tiredFatigueThreshold) {
+      return CharacterState.tired;
+    }
+
+    // Всё в порядке.
+    return CharacterState.normal;
+  }
+}
+```
+
 ### 📄 `./lib/models/combat/combat.dart`
 ```dart
 import 'dart:math';
@@ -26861,6 +26977,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:dark_hours/models/combat/combat.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/widgets/cards/character_portrait_from_stats.dart';
 import 'package:dark_hours/widgets/effects/floating_effect.dart';
 import 'package:dark_hours/widgets/effects/shake_widget.dart';
 
@@ -26868,10 +26985,24 @@ class CombatScreen extends StatefulWidget {
   final Combatant player;
   final Combatant enemy;
 
+  /// ID персонажа игрока — для отображения портрета.
+  ///
+  /// Если `null` — портрет не показывается (fallback на эмодзи).
+  final String? characterId;
+
+  /// Голод игрока — для определения состояния портрета.
+  final int playerHunger;
+
+  /// Усталость игрока — для определения состояния портрета.
+  final int playerFatigue;
+
   const CombatScreen({
     super.key,
     required this.player,
     required this.enemy,
+    this.characterId,
+    this.playerHunger = 100,
+    this.playerFatigue = 0,
   });
 
   @override
@@ -27569,10 +27700,20 @@ class _CombatScreenState extends State<CombatScreen> {
         children: [
           Row(
             children: [
-              Text(
-                isEnemy ? '👹' : '🧑',
-                style: const TextStyle(fontSize: 20),
-              ),
+              // ⚡ Портрет для игрока, эмодзи для врага.
+              if (!isEnemy && widget.characterId != null)
+                CharacterPortraitFromStats(
+                  characterId: widget.characterId!,
+                  health: c.health,
+                  hunger: widget.playerHunger,
+                  fatigue: widget.playerFatigue,
+                  size: 32,
+                )
+              else
+                Text(
+                  isEnemy ? '👹' : '🧑',
+                  style: const TextStyle(fontSize: 20),
+                ),
               const SizedBox(width: 8),
               Flexible(
                 child: Text(
@@ -29874,6 +30015,9 @@ class StoryCombatLauncher {
     required int enemyProtection,
     required int enemyStrength,
     required Equipment equipment,
+    String? characterId,
+    int playerHunger = 100,
+    int playerFatigue = 0,
   }) async {
     final player = Combatant(
       name: characterName,
@@ -29898,7 +30042,13 @@ class StoryCombatLauncher {
     final rawResult = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => CombatScreen(player: player, enemy: enemy),
+        builder: (_) => CombatScreen(
+          player: player,
+          enemy: enemy,
+          characterId: characterId,
+          playerHunger: playerHunger,
+          playerFatigue: playerFatigue,
+        ),
       ),
     );
 
@@ -30052,15 +30202,18 @@ class StoryEffects {
 import 'package:flutter/material.dart';
 
 import 'package:dark_hours/utils/time_format.dart';
+import 'package:dark_hours/widgets/cards/character_portrait_from_stats.dart';
 import 'package:dark_hours/widgets/indicators/animated_stat_bar.dart';
 
 /// Статус-бар игрока в StoryScreen.
 ///
-/// Показывает: время, усталость, главу, шаг, 5 полосок статов.
+/// Показывает: портрет, время, усталость, главу, шаг, 5 полосок статов.
 ///
-/// **Чистый StatelessWidget** — только отображает данные,
-/// не управляет ими. Логика остаётся в `StoryScreen`.
+/// **Портрет** — меняется по статам через `CharacterStateCalculator`.
+/// Голоден → голодный портрет. Ранен → раненый. Устал → уставший.
 class StoryStatusBar extends StatelessWidget {
+  final String characterId;
+
   final int timeMinutes;
   final int fatigue;
   final int chapter;
@@ -30074,6 +30227,7 @@ class StoryStatusBar extends StatelessWidget {
 
   const StoryStatusBar({
     super.key,
+    required this.characterId,
     required this.timeMinutes,
     required this.fatigue,
     required this.chapter,
@@ -30111,6 +30265,17 @@ class StoryStatusBar extends StatelessWidget {
   Widget _buildTopRow() {
     return Row(
       children: [
+        // ⚡ Портрет персонажа — меняется по статам.
+        CharacterPortraitFromStats(
+          characterId: characterId,
+          health: health,
+          hunger: hunger,
+          fatigue: fatigue,
+          size: 40,
+        ),
+        const SizedBox(width: 10),
+
+        // Время
         const Icon(
           Icons.access_time,
           color: Color.fromARGB(255, 200, 180, 100),
@@ -30126,6 +30291,8 @@ class StoryStatusBar extends StatelessWidget {
           ),
         ),
         const Spacer(),
+
+        // Усталость
         if (fatigue > 0) ...[
           Icon(
             Icons.bedtime,
@@ -30147,6 +30314,8 @@ class StoryStatusBar extends StatelessWidget {
           ),
           const SizedBox(width: 12),
         ],
+
+        // Глава и шаг
         Text(
           'Глава $chapter · Шаг ${historyLength + 1}',
           style: TextStyle(
@@ -30404,9 +30573,6 @@ class _StoryScreenState extends State<StoryScreen> {
   }
 
   /// Применить эффекты из JSON.
-  ///
-  /// Логика вынесена в `StoryEffects.apply`. Здесь мы **применяем
-  /// результат** к нашему state.
   void _applyEffects(Map<String, dynamic>? effects) {
     final result = StoryEffects.apply(
       effects: effects,
@@ -30770,6 +30936,9 @@ class _StoryScreenState extends State<StoryScreen> {
       enemyProtection: enemyProtection,
       enemyStrength: enemyStrength,
       equipment: equipment,
+      characterId: widget.characterId,
+      playerHunger: hunger,
+      playerFatigue: fatigue,
     );
 
     if (result == null) return;
@@ -31098,6 +31267,7 @@ class _StoryScreenState extends State<StoryScreen> {
       body: Column(
         children: [
           StoryStatusBar(
+            characterId: widget.characterId,
             timeMinutes: timeMinutes,
             fatigue: fatigue,
             chapter: chapter,
@@ -32865,12 +33035,14 @@ Offset mapPositionToPixel(MapPosition pos, Size size) {
 import 'package:flutter/material.dart';
 
 import 'package:dark_hours/services/map/map_controller.dart';
+import 'package:dark_hours/widgets/cards/character_portrait_from_stats.dart';
 import 'package:dark_hours/widgets/indicators/time_indicator.dart';
 import 'package:dark_hours/widgets/indicators/animated_stat_bar.dart';
 
-/// Верхняя панель статуса игрока.
+/// Верхняя панель статуса игрока на карте.
 ///
 /// Показывает:
+/// - портрет персонажа (меняется по статам)
 /// - время (TimeIndicator)
 /// - усталость (если > 0)
 /// - счётчик поражений (если > 0)
@@ -32907,14 +33079,25 @@ class MapStatusBar extends StatelessWidget {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // ВЕРХНИЙ РЯД: время + усталость + поражения + глава
+  // ВЕРХНИЙ РЯД: портрет + время + усталость + поражения + глава
   // ═══════════════════════════════════════════════════════════
 
   Widget _buildTopRow() {
     return Row(
       children: [
+        // ⚡ Портрет персонажа — меняется по статам.
+        CharacterPortraitFromStats(
+          characterId: controller.characterId,
+          health: controller.health,
+          hunger: controller.hunger,
+          fatigue: controller.fatigue,
+          size: 40,
+        ),
+        const SizedBox(width: 10),
+
         TimeIndicator(time: controller.gameTime),
         const Spacer(),
+
         if (controller.fatigue > 0) ...[
           _buildFatigueIndicator(),
           const SizedBox(width: 12),
@@ -34013,7 +34196,9 @@ class RegionMapPainter extends CustomPainter {
 ```dart
 import 'package:flutter/material.dart';
 import 'package:dark_hours/models/character/character.dart';
+import 'package:dark_hours/models/character/character_state.dart';
 import 'package:dark_hours/widgets/cards/character_card.dart';
+import 'package:dark_hours/widgets/cards/character_portrait.dart';
 import 'package:dark_hours/services/progress/achievement_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
 import '../gameplay/story_screen.dart';
@@ -34100,38 +34285,53 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ⚡ Большой портрет + имя и возраст рядом.
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                character.name,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+              CharacterPortrait(
+                characterId: character.id,
+                state: CharacterState.normal,
+                size: 100,
               ),
-              const SizedBox(width: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 200, 180, 100)
-                      .withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(4.0),
-                ),
-                child: Text(
-                  character.age,
-                  style: const TextStyle(
-                    color: Color.fromARGB(255, 200, 180, 100),
-                    fontSize: 12,
-                  ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      character.name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 200, 180, 100)
+                            .withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      child: Text(
+                        character.age,
+                        style: const TextStyle(
+                          color: Color.fromARGB(255, 200, 180, 100),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
             character.profession,
             style: TextStyle(color: Colors.grey[400], fontSize: 14),
@@ -34189,7 +34389,6 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
               onPressed: () async {
                 AudioService.playClick();
 
-                // Отмечаем персонажа как игранного
                 final stats = await AchievementManager.loadStats();
                 stats.playedCharacters.add(character.id);
                 stats.totalGamesPlayed += 1;
@@ -36644,7 +36843,13 @@ class CombatManager {
     final rawResult = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => CombatScreen(player: player, enemy: enemy),
+        builder: (_) => CombatScreen(
+          player: player,
+          enemy: enemy,
+          characterId: controller.characterId,
+          playerHunger: controller.hunger,
+          playerFatigue: controller.fatigue,
+        ),
       ),
     );
 
@@ -40339,6 +40544,8 @@ class _AnimatedLocationCardState extends State<AnimatedLocationCard>
 ```dart
 import 'package:flutter/material.dart';
 import 'package:dark_hours/models/character/character.dart';
+import 'package:dark_hours/models/character/character_state.dart';
+import 'package:dark_hours/widgets/cards/character_portrait.dart';
 
 class CharacterCard extends StatelessWidget {
   final Character character;
@@ -40384,28 +40591,11 @@ class CharacterCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Аватар (первая буква имени)
-            Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                color: Colors.grey[900],
-                borderRadius: BorderRadius.circular(30.0),
-                border: Border.all(
-                  color: Colors.grey[700]!,
-                  width: 1.0,
-                ),
-              ),
-              child: Center(
-                child: Text(
-                  character.name[0],
-                  style: const TextStyle(
-                    color: Color.fromARGB(255, 200, 180, 100),
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+            // ⚡ Портрет вместо буквы.
+            CharacterPortrait(
+              characterId: character.id,
+              state: CharacterState.normal,
+              size: 60,
             ),
             const SizedBox(width: 14),
             // Информация о персонаже
@@ -40470,6 +40660,196 @@ class CharacterCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+```
+
+### 📄 `./lib/widgets/cards/character_portrait.dart`
+```dart
+import 'package:flutter/material.dart';
+
+import 'package:dark_hours/models/character/character.dart';
+import 'package:dark_hours/models/character/character_state.dart';
+
+/// Портрет персонажа с учётом состояния.
+///
+/// **Логика:**
+/// 1. Пытается загрузить `assets/images/characters/{id}_{state}.png`.
+/// 2. Если файла нет — fallback на `{id}_normal.png`.
+/// 3. Если и его нет — fallback на букву в кружке.
+///
+/// **Фокус картинки:**
+/// У каждого персонажа портрет сгенерирован по-своему — у кого-то
+/// лицо выше, у кого-то ниже. Поэтому для каждого свой
+/// `focusAlignment` в карте [_focusByCharacter].
+///
+/// Параметр `focusAlignment` позволяет **переопределить** значение
+/// (например, для конкретного экрана).
+class CharacterPortrait extends StatelessWidget {
+  final String characterId;
+  final CharacterState state;
+  final double size;
+  final BoxFit fit;
+
+  /// Куда «смотрит» картинка при `BoxFit.cover`.
+  ///
+  /// Если `null` — берётся из [_focusByCharacter] по `characterId`.
+  /// Если задан — используется как есть (переопределяет карту).
+  final Alignment? focusAlignment;
+
+  const CharacterPortrait({
+    super.key,
+    required this.characterId,
+    this.state = CharacterState.normal,
+    this.size = 64,
+    this.fit = BoxFit.cover,
+    this.focusAlignment,
+  });
+
+  /// Индивидуальный фокус для каждого персонажа.
+  ///
+  /// Чем **более отрицательное** значение по Y — тем выше фокус.
+  ///
+  /// - `-0.4` — верхняя треть
+  /// - `-0.5` — выше
+  /// - `-0.6` — почти голова
+  /// - `-0.7` — голова
+  static const Map<String, Alignment> _focusByCharacter = {
+    'boris': Alignment(0.0, -0.7),   // подняли
+    'alina': Alignment(0.0, -0.6),   // подняли
+    'ivan': Alignment(0.0, -0.6),    // подняли
+    'andrey': Alignment(0.0, -0.4),  // оставили
+    'darya': Alignment(0.0, -0.4),   // оставили
+  };
+
+  /// Дефолт, если персонажа нет в карте.
+  static const Alignment _defaultFocus = Alignment(0.0, -0.4);
+
+  Alignment get _effectiveFocus {
+    if (focusAlignment != null) return focusAlignment!;
+    return _focusByCharacter[characterId] ?? _defaultFocus;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: size,
+      height: size,
+      child: ClipOval(
+        child: _buildPortrait(),
+      ),
+    );
+  }
+
+  Widget _buildPortrait() {
+    final statePath =
+        'assets/images/characters/${characterId}_${state.fileName}.png';
+    final normalPath = 'assets/images/characters/${characterId}_normal.png';
+    final focus = _effectiveFocus;
+
+    return Image.asset(
+      statePath,
+      width: size,
+      height: size,
+      fit: fit,
+      alignment: focus,
+      filterQuality: FilterQuality.medium,
+      errorBuilder: (context, error, stackTrace) {
+        // Первый fallback — normal.png.
+        return Image.asset(
+          normalPath,
+          width: size,
+          height: size,
+          fit: fit,
+          alignment: focus,
+          filterQuality: FilterQuality.medium,
+          errorBuilder: (context, error2, stack2) {
+            // Второй fallback — буква.
+            return _buildLetterFallback();
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildLetterFallback() {
+    final character = Character.getById(characterId);
+    final letter = character?.name.isNotEmpty == true
+        ? character!.name[0]
+        : '?';
+
+    return Container(
+      width: size,
+      height: size,
+      color: const Color(0xFF1A1A1A),
+      alignment: Alignment.center,
+      child: Text(
+        letter,
+        style: TextStyle(
+          color: const Color(0xFFC8B464),
+          fontSize: size * 0.5,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+}
+```
+
+### 📄 `./lib/widgets/cards/character_portrait_from_stats.dart`
+```dart
+import 'package:flutter/material.dart';
+
+import 'package:dark_hours/models/character/character_state_calculator.dart';
+import 'package:dark_hours/widgets/cards/character_portrait.dart';
+
+/// Портрет персонажа с автоматическим определением состояния
+/// по текущим статам.
+///
+/// Внутри использует [CharacterStateCalculator.compute].
+///
+/// **Использование:**
+/// ```dart
+/// CharacterPortraitFromStats(
+///   characterId: 'boris',
+///   health: 30,   // → wounded
+///   hunger: 50,
+///   fatigue: 20,
+///   size: 48,
+/// )
+/// ```
+class CharacterPortraitFromStats extends StatelessWidget {
+  final String characterId;
+  final int health;
+  final int hunger;
+  final int fatigue;
+  final double size;
+  final BoxFit fit;
+
+  const CharacterPortraitFromStats({
+    super.key,
+    required this.characterId,
+    required this.health,
+    required this.hunger,
+    required this.fatigue,
+    this.size = 48,
+    this.fit = BoxFit.cover,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final state = CharacterStateCalculator.compute(
+      health: health,
+      hunger: hunger,
+      fatigue: fatigue,
+    );
+
+    return CharacterPortrait(
+      characterId: characterId,
+      state: state,
+      size: size,
+      fit: fit,
     );
   }
 }
@@ -44079,10 +44459,13 @@ flutter:
     - assets/data/story/andrey/chapter_1/
     - assets/data/story/darya/chapter_1/
 
-    # ===== ИКОНКИ ПРЕДМЕТОВ (все категории) =====
+    # ===== ИКОНКИ ПРЕДМЕТОВ =====
     - assets/images/items/weapons/
     - assets/images/items/tools/
     - assets/images/items/resources/
+
+    # ===== ПОРТРЕТЫ ПЕРСОНАЖЕЙ =====
+    - assets/images/characters/
 
     # ===== ЗВУКИ =====
     - assets/audio/ui/
@@ -49395,6 +49778,31 @@ class Validator {
 ./assets/fonts/RobotoMono-Bold.ttf                                     88K
 ./assets/fonts/RobotoMono-Medium.ttf                                   88K
 ./assets/fonts/RobotoMono-Regular.ttf                                  88K
+./assets/images/characters/alina_critical.png                          704K
+./assets/images/characters/alina_hungry.png                            692K
+./assets/images/characters/alina_normal.png                            676K
+./assets/images/characters/alina_tired.png                             732K
+./assets/images/characters/alina_wounded.png                           724K
+./assets/images/characters/andrey_critical.png                         416K
+./assets/images/characters/andrey_hungry.png                           408K
+./assets/images/characters/andrey_normal.png                           420K
+./assets/images/characters/andrey_tired.png                            444K
+./assets/images/characters/andrey_wounded.png                          488K
+./assets/images/characters/boris_critical.png                          312K
+./assets/images/characters/boris_hungry.png                            224K
+./assets/images/characters/boris_normal.png                            232K
+./assets/images/characters/boris_tired.png                             276K
+./assets/images/characters/boris_wounded.png                           244K
+./assets/images/characters/darya_critical.png                          616K
+./assets/images/characters/darya_hungry.png                            468K
+./assets/images/characters/darya_normal.png                            468K
+./assets/images/characters/darya_tired.png                             552K
+./assets/images/characters/darya_wounded.png                           500K
+./assets/images/characters/ivan_critical.png                           660K
+./assets/images/characters/ivan_hungry.png                             528K
+./assets/images/characters/ivan_normal.png                             504K
+./assets/images/characters/ivan_tired.png                              576K
+./assets/images/characters/ivan_wounded.png                            592K
 ./assets/images/items/resources/car_battery.png                        28K
 ./assets/images/items/resources/cloth.png                              24K
 ./assets/images/items/resources/electronics.png                        28K
@@ -49491,9 +49899,9 @@ class Validator {
 
 ## 📊 SUMMARY
 
-- Всего файлов: **306**
-- Текстовых (в дампе): **187**
+- Всего файлов: **335**
+- Текстовых (в дампе): **191**
 - Артефактов: **1**
-- Бинарников: **118**
+- Бинарников: **143**
 - Дамп: **1.7M**
 

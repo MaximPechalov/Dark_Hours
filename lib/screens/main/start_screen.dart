@@ -1,7 +1,9 @@
+// lib/screens/main/start_screen.dart
+
 import 'package:flutter/material.dart';
 import '../main/character_select_screen.dart';
 import '../extra/equipment_test_screen.dart';
-import '../gameplay/map_screen.dart';
+import '../gameplay/map/map_screen.dart';
 import '../gameplay/story_screen.dart';
 import '../extra/achievements_screen.dart';
 import '../main/settings_screen.dart';
@@ -139,7 +141,7 @@ class _StartScreenState extends State<StartScreen> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => const MapScreen(
+        builder: (_) => MapScreen(
           characterId: 'boris',
           characterName: 'Борис',
         ),

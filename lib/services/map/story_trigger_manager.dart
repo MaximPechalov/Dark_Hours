@@ -1,3 +1,5 @@
+// lib/services/map/story_trigger_manager.dart
+
 import 'package:flutter/material.dart';
 
 import 'package:dark_hours/services/map/map_controller.dart';

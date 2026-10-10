@@ -1,3 +1,5 @@
+// lib/screens/gameplay/story_screen.dart
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -26,7 +28,7 @@ import 'package:dark_hours/widgets/effects/fade_in_text.dart';
 import 'package:dark_hours/widgets/effects/floating_effect.dart';
 import 'package:dark_hours/widgets/effects/achievement_notifier.dart';
 
-import 'package:dark_hours/screens/gameplay/map_screen.dart';
+import 'package:dark_hours/screens/gameplay/map/map_screen.dart';
 import 'package:dark_hours/screens/gameplay/chapter_end_screen.dart';
 import 'package:dark_hours/screens/gameplay/story/story_effects.dart';
 import 'package:dark_hours/screens/gameplay/story/story_status_bar.dart';
