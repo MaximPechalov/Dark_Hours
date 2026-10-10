@@ -1,3 +1,5 @@
+// lib/services/map/rest_manager.dart
+
 import 'package:flutter/material.dart';
 import 'dart:math';
 
@@ -89,11 +91,23 @@ class RestManager {
   // ═══════════════════════════════════════════════════════════
 
   /// Вычислить дельты статов от отдыха.
+  ///
+  /// Учитывает:
+  /// 1. Базовые значения из `action` (stamina, health, sanity, fatigue).
+  /// 2. Бонус от спального мешка (если есть в инвентаре).
+  /// 3. Бонус от `endurance` — выносливые персонажи восстанавливают
+  ///    больше стамины за тот же отдых.
+  ///
+  /// Формулы:
+  /// - `stamina = action.staminaRestore + sleepingBag + enduranceRestBonus`
+  /// - `sanity = action.sanityRestore + sleepingBag`
+  /// - `fatigue = -action.fatigueReduce`
   @visibleForTesting
   static Map<String, int> computeRestStats(
     MapController controller,
     RestAction action,
   ) {
+    // ─── База ───
     final delta = <String, int>{
       'stamina': action.staminaRestore,
       'health': action.healthRestore,
@@ -101,12 +115,22 @@ class RestManager {
       'fatigue': -action.fatigueReduce,
     };
 
+    // ─── Бонус от спального мешка ───
     if (controller.inventory.hasItem('sleeping_bag')) {
       delta['stamina'] =
           (delta['stamina'] ?? 0) + GameConstants.sleepingBagStaminaBonus;
       delta['sanity'] =
           (delta['sanity'] ?? 0) + GameConstants.sleepingBagSanityBonus;
     }
+
+    // ─── Бонус от endurance ───
+    //
+    // Выносливые восстанавливают больше стамины.
+    // При endurance 8 → +6 к восстановлению.
+    // При endurance 3 → −4 к восстановлению.
+    final enduranceBonus =
+        GameConstants.enduranceRestBonus(controller.endurance);
+    delta['stamina'] = (delta['stamina'] ?? 0) + enduranceBonus;
 
     return delta;
   }

@@ -1,6 +1,53 @@
 {
   "locations": [
     {
+      "id": "home_andrey",
+      "name": "Квартира Андрея",
+      "scouted_name": "Высотка ЖК «Алые Паруса»",
+      "description": "Твоя квартира на 15-м этаже. Панорамные окна, серверная, запас кофе.",
+      "scouted_description": "Высотка в центре. Ты знаешь это место.",
+      "type": "safe_house",
+      "region": "city_center",
+      "danger_level": 0,
+      "search_time": 30,
+      "max_searches": 3,
+      "loot_pool": ["battery", "electronics", "coffee", "chocolate"],
+      "enemies": [],
+      "connections": [
+        { "id": "office_tower", "minutes": 5 },
+        { "id": "cafe_center", "minutes": 10 },
+        { "id": "gym", "minutes": 10 },
+        { "id": "street_center", "minutes": 15 }
+      ],
+      "icon": "🏙️",
+      "repeatable": true,
+      "mapPosition": { "x": 0.65, "y": 0.45 },
+      "map_zone": "city_center"
+    },
+    {
+      "id": "home_darya",
+      "name": "Квартира Дарьи",
+      "scouted_name": "Дом напротив больницы",
+      "description": "Твоя квартира. Напротив — городская больница. В шкафу — медсумка и запас на смену.",
+      "scouted_description": "Жилой дом. Ты знаешь это место.",
+      "type": "safe_house",
+      "region": "city_center",
+      "danger_level": 0,
+      "search_time": 30,
+      "max_searches": 3,
+      "loot_pool": ["bandage", "painkiller_pill", "water_bottle"],
+      "enemies": [],
+      "connections": [
+        { "id": "hospital", "minutes": 10 },
+        { "id": "metro_station_center", "minutes": 15 },
+        { "id": "clinic_south", "minutes": 25 }
+      ],
+      "icon": "🏠",
+      "repeatable": true,
+      "mapPosition": { "x": 0.20, "y": 0.90 },
+      "map_zone": "city_center"
+    },
+    {
       "id": "hospital",
       "name": "Городская больница",
       "scouted_name": "Большое серое здание",
@@ -28,7 +75,7 @@
         "character": "ivan",
         "once": true
       },
-      "mapPosition": { "x": 0.15, "y": 0.15 },
+      "mapPosition": { "x": 0.25, "y": 0.85 },
       "map_zone": "city_center"
     },
     {
@@ -56,7 +103,7 @@
       ],
       "icon": "🛣️",
       "repeatable": true,
-      "mapPosition": { "x": 0.34, "y": 0.30 },
+      "mapPosition": { "x": 0.45, "y": 0.70 },
       "map_zone": "city_center"
     },
     {
@@ -84,7 +131,7 @@
         "character": "alina",
         "once": true
       },
-      "mapPosition": { "x": 0.85, "y": 0.15 },
+      "mapPosition": { "x": 0.70, "y": 0.20 },
       "map_zone": "city_center"
     },
     {
@@ -107,7 +154,7 @@
       ],
       "icon": "🏢",
       "repeatable": true,
-      "mapPosition": { "x": 0.75, "y": 0.50 },
+      "mapPosition": { "x": 0.70, "y": 0.50 },
       "map_zone": "city_center"
     },
     {
@@ -129,7 +176,7 @@
       "icon": "🌃",
       "repeatable": true,
       "risk": "fall",
-      "mapPosition": { "x": 0.80, "y": 0.55 },
+      "mapPosition": { "x": 0.65, "y": 0.55 },
       "map_zone": "city_center"
     },
     {
@@ -152,7 +199,7 @@
       "repeatable": true,
       "hidden": true,
       "unlocked_by": "hospital",
-      "mapPosition": { "x": 0.20, "y": 0.20 },
+      "mapPosition": { "x": 0.28, "y": 0.92 },
       "map_zone": "city_center"
     },
     {
@@ -174,7 +221,7 @@
       ],
       "icon": "📚",
       "repeatable": true,
-      "mapPosition": { "x": 0.15, "y": 0.40 },
+      "mapPosition": { "x": 0.20, "y": 0.30 },
       "map_zone": "city_center"
     },
     {
@@ -197,7 +244,7 @@
       ],
       "icon": "🎭",
       "repeatable": true,
-      "mapPosition": { "x": 0.15, "y": 0.55 },
+      "mapPosition": { "x": 0.15, "y": 0.45 },
       "map_zone": "city_center"
     },
     {
@@ -220,7 +267,7 @@
       ],
       "icon": "🏛️",
       "repeatable": true,
-      "mapPosition": { "x": 0.50, "y": 0.42 },
+      "mapPosition": { "x": 0.50, "y": 0.35 },
       "map_zone": "city_center"
     },
     {
@@ -244,7 +291,7 @@
       ],
       "icon": "🌳",
       "repeatable": true,
-      "mapPosition": { "x": 0.15, "y": 0.50 },
+      "mapPosition": { "x": 0.20, "y": 0.10 },
       "map_zone": "city_center"
     },
     {
@@ -267,7 +314,7 @@
       ],
       "icon": "☕",
       "repeatable": true,
-      "mapPosition": { "x": 0.40, "y": 0.40 },
+      "mapPosition": { "x": 0.45, "y": 0.45 },
       "map_zone": "city_center"
     },
     {
@@ -290,7 +337,7 @@
       "icon": "🚇",
       "repeatable": true,
       "risk": "dirty_water",
-      "mapPosition": { "x": 0.50, "y": 0.65 },
+      "mapPosition": { "x": 0.20, "y": 0.65 },
       "map_zone": "city_center"
     },
     {
@@ -335,7 +382,7 @@
       ],
       "icon": "⛪",
       "repeatable": true,
-      "mapPosition": { "x": 0.15, "y": 0.75 },
+      "mapPosition": { "x": 0.60, "y": 0.85 },
       "map_zone": "city_center"
     },
     {
@@ -358,7 +405,7 @@
       "icon": "📡",
       "repeatable": true,
       "risk": "fall",
-      "mapPosition": { "x": 0.85, "y": 0.65 },
+      "mapPosition": { "x": 0.75, "y": 0.10 },
       "map_zone": "city_center"
     },
     {
@@ -380,7 +427,7 @@
       ],
       "icon": "🏛️",
       "repeatable": true,
-      "mapPosition": { "x": 0.50, "y": 0.15 },
+      "mapPosition": { "x": 0.50, "y": 0.20 },
       "map_zone": "city_center"
     },
     {
@@ -402,7 +449,7 @@
       ],
       "icon": "🏦",
       "repeatable": true,
-      "mapPosition": { "x": 0.50, "y": 0.75 },
+      "mapPosition": { "x": 0.50, "y": 0.55 },
       "map_zone": "city_center"
     },
     {
@@ -423,7 +470,7 @@
       ],
       "icon": "🦁",
       "repeatable": true,
-      "mapPosition": { "x": 0.05, "y": 0.40 },
+      "mapPosition": { "x": 0.05, "y": 0.15 },
       "map_zone": "city_center"
     },
     {
@@ -445,7 +492,7 @@
       ],
       "icon": "🪐",
       "repeatable": true,
-      "mapPosition": { "x": 0.85, "y": 0.35 },
+      "mapPosition": { "x": 0.75, "y": 0.35 },
       "map_zone": "city_center"
     },
     {
@@ -467,7 +514,7 @@
       ],
       "icon": "🏋️",
       "repeatable": true,
-      "mapPosition": { "x": 0.85, "y": 0.75 },
+      "mapPosition": { "x": 0.80, "y": 0.70 },
       "map_zone": "city_center"
     }
   ]

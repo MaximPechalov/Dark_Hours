@@ -1,8 +1,8 @@
 # PROJECT DUMP
 
-**Generated:** Sat Oct 10 09:54:33 UTC 2026
+**Generated:** Sat Oct 10 10:50:40 UTC 2026
 **Root:** /workspaces/Dark_Hours
-**Files:** 335
+**Files:** 339
 
 ## 📁 STRUCTURE
 
@@ -232,7 +232,11 @@
 ./lib/screens/gameplay/chapter_end_screen.dart
 ./lib/screens/gameplay/combat_screen.dart
 ./lib/screens/gameplay/credits_screen.dart
-./lib/screens/gameplay/map_screen.dart
+./lib/screens/gameplay/map/map_action_buttons.dart
+./lib/screens/gameplay/map/map_movement_handler.dart
+./lib/screens/gameplay/map/map_panel_coordinator.dart
+./lib/screens/gameplay/map/map_region_transition.dart
+./lib/screens/gameplay/map/map_screen.dart
 ./lib/screens/gameplay/story/story_combat_launcher.dart
 ./lib/screens/gameplay/story/story_effects.dart
 ./lib/screens/gameplay/story/story_status_bar.dart
@@ -21261,23 +21265,230 @@ class GameConstants {
   /// Характеристики по умолчанию
   static const int defaultIntelligence = 5;
   static const int defaultStrength = 5;
+  static const int defaultCunning = 5;
+  static const int defaultEndurance = 5;
 
-  /// Карта характеристик персонажей
+  /// Базовая точка отсчёта характеристик.
+  ///
+  /// Значение 5 = «средний персонаж». Всё, что выше — бонусы,
+  /// всё, что ниже — штрафы. Формулы используют (характеристика - 5).
+  static const int baseStat = 5;
+
+  /// Карта характеристик персонажей.
+  ///
+  /// 4 характеристики:
+  /// - **intelligence** — крафт, взлом, разведка (уже используется).
+  /// - **strength** — урон, крит, побег (уже используется).
+  /// - **cunning** — уклонение, разведка, побег, скорость крафта.
+  /// - **endurance** — расход стамины, отдых, побег, сопротивление усталости.
   static const Map<String, Map<String, int>> characterStats = {
-    'boris': {'intelligence': 5, 'strength': 7},
-    'alina': {'intelligence': 4, 'strength': 3},
-    'ivan': {'intelligence': 8, 'strength': 4},
-    'andrey': {'intelligence': 9, 'strength': 2},
-    'darya': {'intelligence': 7, 'strength': 4},
+    'boris': {
+      'intelligence': 5,
+      'strength': 7,
+      'cunning': 4,
+      'endurance': 6,
+    },
+    'alina': {
+      'intelligence': 4,
+      'strength': 3,
+      'cunning': 6,
+      'endurance': 9,
+    },
+    'ivan': {
+      'intelligence': 8,
+      'strength': 4,
+      'cunning': 8,
+      'endurance': 3,
+    },
+    'andrey': {
+      'intelligence': 9,
+      'strength': 2,
+      'cunning': 4,
+      'endurance': 4,
+    },
+    'darya': {
+      'intelligence': 7,
+      'strength': 4,
+      'cunning': 6,
+      'endurance': 6,
+    },
   };
 
-  /// Получить статы персонажа по ID
+  /// Получить статы персонажа по ID.
   static Map<String, int> statsFor(String characterId) {
     return characterStats[characterId] ??
         {
           'intelligence': defaultIntelligence,
           'strength': defaultStrength,
+          'cunning': defaultCunning,
+          'endurance': defaultEndurance,
         };
+  }
+
+  /// Получить значение `cunning` для персонажа.
+  static int cunningFor(String characterId) {
+    return statsFor(characterId)['cunning'] ?? defaultCunning;
+  }
+
+  /// Получить значение `endurance` для персонажа.
+  static int enduranceFor(String characterId) {
+    return statsFor(characterId)['endurance'] ?? defaultEndurance;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ЭФФЕКТЫ CUNNING (ХИТРОСТЬ)
+  // ═══════════════════════════════════════════════════════════
+  //
+  // Формулы используют (cunning - baseStat), то есть:
+  // - cunning 5 → 0 (нет бонуса/штрафа)
+  // - cunning 8 → +3 (заметный бонус)
+  // - cunning 3 → −2 (штраф)
+  //
+  // Все бонусы клампятся в разумные границы, чтобы
+  // персонаж с cunning 10 не ломал игру.
+
+  /// Бонус к уклонению в бою (в процентах за 1 пункт cunning).
+  ///
+  /// При cunning 8 → +9% уклонения от атак врага.
+  static const double cunningDodgePerPoint = 0.03;
+
+  /// Максимальный бонус к уклонению от cunning.
+  static const double cunningDodgeMax = 0.20;
+
+  /// Минимальный штраф к уклонению от cunning.
+  static const double cunningDodgeMin = -0.10;
+
+  /// Бонус к количеству разведанных локаций за одну разведку.
+  ///
+  /// При cunning 8 → +3 локации дополнительно (к базовым 0-3).
+  static const int cunningScoutPerPoint = 1;
+
+  /// Максимум дополнительно разведанных локаций от cunning.
+  static const int cunningScoutMax = 5;
+
+  /// Бонус к шансу побега в бою (в процентах за 1 пункт cunning).
+  static const double cunningFleePerPoint = 0.04;
+
+  /// Максимальный бонус к побегу от cunning.
+  static const double cunningFleeMax = 0.25;
+
+  /// Скидка на время крафта (в минутах за 1 пункт cunning).
+  ///
+  /// При cunning 8 → −3 минуты от базового времени.
+  static const int cunningCraftTimeSavePerPoint = 1;
+
+  /// Максимальная скидка на время крафта.
+  static const int cunningCraftTimeSaveMax = 5;
+
+  // ═══════════════════════════════════════════════════════════
+  // ЭФФЕКТЫ ENDURANCE (ВЫНОСЛИВОСТЬ)
+  // ═══════════════════════════════════════════════════════════
+  //
+  // Формулы используют (endurance - baseStat), аналогично cunning.
+
+  /// Скидка на стоимость стамины при перемещении (доля за 1 пункт).
+  ///
+  /// При endurance 8 → −15% стоимости стамины.
+  /// При endurance 3 → +10% стоимости.
+  static const double enduranceMoveCostPerPoint = 0.05;
+
+  /// Максимальная скидка на перемещение.
+  static const double enduranceMoveCostMaxSave = 0.30;
+
+  /// Максимальный штраф на перемещение.
+  static const double enduranceMoveCostMaxPenalty = 0.20;
+
+  /// Бонус к восстановлению стамины при отдыхе (в единицах за 1 пункт).
+  ///
+  /// При endurance 8 → +6 к восстановлению стамины.
+  static const int enduranceRestBonusPerPoint = 2;
+
+  /// Максимальный бонус к отдыху.
+  static const int enduranceRestBonusMax = 10;
+
+  /// Минимальный штраф к отдыху.
+  static const int enduranceRestBonusMin = -6;
+
+  /// Бонус к шансу побега в бою (в процентах за 1 пункт endurance).
+  ///
+  /// При endurance 8 → +12% к шансу побега.
+  static const double enduranceFleePerPoint = 0.04;
+
+  /// Максимальный бонус к побегу от endurance.
+  static const double enduranceFleeMax = 0.25;
+
+  /// Бонус к сопротивлению усталости (доля за 1 пункт).
+  ///
+  /// При endurance 8 → −15% к получаемой усталости от действий.
+  static const double enduranceFatigueResistPerPoint = 0.05;
+
+  /// Максимальное сопротивление усталости.
+  static const double enduranceFatigueResistMax = 0.30;
+
+  /// Минимальное сопротивление усталости (штраф для слабых).
+  static const double enduranceFatigueResistMin = -0.10;
+
+  // ═══════════════════════════════════════════════════════════
+  // ХЕЛПЕРЫ ДЛЯ РАСЧЁТА ЭФФЕКТОВ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Уклонение от cunning (доля).
+  ///
+  /// Возвращает число в диапазоне [cunningDodgeMin, cunningDodgeMax].
+  static double cunningDodgeBonus(int cunning) {
+    final raw = (cunning - baseStat) * cunningDodgePerPoint;
+    return raw.clamp(cunningDodgeMin, cunningDodgeMax);
+  }
+
+  /// Дополнительно разведанных локаций от cunning.
+  static int cunningScoutBonus(int cunning) {
+    final raw = (cunning - baseStat) * cunningScoutPerPoint;
+    return raw.clamp(0, cunningScoutMax);
+  }
+
+  /// Бонус к побегу от cunning (доля).
+  static double cunningFleeBonus(int cunning) {
+    final raw = (cunning - baseStat) * cunningFleePerPoint;
+    return raw.clamp(0.0, cunningFleeMax);
+  }
+
+  /// Скидка на время крафта (минуты).
+  static int cunningCraftTimeSave(int cunning) {
+    final raw = (cunning - baseStat) * cunningCraftTimeSavePerPoint;
+    return raw.clamp(0, cunningCraftTimeSaveMax);
+  }
+
+  /// Множитель стоимости перемещения по endurance.
+  ///
+  /// Возвращает множитель, на который умножается базовая стоимость.
+  /// Например, 0.85 означает «−15% к стоимости».
+  static double enduranceMoveMultiplier(int endurance) {
+    final raw = 1.0 - (endurance - baseStat) * enduranceMoveCostPerPoint;
+    final minMult = 1.0 - enduranceMoveCostMaxSave; // 0.70
+    final maxMult = 1.0 + enduranceMoveCostMaxPenalty; // 1.20
+    return raw.clamp(minMult, maxMult);
+  }
+
+  /// Бонус к восстановлению стамины при отдыхе.
+  static int enduranceRestBonus(int endurance) {
+    final raw = (endurance - baseStat) * enduranceRestBonusPerPoint;
+    return raw.clamp(enduranceRestBonusMin, enduranceRestBonusMax);
+  }
+
+  /// Бонус к побегу от endurance (доля).
+  static double enduranceFleeBonus(int endurance) {
+    final raw = (endurance - baseStat) * enduranceFleePerPoint;
+    return raw.clamp(0.0, enduranceFleeMax);
+  }
+
+  /// Множитель получаемой усталости по endurance.
+  ///
+  /// Например, 0.85 означает «−15% к получаемой усталости».
+  static double enduranceFatigueMultiplier(int endurance) {
+    final raw = 1.0 - (endurance - baseStat) * enduranceFatigueResistPerPoint;
+    final minMult = 1.0 - enduranceFatigueResistMax; // 0.70
+    final maxMult = 1.0 - enduranceFatigueResistMin; // 1.10
+    return raw.clamp(minMult, maxMult);
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -26973,10 +27184,14 @@ class _ChapterEndScreenState extends State<ChapterEndScreen> {
 
 ### 📄 `./lib/screens/gameplay/combat_screen.dart`
 ```dart
+// lib/screens/gameplay/combat_screen.dart
+
 import 'package:flutter/material.dart';
 import 'dart:math';
+
 import 'package:dark_hours/models/combat/combat.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/constants/game_constants.dart';
 import 'package:dark_hours/widgets/cards/character_portrait_from_stats.dart';
 import 'package:dark_hours/widgets/effects/floating_effect.dart';
 import 'package:dark_hours/widgets/effects/shake_widget.dart';
@@ -26996,6 +27211,19 @@ class CombatScreen extends StatefulWidget {
   /// Усталость игрока — для определения состояния портрета.
   final int playerFatigue;
 
+  /// Хитрость игрока — влияет на уклонение и побег.
+  ///
+  /// Значения 0-10. Базовая точка — 5.
+  /// При cunning 5 → без изменений.
+  /// При cunning 8 → +9% уклонения, +12% побега.
+  final int playerCunning;
+
+  /// Выносливость игрока — влияет на побег.
+  ///
+  /// Значения 0-10. Базовая точка — 5.
+  /// При endurance 8 → +12% побега.
+  final int playerEndurance;
+
   const CombatScreen({
     super.key,
     required this.player,
@@ -27003,6 +27231,8 @@ class CombatScreen extends StatefulWidget {
     this.characterId,
     this.playerHunger = 100,
     this.playerFatigue = 0,
+    this.playerCunning = GameConstants.defaultCunning,
+    this.playerEndurance = GameConstants.defaultEndurance,
   });
 
   @override
@@ -27034,6 +27264,11 @@ class _CombatScreenState extends State<CombatScreen> {
     _addLog(
       '⚔️ Ты: ${widget.player.damage} урона (${_damageTypeName(widget.player.damageType)})',
     );
+    if (widget.playerCunning > GameConstants.baseStat) {
+      _addLog(
+        '💨 Уклонение: +${(GameConstants.cunningDodgeBonus(widget.playerCunning) * 100).round()}%',
+      );
+    }
   }
 
   Future<void> _playCombatMusic() async {
@@ -27070,7 +27305,24 @@ class _CombatScreenState extends State<CombatScreen> {
     });
   }
 
-  // ====== ИГРОК ======
+  // ═══════════════════════════════════════════════════════════
+  // УКЛОНЕНИЕ (от cunning)
+  // ═══════════════════════════════════════════════════════════
+
+  /// Проверить, уклонился ли игрок от атаки врага.
+  ///
+  /// Базируется на cunning: при cunning 8 → 9% шанс уклонения.
+  /// Клампится через `GameConstants.cunningDodgeBonus`.
+  bool _rollPlayerDodge() {
+    final dodgeChance = GameConstants.cunningDodgeBonus(widget.playerCunning);
+    if (dodgeChance <= 0) return false;
+    return _rng.nextDouble() < dodgeChance;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ИГРОК
+  // ═══════════════════════════════════════════════════════════
+
   void _playerAttack() {
     if (_combatEnded || !_isPlayerTurn || _isProcessing) return;
     if (widget.player.isStunned) {
@@ -27224,6 +27476,18 @@ class _CombatScreenState extends State<CombatScreen> {
     Future.delayed(const Duration(milliseconds: 600), _enemyTurn);
   }
 
+  /// Побег из боя.
+  ///
+  /// Шанс побега рассчитывается из 3 характеристик:
+  /// - strength: базовый бонус (уже был)
+  /// - cunning: хитрость помогает запутать следы
+  /// - endurance: выносливость помогает дольше бежать
+  ///
+  /// Базовая формула:
+  /// ```
+  /// 0.5 + (strength - 5) * 0.05 + cunningFleeBonus + enduranceFleeBonus
+  /// ```
+  /// Клампится в [0.2, 0.9].
   void _playerFlee() {
     if (_combatEnded || _isProcessing) return;
     if (widget.player.isStunned) {
@@ -27234,15 +27498,25 @@ class _CombatScreenState extends State<CombatScreen> {
 
     setState(() => _isProcessing = true);
 
-    // Шанс побега: 50% + бонус от силы
-    double fleeChance = 0.5 + (widget.player.strength - 5) * 0.05;
-    fleeChance = fleeChance.clamp(0.2, 0.8);
+    // База + бонус от силы (уже было) + бонусы от cunning и endurance
+    final strengthBonus = (widget.player.strength - GameConstants.baseStat) * 0.05;
+    final cunningBonus = GameConstants.cunningFleeBonus(widget.playerCunning);
+    final enduranceBonus =
+        GameConstants.enduranceFleeBonus(widget.playerEndurance);
+
+    double fleeChance =
+        0.5 + strengthBonus + cunningBonus + enduranceBonus;
+    fleeChance = fleeChance.clamp(0.2, 0.9);
 
     if (_rng.nextDouble() < fleeChance) {
-      _addLog('🏃 Ты сбежал!');
+      _addLog(
+        '🏃 Ты сбежал! (шанс ${(fleeChance * 100).round()}%)',
+      );
       _endCombat('fled');
     } else {
-      _addLog('❌ Не удалось сбежать!');
+      _addLog(
+        '❌ Не удалось сбежать! (шанс ${(fleeChance * 100).round()}%)',
+      );
       _isPlayerTurn = false;
       Future.delayed(const Duration(milliseconds: 600), _enemyTurn);
     }
@@ -27256,7 +27530,10 @@ class _CombatScreenState extends State<CombatScreen> {
     Future.delayed(const Duration(milliseconds: 800), _enemyTurn);
   }
 
-  // ====== ВРАГ ======
+  // ═══════════════════════════════════════════════════════════
+  // ВРАГ
+  // ═══════════════════════════════════════════════════════════
+
   void _enemyTurn() {
     if (_combatEnded || widget.enemy.isDead || !mounted) return;
 
@@ -27281,10 +27558,24 @@ class _CombatScreenState extends State<CombatScreen> {
       }
     }
 
-    // Способность врага
-    final ability = widget.enemy.rollAbility();
-    if (ability != null) {
-      _applyEnemyAbility(ability);
+    // ⚡ ПРОВЕРКА УКЛОНЕНИЯ ОТ CUNNING
+    // Если игрок уклонился — враг атакует, но промахивается.
+    // Способности врага всё ещё применяются (их нельзя «уклонить»
+    // физически), но обычные атаки — можно.
+    final enemyAbility = widget.enemy.rollAbility();
+    final dodged = enemyAbility == null && _rollPlayerDodge();
+
+    if (dodged) {
+      _addLog('💨 Ты уклоняешься от атаки ${widget.enemy.name}!');
+      FloatingEffectOverlay.show(
+        context,
+        'УКЛОНЕНИЕ!',
+        color: Colors.cyan,
+        icon: Icons.air,
+      );
+    } else if (enemyAbility != null) {
+      // Способность врага (без уклонения — это спецатака)
+      _applyEnemyAbility(enemyAbility);
     } else {
       // Обычная атака
       final dmg = widget.enemy.calculateDamage(widget.player);
@@ -27429,7 +27720,10 @@ class _CombatScreenState extends State<CombatScreen> {
     });
   }
 
-  // ====== UI ======
+  // ═══════════════════════════════════════════════════════════
+  // UI
+  // ═══════════════════════════════════════════════════════════
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28260,346 +28554,408 @@ class _CreditsScreenState extends State<CreditsScreen>
 }
 ```
 
-### 📄 `./lib/screens/gameplay/map_screen.dart`
+### 📄 `./lib/screens/gameplay/map/map_action_buttons.dart`
 ```dart
-import 'dart:async';
+// lib/screens/gameplay/map/map_action_buttons.dart
+
+import 'package:flutter/material.dart';
+
+import 'package:dark_hours/models/world/location.dart';
+import 'package:dark_hours/services/progress/achievement_manager.dart';
+import 'package:dark_hours/services/audio/audio_service.dart';
+
+import 'package:dark_hours/widgets/effects/shimmer_button.dart';
+
+import 'package:dark_hours/screens/gameplay/map/map_screen.dart';
+
+/// Билдер кнопок нижней панели карты.
+///
+/// **Ответственности:**
+/// - Решить, какие кнопки показывать для текущей локации.
+/// - Собрать их в список виджетов.
+/// - Вызвать коллбэки через [screen].
+class MapActionButtonsBuilder {
+  final MapScreenState screen;
+
+  MapActionButtonsBuilder(this.screen);
+
+  // ═══════════════════════════════════════════════════════════
+  // ГЛАВНЫЙ МЕТОД
+  // ═══════════════════════════════════════════════════════════
+
+  /// Собрать список кнопок для текущей локации.
+  List<Widget> build(Location current) {
+    final widgets = <Widget>[];
+
+    // 1. Обыск — если есть что искать
+    if (_canSearch(current)) {
+      widgets.add(_buildSearchButton(current));
+      widgets.add(const SizedBox(height: 8));
+    }
+
+    // 2. Разведка — если есть что разведать в регионе
+    if (screen.movementHandler.canScout(current)) {
+      widgets.add(_buildScoutButton());
+      widgets.add(const SizedBox(height: 8));
+    }
+
+    // 3. Выходы из региона — по одной кнопке на граничную локацию
+    final borderLocations = _getBorderLocations(current);
+    for (final border in borderLocations) {
+      widgets.add(_buildBorderButton(border));
+      widgets.add(const SizedBox(height: 8));
+    }
+
+    // 4. Сюжетное событие — если триггер готов
+    if (_hasStoryTrigger(current)) {
+      widgets.add(_buildStoryButton());
+      widgets.add(const SizedBox(height: 8));
+    }
+
+    // 5. Станция — если это финальная локация
+    if (current.isFinal) {
+      widgets.add(_buildStationButton());
+    }
+
+    return widgets;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // УСЛОВИЯ ПОКАЗА
+  // ═══════════════════════════════════════════════════════════
+
+  /// Есть ли в локации что искать?
+  bool _canSearch(Location loc) {
+    return loc.maxSearches > 0 ||
+        loc.lootPool.isNotEmpty ||
+        loc.enemies.isNotEmpty ||
+        loc.risk != null;
+  }
+
+  /// Есть ли сюжетный триггер, который ещё не сработал?
+  bool _hasStoryTrigger(Location loc) {
+    if (loc.storyNode == null) return false;
+
+    return loc.canTriggerStory(
+      currentChapter: screen.controller.chapter,
+      currentCharacter: screen.characterId,
+      triggeredNodes: screen.controller.flags,
+    );
+  }
+
+  /// Найти локации соседних регионов, доступные для перехода.
+  List<Location> _getBorderLocations(Location current) {
+    final result = <Location>[];
+
+    for (final connId in current.connectionIds) {
+      final target = screen.controller.map?.getById(connId);
+      if (target == null) continue;
+      if (target.region == current.region) continue;
+      if (!target.isAvailableAt(screen.controller.chapter)) continue;
+      if (target.hidden &&
+          !screen.controller.isLocationUnlocked(target.id)) {
+        continue;
+      }
+      result.add(target);
+    }
+
+    return result;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // КНОПКА: ОБЫСК
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildSearchButton(Location loc) {
+    final searched = screen.controller.searchedCounts[loc.id] ?? 0;
+    final remaining = loc.maxSearches - searched;
+
+    String label;
+    Color color;
+
+    if (loc.maxSearches == 0) {
+      label = '🔍  ОСМОТРЕТЬСЯ (${loc.searchTime} мин)';
+      color = const Color.fromARGB(255, 100, 150, 200);
+    } else if (remaining > 0) {
+      label =
+          '🔍  ОБЫСКАТЬ · $remaining из ${loc.maxSearches} (${loc.searchTime} мин)';
+      color = const Color.fromARGB(255, 100, 150, 200);
+    } else {
+      label = '🔍  ОСМОТРЕТЬСЯ (${loc.searchTime} мин)';
+      color = const Color.fromARGB(255, 150, 100, 100);
+    }
+
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          AudioService.playClick();
+          screen.panelCoordinator.search();
+        },
+        icon: const Icon(Icons.search, size: 18),
+        label: Text(
+          label,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // КНОПКА: РАЗВЕДКА
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildScoutButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          AudioService.playClick();
+          screen.movementHandler.scout();
+        },
+        icon: const Icon(Icons.visibility_outlined, size: 18),
+        label: const Text(
+          '🔭  РАЗВЕДАТЬ РАЙОН (30 мин)',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color.fromARGB(255, 100, 130, 180),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // КНОПКА: ВЫХОД ИЗ РЕГИОНА
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildBorderButton(Location border) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          AudioService.playClick();
+          screen.onNodeTap(border);
+        },
+        icon: const Icon(Icons.exit_to_app, size: 18),
+        label: Text(
+          '🚪  ВЫЙТИ: ${border.displayScoutedName}',
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color.fromARGB(255, 150, 80, 40),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // КНОПКА: СЮЖЕТНОЕ СОБЫТИЕ
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildStoryButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          AudioService.playClick();
+          screen.panelCoordinator.checkStoryTrigger();
+        },
+        icon: const Icon(Icons.menu_book, size: 18),
+        label: const Text(
+          '📖  СЮЖЕТНОЕ СОБЫТИЕ',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color.fromARGB(255, 200, 120, 100),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // КНОПКА: СТАНЦИЯ
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildStationButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ShimmerButton(
+        text: '🏭  ВОЙТИ НА СТАНЦИЮ',
+        icon: Icons.flag,
+        onPressed: () async {
+          await AchievementManager.unlock('reached_station');
+          if (!screen.mounted) return;
+          AudioService.playSuccess();
+          ScaffoldMessenger.of(screen.context).showSnackBar(
+            const SnackBar(
+              content: Text('🏭 Ты добрался до станции. Конец пути.'),
+              duration: Duration(seconds: 4),
+              backgroundColor: Color.fromARGB(255, 200, 180, 100),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+```
+
+### 📄 `./lib/screens/gameplay/map/map_movement_handler.dart`
+```dart
+// lib/screens/gameplay/map/map_movement_handler.dart
+
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-import 'package:dark_hours/services/map/map_controller.dart';
 import 'package:dark_hours/services/map/movement_manager.dart';
-import 'package:dark_hours/services/map/search_manager.dart';
-import 'package:dark_hours/services/map/rest_manager.dart';
 import 'package:dark_hours/services/map/death_manager.dart';
-import 'package:dark_hours/services/map/story_trigger_manager.dart';
 import 'package:dark_hours/services/map/region_background_cache.dart';
-import 'package:dark_hours/services/progress/achievement_manager.dart';
-import 'package:dark_hours/services/time/time_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
 
 import 'package:dark_hours/models/world/location.dart';
 import 'package:dark_hours/models/world/map_position.dart';
-import 'package:dark_hours/models/world/region_layout.dart';
-import 'package:dark_hours/models/items/recipe.dart';
-import 'package:dark_hours/models/inventory/inventory_item.dart';
-import 'package:dark_hours/models/time/rest_action.dart';
-import 'package:dark_hours/models/progress/achievement.dart';
+import 'package:dark_hours/constants/game_constants.dart';
 
-import 'package:dark_hours/widgets/panels/penalties_panel.dart';
-import 'package:dark_hours/widgets/panels/conditions_panel.dart';
-import 'package:dark_hours/widgets/panels/craft_panel.dart';
-import 'package:dark_hours/widgets/panels/inventory_panel.dart';
-import 'package:dark_hours/widgets/panels/equipment_panel.dart';
-import 'package:dark_hours/widgets/panels/rest_panel.dart';
-import 'package:dark_hours/widgets/effects/floating_effect.dart';
-import 'package:dark_hours/widgets/effects/shimmer_button.dart';
-import 'package:dark_hours/widgets/effects/achievement_notifier.dart';
+import 'package:dark_hours/screens/gameplay/map/map_screen.dart';
 
-import 'package:dark_hours/screens/gameplay/widgets/map_status_bar.dart';
-import 'package:dark_hours/screens/gameplay/widgets/map_current_location.dart';
-import 'package:dark_hours/screens/gameplay/widgets/map_edge_painter.dart';
-import 'package:dark_hours/screens/gameplay/widgets/map_node.dart';
-import 'package:dark_hours/screens/gameplay/widgets/map_player_marker.dart';
-import 'package:dark_hours/screens/gameplay/widgets/map_info_sheet.dart';
+/// Управляет перемещением, анимацией маркера и сменой региона.
+///
+/// **Ответственности:**
+/// - Плавная анимация маркера при переходе.
+/// - Центрирование камеры на текущей локации.
+/// - Смена региона: загрузка фона + оверлей.
+/// - Разведка локаций (одна / массовая).
+/// - Проверка смерти и усталости после действий.
+class MapMovementHandler {
+  final MapScreenState screen;
 
-import 'package:dark_hours/models/world/layouts/city_south_layout.dart';
-import 'package:dark_hours/models/world/layouts/city_center_layout.dart';
+  MapMovementHandler(this.screen);
 
-class MapScreen extends StatefulWidget {
-  final String characterId;
-  final String characterName;
-  final dynamic resumeFrom;
+  // ═══════════════════════════════════════════════════════════
+  // СОСТОЯНИЕ АНИМАЦИИ МАРКЕРА
+  // ═══════════════════════════════════════════════════════════
 
-  const MapScreen({
-    super.key,
-    required this.characterId,
-    required this.characterName,
-    this.resumeFrom,
-  });
-
-  @override
-  State<MapScreen> createState() => _MapScreenState();
-}
-
-class _MapScreenState extends State<MapScreen>
-    with SingleTickerProviderStateMixin {
-  late final MapController _controller;
-
-  final TransformationController _transformController =
-      TransformationController();
-
-  late AnimationController _markerController;
-  late Animation<MapPosition> _markerAnimation;
   MapPosition _markerPosition = const MapPosition(x: 0.5, y: 0.5);
   double _markerRotation = 0.0;
   bool _isMoving = false;
 
-  Location? _selectedLocation;
+  late Animation<MapPosition> _markerAnimation;
+  bool _markerListenerAttached = false;
 
-  Size _viewportSize = const Size(400, 600);
+  MapPosition get markerPosition => _markerPosition;
+  double get markerRotation => _markerRotation;
+  bool get isMoving => _isMoving;
 
-  /// Фон текущего региона (сгенерированная или загруженная картинка).
-  ui.Image? _regionBackground;
+  // ═══════════════════════════════════════════════════════════
+  // ИНИЦИАЛИЗАЦИЯ
+  // ═══════════════════════════════════════════════════════════
 
-  /// ID загруженного региона — чтобы не перезагружать одно и то же.
-  String? _loadedRegionId;
-
-  /// Регион, который отрисован сейчас (для детекта смены).
-  String? _lastRegionId;
-
-  /// Показывать ли оверлей перехода между регионами.
-  ///
-  /// **Непрозрачный** оверлей: скрывает карту до момента,
-  /// пока не загрузится фон нового региона.
-  /// Это решает проблему "новые локации на старом фоне".
-  bool _showRegionTransition = false;
-
-  /// Название региона для оверлея перехода.
-  String _transitionRegionName = '';
-
-  /// Подписка на поток разблокированных достижений.
-  StreamSubscription<Achievement>? _achievementSub;
-
-  static const double _mapWidth = 800.0;
-  static const double _mapHeight = 1200.0;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = MapController(
-      characterId: widget.characterId,
-      characterName: widget.characterName,
-      resumeFrom: widget.resumeFrom,
-    );
-    _controller.addListener(_onControllerChanged);
-
-    // Подписка на достижения.
-    _achievementSub = AchievementManager.unlockStream.listen((ach) {
-      if (mounted) AchievementNotifier.showPopup(context, ach);
-    });
-
-    _markerController = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    );
-
-    _initController();
+  /// Установить стартовую позицию маркера.
+  void initializeMarkerPosition(Location loc) {
+    _markerPosition = loc.mapPosition;
   }
 
-  @override
-  void dispose() {
-    _achievementSub?.cancel();
-    _controller.removeListener(_onControllerChanged);
-    _controller.dispose();
-    _transformController.dispose();
-    _markerController.dispose();
-    super.dispose();
-  }
+  // ═══════════════════════════════════════════════════════════
+  // ЦЕНТРИРОВАНИЕ
+  // ═══════════════════════════════════════════════════════════
 
-  void _onControllerChanged() {
-    if (!mounted) return;
+  /// Центрировать камеру на локации.
+  void centerOnLocation(Location loc) {
+    final px = loc.mapPosition.x * screen.mapWidth;
+    final py = loc.mapPosition.y * screen.mapHeight;
 
-    // Детект смены региона.
-    final currentRegion = _controller.currentLocation?.region;
-    if (currentRegion != null && _lastRegionId != null) {
-      if (currentRegion != _lastRegionId) {
-        _onRegionChanged(currentRegion);
-      }
-    }
-    if (currentRegion != null) {
-      _lastRegionId = currentRegion;
-    }
+    final viewSize = screen.viewportSize;
+    final tx = viewSize.width / 2 - px;
+    final ty = viewSize.height / 2 - py;
 
-    setState(() {});
-  }
-
-  /// Обработчик смены региона.
-  ///
-  /// **Логика:**
-  /// 1. Показывает **непрозрачный** оверлей (скрывает карту полностью).
-  /// 2. Загружает фон нового региона **под оверлеем**.
-  /// 3. Когда фон готов — обновляет `_regionBackground` и `_loadedRegionId`.
-  /// 4. Держит оверлей ещё 800 ms (чтобы игрок прочитал название).
-  /// 5. Убирает оверлей — карта показывается с **правильным** фоном.
-  Future<void> _onRegionChanged(String newRegion) async {
-    final name = _regionDisplayName(newRegion);
-
-    // Показываем непрозрачный оверлей.
-    setState(() {
-      _showRegionTransition = true;
-      _transitionRegionName = name;
-      // Сбрасываем _loadedRegionId, чтобы _loadRegionBackground
-      // не пропустил загрузку (защита от "уже загружен").
-      _loadedRegionId = null;
-    });
-
-    // Загружаем фон ПОД оверлеем.
-    await _loadRegionBackground(newRegion);
-
-    if (!mounted) return;
-
-    // Даём игроку прочитать название региона.
-    await Future.delayed(const Duration(milliseconds: 800));
-
-    if (!mounted) return;
-
-    // Убираем оверлей — карта показывается с новым фоном.
-    setState(() {
-      _showRegionTransition = false;
-    });
-
-    // Снекбар (можно и под оверлеем — не критично).
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('🚪 Ты пересёк границу: $name'),
-          duration: const Duration(seconds: 2),
-          backgroundColor: const Color.fromARGB(255, 100, 130, 180),
-        ),
-      );
-    }
-  }
-
-  String _regionDisplayName(String regionId) {
-    switch (regionId) {
-      case 'city_south':
-        return 'Юг города';
-      case 'city_center':
-        return 'Центр города';
-      case 'forest':
-        return 'Лес';
-      case 'highway':
-        return 'Трасса';
-      case 'north':
-        return 'Север';
-      case 'underground':
-        return 'Подземелье';
-      default:
-        return regionId;
-    }
-  }
-
-  /// Загрузить фон региона.
-  ///
-  /// Возвращает Future, который завершится **после** того, как
-  /// `_regionBackground` и `_loadedRegionId` обновятся.
-  Future<void> _loadRegionBackground(String regionId) async {
-    if (_loadedRegionId == regionId && _regionBackground != null) {
-      return; // уже загружен
-    }
-
-    final layout = _getLayoutForRegion(regionId);
-    if (layout == null) return;
-
-    final image = await RegionBackgroundCache.get(
-      regionId: regionId,
-      layout: layout,
-    );
-
-    if (!mounted) return;
-
-    setState(() {
-      _regionBackground = image;
-      _loadedRegionId = regionId;
-    });
-  }
-
-  Future<void> _initController() async {
-    await _controller.init();
-    if (!mounted) return;
-
-    final cur = _controller.currentLocation;
-    if (cur != null) {
-      _markerPosition = cur.mapPosition;
-      _lastRegionId = cur.region;
-      _loadedRegionId = cur.region;
-
-      // Загружаем фон стартового региона.
-      final layout = _getLayoutForRegion(cur.region);
-      if (layout != null) {
-        final image = await RegionBackgroundCache.get(
-          regionId: cur.region,
-          layout: layout,
-        );
-        if (mounted) {
-          setState(() {
-            _regionBackground = image;
-          });
-        }
-      }
-
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _centerOnLocation(cur);
-      });
-
-      final ambiencePath = AudioService.ambienceForLocation(
-        locationId: cur.id,
-        type: cur.type,
-        region: cur.region,
-        dangerLevel: cur.dangerLevel,
-      );
-      if (ambiencePath != null) {
-        await AudioService.playAmbience(ambiencePath);
-      }
-    }
-
-    if (DeathManager.checkDeath(_controller)) {
-      await _handleDeath();
-      return;
-    }
-    if (mounted) setState(() {});
-  }
-
-  void _centerOnLocation(Location loc) {
-    final px = loc.mapPosition.x * _mapWidth;
-    final py = loc.mapPosition.y * _mapHeight;
-
-    final viewW = _viewportSize.width;
-    final viewH = _viewportSize.height;
-
-    final tx = viewW / 2 - px;
-    final ty = viewH / 2 - py;
-
-    _transformController.value = Matrix4.identity()
+    screen.transformController.value = Matrix4.identity()
       ..translateByDouble(tx, ty, 0, 1);
   }
 
-  Future<void> _handleDeath() async {
-    if (!mounted) return;
-    await DeathManager.applyStatsOnDeath(_controller);
-    if (!mounted) return;
-    await DeathManager.showDeathScreenIfNeeded(context, _controller);
-  }
+  // ═══════════════════════════════════════════════════════════
+  // ПЕРЕХОД
+  // ═══════════════════════════════════════════════════════════
 
-  Future<void> _moveTo(String locationId) async {
-    final target = _controller.map?.getById(locationId);
+  /// Перейти в локацию с анимацией маркера.
+  Future<void> moveTo(String locationId) async {
+    final target = screen.controller.map?.getById(locationId);
     if (target != null) {
       _startMarkerAnimation(target.mapPosition);
       await Future.delayed(const Duration(milliseconds: 400));
     }
 
-    final ok = await MovementManager.move(context, _controller, locationId);
-    if (!ok || !mounted) return;
+    final ok = await MovementManager.move(
+      screen.context,
+      screen.controller,
+      locationId,
+    );
 
-    final newLoc = _controller.currentLocation;
+    if (!ok || !screen.mounted) return;
+
+    final newLoc = screen.controller.currentLocation;
     if (newLoc != null) {
       _finishMarkerAnimation(newLoc.mapPosition);
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _centerOnLocation(newLoc);
+        if (screen.mounted) centerOnLocation(newLoc);
       });
     }
 
-    _selectedLocation = null;
+    screen.selectedLocation = null;
 
-    if (DeathManager.checkDeath(_controller)) {
-      await _handleDeath();
+    if (DeathManager.checkDeath(screen.controller)) {
+      await handleDeath();
       return;
     }
-    await DeathManager.checkFatigue(context, _controller);
-    if (mounted) setState(() {});
+
+    await DeathManager.checkFatigue(screen.context, screen.controller);
+    screen.rebuild();
   }
+
+  // ═══════════════════════════════════════════════════════════
+  // АНИМАЦИЯ МАРКЕРА
+  // ═══════════════════════════════════════════════════════════
 
   void _startMarkerAnimation(MapPosition target) {
     _isMoving = true;
@@ -28611,95 +28967,126 @@ class _MapScreenState extends State<MapScreen>
     _markerAnimation = Tween<MapPosition>(
       begin: _markerPosition,
       end: target,
-    ).animate(CurvedAnimation(
-      parent: _markerController,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(
+      CurvedAnimation(
+        parent: screen.markerController,
+        curve: Curves.easeInOut,
+      ),
+    );
 
-    _markerController.forward(from: 0);
-    _markerController.addListener(_onMarkerTick);
+    if (!_markerListenerAttached) {
+      screen.markerController.addListener(_onMarkerTick);
+      _markerListenerAttached = true;
+    }
 
-    setState(() {});
+    screen.markerController.forward(from: 0);
+    screen.rebuild();
   }
 
   void _finishMarkerAnimation(MapPosition target) {
     _markerPosition = target;
     _isMoving = false;
-    _markerController.stop();
-    _markerController.removeListener(_onMarkerTick);
-    setState(() {});
+
+    screen.markerController.stop();
+    if (_markerListenerAttached) {
+      screen.markerController.removeListener(_onMarkerTick);
+      _markerListenerAttached = false;
+    }
+
+    screen.rebuild();
   }
 
   void _onMarkerTick() {
-    setState(() {
-      _markerPosition = _markerAnimation.value;
-    });
+    _markerPosition = _markerAnimation.value;
+    screen.rebuild();
   }
 
   // ═══════════════════════════════════════════════════════════
-  // ТАП НА ЛОКАЦИЮ
+  // СМЕНА РЕГИОНА
   // ═══════════════════════════════════════════════════════════
 
-  void _onNodeTap(Location loc) {
-    AudioService.playTap();
+  /// Обработчик смены региона.
+  ///
+  /// **Логика:**
+  /// 1. Показывает **непрозрачный** оверлей.
+  /// 2. Загружает фон нового региона **под оверлеем**.
+  /// 3. Когда фон готов — обновляет `regionBackground`.
+  /// 4. Держит оверлей ещё 800 ms.
+  /// 5. Убирает оверлей — карта показывается с новым фоном.
+  Future<void> onRegionChanged(String newRegion) async {
+    final name = screen.regionDisplayName(newRegion);
 
-    final current = _controller.currentLocation;
-    if (current == null) return;
+    screen.showRegionTransition = true;
+    screen.transitionRegionName = name;
+    screen.loadedRegionId = null;
 
-    if (loc.id == current.id) return;
+    await loadRegionBackground(newRegion);
 
-    setState(() {
-      _selectedLocation = loc;
-    });
+    if (!screen.mounted) return;
 
-    _showLocationMenu(loc);
-  }
+    await Future.delayed(const Duration(milliseconds: 800));
 
-  Future<void> _showLocationMenu(Location loc) async {
-    final current = _controller.currentLocation;
-    if (current == null) return;
+    if (!screen.mounted) return;
 
-    final isNeighbor = current.isConnectedTo(loc.id);
-    final canMove = isNeighbor && loc.isAvailableAt(_controller.chapter);
-    final isVisited = _controller.map!.visitedLocations.contains(loc.id);
-    final isDetailed = _controller.hasDetails(loc.id);
+    screen.showRegionTransition = false;
 
-    final canScoutDetails = isNeighbor &&
-        _controller.isScouted(loc.id) &&
-        !isDetailed &&
-        _controller.stamina >= 10;
-
-    await showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (_) => MapInfoSheet(
-        location: loc,
-        canMove: canMove,
-        canScout: canScoutDetails,
-        isBorder: loc.region != current.region,
-        travelMinutes:
-            isNeighbor ? current.connectionMinutesTo(loc.id) : null,
-        isVisited: isVisited,
-        isScouted: _controller.isScouted(loc.id),
-        hasDetails: isDetailed,
-        onMove: canMove ? () => _moveTo(loc.id) : null,
-        onScout: canScoutDetails ? () => _scoutSingle(loc.id) : null,
-      ),
-    );
-
-    if (mounted) {
-      setState(() {
-        _selectedLocation = null;
-      });
+    if (screen.mounted) {
+      ScaffoldMessenger.of(screen.context).showSnackBar(
+        SnackBar(
+          content: Text('🚪 Ты пересёк границу: $name'),
+          duration: const Duration(seconds: 2),
+          backgroundColor: const Color.fromARGB(255, 100, 130, 180),
+        ),
+      );
     }
   }
 
-  Future<void> _scoutSingle(String locationId) async {
-    if (_controller.stamina < 10) {
+  /// Загрузить фон региона (если ещё не загружен).
+  Future<void> loadRegionBackground(String regionId) async {
+    if (screen.loadedRegionId == regionId &&
+        screen.regionBackground != null) {
+      return;
+    }
+
+    final layout = screen.getLayoutForRegion(regionId);
+    if (layout == null) return;
+
+    final ui.Image? image = await RegionBackgroundCache.get(
+      regionId: regionId,
+      layout: layout,
+    );
+
+    if (!screen.mounted) return;
+
+    screen.regionBackground = image;
+    screen.loadedRegionId = regionId;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // СМЕРТЬ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Обработать смерть игрока.
+  Future<void> handleDeath() async {
+    if (!screen.mounted) return;
+    await DeathManager.applyStatsOnDeath(screen.controller);
+    if (!screen.mounted) return;
+    await DeathManager.showDeathScreenIfNeeded(
+      screen.context,
+      screen.controller,
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // РАЗВЕДКА — одна локация
+  // ═══════════════════════════════════════════════════════════
+
+  /// Разведать состояние одной локации (30 мин, 10 стамины).
+  Future<void> scoutSingle(String locationId) async {
+    if (screen.controller.stamina < 10) {
       AudioService.playError();
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      if (!screen.mounted) return;
+      ScaffoldMessenger.of(screen.context).showSnackBar(
         const SnackBar(
           content: Text('❌ Слишком устал для разведки'),
           backgroundColor: Colors.red,
@@ -28708,25 +29095,25 @@ class _MapScreenState extends State<MapScreen>
       return;
     }
 
-    _controller.setStamina(_controller.stamina - 10);
-    _controller.setFatigue(_controller.fatigue + 5);
+    screen.controller.setStamina(screen.controller.stamina - 10);
+    screen.controller.setFatigue(screen.controller.fatigue + 5);
 
-    final ok = _controller.scoutDetails(locationId);
+    final ok = screen.controller.scoutDetails(locationId);
     if (!ok) {
       AudioService.playError();
       return;
     }
 
-    await _controller.advanceTime(30);
-    await _controller.save();
+    await screen.controller.advanceTime(30);
+    await screen.controller.save();
 
-    if (!mounted) return;
+    if (!screen.mounted) return;
 
     AudioService.playSuccess();
-    final loc = _controller.map?.getById(locationId);
+    final loc = screen.controller.map?.getById(locationId);
     if (loc != null) {
-      final details = _buildDetailText(loc);
-      ScaffoldMessenger.of(context).showSnackBar(
+      final details = buildDetailText(loc);
+      ScaffoldMessenger.of(screen.context).showSnackBar(
         SnackBar(
           content: Text('🔭 ${loc.displayScoutedName}: $details'),
           backgroundColor: const Color.fromARGB(255, 100, 130, 180),
@@ -28735,15 +29122,16 @@ class _MapScreenState extends State<MapScreen>
       );
     }
 
-    setState(() {});
+    screen.rebuild();
   }
 
   // ═══════════════════════════════════════════════════════════
-  // МАССОВАЯ РАЗВЕДКА
+  // РАЗВЕДКА — массовая
   // ═══════════════════════════════════════════════════════════
 
-  List<Location> _getScoutCandidates(Location current) {
-    final map = _controller.map;
+  /// Найти локации региона, которые можно разведать.
+  List<Location> getScoutCandidates(Location current) {
+    final map = screen.controller.map;
     if (map == null) return [];
 
     final result = <Location>[];
@@ -28751,9 +29139,11 @@ class _MapScreenState extends State<MapScreen>
     for (final loc in map.locations) {
       if (loc.region != current.region) continue;
       if (loc.id == current.id) continue;
-      if (loc.hidden && !_controller.isLocationUnlocked(loc.id)) continue;
-      if (!_controller.isScouted(loc.id)) continue;
-      if (_controller.hasDetails(loc.id)) continue;
+      if (loc.hidden && !screen.controller.isLocationUnlocked(loc.id)) {
+        continue;
+      }
+      if (!screen.controller.isScouted(loc.id)) continue;
+      if (screen.controller.hasDetails(loc.id)) continue;
 
       result.add(loc);
     }
@@ -28761,23 +29151,31 @@ class _MapScreenState extends State<MapScreen>
     return result;
   }
 
-  bool _canScout(Location current) {
-    final unknown = _getScoutCandidates(current);
-    return unknown.isNotEmpty && _controller.stamina >= 10;
+  /// Есть ли что разведать в регионе?
+  bool canScout(Location current) {
+    final unknown = getScoutCandidates(current);
+    return unknown.isNotEmpty && screen.controller.stamina >= 10;
   }
 
-  Future<void> _scout() async {
+  /// Массовая разведка района (30 мин, 10 стамины).
+  ///
+  /// Количество разведанных локаций зависит от:
+  /// 1. **Броска кубика** — базовое число (0, 1, 2 или 3).
+  /// 2. **Cunning** — бонус к количеству (`cunningScoutBonus`).
+  ///
+  /// Итог клампится: минимум 0, максимум — длина candidates.
+  Future<void> scout() async {
     AudioService.playClick();
 
-    final current = _controller.currentLocation;
+    final current = screen.controller.currentLocation;
     if (current == null) return;
 
-    final candidates = _getScoutCandidates(current);
+    final candidates = getScoutCandidates(current);
 
     if (candidates.isEmpty) {
       AudioService.playError();
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      if (!screen.mounted) return;
+      ScaffoldMessenger.of(screen.context).showSnackBar(
         const SnackBar(
           content: Text('🔭 Ты уже знаешь всё об этом районе'),
           backgroundColor: Colors.grey,
@@ -28786,10 +29184,10 @@ class _MapScreenState extends State<MapScreen>
       return;
     }
 
-    if (_controller.stamina < 10) {
+    if (screen.controller.stamina < 10) {
       AudioService.playError();
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      if (!screen.mounted) return;
+      ScaffoldMessenger.of(screen.context).showSnackBar(
         const SnackBar(
           content: Text('❌ Слишком устал для разведки'),
           backgroundColor: Colors.red,
@@ -28798,49 +29196,63 @@ class _MapScreenState extends State<MapScreen>
       return;
     }
 
-    _controller.setStamina(_controller.stamina - 10);
-    _controller.setFatigue(_controller.fatigue + 5);
+    screen.controller.setStamina(screen.controller.stamina - 10);
+    screen.controller.setFatigue(screen.controller.fatigue + 5);
 
     final rng = math.Random();
     final roll = rng.nextInt(100);
 
-    int count;
+    // ⚡ Базовое количество из броска.
+    int baseCount;
     String mood;
     if (roll < 20) {
-      count = 0;
+      baseCount = 0;
       mood = 'Ты обходишь район, но ничего нового не замечаешь.';
     } else if (roll < 60) {
-      count = 1;
+      baseCount = 1;
       mood = 'Ты прислушиваешься. Один из домов ведёт себя странно...';
     } else if (roll < 90) {
-      count = 2;
+      baseCount = 2;
       mood = 'Ты замечаешь перемены сразу в двух местах...';
     } else {
-      count = 3;
+      baseCount = 3;
       mood = 'С высоты ты видишь многое. Район раскрывает свои секреты...';
+    }
+
+    // ⚡ Бонус от cunning.
+    final cunningBonus =
+        GameConstants.cunningScoutBonus(screen.controller.cunning);
+
+    // ⚡ Итоговое количество с учётом cunning и ограничений.
+    int count = baseCount + cunningBonus;
+    count = count.clamp(0, candidates.length);
+
+    if (cunningBonus > 0 && count > baseCount) {
+      mood = '$mood Твой острый глаз замечает больше.';
     }
 
     final scoutedList = <String>[];
     candidates.shuffle(rng);
     for (int i = 0; i < count && i < candidates.length; i++) {
-      _controller.scoutDetails(candidates[i].id);
+      screen.controller.scoutDetails(candidates[i].id);
       scoutedList.add(candidates[i].id);
     }
 
-    await _controller.advanceTime(30);
-    await _controller.save();
+    await screen.controller.advanceTime(30);
+    await screen.controller.save();
 
-    if (!mounted) return;
+    if (!screen.mounted) return;
 
-    await _showScoutResult(mood, scoutedList);
+    await showScoutResult(mood, scoutedList);
 
-    if (mounted) setState(() {});
+    screen.rebuild();
   }
 
-  Future<void> _showScoutResult(String mood, List<String> scoutedIds) async {
-    if (!mounted) return;
+  /// Показать результат массовой разведки.
+  Future<void> showScoutResult(String mood, List<String> scoutedIds) async {
+    if (!screen.mounted) return;
 
-    final map = _controller.map;
+    final map = screen.controller.map;
     if (map == null) return;
 
     final locations = scoutedIds
@@ -28849,7 +29261,7 @@ class _MapScreenState extends State<MapScreen>
         .toList();
 
     await showModalBottomSheet(
-      context: context,
+      context: screen.context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (ctx) => Container(
@@ -28895,9 +29307,9 @@ class _MapScreenState extends State<MapScreen>
                   ),
                 )
               else ...[
-                const Text(
-                  'Что удалось заметить:',
-                  style: TextStyle(
+                Text(
+                  'Что удалось заметить (${locations.length}):',
+                  style: const TextStyle(
                     color: Color(0xFFC8B464),
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
@@ -28941,7 +29353,7 @@ class _MapScreenState extends State<MapScreen>
   }
 
   Widget _buildScoutedCard(Location loc) {
-    final details = _buildDetailText(loc);
+    final details = buildDetailText(loc);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -28989,7 +29401,8 @@ class _MapScreenState extends State<MapScreen>
     );
   }
 
-  String _buildDetailText(Location loc) {
+  /// Построить короткое описание состояния локации.
+  String buildDetailText(Location loc) {
     final parts = <String>[];
 
     if (loc.dangerLevel >= 8) {
@@ -29011,7 +29424,7 @@ class _MapScreenState extends State<MapScreen>
     }
 
     if (loc.lootPool.isNotEmpty) {
-      final searched = _controller.searchedCounts[loc.id] ?? 0;
+      final searched = screen.controller.searchedCounts[loc.id] ?? 0;
       if (searched < loc.maxSearches) {
         parts.add('есть чем поживиться');
       } else {
@@ -29025,164 +29438,68 @@ class _MapScreenState extends State<MapScreen>
 
     return parts.join(', ');
   }
+}
+```
+
+### 📄 `./lib/screens/gameplay/map/map_panel_coordinator.dart`
+```dart
+// lib/screens/gameplay/map/map_panel_coordinator.dart
+
+import 'package:flutter/material.dart';
+
+import 'package:dark_hours/services/map/death_manager.dart';
+import 'package:dark_hours/services/map/story_trigger_manager.dart';
+import 'package:dark_hours/services/map/rest_manager.dart';
+import 'package:dark_hours/services/map/search_manager.dart';
+import 'package:dark_hours/services/audio/audio_service.dart';
+
+import 'package:dark_hours/models/inventory/inventory_item.dart';
+import 'package:dark_hours/models/items/recipe.dart';
+import 'package:dark_hours/models/time/rest_action.dart';
+import 'package:dark_hours/constants/game_constants.dart';
+
+import 'package:dark_hours/widgets/panels/craft_panel.dart';
+import 'package:dark_hours/widgets/panels/inventory_panel.dart';
+import 'package:dark_hours/widgets/panels/equipment_panel.dart';
+import 'package:dark_hours/widgets/panels/rest_panel.dart';
+import 'package:dark_hours/widgets/effects/floating_effect.dart';
+
+import 'package:dark_hours/screens/gameplay/map/map_screen.dart';
+
+/// Управляет всеми bottom-sheet'ами и действиями через них.
+class MapPanelCoordinator {
+  final MapScreenState screen;
+
+  MapPanelCoordinator(this.screen);
 
   // ═══════════════════════════════════════════════════════════
-  // ДЕЙСТВИЯ
+  // ИНВЕНТАРЬ
   // ═══════════════════════════════════════════════════════════
 
-  Future<void> _search() async {
-    await SearchManager.search(context, _controller);
-    if (!mounted) return;
-    if (DeathManager.checkDeath(_controller)) {
-      await _handleDeath();
-      return;
-    }
-    await DeathManager.checkFatigue(context, _controller);
-    if (mounted) setState(() {});
-  }
-
-  Future<void> _showRestPanel() async {
-    AudioService.playTap();
-    final loc = _controller.currentLocation;
-    if (loc == null) return;
-    final isSafe = loc.dangerLevel <= 3;
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (bottomSheetContext) {
-        return RestPanel(
-          isSafeLocation: isSafe,
-          onRest: (action) async {
-            Navigator.pop(bottomSheetContext);
-            await _executeRest(action);
-          },
-        );
-      },
-    );
-  }
-
-  Future<void> _executeRest(RestAction action) async {
-    await RestManager.rest(context, _controller, action);
-    if (!mounted) return;
-    if (DeathManager.checkDeath(_controller)) {
-      await _handleDeath();
-      return;
-    }
-    await DeathManager.checkFatigue(context, _controller);
-    if (mounted) setState(() {});
-  }
-
-  Future<void> _checkStoryTrigger() async {
-    await StoryTriggerManager.checkTrigger(context, _controller);
-    if (mounted) setState(() {});
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // КРАФТ
-  // ═══════════════════════════════════════════════════════════
-
-  void _showCraftPanel() {
+  void showInventory() {
     AudioService.playTap();
     showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (_) => StatefulBuilder(
-        builder: (context, setSheetState) {
-          return CraftPanel(
-            inventory: _controller.inventory,
-            intelligence: _controller.intelligence,
-            strength: _controller.strength,
-            stamina: _controller.stamina,
-            recipes: _controller.allRecipes,
-            onCraft: (recipe) async {
-              await _craftItem(recipe);
-              setSheetState(() {});
-            },
-          );
-        },
-      ),
-    );
-  }
-
-  Future<void> _craftItem(Recipe recipe) async {
-    if (_controller.stamina < 5) {
-      AudioService.playError();
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('❌ Слишком устал для крафта'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    for (final ing in recipe.ingredients) {
-      for (int i = 0; i < ing.count; i++) {
-        _controller.removeItem(ing.id);
-      }
-    }
-
-    final resultItem = _controller.findItemInCatalog(recipe.resultId);
-    if (resultItem != null) {
-      _controller.addItem(resultItem);
-    }
-
-    _controller.trackCraft(isMolotov: recipe.id == 'molotov_craft');
-    _controller.applyStatDelta({'stamina': -5, 'fatigue': 5});
-
-    await _controller.advanceTime(recipe.timeMinutes);
-    await _controller.save();
-
-    if (!mounted) return;
-
-    AudioService.playSuccess();
-    FloatingEffectOverlay.show(
-      context,
-      'Создано: ${recipe.resultName}',
-      color: const Color.fromARGB(255, 100, 180, 100),
-      icon: Icons.build,
-    );
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${recipe.resultIcon} Создано: ${recipe.resultName}'),
-        backgroundColor: const Color.fromARGB(255, 100, 180, 100),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // ИНВЕНТАРЬ / ЭКИПИРОВКА
-  // ═══════════════════════════════════════════════════════════
-
-  void _showInventory() {
-    AudioService.playTap();
-    showModalBottomSheet(
-      context: context,
+      context: screen.context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (_) => StatefulBuilder(
         builder: (sheetContext, setSheetState) {
           return InventoryPanel(
-            inventory: _controller.inventory,
+            inventory: screen.controller.inventory,
             onUse: (item) {
-              _useItem(item);
+              useItem(item);
               setSheetState(() {});
-              setState(() {});
+              screen.rebuild();
             },
             onEquip: (item) {
-              _equipItem(item);
+              equipItem(item);
               setSheetState(() {});
-              setState(() {});
+              screen.rebuild();
             },
             onDrop: (item) {
-              _dropItem(item);
+              dropItem(item);
               setSheetState(() {});
-              setState(() {});
+              screen.rebuild();
             },
           );
         },
@@ -29190,9 +29507,10 @@ class _MapScreenState extends State<MapScreen>
     );
   }
 
-  void _useItem(InventoryItem item) {
+  void useItem(InventoryItem item) {
     AudioService.playSuccess();
-    _controller.applyStatDelta({
+
+    screen.controller.applyStatDelta({
       'hunger': item.hungerRestore,
       'thirst': item.thirstRestore,
       'health': item.healthRestore,
@@ -29204,29 +29522,41 @@ class _MapScreenState extends State<MapScreen>
         item.id == 'first_aid_kit' ||
         item.id == 'herb_medkit' ||
         item.id == 'splint') {
-      _controller.trackMedicineUsed();
+      screen.controller.trackMedicineUsed();
     }
 
     if (item.hungerRestore > 0) {
-      FloatingEffectOverlay.show(context, '+${item.hungerRestore} 🍞',
-          color: Colors.orange, icon: Icons.restaurant);
+      FloatingEffectOverlay.show(
+        screen.context,
+        '+${item.hungerRestore} 🍞',
+        color: Colors.orange,
+        icon: Icons.restaurant,
+      );
     }
     if (item.thirstRestore > 0) {
-      FloatingEffectOverlay.show(context, '+${item.thirstRestore} 💧',
-          color: Colors.blue, icon: Icons.water_drop);
+      FloatingEffectOverlay.show(
+        screen.context,
+        '+${item.thirstRestore} 💧',
+        color: Colors.blue,
+        icon: Icons.water_drop,
+      );
     }
     if (item.healthRestore > 0) {
-      FloatingEffectOverlay.show(context, '+${item.healthRestore} ❤️',
-          color: Colors.red, icon: Icons.favorite);
+      FloatingEffectOverlay.show(
+        screen.context,
+        '+${item.healthRestore} ❤️',
+        color: Colors.red,
+        icon: Icons.favorite,
+      );
     }
 
     final curable = <dynamic>[];
-    for (final ac in _controller.activeConditions) {
+    for (final ac in screen.controller.activeConditions) {
       if (ac.condition.cureItems.contains(item.id)) curable.add(ac);
     }
     for (final ac in curable) {
-      _controller.activeConditions.remove(ac);
-      ScaffoldMessenger.of(context).showSnackBar(
+      screen.controller.activeConditions.remove(ac);
+      ScaffoldMessenger.of(screen.context).showSnackBar(
         SnackBar(
           content: Text('Вылечено: ${ac.condition.name}'),
           backgroundColor: Colors.green[700],
@@ -29234,47 +29564,54 @@ class _MapScreenState extends State<MapScreen>
       );
     }
 
-    _controller.removeItem(item.id);
-    _controller.save();
-    setState(() {});
+    screen.controller.removeItem(item.id);
+    screen.controller.save();
+    screen.rebuild();
   }
 
-  void _equipItem(InventoryItem item) {
+  void equipItem(InventoryItem item) {
     AudioService.playClick();
+
     String? slot;
     if (item.sourceType == 'weapon') {
       slot = 'weapon';
     } else if (item.sourceType == 'armor') {
       slot = item.armorSlot;
     }
+
     if (slot == null) return;
-    _controller.equipItem(item, slot);
-    _controller.save();
-    setState(() {});
+
+    screen.controller.equipItem(item, slot);
+    screen.controller.save();
+    screen.rebuild();
   }
 
-  void _dropItem(InventoryItem item) {
+  void dropItem(InventoryItem item) {
     AudioService.playClick();
-    _controller.removeAll(item.id);
-    _controller.save();
-    setState(() {});
+    screen.controller.removeAll(item.id);
+    screen.controller.save();
+    screen.rebuild();
   }
 
-  void _showEquipment() {
+  // ═══════════════════════════════════════════════════════════
+  // ЭКИПИРОВКА
+  // ═══════════════════════════════════════════════════════════
+
+  void showEquipment() {
     AudioService.playTap();
     showModalBottomSheet(
-      context: context,
+      context: screen.context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (_) => StatefulBuilder(
         builder: (sheetContext, setSheetState) {
           return EquipmentPanel(
-            equipment: _controller.equipment,
+            equipment: screen.controller.equipment,
             onUnequip: (slot) {
               AudioService.playClick();
-              _controller.unequipItem(slot);
+              screen.controller.unequipItem(slot);
               setSheetState(() {});
-              setState(() {});
+              screen.rebuild();
             },
           );
         },
@@ -29283,10 +29620,695 @@ class _MapScreenState extends State<MapScreen>
   }
 
   // ═══════════════════════════════════════════════════════════
+  // КРАФТ
+  // ═══════════════════════════════════════════════════════════
+
+  void showCraftPanel() {
+    AudioService.playTap();
+    showModalBottomSheet(
+      context: screen.context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => StatefulBuilder(
+        builder: (sheetContext, setSheetState) {
+          return CraftPanel(
+            inventory: screen.controller.inventory,
+            intelligence: screen.controller.intelligence,
+            strength: screen.controller.strength,
+            stamina: screen.controller.stamina,
+            recipes: screen.controller.allRecipes,
+            onCraft: (recipe) async {
+              await craftItem(recipe);
+              setSheetState(() {});
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  /// Создать предмет по рецепту.
+  ///
+  /// Время крафта зависит от `cunning`:
+  /// - Базовое время из `recipe.timeMinutes`.
+  /// - Скидка `cunningCraftTimeSave(cunning)` минут.
+  /// - Минимум 1 минута (нельзя крафтить мгновенно).
+  ///
+  /// Формула:
+  /// ```
+  /// time = max(1, recipe.timeMinutes - cunningCraftTimeSave(cunning))
+  /// ```
+  ///
+  /// Примеры для рецепта 30 минут:
+  /// - `cunning 8` → −3 мин → 27 минут
+  /// - `cunning 5` → 0 → 30 минут
+  /// - `cunning 4` → 0 → 30 минут
+  Future<void> craftItem(Recipe recipe) async {
+    if (screen.controller.stamina < GameConstants.minStaminaForCraft) {
+      AudioService.playError();
+      if (!screen.mounted) return;
+      ScaffoldMessenger.of(screen.context).showSnackBar(
+        const SnackBar(
+          content: Text('❌ Слишком устал для крафта'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // ─── Расчёт времени крафта с учётом cunning ───
+    final timeSave = GameConstants.cunningCraftTimeSave(
+      screen.controller.cunning,
+    );
+    final baseTime = recipe.timeMinutes;
+    final actualTime = (baseTime - timeSave) < 1
+        ? 1
+        : (baseTime - timeSave);
+
+    // ─── Тратим ингредиенты ───
+    for (final ing in recipe.ingredients) {
+      for (int i = 0; i < ing.count; i++) {
+        screen.controller.removeItem(ing.id);
+      }
+    }
+
+    // ─── Добавляем результат ───
+    final resultItem = screen.controller.findItemInCatalog(recipe.resultId);
+    if (resultItem != null) {
+      screen.controller.addItem(resultItem);
+    }
+
+    screen.controller.trackCraft(
+      isMolotov: recipe.id == 'molotov_craft',
+    );
+    screen.controller.applyStatDelta({
+      'stamina': -GameConstants.craftStaminaCost,
+      'fatigue': GameConstants.craftFatigueCost,
+    });
+
+    await screen.controller.advanceTime(actualTime);
+    await screen.controller.save();
+
+    if (!screen.mounted) return;
+
+    AudioService.playSuccess();
+    FloatingEffectOverlay.show(
+      screen.context,
+      'Создано: ${recipe.resultName}',
+      color: const Color.fromARGB(255, 100, 180, 100),
+      icon: Icons.build,
+    );
+
+    // ─── Снекбар с фактическим временем ───
+    final savedText = timeSave > 0 ? ' (сэкономлено $timeSave мин)' : '';
+    ScaffoldMessenger.of(screen.context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '${recipe.resultIcon} Создано: ${recipe.resultName} · $actualTime мин$savedText',
+        ),
+        backgroundColor: const Color.fromARGB(255, 100, 180, 100),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ОТДЫХ
+  // ═══════════════════════════════════════════════════════════
+
+  void showRestPanel() {
+    AudioService.playTap();
+
+    final loc = screen.controller.currentLocation;
+    if (loc == null) return;
+
+    final isSafe = loc.dangerLevel <= GameConstants.safeLocationDangerLevel;
+
+    showModalBottomSheet(
+      context: screen.context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (bottomSheetContext) {
+        return RestPanel(
+          isSafeLocation: isSafe,
+          onRest: (action) async {
+            Navigator.pop(bottomSheetContext);
+            await executeRest(action);
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> executeRest(RestAction action) async {
+    await RestManager.rest(screen.context, screen.controller, action);
+
+    if (!screen.mounted) return;
+
+    if (DeathManager.checkDeath(screen.controller)) {
+      await screen.movementHandler.handleDeath();
+      return;
+    }
+
+    await DeathManager.checkFatigue(screen.context, screen.controller);
+    screen.rebuild();
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ОБЫСК
+  // ═══════════════════════════════════════════════════════════
+
+  Future<void> search() async {
+    await SearchManager.search(screen.context, screen.controller);
+
+    if (!screen.mounted) return;
+
+    if (DeathManager.checkDeath(screen.controller)) {
+      await screen.movementHandler.handleDeath();
+      return;
+    }
+
+    await DeathManager.checkFatigue(screen.context, screen.controller);
+    screen.rebuild();
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // СЮЖЕТНЫЙ ТРИГГЕР
+  // ═══════════════════════════════════════════════════════════
+
+  Future<void> checkStoryTrigger() async {
+    await StoryTriggerManager.checkTrigger(
+      screen.context,
+      screen.controller,
+    );
+    screen.rebuild();
+  }
+}
+```
+
+### 📄 `./lib/screens/gameplay/map/map_region_transition.dart`
+```dart
+// lib/screens/gameplay/map/map_region_transition.dart
+
+import 'package:flutter/material.dart';
+
+/// Оверлей перехода между регионами.
+///
+/// **НЕПРОЗРАЧНЫЙ** — полностью закрывает карту, чтобы игрок
+/// не видел старый фон под новыми локациями.
+///
+/// Появляется/исчезает через [AnimatedOpacity] (400 ms).
+///
+/// Управление (когда показывать/скрывать) — снаружи,
+/// в [MapMovementHandler.onRegionChanged].
+class MapRegionTransition extends StatelessWidget {
+  /// Показывать ли оверлей.
+  final bool visible;
+
+  /// Название региона, который загружается.
+  final String regionName;
+
+  /// Длительность анимации появления/исчезновения.
+  final Duration animationDuration;
+
+  const MapRegionTransition({
+    super.key,
+    required this.visible,
+    required this.regionName,
+    this.animationDuration = const Duration(milliseconds: 400),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      ignoring: !visible,
+      child: AnimatedOpacity(
+        opacity: visible ? 1.0 : 0.0,
+        duration: animationDuration,
+        child: Container(
+          // ⚡ НЕПРОЗРАЧНЫЙ фон — гарантирует, что старый регион не виден.
+          color: const Color(0xFF08080A),
+          alignment: Alignment.center,
+          child: _buildContent(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent() {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 32,
+        vertical: 24,
+      ),
+      decoration: BoxDecoration(
+        color: const Color(0xFF141414),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0xFFC8B464).withValues(alpha: 0.5),
+          width: 1.5,
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            '◉ ПЕРЕХОД ◉',
+            style: TextStyle(
+              color: Color(0xFFC8B464),
+              fontSize: 11,
+              letterSpacing: 4.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            regionName.toUpperCase(),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 3.0,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          const SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                Color(0xFFC8B464),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+### 📄 `./lib/screens/gameplay/map/map_screen.dart`
+```dart
+// lib/screens/gameplay/map/map_screen.dart
+// ignore_for_file: unnecessary_getters_setters
+
+import 'dart:async';
+import 'dart:ui' as ui;
+
+import 'package:flutter/material.dart';
+
+import 'package:dark_hours/services/map/map_controller.dart';
+import 'package:dark_hours/services/map/death_manager.dart';
+import 'package:dark_hours/services/map/region_background_cache.dart';
+import 'package:dark_hours/services/progress/achievement_manager.dart';
+import 'package:dark_hours/services/time/time_manager.dart';
+import 'package:dark_hours/services/audio/audio_service.dart';
+
+import 'package:dark_hours/models/world/location.dart';
+import 'package:dark_hours/models/world/region_layout.dart';
+import 'package:dark_hours/models/progress/achievement.dart';
+
+import 'package:dark_hours/widgets/panels/penalties_panel.dart';
+import 'package:dark_hours/widgets/panels/conditions_panel.dart';
+import 'package:dark_hours/widgets/effects/achievement_notifier.dart';
+
+import 'package:dark_hours/screens/gameplay/widgets/map_status_bar.dart';
+import 'package:dark_hours/screens/gameplay/widgets/map_current_location.dart';
+import 'package:dark_hours/screens/gameplay/widgets/map_edge_painter.dart';
+import 'package:dark_hours/screens/gameplay/widgets/map_node.dart';
+import 'package:dark_hours/screens/gameplay/widgets/map_player_marker.dart';
+import 'package:dark_hours/screens/gameplay/widgets/map_info_sheet.dart';
+
+import 'package:dark_hours/models/world/layouts/city_south_layout.dart';
+import 'package:dark_hours/models/world/layouts/city_center_layout.dart';
+
+import 'map_movement_handler.dart';
+import 'map_panel_coordinator.dart';
+import 'map_action_buttons.dart';
+import 'map_region_transition.dart';
+
+/// Экран карты.
+///
+/// **Ответственности:**
+/// - Держит `MapController` и синхронизирует UI.
+/// - Собирает композицию из виджетов других файлов.
+/// - Делегирует переходы в [MapMovementHandler].
+/// - Делегирует bottom-sheet'ы в [MapPanelCoordinator].
+/// - Делегирует кнопки в [MapActionButtonsBuilder].
+/// - Делегирует оверлей перехода в [MapRegionTransition].
+class MapScreen extends StatefulWidget {
+  final String characterId;
+  final String characterName;
+  final dynamic resumeFrom;
+
+  const MapScreen({
+    super.key,
+    required this.characterId,
+    required this.characterName,
+    this.resumeFrom,
+  });
+
+  @override
+  State<MapScreen> createState() => MapScreenState();
+}
+
+class MapScreenState extends State<MapScreen>
+    with SingleTickerProviderStateMixin {
+  // ═══════════════════════════════════════════════════════════
+  // КОНТРОЛЛЕР
+  // ═══════════════════════════════════════════════════════════
+
+  late final MapController _controller;
+
+  /// Публичный геттер — нужен хендлерам и координаторам.
+  MapController get controller => _controller;
+
+  String get characterId => widget.characterId;
+  String get characterName => widget.characterName;
+
+  // ═══════════════════════════════════════════════════════════
+  // КАРТА
+  // ═══════════════════════════════════════════════════════════
+
+  final TransformationController _transformController =
+      TransformationController();
+
+  Size _viewportSize = const Size(400, 600);
+
+  /// Фон текущего региона (сгенерированная или загруженная картинка).
+  ui.Image? _regionBackground;
+
+  /// ID загруженного региона.
+  String? _loadedRegionId;
+
+  /// Регион, который отрисован сейчас (для детекта смены).
+  String? _lastRegionId;
+
+  /// Флаг: показывать ли оверлей перехода между регионами.
+  bool _showRegionTransition = false;
+
+  /// Название региона для оверлея перехода.
+  String _transitionRegionName = '';
+
+  /// Выбранная локация (для подсветки и ребра).
+  Location? _selectedLocation;
+
+  // ═══════════════════════════════════════════════════════════
+  // ГЕТТЕРЫ И СЕТТЕРЫ ДЛЯ ХЕНДЛЕРОВ
+  // ═══════════════════════════════════════════════════════════
+
+  TransformationController get transformController => _transformController;
+  Size get viewportSize => _viewportSize;
+  ui.Image? get regionBackground => _regionBackground;
+  bool get showRegionTransition => _showRegionTransition;
+  String get transitionRegionName => _transitionRegionName;
+  Location? get selectedLocation => _selectedLocation;
+  String? get loadedRegionId => _loadedRegionId;
+  String? get lastRegionId => _lastRegionId;
+
+  set selectedLocation(Location? value) {
+    setState(() => _selectedLocation = value);
+  }
+
+  set regionBackground(ui.Image? value) {
+    setState(() => _regionBackground = value);
+  }
+
+  set showRegionTransition(bool value) {
+    setState(() => _showRegionTransition = value);
+  }
+
+  set transitionRegionName(String value) {
+    _transitionRegionName = value;
+  }
+
+  set loadedRegionId(String? value) {
+    _loadedRegionId = value;
+  }
+
+  set lastRegionId(String? value) {
+    _lastRegionId = value;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // АНИМАЦИЯ МАРКЕРА
+  // ═══════════════════════════════════════════════════════════
+
+  late AnimationController _markerController;
+
+  /// Публичный доступ для хендлера.
+  AnimationController get markerController => _markerController;
+
+  // ═══════════════════════════════════════════════════════════
+  // ХЕНДЛЕРЫ
+  // ═══════════════════════════════════════════════════════════
+
+  late final MapMovementHandler _movementHandler;
+  late final MapPanelCoordinator _panelCoordinator;
+  late final MapActionButtonsBuilder _actionButtonsBuilder;
+
+  MapMovementHandler get movementHandler => _movementHandler;
+  MapPanelCoordinator get panelCoordinator => _panelCoordinator;
+  MapActionButtonsBuilder get actionButtonsBuilder => _actionButtonsBuilder;
+
+  static const double _mapWidth = 800.0;
+  static const double _mapHeight = 1200.0;
+
+  double get mapWidth => _mapWidth;
+  double get mapHeight => _mapHeight;
+
+  // ═══════════════════════════════════════════════════════════
+  // ПОДПИСКИ
+  // ═══════════════════════════════════════════════════════════
+
+  StreamSubscription<Achievement>? _achievementSub;
+
+  // ═══════════════════════════════════════════════════════════
+  // LIFECYCLE
+  // ═══════════════════════════════════════════════════════════
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = MapController(
+      characterId: widget.characterId,
+      characterName: widget.characterName,
+      resumeFrom: widget.resumeFrom,
+    );
+    _controller.addListener(_onControllerChanged);
+
+    _achievementSub = AchievementManager.unlockStream.listen((ach) {
+      if (mounted) AchievementNotifier.showPopup(context, ach);
+    });
+
+    _markerController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+
+    // Инициализируем хендлеры.
+    _movementHandler = MapMovementHandler(this);
+    _panelCoordinator = MapPanelCoordinator(this);
+    _actionButtonsBuilder = MapActionButtonsBuilder(this);
+
+    _initController();
+  }
+
+  @override
+  void dispose() {
+    _achievementSub?.cancel();
+    _controller.removeListener(_onControllerChanged);
+    _controller.dispose();
+    _transformController.dispose();
+    _markerController.dispose();
+    super.dispose();
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // СЛУШАТЕЛЬ КОНТРОЛЛЕРА
+  // ═══════════════════════════════════════════════════════════
+
+  void _onControllerChanged() {
+    if (!mounted) return;
+
+    final currentRegion = _controller.currentLocation?.region;
+    if (currentRegion != null && _lastRegionId != null) {
+      if (currentRegion != _lastRegionId) {
+        _movementHandler.onRegionChanged(currentRegion);
+      }
+    }
+    if (currentRegion != null) {
+      _lastRegionId = currentRegion;
+    }
+
+    setState(() {});
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ИНИЦИАЛИЗАЦИЯ
+  // ═══════════════════════════════════════════════════════════
+
+  Future<void> _initController() async {
+    await _controller.init();
+    if (!mounted) return;
+
+    final cur = _controller.currentLocation;
+    if (cur != null) {
+      _movementHandler.initializeMarkerPosition(cur);
+
+      _lastRegionId = cur.region;
+      _loadedRegionId = cur.region;
+
+      // Загружаем фон стартового региона.
+      final layout = getLayoutForRegion(cur.region);
+      if (layout != null) {
+        final image = await RegionBackgroundCache.get(
+          regionId: cur.region,
+          layout: layout,
+        );
+        if (mounted) {
+          setState(() {
+            _regionBackground = image;
+          });
+        }
+      }
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _movementHandler.centerOnLocation(cur);
+      });
+
+      final ambiencePath = AudioService.ambienceForLocation(
+        locationId: cur.id,
+        type: cur.type,
+        region: cur.region,
+        dangerLevel: cur.dangerLevel,
+      );
+      if (ambiencePath != null) {
+        await AudioService.playAmbience(ambiencePath);
+      }
+    }
+
+    if (DeathManager.checkDeath(_controller)) {
+      await _movementHandler.handleDeath();
+      return;
+    }
+    if (mounted) setState(() {});
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ПУБЛИЧНЫЕ ХЕЛПЕРЫ (для хендлеров)
+  // ═══════════════════════════════════════════════════════════
+
+  /// Обновить viewport size (вызывается из LayoutBuilder).
+  void updateViewportSize(Size size) {
+    if (_viewportSize != size) {
+      _viewportSize = size;
+    }
+  }
+
+  /// Получить layout для региона.
+  RegionLayout? getLayoutForRegion(String regionId) {
+    switch (regionId) {
+      case 'city_south':
+        return CitySouthLayout.layout;
+      case 'city_center':
+        return CityCenterLayout.layout;
+      default:
+        return CitySouthLayout.layout;
+    }
+  }
+
+  /// Человекочитаемое название региона.
+  String regionDisplayName(String regionId) {
+    switch (regionId) {
+      case 'city_south':
+        return 'Юг города';
+      case 'city_center':
+        return 'Центр города';
+      case 'forest':
+        return 'Лес';
+      case 'highway':
+        return 'Трасса';
+      case 'north':
+        return 'Север';
+      case 'underground':
+        return 'Подземелье';
+      default:
+        return regionId;
+    }
+  }
+
+  /// Вызвать перерисовку.
+  void rebuild() {
+    if (mounted) setState(() {});
+  }
+
+  /// Обработчик тапа на локацию.
+  void onNodeTap(Location loc) {
+    AudioService.playTap();
+
+    final current = _controller.currentLocation;
+    if (current == null) return;
+    if (loc.id == current.id) return;
+
+    setState(() {
+      _selectedLocation = loc;
+    });
+
+    _showLocationMenu(loc);
+  }
+
+  Future<void> _showLocationMenu(Location loc) async {
+    final current = _controller.currentLocation;
+    if (current == null) return;
+
+    final isNeighbor = current.isConnectedTo(loc.id);
+    final canMove = isNeighbor && loc.isAvailableAt(_controller.chapter);
+    final isVisited = _controller.map!.visitedLocations.contains(loc.id);
+    final isDetailed = _controller.hasDetails(loc.id);
+
+    final canScoutDetails = isNeighbor &&
+        _controller.isScouted(loc.id) &&
+        !isDetailed &&
+        _controller.stamina >= 10;
+
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => MapInfoSheet(
+        location: loc,
+        canMove: canMove,
+        canScout: canScoutDetails,
+        isBorder: loc.region != current.region,
+        travelMinutes:
+            isNeighbor ? current.connectionMinutesTo(loc.id) : null,
+        isVisited: isVisited,
+        isScouted: _controller.isScouted(loc.id),
+        hasDetails: isDetailed,
+        onMove: canMove ? () => _movementHandler.moveTo(loc.id) : null,
+        onScout: canScoutDetails
+            ? () => _movementHandler.scoutSingle(loc.id)
+            : null,
+      ),
+    );
+
+    if (mounted) {
+      setState(() {
+        _selectedLocation = null;
+      });
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════
   // ВИДИМОСТЬ ЛОКАЦИЙ
   // ═══════════════════════════════════════════════════════════
 
-  NodeState _nodeState(Location loc) {
+  NodeState nodeState(Location loc) {
     if (!loc.isAvailableAt(_controller.chapter)) {
       return NodeState.hidden;
     }
@@ -29319,7 +30341,7 @@ class _MapScreenState extends State<MapScreen>
   }
 
   // ═══════════════════════════════════════════════════════════
-  // UI
+  // BUILD
   // ═══════════════════════════════════════════════════════════
 
   @override
@@ -29350,8 +30372,10 @@ class _MapScreenState extends State<MapScreen>
           ),
         ),
         body: const Center(
-          child: Text('Карта не найдена',
-              style: TextStyle(color: Colors.white)),
+          child: Text(
+            'Карта не найдена',
+            style: TextStyle(color: Colors.white),
+          ),
         ),
       );
     }
@@ -29372,7 +30396,7 @@ class _MapScreenState extends State<MapScreen>
               PenaltiesPanel(penalties: penalties),
               ConditionsPanel(conditions: _controller.activeConditions),
 
-              if (_isMoving)
+              if (_movementHandler.isMoving)
                 Container(
                   height: 3,
                   decoration: const BoxDecoration(
@@ -29385,9 +30409,7 @@ class _MapScreenState extends State<MapScreen>
               Expanded(
                 child: LayoutBuilder(
                   builder: (context, constraints) {
-                    if (_viewportSize != constraints.biggest) {
-                      _viewportSize = constraints.biggest;
-                    }
+                    updateViewportSize(constraints.biggest);
 
                     return InteractiveViewer(
                       transformationController: _transformController,
@@ -29409,264 +30431,18 @@ class _MapScreenState extends State<MapScreen>
             ],
           ),
 
-          _buildRegionTransitionOverlay(),
+          MapRegionTransition(
+            visible: _showRegionTransition,
+            regionName: _transitionRegionName,
+          ),
         ],
       ),
     );
   }
 
-  /// Оверлей анимации перехода между регионами.
-  ///
-  /// **НЕПРОЗРАЧНЫЙ** — полностью закрывает карту, чтобы игрок
-  /// не видел старый фон под новыми локациями.
-  /// Убирается после того, как новый фон загружен.
-  Widget _buildRegionTransitionOverlay() {
-    return IgnorePointer(
-      ignoring: !_showRegionTransition,
-      child: AnimatedOpacity(
-        opacity: _showRegionTransition ? 1.0 : 0.0,
-        duration: const Duration(milliseconds: 400),
-        child: Container(
-          // ⚡ НЕПРОЗРАЧНЫЙ фон — гарантирует, что старый регион не виден.
-          color: const Color(0xFF08080A),
-          alignment: Alignment.center,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 24,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF141414),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: const Color(0xFFC8B464).withValues(alpha: 0.5),
-                    width: 1.5,
-                  ),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      '◉ ПЕРЕХОД ◉',
-                      style: TextStyle(
-                        color: Color(0xFFC8B464),
-                        fontSize: 11,
-                        letterSpacing: 4.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      _transitionRegionName.toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 3.0,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 12),
-                    const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          Color(0xFFC8B464),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMapCanvas() {
-    final map = _controller.map!;
-    final current = _controller.currentLocation!;
-
-    final regionId = current.region;
-
-    // ⚡ Пока оверлей активен — не рисуем локации вообще.
-    // Это гарантирует, что старые локации не останутся
-    // поверх нового фона при быстром переключении.
-    if (_showRegionTransition) {
-      return Container(color: const Color(0xFF08080A));
-    }
-
-    final regionLocations = map.locations
-        .where((l) =>
-            l.region == regionId && l.isAvailableAt(_controller.chapter))
-        .toList();
-
-    final visibleNodes = regionLocations
-        .where((loc) => _nodeState(loc) != NodeState.hidden)
-        .toList();
-
-    MapEdge? selectedEdge;
-    if (_selectedLocation != null) {
-      final isNeighbor = current.isConnectedTo(_selectedLocation!.id);
-      if (isNeighbor) {
-        final minutes = current.connectionMinutesTo(_selectedLocation!.id);
-        if (minutes != null) {
-          selectedEdge = MapEdge(
-            from: current.mapPosition,
-            to: _selectedLocation!.mapPosition,
-            minutes: minutes,
-          );
-        }
-      }
-    }
-
-    return Stack(
-      children: [
-        // ⚡ ФОН: одна картинка вместо ~500 draw-вызовов.
-        Positioned.fill(
-          child: _regionBackground != null
-              ? RawImage(
-                  image: _regionBackground,
-                  fit: BoxFit.fill,
-                  filterQuality: FilterQuality.medium,
-                )
-              : _buildFallbackBackground(),
-        ),
-
-        // Ребро к выбранной локации.
-        Positioned.fill(
-          child: CustomPaint(
-            painter: MapEdgePainter(edge: selectedEdge),
-          ),
-        ),
-
-        // Метка региона в углу.
-        _buildRegionLabel(regionId),
-
-        // Локации.
-        ...visibleNodes.map((loc) {
-          final px = loc.mapPosition.x * _mapWidth;
-          final py = loc.mapPosition.y * _mapHeight;
-          final state = _nodeState(loc);
-
-          return Positioned(
-            left: px - MapNode.labelWidth / 2,
-            top: py - MapNode.nodeSize / 2,
-            child: MapNode(
-              location: loc,
-              state: state,
-              isSelected: _selectedLocation?.id == loc.id,
-              hasDetails: _controller.hasDetails(loc.id),
-              onTap: () => _onNodeTap(loc),
-            ),
-          );
-        }),
-
-        // Маркер игрока.
-        Positioned(
-          left: _markerPosition.x * _mapWidth - 30,
-          top: _markerPosition.y * _mapHeight - 30,
-          child: IgnorePointer(
-            child: MapPlayerMarker(
-              size: 20,
-              rotation: _markerRotation,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Fallback-фон, если картинка ещё не загрузилась.
-  Widget _buildFallbackBackground() {
-    return Container(
-      color: const Color(0xFF0A0A0A),
-      alignment: Alignment.center,
-      child: const CircularProgressIndicator(
-        strokeWidth: 2,
-        valueColor: AlwaysStoppedAnimation<Color>(
-          Color(0xFFC8B464),
-        ),
-      ),
-    );
-  }
-
-  /// Метка региона в правом верхнем углу карты.
-  Widget _buildRegionLabel(String regionId) {
-    return Positioned(
-      top: 20,
-      right: 20,
-      child: IgnorePointer(
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 14,
-            vertical: 8,
-          ),
-          decoration: BoxDecoration(
-            color: const Color(0xFF141414).withValues(alpha: 0.85),
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(
-              color: const Color(0xFFC8B464).withValues(alpha: 0.5),
-              width: 1,
-            ),
-          ),
-          child: Text(
-            _regionDisplayName(regionId).toUpperCase(),
-            style: const TextStyle(
-              color: Color(0xFFC8B464),
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 3.0,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  RegionLayout? _getLayoutForRegion(String regionId) {
-    switch (regionId) {
-      case 'city_south':
-        return CitySouthLayout.layout;
-      case 'city_center':
-        return CityCenterLayout.layout;
-      default:
-        return CitySouthLayout.layout;
-    }
-  }
-
-  Widget _buildBottomPanel(Location current) {
-    return Container(
-      constraints: const BoxConstraints(maxHeight: 220),
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 12, 12, 12),
-        border: Border(
-          top: BorderSide(
-            color: const Color(0xFFC8B464).withValues(alpha: 0.3),
-            width: 1,
-          ),
-        ),
-      ),
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            MapCurrentLocation(controller: _controller),
-            const SizedBox(height: 8),
-            ..._buildActionButtons(current),
-          ],
-        ),
-      ),
-    );
-  }
+  // ═══════════════════════════════════════════════════════════
+  // APP BAR
+  // ═══════════════════════════════════════════════════════════
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
@@ -29699,23 +30475,23 @@ class _MapScreenState extends State<MapScreen>
           onPressed: () {
             AudioService.playTap();
             final cur = _controller.currentLocation;
-            if (cur != null) _centerOnLocation(cur);
+            if (cur != null) _movementHandler.centerOnLocation(cur);
           },
         ),
         IconButton(
           icon: const Icon(Icons.build_circle_outlined),
           tooltip: 'Крафт',
-          onPressed: _showCraftPanel,
+          onPressed: _panelCoordinator.showCraftPanel,
         ),
         IconButton(
           icon: const Icon(Icons.hotel),
           tooltip: 'Отдохнуть',
-          onPressed: _showRestPanel,
+          onPressed: _panelCoordinator.showRestPanel,
         ),
         IconButton(
           icon: const Icon(Icons.shield_outlined),
           tooltip: 'Экипировка',
-          onPressed: _showEquipment,
+          onPressed: _panelCoordinator.showEquipment,
         ),
         _buildInventoryButton(),
       ],
@@ -29729,7 +30505,7 @@ class _MapScreenState extends State<MapScreen>
         IconButton(
           icon: const Icon(Icons.backpack_outlined),
           tooltip: 'Инвентарь',
-          onPressed: _showInventory,
+          onPressed: _panelCoordinator.showInventory,
         ),
         if (_controller.inventory.items.isNotEmpty)
           Positioned(
@@ -29755,210 +30531,169 @@ class _MapScreenState extends State<MapScreen>
     );
   }
 
-  List<Widget> _buildActionButtons(Location current) {
-    final widgets = <Widget>[];
+  // ═══════════════════════════════════════════════════════════
+  // CANVAS КАРТЫ
+  // ═══════════════════════════════════════════════════════════
 
-    if (_canSearch(current)) {
-      widgets.add(_buildSearchButton(current));
-      widgets.add(const SizedBox(height: 8));
+  Widget _buildMapCanvas() {
+    final map = _controller.map!;
+    final current = _controller.currentLocation!;
+    final regionId = current.region;
+
+    // Пока оверлей активен — не рисуем локации.
+    if (_showRegionTransition) {
+      return Container(color: const Color(0xFF08080A));
     }
 
-    if (_canScout(current)) {
-      widgets.add(_buildScoutButton());
-      widgets.add(const SizedBox(height: 8));
-    }
+    final regionLocations = map.locations
+        .where((l) =>
+            l.region == regionId && l.isAvailableAt(_controller.chapter))
+        .toList();
 
-    final borderLocations = _getBorderLocations(current);
-    for (final border in borderLocations) {
-      widgets.add(_buildBorderButton(border));
-      widgets.add(const SizedBox(height: 8));
-    }
+    final visibleNodes = regionLocations
+        .where((loc) => nodeState(loc) != NodeState.hidden)
+        .toList();
 
-    if (_hasStoryTrigger(current)) {
-      widgets.add(_buildStoryButton());
-      widgets.add(const SizedBox(height: 8));
-    }
-    if (current.isFinal) {
-      widgets.add(_buildStationButton());
-    }
-
-    return widgets;
-  }
-
-  List<Location> _getBorderLocations(Location current) {
-    final result = <Location>[];
-    for (final connId in current.connectionIds) {
-      final target = _controller.map?.getById(connId);
-      if (target == null) continue;
-      if (target.region == current.region) continue;
-      if (!target.isAvailableAt(_controller.chapter)) continue;
-      if (target.hidden && !_controller.isLocationUnlocked(target.id)) {
-        continue;
+    MapEdge? selectedEdge;
+    if (_selectedLocation != null) {
+      final isNeighbor = current.isConnectedTo(_selectedLocation!.id);
+      if (isNeighbor) {
+        final minutes = current.connectionMinutesTo(_selectedLocation!.id);
+        if (minutes != null) {
+          selectedEdge = MapEdge(
+            from: current.mapPosition,
+            to: _selectedLocation!.mapPosition,
+            minutes: minutes,
+          );
+        }
       }
-      result.add(target);
     }
-    return result;
-  }
 
-  Widget _buildBorderButton(Location border) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        onPressed: () {
-          AudioService.playClick();
-          _showLocationMenu(border);
-        },
-        icon: const Icon(Icons.exit_to_app, size: 18),
-        label: Text(
-          '🚪  ВЫЙТИ: ${border.displayScoutedName}',
-          style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.5,
-          ),
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: _regionBackground != null
+              ? RawImage(
+                  image: _regionBackground,
+                  fit: BoxFit.fill,
+                  filterQuality: FilterQuality.medium,
+                )
+              : _buildFallbackBackground(),
         ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color.fromARGB(255, 150, 80, 40),
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      ),
-    );
-  }
 
-  Widget _buildScoutButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        onPressed: _scout,
-        icon: const Icon(Icons.visibility_outlined, size: 18),
-        label: const Text(
-          '🔭  РАЗВЕДАТЬ РАЙОН (30 мин)',
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.5,
+        Positioned.fill(
+          child: CustomPaint(
+            painter: MapEdgePainter(edge: selectedEdge),
           ),
         ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color.fromARGB(255, 100, 130, 180),
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      ),
-    );
-  }
 
-  bool _canSearch(Location loc) {
-    return loc.maxSearches > 0 ||
-        loc.lootPool.isNotEmpty ||
-        loc.enemies.isNotEmpty ||
-        loc.risk != null;
-  }
+        _buildRegionLabel(regionId),
 
-  bool _hasStoryTrigger(Location loc) {
-    if (loc.storyNode == null) return false;
-    return loc.canTriggerStory(
-      currentChapter: _controller.chapter,
-      currentCharacter: widget.characterId,
-      triggeredNodes: _controller.flags,
-    );
-  }
+        ...visibleNodes.map((loc) {
+          final px = loc.mapPosition.x * _mapWidth;
+          final py = loc.mapPosition.y * _mapHeight;
+          final state = nodeState(loc);
 
-  Widget _buildSearchButton(Location loc) {
-    final searched = _controller.searchedCounts[loc.id] ?? 0;
-    final remaining = loc.maxSearches - searched;
-    String label;
-    Color color;
-    if (loc.maxSearches == 0) {
-      label = '🔍  ОСМОТРЕТЬСЯ (${loc.searchTime} мин)';
-      color = const Color.fromARGB(255, 100, 150, 200);
-    } else if (remaining > 0) {
-      label =
-          '🔍  ОБЫСКАТЬ · $remaining из ${loc.maxSearches} (${loc.searchTime} мин)';
-      color = const Color.fromARGB(255, 100, 150, 200);
-    } else {
-      label = '🔍  ОСМОТРЕТЬСЯ (${loc.searchTime} мин)';
-      color = const Color.fromARGB(255, 150, 100, 100);
-    }
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        onPressed: _search,
-        icon: const Icon(Icons.search, size: 18),
-        label: Text(
-          label,
-          style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.5,
-          ),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: color,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStoryButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        onPressed: _checkStoryTrigger,
-        icon: const Icon(Icons.menu_book, size: 18),
-        label: const Text(
-          '📖  СЮЖЕТНОЕ СОБЫТИЕ',
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.5,
-          ),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color.fromARGB(255, 200, 120, 100),
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStationButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: ShimmerButton(
-        text: '🏭  ВОЙТИ НА СТАНЦИЮ',
-        icon: Icons.flag,
-        onPressed: () async {
-          await AchievementManager.unlock('reached_station');
-          if (!mounted) return;
-          AudioService.playSuccess();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('🏭 Ты добрался до станции. Конец пути.'),
-              duration: Duration(seconds: 4),
-              backgroundColor: Color.fromARGB(255, 200, 180, 100),
+          return Positioned(
+            left: px - MapNode.labelWidth / 2,
+            top: py - MapNode.nodeSize / 2,
+            child: MapNode(
+              location: loc,
+              state: state,
+              isSelected: _selectedLocation?.id == loc.id,
+              hasDetails: _controller.hasDetails(loc.id),
+              onTap: () => onNodeTap(loc),
             ),
           );
-        },
+        }),
+
+        Positioned(
+          left: _movementHandler.markerPosition.x * _mapWidth - 30,
+          top: _movementHandler.markerPosition.y * _mapHeight - 30,
+          child: IgnorePointer(
+            child: MapPlayerMarker(
+              size: 20,
+              rotation: _movementHandler.markerRotation,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFallbackBackground() {
+    return Container(
+      color: const Color(0xFF0A0A0A),
+      alignment: Alignment.center,
+      child: const CircularProgressIndicator(
+        strokeWidth: 2,
+        valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFC8B464)),
       ),
     );
   }
+
+  Widget _buildRegionLabel(String regionId) {
+    return Positioned(
+      top: 20,
+      right: 20,
+      child: IgnorePointer(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF141414).withValues(alpha: 0.85),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color: const Color(0xFFC8B464).withValues(alpha: 0.5),
+              width: 1,
+            ),
+          ),
+          child: Text(
+            regionDisplayName(regionId).toUpperCase(),
+            style: const TextStyle(
+              color: Color(0xFFC8B464),
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 3.0,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // НИЖНЯЯ ПАНЕЛЬ
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildBottomPanel(Location current) {
+    return Container(
+      constraints: const BoxConstraints(maxHeight: 220),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 12, 12, 12),
+        border: Border(
+          top: BorderSide(
+            color: const Color(0xFFC8B464).withValues(alpha: 0.3),
+            width: 1,
+          ),
+        ),
+      ),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            MapCurrentLocation(controller: _controller),
+            const SizedBox(height: 8),
+            ..._actionButtonsBuilder.build(current),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ШТРАФЫ
+  // ═══════════════════════════════════════════════════════════
 
   List<String> _getPenalties() {
     return TimeManager.getPenalties(
@@ -30377,6 +31112,8 @@ class StoryStatusBar extends StatelessWidget {
 
 ### 📄 `./lib/screens/gameplay/story_screen.dart`
 ```dart
+// lib/screens/gameplay/story_screen.dart
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -30405,7 +31142,7 @@ import 'package:dark_hours/widgets/effects/fade_in_text.dart';
 import 'package:dark_hours/widgets/effects/floating_effect.dart';
 import 'package:dark_hours/widgets/effects/achievement_notifier.dart';
 
-import 'package:dark_hours/screens/gameplay/map_screen.dart';
+import 'package:dark_hours/screens/gameplay/map/map_screen.dart';
 import 'package:dark_hours/screens/gameplay/chapter_end_screen.dart';
 import 'package:dark_hours/screens/gameplay/story/story_effects.dart';
 import 'package:dark_hours/screens/gameplay/story/story_status_bar.dart';
@@ -34194,6 +34931,8 @@ class RegionMapPainter extends CustomPainter {
 
 ### 📄 `./lib/screens/main/character_select_screen.dart`
 ```dart
+// lib/screens/main/character_select_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:dark_hours/models/character/character.dart';
 import 'package:dark_hours/models/character/character_state.dart';
@@ -34201,6 +34940,7 @@ import 'package:dark_hours/widgets/cards/character_card.dart';
 import 'package:dark_hours/widgets/cards/character_portrait.dart';
 import 'package:dark_hours/services/progress/achievement_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/constants/game_constants.dart';
 import '../gameplay/story_screen.dart';
 
 class CharacterSelectScreen extends StatefulWidget {
@@ -34220,32 +34960,126 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
     AudioService.playMusic('audio/music/menu_theme.ogg');
   }
 
-  Widget _buildStatBar(String label, int value) {
-    Color barColor;
+  // ═══════════════════════════════════════════════════════════
+  // ХЕЛПЕРЫ: текстовые эффекты характеристик
+  // ═══════════════════════════════════════════════════════════
+
+  /// Цвет полоски для характеристики.
+  Color _statColor(String label) {
     switch (label) {
       case 'СИЛА':
-        barColor = Colors.red[500]!;
-        break;
+        return Colors.red[500]!;
       case 'ИНТ':
-        barColor = Colors.blue[500]!;
-        break;
+        return Colors.blue[500]!;
       case 'ХИТР':
-        barColor = Colors.purple[500]!;
-        break;
+        return Colors.purple[500]!;
       case 'ВЫН':
-        barColor = Colors.green[500]!;
-        break;
+        return Colors.green[500]!;
       default:
-        barColor = Colors.grey[500]!;
+        return Colors.grey[500]!;
     }
+  }
+
+  /// Короткая подсказка, что даёт характеристика.
+  ///
+  /// Использует те же формулы, что и в бою/крафте/разведке,
+  /// чтобы игрок видел реальные числа.
+  String _statEffect(String label, int value) {
+    switch (label) {
+      case 'СИЛА':
+        // strength влияет на урон и шанс побега (базовый бонус)
+        final fleeBonus = ((value - GameConstants.baseStat) * 5).clamp(-15, 25);
+        return 'урон, побег ${fleeBonus >= 0 ? '+' : ''}$fleeBonus%';
+
+      case 'ИНТ':
+        // intelligence влияет на крафт (требования рецептов)
+        return 'крафт, взлом';
+
+      case 'ХИТР':
+        return _cunningEffect(value);
+
+      case 'ВЫН':
+        return _enduranceEffect(value);
+
+      default:
+        return '';
+    }
+  }
+
+  /// Что даёт cunning — короткая строка.
+  String _cunningEffect(int cunning) {
+    final dodge = (GameConstants.cunningDodgeBonus(cunning) * 100).round();
+    final scout = GameConstants.cunningScoutBonus(cunning);
+    final flee = (GameConstants.cunningFleeBonus(cunning) * 100).round();
+    final craftSave = GameConstants.cunningCraftTimeSave(cunning);
+
+    final parts = <String>[];
+    if (dodge != 0) parts.add('уклон ${dodge >= 0 ? '+' : ''}$dodge%');
+    if (scout > 0) parts.add('разведка +$scout');
+    if (flee > 0) parts.add('побег +$flee%');
+    if (craftSave > 0) parts.add('крафт −$craftSave мин');
+
+    if (parts.isEmpty) return 'без бонусов';
+    return parts.join(', ');
+  }
+
+  /// Что даёт endurance — короткая строка.
+  String _enduranceEffect(int endurance) {
+    final moveMult = GameConstants.enduranceMoveMultiplier(endurance);
+    final movePercent = ((1.0 - moveMult) * 100).round();
+    final restBonus = GameConstants.enduranceRestBonus(endurance);
+    final flee = (GameConstants.enduranceFleeBonus(endurance) * 100).round();
+
+    final parts = <String>[];
+    if (movePercent != 0) {
+      parts.add('ход ${movePercent > 0 ? '−' : '+'}${movePercent.abs()}%');
+    }
+    if (restBonus != 0) {
+      parts.add('отдых ${restBonus > 0 ? '+' : ''}$restBonus');
+    }
+    if (flee > 0) parts.add('побег +$flee%');
+
+    if (parts.isEmpty) return 'без бонусов';
+    return parts.join(', ');
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // МИНИ-БАР ХАРАКТЕРИСТИКИ
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildStatBar(String label, int value) {
+    final barColor = _statColor(label);
+    final effect = _statEffect(label, value);
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(color: Colors.grey[500], fontSize: 9),
+        // ─── Строка: ЛЕЙБЛ + ЧИСЛО ───
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.grey[500],
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.0,
+              ),
+            ),
+            Text(
+              value.toString(),
+              style: TextStyle(
+                color: barColor,
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 2),
+        const SizedBox(height: 3),
+
+        // ─── Полоска ───
         Container(
           height: 4,
           decoration: BoxDecoration(
@@ -34262,14 +35096,27 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
             ),
           ),
         ),
-        const SizedBox(height: 2),
+        const SizedBox(height: 4),
+
+        // ─── Эффект (мелким шрифтом) ───
         Text(
-          value.toString(),
-          style: TextStyle(color: Colors.grey[500], fontSize: 9),
+          effect,
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontSize: 8,
+            fontStyle: FontStyle.italic,
+            height: 1.2,
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );
   }
+
+  // ═══════════════════════════════════════════════════════════
+  // ДЕТАЛИ ПЕРСОНАЖА
+  // ═══════════════════════════════════════════════════════════
 
   Widget _buildCharacterDetail(Character character) {
     return Container(
@@ -34371,17 +35218,29 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
             ),
           ),
           const SizedBox(height: 12),
+
+          // ─── Характеристики ───
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: _buildStatBar('СИЛА', character.strength)),
+              Expanded(
+                child: _buildStatBar('СИЛА', character.strength),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _buildStatBar('ИНТ', character.intelligence)),
+              Expanded(
+                child: _buildStatBar('ИНТ', character.intelligence),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _buildStatBar('ХИТР', character.cunning)),
+              Expanded(
+                child: _buildStatBar('ХИТР', character.cunning),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _buildStatBar('ВЫН', character.endurance)),
+              Expanded(
+                child: _buildStatBar('ВЫН', character.endurance),
+              ),
             ],
           ),
+
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
@@ -34427,6 +35286,10 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
       ),
     );
   }
+
+  // ═══════════════════════════════════════════════════════════
+  // BUILD
+  // ═══════════════════════════════════════════════════════════
 
   @override
   Widget build(BuildContext context) {
@@ -35304,10 +36167,12 @@ class _PulsingTextState extends State<_PulsingText>
 
 ### 📄 `./lib/screens/main/start_screen.dart`
 ```dart
+// lib/screens/main/start_screen.dart
+
 import 'package:flutter/material.dart';
 import '../main/character_select_screen.dart';
 import '../extra/equipment_test_screen.dart';
-import '../gameplay/map_screen.dart';
+import '../gameplay/map/map_screen.dart';
 import '../gameplay/story_screen.dart';
 import '../extra/achievements_screen.dart';
 import '../main/settings_screen.dart';
@@ -35445,7 +36310,7 @@ class _StartScreenState extends State<StartScreen> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => const MapScreen(
+        builder: (_) => MapScreen(
           characterId: 'boris',
           characterName: 'Борис',
         ),
@@ -36753,6 +37618,8 @@ class SearchEventLoader {
 
 ### 📄 `./lib/services/map/combat_manager.dart`
 ```dart
+// lib/services/map/combat_manager.dart
+
 import 'package:flutter/material.dart';
 import 'dart:math';
 
@@ -36849,6 +37716,11 @@ class CombatManager {
           characterId: controller.characterId,
           playerHunger: controller.hunger,
           playerFatigue: controller.fatigue,
+          // ⚡ Новые параметры — характеристики для боя:
+          // - cunning влияет на уклонение и шанс побега
+          // - endurance влияет на шанс побега
+          playerCunning: controller.cunning,
+          playerEndurance: controller.endurance,
         ),
       ),
     );
@@ -37543,6 +38415,8 @@ class DeathManager {
 
 ### 📄 `./lib/services/map/map_controller.dart`
 ```dart
+// lib/services/map/map_controller.dart
+
 import 'dart:async';
 import 'dart:math';
 
@@ -37596,8 +38470,18 @@ class MapController extends ChangeNotifier {
   late GameTime gameTime;
   int chapter = 1;
 
+  // ─── Характеристики персонажа ───
+  //
+  // 4 характеристики, влияют на геймплей:
+  // - intelligence: крафт, взлом, разведка
+  // - strength: урон, крит, побег
+  // - cunning: уклонение, разведка, побег, время крафта
+  // - endurance: расход стамины, отдых, побег, усталость
+
   int intelligence = GameConstants.defaultIntelligence;
   int strength = GameConstants.defaultStrength;
+  int cunning = GameConstants.defaultCunning;
+  int endurance = GameConstants.defaultEndurance;
 
   final Inventory inventory = Inventory(maxWeight: 30.0);
   final Equipment equipment = Equipment();
@@ -37669,8 +38553,11 @@ class MapController extends ChangeNotifier {
     allRecipes = await Recipe.loadAll();
 
     final stats = GameConstants.statsFor(characterId);
-    intelligence = stats['intelligence'] ?? GameConstants.defaultIntelligence;
+    intelligence =
+        stats['intelligence'] ?? GameConstants.defaultIntelligence;
     strength = stats['strength'] ?? GameConstants.defaultStrength;
+    cunning = stats['cunning'] ?? GameConstants.defaultCunning;
+    endurance = stats['endurance'] ?? GameConstants.defaultEndurance;
 
     final locations = await Location.loadAll();
     if (locations.isEmpty) {
@@ -37971,6 +38858,30 @@ class MapController extends ChangeNotifier {
 
   void setFatigue(int value) {
     fatigue = value.clamp(GameConstants.minStat, GameConstants.maxStat);
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ХАРАКТЕРИСТИКИ (для тестов)
+  // ═══════════════════════════════════════════════════════════
+
+  void setIntelligence(int value) {
+    intelligence = value;
+    refresh();
+  }
+
+  void setStrength(int value) {
+    strength = value;
+    refresh();
+  }
+
+  void setCunning(int value) {
+    cunning = value;
+    refresh();
+  }
+
+  void setEndurance(int value) {
+    endurance = value;
+    refresh();
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -38305,6 +39216,10 @@ class MapController extends ChangeNotifier {
     List<Condition> conditions = const [],
     List<Recipe> recipes = const [],
     int startTimeMinutes = GameConstants.startTimeMinutes,
+    int? overrideIntelligence,
+    int? overrideStrength,
+    int? overrideCunning,
+    int? overrideEndurance,
   }) {
     if (locations.isEmpty) {
       throw ArgumentError('initForTest: locations не может быть пустым');
@@ -38313,9 +39228,21 @@ class MapController extends ChangeNotifier {
     allConditions = conditions;
     allRecipes = recipes;
 
+    // Характеристики из GameConstants + возможность переопределить
+    // в тестах (например, чтобы проверить влияние cunning 10).
     final stats = GameConstants.statsFor(characterId);
-    intelligence = stats['intelligence'] ?? GameConstants.defaultIntelligence;
-    strength = stats['strength'] ?? GameConstants.defaultStrength;
+    intelligence = overrideIntelligence ??
+        stats['intelligence'] ??
+        GameConstants.defaultIntelligence;
+    strength = overrideStrength ??
+        stats['strength'] ??
+        GameConstants.defaultStrength;
+    cunning = overrideCunning ??
+        stats['cunning'] ??
+        GameConstants.defaultCunning;
+    endurance = overrideEndurance ??
+        stats['endurance'] ??
+        GameConstants.defaultEndurance;
 
     final startLoc = locations.firstWhere(
       (l) => l.isStart,
@@ -38358,12 +39285,15 @@ class MapController extends ChangeNotifier {
 
 ### 📄 `./lib/services/map/movement_manager.dart`
 ```dart
+// lib/services/map/movement_manager.dart
+
 import 'package:flutter/material.dart';
 
 import 'package:dark_hours/services/map/map_controller.dart';
 import 'package:dark_hours/services/map/story_trigger_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
 import 'package:dark_hours/utils/time_format.dart';
+import 'package:dark_hours/constants/game_constants.dart';
 
 /// Результат попытки перейти в локацию.
 enum MoveResult {
@@ -38403,7 +39333,7 @@ class MovementManager {
     final target = map.getById(locationId)!;
     final current = controller.currentLocation;
 
-    int travelMinutes = 20;
+    int travelMinutes = GameConstants.moveTimeMinutes;
     if (current != null) {
       final minutes = current.connectionMinutesTo(locationId);
       if (minutes != null) {
@@ -38411,7 +39341,12 @@ class MovementManager {
       }
     }
 
-    final staminaCost = (travelMinutes / 10).round().clamp(2, 20);
+    // Стоимость стамины зависит от endurance.
+    final staminaCost = computeStaminaCost(
+      travelMinutes,
+      controller.endurance,
+    );
+
     controller.setStamina(controller.stamina - staminaCost);
 
     AudioService.playClick();
@@ -38490,13 +39425,26 @@ class MovementManager {
   @visibleForTesting
   static int getTravelTime(MapController controller, String locationId) {
     final current = controller.currentLocation;
-    if (current == null) return 20;
-    return current.connectionMinutesTo(locationId) ?? 20;
+    if (current == null) return GameConstants.moveTimeMinutes;
+    return current.connectionMinutesTo(locationId) ??
+        GameConstants.moveTimeMinutes;
   }
 
+  /// Стоимость стамины за переход.
+  ///
+  /// Базовая формула: `travelMinutes / 10`, клампится в [2, 20].
+  /// Затем умножается на `enduranceMoveMultiplier(endurance)`:
+  /// - endurance 9 → множитель 0.80 → на 20% дешевле
+  /// - endurance 5 → множитель 1.00 → базово
+  /// - endurance 3 → множитель 1.10 → на 10% дороже
+  ///
+  /// Возвращает минимум 1 (нельзя сделать переход бесплатным).
   @visibleForTesting
-  static int computeStaminaCost(int travelMinutes) {
-    return (travelMinutes / 10).round().clamp(2, 20);
+  static int computeStaminaCost(int travelMinutes, int endurance) {
+    final baseCost = (travelMinutes / 10).round().clamp(2, 20);
+    final multiplier = GameConstants.enduranceMoveMultiplier(endurance);
+    final adjusted = (baseCost * multiplier).round();
+    return adjusted < 1 ? 1 : adjusted;
   }
 }
 ```
@@ -38708,6 +39656,8 @@ class RegionBackgroundCache {
 
 ### 📄 `./lib/services/map/rest_manager.dart`
 ```dart
+// lib/services/map/rest_manager.dart
+
 import 'package:flutter/material.dart';
 import 'dart:math';
 
@@ -38799,11 +39749,23 @@ class RestManager {
   // ═══════════════════════════════════════════════════════════
 
   /// Вычислить дельты статов от отдыха.
+  ///
+  /// Учитывает:
+  /// 1. Базовые значения из `action` (stamina, health, sanity, fatigue).
+  /// 2. Бонус от спального мешка (если есть в инвентаре).
+  /// 3. Бонус от `endurance` — выносливые персонажи восстанавливают
+  ///    больше стамины за тот же отдых.
+  ///
+  /// Формулы:
+  /// - `stamina = action.staminaRestore + sleepingBag + enduranceRestBonus`
+  /// - `sanity = action.sanityRestore + sleepingBag`
+  /// - `fatigue = -action.fatigueReduce`
   @visibleForTesting
   static Map<String, int> computeRestStats(
     MapController controller,
     RestAction action,
   ) {
+    // ─── База ───
     final delta = <String, int>{
       'stamina': action.staminaRestore,
       'health': action.healthRestore,
@@ -38811,12 +39773,22 @@ class RestManager {
       'fatigue': -action.fatigueReduce,
     };
 
+    // ─── Бонус от спального мешка ───
     if (controller.inventory.hasItem('sleeping_bag')) {
       delta['stamina'] =
           (delta['stamina'] ?? 0) + GameConstants.sleepingBagStaminaBonus;
       delta['sanity'] =
           (delta['sanity'] ?? 0) + GameConstants.sleepingBagSanityBonus;
     }
+
+    // ─── Бонус от endurance ───
+    //
+    // Выносливые восстанавливают больше стамины.
+    // При endurance 8 → +6 к восстановлению.
+    // При endurance 3 → −4 к восстановлению.
+    final enduranceBonus =
+        GameConstants.enduranceRestBonus(controller.endurance);
+    delta['stamina'] = (delta['stamina'] ?? 0) + enduranceBonus;
 
     return delta;
   }
@@ -39512,6 +40484,8 @@ class SearchManager {
 
 ### 📄 `./lib/services/map/story_trigger_manager.dart`
 ```dart
+// lib/services/map/story_trigger_manager.dart
+
 import 'package:flutter/material.dart';
 
 import 'package:dark_hours/services/map/map_controller.dart';
@@ -49899,8 +50873,8 @@ class Validator {
 
 ## 📊 SUMMARY
 
-- Всего файлов: **335**
-- Текстовых (в дампе): **191**
+- Всего файлов: **339**
+- Текстовых (в дампе): **195**
 - Артефактов: **1**
 - Бинарников: **143**
 - Дамп: **1.7M**

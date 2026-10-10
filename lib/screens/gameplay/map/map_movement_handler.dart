@@ -12,6 +12,7 @@ import 'package:dark_hours/services/audio/audio_service.dart';
 
 import 'package:dark_hours/models/world/location.dart';
 import 'package:dark_hours/models/world/map_position.dart';
+import 'package:dark_hours/constants/game_constants.dart';
 
 import 'package:dark_hours/screens/gameplay/map/map_screen.dart';
 
@@ -313,6 +314,12 @@ class MapMovementHandler {
   }
 
   /// Массовая разведка района (30 мин, 10 стамины).
+  ///
+  /// Количество разведанных локаций зависит от:
+  /// 1. **Броска кубика** — базовое число (0, 1, 2 или 3).
+  /// 2. **Cunning** — бонус к количеству (`cunningScoutBonus`).
+  ///
+  /// Итог клампится: минимум 0, максимум — длина candidates.
   Future<void> scout() async {
     AudioService.playClick();
 
@@ -351,20 +358,33 @@ class MapMovementHandler {
     final rng = math.Random();
     final roll = rng.nextInt(100);
 
-    int count;
+    // ⚡ Базовое количество из броска.
+    int baseCount;
     String mood;
     if (roll < 20) {
-      count = 0;
+      baseCount = 0;
       mood = 'Ты обходишь район, но ничего нового не замечаешь.';
     } else if (roll < 60) {
-      count = 1;
+      baseCount = 1;
       mood = 'Ты прислушиваешься. Один из домов ведёт себя странно...';
     } else if (roll < 90) {
-      count = 2;
+      baseCount = 2;
       mood = 'Ты замечаешь перемены сразу в двух местах...';
     } else {
-      count = 3;
+      baseCount = 3;
       mood = 'С высоты ты видишь многое. Район раскрывает свои секреты...';
+    }
+
+    // ⚡ Бонус от cunning.
+    final cunningBonus =
+        GameConstants.cunningScoutBonus(screen.controller.cunning);
+
+    // ⚡ Итоговое количество с учётом cunning и ограничений.
+    int count = baseCount + cunningBonus;
+    count = count.clamp(0, candidates.length);
+
+    if (cunningBonus > 0 && count > baseCount) {
+      mood = '$mood Твой острый глаз замечает больше.';
     }
 
     final scoutedList = <String>[];
@@ -443,9 +463,9 @@ class MapMovementHandler {
                   ),
                 )
               else ...[
-                const Text(
-                  'Что удалось заметить:',
-                  style: TextStyle(
+                Text(
+                  'Что удалось заметить (${locations.length}):',
+                  style: const TextStyle(
                     color: Color(0xFFC8B464),
                     fontSize: 11,
                     fontWeight: FontWeight.bold,

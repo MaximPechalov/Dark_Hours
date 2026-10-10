@@ -1,3 +1,5 @@
+// lib/services/map/map_controller.dart
+
 import 'dart:async';
 import 'dart:math';
 
@@ -51,8 +53,18 @@ class MapController extends ChangeNotifier {
   late GameTime gameTime;
   int chapter = 1;
 
+  // ─── Характеристики персонажа ───
+  //
+  // 4 характеристики, влияют на геймплей:
+  // - intelligence: крафт, взлом, разведка
+  // - strength: урон, крит, побег
+  // - cunning: уклонение, разведка, побег, время крафта
+  // - endurance: расход стамины, отдых, побег, усталость
+
   int intelligence = GameConstants.defaultIntelligence;
   int strength = GameConstants.defaultStrength;
+  int cunning = GameConstants.defaultCunning;
+  int endurance = GameConstants.defaultEndurance;
 
   final Inventory inventory = Inventory(maxWeight: 30.0);
   final Equipment equipment = Equipment();
@@ -124,8 +136,11 @@ class MapController extends ChangeNotifier {
     allRecipes = await Recipe.loadAll();
 
     final stats = GameConstants.statsFor(characterId);
-    intelligence = stats['intelligence'] ?? GameConstants.defaultIntelligence;
+    intelligence =
+        stats['intelligence'] ?? GameConstants.defaultIntelligence;
     strength = stats['strength'] ?? GameConstants.defaultStrength;
+    cunning = stats['cunning'] ?? GameConstants.defaultCunning;
+    endurance = stats['endurance'] ?? GameConstants.defaultEndurance;
 
     final locations = await Location.loadAll();
     if (locations.isEmpty) {
@@ -426,6 +441,30 @@ class MapController extends ChangeNotifier {
 
   void setFatigue(int value) {
     fatigue = value.clamp(GameConstants.minStat, GameConstants.maxStat);
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ХАРАКТЕРИСТИКИ (для тестов)
+  // ═══════════════════════════════════════════════════════════
+
+  void setIntelligence(int value) {
+    intelligence = value;
+    refresh();
+  }
+
+  void setStrength(int value) {
+    strength = value;
+    refresh();
+  }
+
+  void setCunning(int value) {
+    cunning = value;
+    refresh();
+  }
+
+  void setEndurance(int value) {
+    endurance = value;
+    refresh();
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -760,6 +799,10 @@ class MapController extends ChangeNotifier {
     List<Condition> conditions = const [],
     List<Recipe> recipes = const [],
     int startTimeMinutes = GameConstants.startTimeMinutes,
+    int? overrideIntelligence,
+    int? overrideStrength,
+    int? overrideCunning,
+    int? overrideEndurance,
   }) {
     if (locations.isEmpty) {
       throw ArgumentError('initForTest: locations не может быть пустым');
@@ -768,9 +811,21 @@ class MapController extends ChangeNotifier {
     allConditions = conditions;
     allRecipes = recipes;
 
+    // Характеристики из GameConstants + возможность переопределить
+    // в тестах (например, чтобы проверить влияние cunning 10).
     final stats = GameConstants.statsFor(characterId);
-    intelligence = stats['intelligence'] ?? GameConstants.defaultIntelligence;
-    strength = stats['strength'] ?? GameConstants.defaultStrength;
+    intelligence = overrideIntelligence ??
+        stats['intelligence'] ??
+        GameConstants.defaultIntelligence;
+    strength = overrideStrength ??
+        stats['strength'] ??
+        GameConstants.defaultStrength;
+    cunning = overrideCunning ??
+        stats['cunning'] ??
+        GameConstants.defaultCunning;
+    endurance = overrideEndurance ??
+        stats['endurance'] ??
+        GameConstants.defaultEndurance;
 
     final startLoc = locations.firstWhere(
       (l) => l.isStart,

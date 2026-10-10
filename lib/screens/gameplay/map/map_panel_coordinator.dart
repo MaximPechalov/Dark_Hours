@@ -1,6 +1,4 @@
 // lib/screens/gameplay/map/map_panel_coordinator.dart
-//
-// (исправленная версия — без Proxy-обёрток)
 
 import 'package:flutter/material.dart';
 
@@ -13,6 +11,7 @@ import 'package:dark_hours/services/audio/audio_service.dart';
 import 'package:dark_hours/models/inventory/inventory_item.dart';
 import 'package:dark_hours/models/items/recipe.dart';
 import 'package:dark_hours/models/time/rest_action.dart';
+import 'package:dark_hours/constants/game_constants.dart';
 
 import 'package:dark_hours/widgets/panels/craft_panel.dart';
 import 'package:dark_hours/widgets/panels/inventory_panel.dart';
@@ -203,8 +202,24 @@ class MapPanelCoordinator {
     );
   }
 
+  /// Создать предмет по рецепту.
+  ///
+  /// Время крафта зависит от `cunning`:
+  /// - Базовое время из `recipe.timeMinutes`.
+  /// - Скидка `cunningCraftTimeSave(cunning)` минут.
+  /// - Минимум 1 минута (нельзя крафтить мгновенно).
+  ///
+  /// Формула:
+  /// ```
+  /// time = max(1, recipe.timeMinutes - cunningCraftTimeSave(cunning))
+  /// ```
+  ///
+  /// Примеры для рецепта 30 минут:
+  /// - `cunning 8` → −3 мин → 27 минут
+  /// - `cunning 5` → 0 → 30 минут
+  /// - `cunning 4` → 0 → 30 минут
   Future<void> craftItem(Recipe recipe) async {
-    if (screen.controller.stamina < 5) {
+    if (screen.controller.stamina < GameConstants.minStaminaForCraft) {
       AudioService.playError();
       if (!screen.mounted) return;
       ScaffoldMessenger.of(screen.context).showSnackBar(
@@ -216,12 +231,23 @@ class MapPanelCoordinator {
       return;
     }
 
+    // ─── Расчёт времени крафта с учётом cunning ───
+    final timeSave = GameConstants.cunningCraftTimeSave(
+      screen.controller.cunning,
+    );
+    final baseTime = recipe.timeMinutes;
+    final actualTime = (baseTime - timeSave) < 1
+        ? 1
+        : (baseTime - timeSave);
+
+    // ─── Тратим ингредиенты ───
     for (final ing in recipe.ingredients) {
       for (int i = 0; i < ing.count; i++) {
         screen.controller.removeItem(ing.id);
       }
     }
 
+    // ─── Добавляем результат ───
     final resultItem = screen.controller.findItemInCatalog(recipe.resultId);
     if (resultItem != null) {
       screen.controller.addItem(resultItem);
@@ -230,9 +256,12 @@ class MapPanelCoordinator {
     screen.controller.trackCraft(
       isMolotov: recipe.id == 'molotov_craft',
     );
-    screen.controller.applyStatDelta({'stamina': -5, 'fatigue': 5});
+    screen.controller.applyStatDelta({
+      'stamina': -GameConstants.craftStaminaCost,
+      'fatigue': GameConstants.craftFatigueCost,
+    });
 
-    await screen.controller.advanceTime(recipe.timeMinutes);
+    await screen.controller.advanceTime(actualTime);
     await screen.controller.save();
 
     if (!screen.mounted) return;
@@ -244,9 +273,14 @@ class MapPanelCoordinator {
       color: const Color.fromARGB(255, 100, 180, 100),
       icon: Icons.build,
     );
+
+    // ─── Снекбар с фактическим временем ───
+    final savedText = timeSave > 0 ? ' (сэкономлено $timeSave мин)' : '';
     ScaffoldMessenger.of(screen.context).showSnackBar(
       SnackBar(
-        content: Text('${recipe.resultIcon} Создано: ${recipe.resultName}'),
+        content: Text(
+          '${recipe.resultIcon} Создано: ${recipe.resultName} · $actualTime мин$savedText',
+        ),
         backgroundColor: const Color.fromARGB(255, 100, 180, 100),
         duration: const Duration(seconds: 2),
       ),
@@ -263,7 +297,7 @@ class MapPanelCoordinator {
     final loc = screen.controller.currentLocation;
     if (loc == null) return;
 
-    final isSafe = loc.dangerLevel <= 3;
+    final isSafe = loc.dangerLevel <= GameConstants.safeLocationDangerLevel;
 
     showModalBottomSheet(
       context: screen.context,

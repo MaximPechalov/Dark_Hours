@@ -1,3 +1,5 @@
+// test/services/map/rest_manager_test.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -73,12 +75,13 @@ void main() {
   );
 
   MapController makeController({
+    String characterId = 'boris',
     List<Location>? locations,
     int startTimeMinutes = GameConstants.startTimeMinutes,
   }) {
     final c = MapController(
-      characterId: 'boris',
-      characterName: 'Борис',
+      characterId: characterId,
+      characterName: characterId,
     );
     c.initForTest(
       locations: locations ?? [safeLocation],
@@ -119,12 +122,14 @@ void main() {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // computeRestStats
+  // computeRestStats — базовые значения
   // ═══════════════════════════════════════════════════════════
 
-  group('RestManager.computeRestStats', () {
-    test('short_rest даёт базовые дельты без спальника', () {
+  group('RestManager.computeRestStats — базовые значения', () {
+    test('short_rest даёт базовые дельты без спальника, endurance 5', () {
       final c = makeController();
+      c.setEndurance(5);
+
       final delta = RestManager.computeRestStats(c, RestAction.all[0]);
 
       expect(delta['stamina'], RestAction.all[0].staminaRestore);
@@ -135,14 +140,33 @@ void main() {
 
     test('full_sleep даёт больше стамины, чем short_rest', () {
       final c = makeController();
+      c.setEndurance(5);
+
       final shortDelta = RestManager.computeRestStats(c, RestAction.all[0]);
       final fullDelta = RestManager.computeRestStats(c, RestAction.all[2]);
 
       expect(fullDelta['stamina'], greaterThan(shortDelta['stamina']!));
     });
 
-    test('бонус спальника +10 stamina и +10 sanity', () {
+    test('fatigue всегда отрицательный (уменьшение)', () {
       final c = makeController();
+      c.setEndurance(5);
+
+      for (final action in RestAction.all) {
+        final delta = RestManager.computeRestStats(c, action);
+        expect(delta['fatigue'], lessThanOrEqualTo(0));
+      }
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // computeRestStats — бонус спальника
+  // ═══════════════════════════════════════════════════════════
+
+  group('RestManager.computeRestStats — бонус спальника', () {
+    test('бонус +10 stamina и +10 sanity', () {
+      final c = makeController();
+      c.setEndurance(5);
       c.addItem(makeItem(id: 'sleeping_bag'));
 
       final withBag = RestManager.computeRestStats(c, RestAction.all[0]);
@@ -161,18 +185,90 @@ void main() {
 
     test('без спальника бонуса нет', () {
       final c = makeController();
+      c.setEndurance(5);
+
       final delta = RestManager.computeRestStats(c, RestAction.all[1]);
 
       expect(delta['stamina'], RestAction.all[1].staminaRestore);
       expect(delta['sanity'], RestAction.all[1].sanityRestore);
     });
+  });
 
-    test('fatigue всегда отрицательный (уменьшение)', () {
+  // ═══════════════════════════════════════════════════════════
+  // computeRestStats — бонус endurance
+  // ═══════════════════════════════════════════════════════════
+
+  group('RestManager.computeRestStats — бонус endurance', () {
+    test('Алина (endurance 9) восстанавливает больше стамины, чем Иван (3)',
+        () {
+      final alina = makeController(characterId: 'alina');
+      final ivan = makeController(characterId: 'ivan');
+
+      expect(alina.endurance, 9);
+      expect(ivan.endurance, 3);
+
+      final alinaDelta = RestManager.computeRestStats(alina, RestAction.all[1]);
+      final ivanDelta = RestManager.computeRestStats(ivan, RestAction.all[1]);
+
+      expect(alinaDelta['stamina'], greaterThan(ivanDelta['stamina']!));
+    });
+
+    test('endurance 5 (baseStat) — бонус 0', () {
       final c = makeController();
-      for (final action in RestAction.all) {
-        final delta = RestManager.computeRestStats(c, action);
-        expect(delta['fatigue'], lessThanOrEqualTo(0));
-      }
+      c.setEndurance(5);
+
+      final delta = RestManager.computeRestStats(c, RestAction.all[1]);
+
+      expect(delta['stamina'], RestAction.all[1].staminaRestore);
+    });
+
+    test('endurance 10 — бонус +10 к стамине', () {
+      final c = makeController();
+      c.setEndurance(10);
+
+      final delta = RestManager.computeRestStats(c, RestAction.all[1]);
+
+      expect(
+        delta['stamina'],
+        RestAction.all[1].staminaRestore +
+            GameConstants.enduranceRestBonusMax,
+      );
+    });
+
+    test('endurance 1 — штраф -6 к стамине', () {
+      final c = makeController();
+      c.setEndurance(1);
+
+      final delta = RestManager.computeRestStats(c, RestAction.all[1]);
+
+      expect(
+        delta['stamina'],
+        RestAction.all[1].staminaRestore +
+            GameConstants.enduranceRestBonusMin,
+      );
+    });
+
+    test('спальник + endurance стакаются', () {
+      final c = makeController(characterId: 'alina');
+      c.addItem(makeItem(id: 'sleeping_bag'));
+
+      final delta = RestManager.computeRestStats(c, RestAction.all[2]);
+
+      final expected = RestAction.all[2].staminaRestore +
+          GameConstants.sleepingBagStaminaBonus +
+          GameConstants.enduranceRestBonus(9);
+
+      expect(delta['stamina'], expected);
+    });
+
+    test('endurance НЕ влияет на health и sanity', () {
+      final c = makeController();
+      c.setEndurance(10);
+
+      final delta = RestManager.computeRestStats(c, RestAction.all[1]);
+
+      expect(delta['health'], RestAction.all[1].healthRestore);
+      expect(delta['sanity'], RestAction.all[1].sanityRestore);
     });
   });
 
@@ -282,7 +378,7 @@ void main() {
       expect(anyAttack, true);
     });
 
-    test('шанс атаки > 0 даже утром (проверка round, не toInt)', () {
+    test('шанс атаки > 0 даже утром (round, не toInt)', () {
       // Утро (8:00) — dangerMultiplier = 0.8
       // 20 * 0.8 = 16 → округлится до 16, не до 0
       final c = makeController(
@@ -298,7 +394,7 @@ void main() {
       expect(anyAttack, true);
     });
 
-    test('ночью шанс выше, чем днём (статистически за 500 бросков)', () {
+    test('ночью шанс выше, чем днём (за 500 бросков)', () {
       final dayC = makeController(startTimeMinutes: 12 * 60);
       final nightC = makeController(startTimeMinutes: 23 * 60);
 
@@ -321,12 +417,37 @@ void main() {
   });
 
   // ═══════════════════════════════════════════════════════════
-  // rest — widget-тест
+  // rest — widget-тесты
   // ═══════════════════════════════════════════════════════════
 
   group('RestManager.rest — widget', () {
-    testWidgets('short_rest восстанавливает стамину', (tester) async {
+    testWidgets('short_rest восстанавливает стамину с учётом endurance',
+        (tester) async {
+      // Борис: endurance 6 → enduranceRestBonus(6) = +2
+      // stamina до = 20, short_rest = +20, endurance = +2 → 42
       final c = makeController();
+      c.setStamina(20);
+      final enduranceBonus = GameConstants.enduranceRestBonus(c.endurance);
+
+      await tester.pumpWidget(
+        makeTestApp(
+          onPressed: (context) =>
+              RestManager.rest(context, c, RestAction.all[0]),
+        ),
+      );
+
+      await tester.tap(find.text('TEST'));
+      await tester.pumpAndSettle();
+
+      final expected = (20 + RestAction.all[0].staminaRestore + enduranceBonus)
+          .clamp(0, 100);
+
+      expect(c.stamina, expected);
+    });
+
+    testWidgets('short_rest с endurance 5 даёт чистое значение', (tester) async {
+      final c = makeController();
+      c.setEndurance(5);
       c.setStamina(20);
 
       await tester.pumpWidget(
@@ -339,7 +460,6 @@ void main() {
       await tester.tap(find.text('TEST'));
       await tester.pumpAndSettle();
 
-      expect(c.stamina, greaterThan(20));
       expect(c.stamina, 20 + RestAction.all[0].staminaRestore);
     });
 
@@ -416,7 +536,6 @@ void main() {
       await tester.tap(find.text('TEST'));
       await tester.pumpAndSettle();
 
-      // Не падает — этого достаточно
       expect(true, true);
     });
   });

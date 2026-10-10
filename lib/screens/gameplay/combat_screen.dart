@@ -1,7 +1,11 @@
+// lib/screens/gameplay/combat_screen.dart
+
 import 'package:flutter/material.dart';
 import 'dart:math';
+
 import 'package:dark_hours/models/combat/combat.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/constants/game_constants.dart';
 import 'package:dark_hours/widgets/cards/character_portrait_from_stats.dart';
 import 'package:dark_hours/widgets/effects/floating_effect.dart';
 import 'package:dark_hours/widgets/effects/shake_widget.dart';
@@ -21,6 +25,19 @@ class CombatScreen extends StatefulWidget {
   /// Усталость игрока — для определения состояния портрета.
   final int playerFatigue;
 
+  /// Хитрость игрока — влияет на уклонение и побег.
+  ///
+  /// Значения 0-10. Базовая точка — 5.
+  /// При cunning 5 → без изменений.
+  /// При cunning 8 → +9% уклонения, +12% побега.
+  final int playerCunning;
+
+  /// Выносливость игрока — влияет на побег.
+  ///
+  /// Значения 0-10. Базовая точка — 5.
+  /// При endurance 8 → +12% побега.
+  final int playerEndurance;
+
   const CombatScreen({
     super.key,
     required this.player,
@@ -28,6 +45,8 @@ class CombatScreen extends StatefulWidget {
     this.characterId,
     this.playerHunger = 100,
     this.playerFatigue = 0,
+    this.playerCunning = GameConstants.defaultCunning,
+    this.playerEndurance = GameConstants.defaultEndurance,
   });
 
   @override
@@ -59,6 +78,11 @@ class _CombatScreenState extends State<CombatScreen> {
     _addLog(
       '⚔️ Ты: ${widget.player.damage} урона (${_damageTypeName(widget.player.damageType)})',
     );
+    if (widget.playerCunning > GameConstants.baseStat) {
+      _addLog(
+        '💨 Уклонение: +${(GameConstants.cunningDodgeBonus(widget.playerCunning) * 100).round()}%',
+      );
+    }
   }
 
   Future<void> _playCombatMusic() async {
@@ -95,7 +119,24 @@ class _CombatScreenState extends State<CombatScreen> {
     });
   }
 
-  // ====== ИГРОК ======
+  // ═══════════════════════════════════════════════════════════
+  // УКЛОНЕНИЕ (от cunning)
+  // ═══════════════════════════════════════════════════════════
+
+  /// Проверить, уклонился ли игрок от атаки врага.
+  ///
+  /// Базируется на cunning: при cunning 8 → 9% шанс уклонения.
+  /// Клампится через `GameConstants.cunningDodgeBonus`.
+  bool _rollPlayerDodge() {
+    final dodgeChance = GameConstants.cunningDodgeBonus(widget.playerCunning);
+    if (dodgeChance <= 0) return false;
+    return _rng.nextDouble() < dodgeChance;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ИГРОК
+  // ═══════════════════════════════════════════════════════════
+
   void _playerAttack() {
     if (_combatEnded || !_isPlayerTurn || _isProcessing) return;
     if (widget.player.isStunned) {
@@ -249,6 +290,18 @@ class _CombatScreenState extends State<CombatScreen> {
     Future.delayed(const Duration(milliseconds: 600), _enemyTurn);
   }
 
+  /// Побег из боя.
+  ///
+  /// Шанс побега рассчитывается из 3 характеристик:
+  /// - strength: базовый бонус (уже был)
+  /// - cunning: хитрость помогает запутать следы
+  /// - endurance: выносливость помогает дольше бежать
+  ///
+  /// Базовая формула:
+  /// ```
+  /// 0.5 + (strength - 5) * 0.05 + cunningFleeBonus + enduranceFleeBonus
+  /// ```
+  /// Клампится в [0.2, 0.9].
   void _playerFlee() {
     if (_combatEnded || _isProcessing) return;
     if (widget.player.isStunned) {
@@ -259,15 +312,25 @@ class _CombatScreenState extends State<CombatScreen> {
 
     setState(() => _isProcessing = true);
 
-    // Шанс побега: 50% + бонус от силы
-    double fleeChance = 0.5 + (widget.player.strength - 5) * 0.05;
-    fleeChance = fleeChance.clamp(0.2, 0.8);
+    // База + бонус от силы (уже было) + бонусы от cunning и endurance
+    final strengthBonus = (widget.player.strength - GameConstants.baseStat) * 0.05;
+    final cunningBonus = GameConstants.cunningFleeBonus(widget.playerCunning);
+    final enduranceBonus =
+        GameConstants.enduranceFleeBonus(widget.playerEndurance);
+
+    double fleeChance =
+        0.5 + strengthBonus + cunningBonus + enduranceBonus;
+    fleeChance = fleeChance.clamp(0.2, 0.9);
 
     if (_rng.nextDouble() < fleeChance) {
-      _addLog('🏃 Ты сбежал!');
+      _addLog(
+        '🏃 Ты сбежал! (шанс ${(fleeChance * 100).round()}%)',
+      );
       _endCombat('fled');
     } else {
-      _addLog('❌ Не удалось сбежать!');
+      _addLog(
+        '❌ Не удалось сбежать! (шанс ${(fleeChance * 100).round()}%)',
+      );
       _isPlayerTurn = false;
       Future.delayed(const Duration(milliseconds: 600), _enemyTurn);
     }
@@ -281,7 +344,10 @@ class _CombatScreenState extends State<CombatScreen> {
     Future.delayed(const Duration(milliseconds: 800), _enemyTurn);
   }
 
-  // ====== ВРАГ ======
+  // ═══════════════════════════════════════════════════════════
+  // ВРАГ
+  // ═══════════════════════════════════════════════════════════
+
   void _enemyTurn() {
     if (_combatEnded || widget.enemy.isDead || !mounted) return;
 
@@ -306,10 +372,24 @@ class _CombatScreenState extends State<CombatScreen> {
       }
     }
 
-    // Способность врага
-    final ability = widget.enemy.rollAbility();
-    if (ability != null) {
-      _applyEnemyAbility(ability);
+    // ⚡ ПРОВЕРКА УКЛОНЕНИЯ ОТ CUNNING
+    // Если игрок уклонился — враг атакует, но промахивается.
+    // Способности врага всё ещё применяются (их нельзя «уклонить»
+    // физически), но обычные атаки — можно.
+    final enemyAbility = widget.enemy.rollAbility();
+    final dodged = enemyAbility == null && _rollPlayerDodge();
+
+    if (dodged) {
+      _addLog('💨 Ты уклоняешься от атаки ${widget.enemy.name}!');
+      FloatingEffectOverlay.show(
+        context,
+        'УКЛОНЕНИЕ!',
+        color: Colors.cyan,
+        icon: Icons.air,
+      );
+    } else if (enemyAbility != null) {
+      // Способность врага (без уклонения — это спецатака)
+      _applyEnemyAbility(enemyAbility);
     } else {
       // Обычная атака
       final dmg = widget.enemy.calculateDamage(widget.player);
@@ -454,7 +534,10 @@ class _CombatScreenState extends State<CombatScreen> {
     });
   }
 
-  // ====== UI ======
+  // ═══════════════════════════════════════════════════════════
+  // UI
+  // ═══════════════════════════════════════════════════════════
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

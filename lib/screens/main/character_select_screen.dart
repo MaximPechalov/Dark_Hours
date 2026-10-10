@@ -1,3 +1,5 @@
+// lib/screens/main/character_select_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:dark_hours/models/character/character.dart';
 import 'package:dark_hours/models/character/character_state.dart';
@@ -5,6 +7,7 @@ import 'package:dark_hours/widgets/cards/character_card.dart';
 import 'package:dark_hours/widgets/cards/character_portrait.dart';
 import 'package:dark_hours/services/progress/achievement_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
+import 'package:dark_hours/constants/game_constants.dart';
 import '../gameplay/story_screen.dart';
 
 class CharacterSelectScreen extends StatefulWidget {
@@ -24,32 +27,126 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
     AudioService.playMusic('audio/music/menu_theme.ogg');
   }
 
-  Widget _buildStatBar(String label, int value) {
-    Color barColor;
+  // ═══════════════════════════════════════════════════════════
+  // ХЕЛПЕРЫ: текстовые эффекты характеристик
+  // ═══════════════════════════════════════════════════════════
+
+  /// Цвет полоски для характеристики.
+  Color _statColor(String label) {
     switch (label) {
       case 'СИЛА':
-        barColor = Colors.red[500]!;
-        break;
+        return Colors.red[500]!;
       case 'ИНТ':
-        barColor = Colors.blue[500]!;
-        break;
+        return Colors.blue[500]!;
       case 'ХИТР':
-        barColor = Colors.purple[500]!;
-        break;
+        return Colors.purple[500]!;
       case 'ВЫН':
-        barColor = Colors.green[500]!;
-        break;
+        return Colors.green[500]!;
       default:
-        barColor = Colors.grey[500]!;
+        return Colors.grey[500]!;
     }
+  }
+
+  /// Короткая подсказка, что даёт характеристика.
+  ///
+  /// Использует те же формулы, что и в бою/крафте/разведке,
+  /// чтобы игрок видел реальные числа.
+  String _statEffect(String label, int value) {
+    switch (label) {
+      case 'СИЛА':
+        // strength влияет на урон и шанс побега (базовый бонус)
+        final fleeBonus = ((value - GameConstants.baseStat) * 5).clamp(-15, 25);
+        return 'урон, побег ${fleeBonus >= 0 ? '+' : ''}$fleeBonus%';
+
+      case 'ИНТ':
+        // intelligence влияет на крафт (требования рецептов)
+        return 'крафт, взлом';
+
+      case 'ХИТР':
+        return _cunningEffect(value);
+
+      case 'ВЫН':
+        return _enduranceEffect(value);
+
+      default:
+        return '';
+    }
+  }
+
+  /// Что даёт cunning — короткая строка.
+  String _cunningEffect(int cunning) {
+    final dodge = (GameConstants.cunningDodgeBonus(cunning) * 100).round();
+    final scout = GameConstants.cunningScoutBonus(cunning);
+    final flee = (GameConstants.cunningFleeBonus(cunning) * 100).round();
+    final craftSave = GameConstants.cunningCraftTimeSave(cunning);
+
+    final parts = <String>[];
+    if (dodge != 0) parts.add('уклон ${dodge >= 0 ? '+' : ''}$dodge%');
+    if (scout > 0) parts.add('разведка +$scout');
+    if (flee > 0) parts.add('побег +$flee%');
+    if (craftSave > 0) parts.add('крафт −$craftSave мин');
+
+    if (parts.isEmpty) return 'без бонусов';
+    return parts.join(', ');
+  }
+
+  /// Что даёт endurance — короткая строка.
+  String _enduranceEffect(int endurance) {
+    final moveMult = GameConstants.enduranceMoveMultiplier(endurance);
+    final movePercent = ((1.0 - moveMult) * 100).round();
+    final restBonus = GameConstants.enduranceRestBonus(endurance);
+    final flee = (GameConstants.enduranceFleeBonus(endurance) * 100).round();
+
+    final parts = <String>[];
+    if (movePercent != 0) {
+      parts.add('ход ${movePercent > 0 ? '−' : '+'}${movePercent.abs()}%');
+    }
+    if (restBonus != 0) {
+      parts.add('отдых ${restBonus > 0 ? '+' : ''}$restBonus');
+    }
+    if (flee > 0) parts.add('побег +$flee%');
+
+    if (parts.isEmpty) return 'без бонусов';
+    return parts.join(', ');
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // МИНИ-БАР ХАРАКТЕРИСТИКИ
+  // ═══════════════════════════════════════════════════════════
+
+  Widget _buildStatBar(String label, int value) {
+    final barColor = _statColor(label);
+    final effect = _statEffect(label, value);
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(color: Colors.grey[500], fontSize: 9),
+        // ─── Строка: ЛЕЙБЛ + ЧИСЛО ───
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.grey[500],
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.0,
+              ),
+            ),
+            Text(
+              value.toString(),
+              style: TextStyle(
+                color: barColor,
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 2),
+        const SizedBox(height: 3),
+
+        // ─── Полоска ───
         Container(
           height: 4,
           decoration: BoxDecoration(
@@ -66,14 +163,27 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
             ),
           ),
         ),
-        const SizedBox(height: 2),
+        const SizedBox(height: 4),
+
+        // ─── Эффект (мелким шрифтом) ───
         Text(
-          value.toString(),
-          style: TextStyle(color: Colors.grey[500], fontSize: 9),
+          effect,
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontSize: 8,
+            fontStyle: FontStyle.italic,
+            height: 1.2,
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );
   }
+
+  // ═══════════════════════════════════════════════════════════
+  // ДЕТАЛИ ПЕРСОНАЖА
+  // ═══════════════════════════════════════════════════════════
 
   Widget _buildCharacterDetail(Character character) {
     return Container(
@@ -175,17 +285,29 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
             ),
           ),
           const SizedBox(height: 12),
+
+          // ─── Характеристики ───
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: _buildStatBar('СИЛА', character.strength)),
+              Expanded(
+                child: _buildStatBar('СИЛА', character.strength),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _buildStatBar('ИНТ', character.intelligence)),
+              Expanded(
+                child: _buildStatBar('ИНТ', character.intelligence),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _buildStatBar('ХИТР', character.cunning)),
+              Expanded(
+                child: _buildStatBar('ХИТР', character.cunning),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _buildStatBar('ВЫН', character.endurance)),
+              Expanded(
+                child: _buildStatBar('ВЫН', character.endurance),
+              ),
             ],
           ),
+
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
@@ -231,6 +353,10 @@ class _CharacterSelectScreenState extends State<CharacterSelectScreen> {
       ),
     );
   }
+
+  // ═══════════════════════════════════════════════════════════
+  // BUILD
+  // ═══════════════════════════════════════════════════════════
 
   @override
   Widget build(BuildContext context) {

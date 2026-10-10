@@ -20,7 +20,54 @@
       "icon": "🏠",
       "repeatable": true,
       "is_start": true,
-      "mapPosition": { "x": 0.12, "y": 0.85 },
+      "mapPosition": { "x": 0.10, "y": 0.70 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "home_alina",
+      "name": "Квартира Алины",
+      "scouted_name": "Дом с спортивной вывеской",
+      "description": "Твоя квартира на 9-м этаже. Через дорогу — «Магнит». Всё ещё пахнет утренним кофе.",
+      "scouted_description": "Высотка напротив магазина. Ты знаешь это место.",
+      "type": "safe_house",
+      "region": "city_south",
+      "danger_level": 0,
+      "search_time": 30,
+      "max_searches": 3,
+      "loot_pool": ["water_bottle", "crackers", "bandage"],
+      "enemies": [],
+      "connections": [
+        { "id": "supermarket", "minutes": 5 },
+        { "id": "street_south", "minutes": 15 },
+        { "id": "pizzeria", "minutes": 10 },
+        { "id": "parking", "minutes": 15 }
+      ],
+      "icon": "🏢",
+      "repeatable": true,
+      "mapPosition": { "x": 0.65, "y": 0.25 },
+      "map_zone": "city_south"
+    },
+    {
+      "id": "home_ivan",
+      "name": "Дом Ивана Ильича",
+      "scouted_name": "Частный дом у леса",
+      "description": "Твой дом на краю города. Забор, яблоня, подвал с припасами. Рядом — лес.",
+      "scouted_description": "Одноэтажный дом с забором. Ты знаешь это место.",
+      "type": "safe_house",
+      "region": "city_south",
+      "danger_level": 0,
+      "search_time": 30,
+      "max_searches": 4,
+      "loot_pool": ["canned_stew", "water_bottle", "wood", "matches"],
+      "enemies": [],
+      "connections": [
+        { "id": "park_south", "minutes": 10 },
+        { "id": "fire_station", "minutes": 15 },
+        { "id": "school_south", "minutes": 20 }
+      ],
+      "icon": "🏡",
+      "repeatable": true,
+      "mapPosition": { "x": 0.15, "y": 0.35 },
       "map_zone": "city_south"
     },
     {
@@ -49,7 +96,7 @@
       ],
       "icon": "🛣️",
       "repeatable": true,
-      "mapPosition": { "x": 0.32, "y": 0.50 },
+      "mapPosition": { "x": 0.40, "y": 0.48 },
       "map_zone": "city_south"
     },
     {
@@ -78,7 +125,7 @@
         "character": "boris",
         "once": true
       },
-      "mapPosition": { "x": 0.50, "y": 0.50 },
+      "mapPosition": { "x": 0.55, "y": 0.30 },
       "map_zone": "city_south"
     },
     {
@@ -107,7 +154,7 @@
         "character": "darya",
         "once": true
       },
-      "mapPosition": { "x": 0.45, "y": 0.30 },
+      "mapPosition": { "x": 0.45, "y": 0.08 },
       "map_zone": "city_south"
     },
     {
@@ -136,7 +183,7 @@
         "character": "andrey",
         "once": true
       },
-      "mapPosition": { "x": 0.80, "y": 0.75 },
+      "mapPosition": { "x": 0.50, "y": 0.90 },
       "map_zone": "city_south"
     },
     {
@@ -158,7 +205,7 @@
       ],
       "icon": "🅿️",
       "repeatable": true,
-      "mapPosition": { "x": 0.85, "y": 0.45 },
+      "mapPosition": { "x": 0.85, "y": 0.65 },
       "map_zone": "city_south"
     },
     {
@@ -182,7 +229,7 @@
       ],
       "icon": "📦",
       "repeatable": true,
-      "mapPosition": { "x": 0.15, "y": 0.75 },
+      "mapPosition": { "x": 0.15, "y": 0.55 },
       "map_zone": "city_south"
     },
     {
@@ -205,7 +252,7 @@
       "repeatable": true,
       "hidden": true,
       "unlocked_by": "supermarket",
-      "mapPosition": { "x": 0.55, "y": 0.55 },
+      "mapPosition": { "x": 0.55, "y": 0.35 },
       "map_zone": "city_south"
     },
     {
@@ -228,7 +275,7 @@
       "repeatable": true,
       "hidden": true,
       "unlocked_by": "warehouse",
-      "mapPosition": { "x": 0.10, "y": 0.70 },
+      "mapPosition": { "x": 0.12, "y": 0.50 },
       "map_zone": "city_south"
     },
     {
@@ -251,7 +298,7 @@
       ],
       "icon": "🏫",
       "repeatable": true,
-      "mapPosition": { "x": 0.50, "y": 0.15 },
+      "mapPosition": { "x": 0.55, "y": 0.15 },
       "map_zone": "city_south"
     },
     {
@@ -277,7 +324,7 @@
       ],
       "icon": "🌳",
       "repeatable": true,
-      "mapPosition": { "x": 0.20, "y": 0.48 },
+      "mapPosition": { "x": 0.20, "y": 0.45 },
       "map_zone": "city_south"
     },
     {
@@ -300,7 +347,7 @@
       "icon": "🏗️",
       "repeatable": true,
       "risk": "fall",
-      "mapPosition": { "x": 0.15, "y": 0.60 },
+      "mapPosition": { "x": 0.20, "y": 0.65 },
       "map_zone": "city_south"
     },
     {
@@ -322,7 +369,7 @@
       ],
       "icon": "🏥",
       "repeatable": true,
-      "mapPosition": { "x": 0.85, "y": 0.15 },
+      "mapPosition": { "x": 0.80, "y": 0.20 },
       "map_zone": "city_south"
     },
     {
@@ -345,7 +392,7 @@
       ],
       "icon": "🔧",
       "repeatable": true,
-      "mapPosition": { "x": 0.85, "y": 0.85 },
+      "mapPosition": { "x": 0.80, "y": 0.85 },
       "map_zone": "city_south"
     },
     {
@@ -368,7 +415,7 @@
       ],
       "icon": "🗑️",
       "repeatable": true,
-      "mapPosition": { "x": 0.05, "y": 0.95 },
+      "mapPosition": { "x": 0.10, "y": 0.88 },
       "map_zone": "city_south"
     },
     {
@@ -391,7 +438,7 @@
       ],
       "icon": "🚒",
       "repeatable": true,
-      "mapPosition": { "x": 0.20, "y": 0.20 },
+      "mapPosition": { "x": 0.30, "y": 0.12 },
       "map_zone": "city_south"
     },
     {
@@ -436,7 +483,7 @@
       ],
       "icon": "🍕",
       "repeatable": true,
-      "mapPosition": { "x": 0.55, "y": 0.45 },
+      "mapPosition": { "x": 0.65, "y": 0.35 },
       "map_zone": "city_south"
     },
     {

@@ -1,3 +1,5 @@
+// test/services/map/map_controller_test.dart
+
 import 'package:flutter_test/flutter_test.dart';
 import '../../_helpers/test_fixtures.dart';
 
@@ -5,6 +7,7 @@ import 'package:dark_hours/models/world/location.dart';
 import 'package:dark_hours/models/conditions/condition.dart';
 import 'package:dark_hours/models/inventory/inventory_item.dart';
 import 'package:dark_hours/services/map/map_controller.dart';
+import 'package:dark_hours/constants/game_constants.dart';
 
 void main() {
   // ═══════════════════════════════════════════════════════════
@@ -327,12 +330,12 @@ void main() {
 
     test('НЕ вызывает notifyListeners при повторной разведке', () {
       final c = makeController();
-      c.scoutDetails('street'); // первый раз
+      c.scoutDetails('street');
 
       int notifyCount = 0;
       c.addListener(() => notifyCount++);
 
-      c.scoutDetails('street'); // второй раз — не должно
+      c.scoutDetails('street');
 
       expect(notifyCount, 0);
     });
@@ -784,6 +787,147 @@ void main() {
   });
 
   // ═══════════════════════════════════════════════════════════
+  // ХАРАКТЕРИСТИКИ — CUNNING / ENDURANCE
+  // ═══════════════════════════════════════════════════════════
+
+  group('MapController — cunning и endurance из GameConstants', () {
+    test('boris: cunning=4, endurance=6', () {
+      final c = makeController(characterId: 'boris');
+      expect(c.cunning, 4);
+      expect(c.endurance, 6);
+    });
+
+    test('alina: cunning=6, endurance=9', () {
+      final c = makeController(characterId: 'alina');
+      expect(c.cunning, 6);
+      expect(c.endurance, 9);
+    });
+
+    test('ivan: cunning=8, endurance=3', () {
+      final c = makeController(characterId: 'ivan');
+      expect(c.cunning, 8);
+      expect(c.endurance, 3);
+    });
+
+    test('andrey: cunning=4, endurance=4', () {
+      final c = makeController(characterId: 'andrey');
+      expect(c.cunning, 4);
+      expect(c.endurance, 4);
+    });
+
+    test('darya: cunning=6, endurance=6', () {
+      final c = makeController(characterId: 'darya');
+      expect(c.cunning, 6);
+      expect(c.endurance, 6);
+    });
+
+    test('без override берёт из GameConstants.statsFor', () {
+      final c = makeController(characterId: 'ivan');
+      final expected = GameConstants.statsFor('ivan');
+      expect(c.cunning, expected['cunning']);
+      expect(c.endurance, expected['endurance']);
+    });
+  });
+
+  group('MapController — overrideCunning / overrideEndurance', () {
+    test('overrideCunning переопределяет значение', () {
+      final c = MapController(
+        characterId: 'boris',
+        characterName: 'Борис',
+      );
+      c.initForTest(
+        locations: [homeLocation, streetLocation],
+        overrideCunning: 10,
+      );
+      expect(c.cunning, 10);
+    });
+
+    test('overrideEndurance переопределяет значение', () {
+      final c = MapController(
+        characterId: 'boris',
+        characterName: 'Борис',
+      );
+      c.initForTest(
+        locations: [homeLocation, streetLocation],
+        overrideEndurance: 1,
+      );
+      expect(c.endurance, 1);
+    });
+
+    test('overrideCunning и overrideEndurance работают одновременно', () {
+      final c = MapController(
+        characterId: 'boris',
+        characterName: 'Борис',
+      );
+      c.initForTest(
+        locations: [homeLocation, streetLocation],
+        overrideCunning: 9,
+        overrideEndurance: 2,
+      );
+      expect(c.cunning, 9);
+      expect(c.endurance, 2);
+    });
+
+    test('overrideCunning НЕ трогает endurance', () {
+      final c = MapController(
+        characterId: 'boris',
+        characterName: 'Борис',
+      );
+      c.initForTest(
+        locations: [homeLocation, streetLocation],
+        overrideCunning: 10,
+      );
+      // endurance должен остаться из GameConstants (boris = 6)
+      expect(c.endurance, 6);
+    });
+
+    test('overrideEndurance НЕ трогает cunning', () {
+      final c = MapController(
+        characterId: 'boris',
+        characterName: 'Борис',
+      );
+      c.initForTest(
+        locations: [homeLocation, streetLocation],
+        overrideEndurance: 1,
+      );
+      // cunning должен остаться из GameConstants (boris = 4)
+      expect(c.cunning, 4);
+    });
+  });
+
+  group('MapController — setCunning / setEndurance', () {
+    test('setCunning устанавливает значение', () {
+      final c = makeController();
+      c.setCunning(7);
+      expect(c.cunning, 7);
+    });
+
+    test('setEndurance устанавливает значение', () {
+      final c = makeController();
+      c.setEndurance(8);
+      expect(c.endurance, 8);
+    });
+
+    test('setCunning вызывает notifyListeners', () {
+      final c = makeController();
+      int notifyCount = 0;
+      c.addListener(() => notifyCount++);
+
+      c.setCunning(7);
+      expect(notifyCount, 1);
+    });
+
+    test('setEndurance вызывает notifyListeners', () {
+      final c = makeController();
+      int notifyCount = 0;
+      c.addListener(() => notifyCount++);
+
+      c.setEndurance(7);
+      expect(notifyCount, 1);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
   // КОМПЛЕКСНЫЕ ПРОВЕРКИ
   // ═══════════════════════════════════════════════════════════
 
@@ -817,17 +961,31 @@ void main() {
     test('полный цикл: старт → разведка деталей → hasDetails', () {
       final c = makeController();
 
-      // Старт: все локации scouted, но без деталей.
       expect(c.isScouted('street'), true);
       expect(c.hasDetails('street'), false);
 
-      // Разведка деталей.
       final ok = c.scoutDetails('street');
 
-      // Проверка.
       expect(ok, true);
       expect(c.hasDetails('street'), true);
       expect(c.detailedLocations.length, 1);
+    });
+
+    test('полный цикл: характеристики задаются при initForTest', () {
+      final c = MapController(
+        characterId: 'custom',
+        characterName: 'Custom',
+      );
+      c.initForTest(
+        locations: [homeLocation, streetLocation],
+        overrideCunning: 9,
+        overrideEndurance: 9,
+      );
+
+      expect(c.cunning, 9);
+      expect(c.endurance, 9);
+      expect(c.strength, GameConstants.defaultStrength);
+      expect(c.intelligence, GameConstants.defaultIntelligence);
     });
   });
 }

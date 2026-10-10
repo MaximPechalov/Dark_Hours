@@ -200,23 +200,230 @@ class GameConstants {
   /// Характеристики по умолчанию
   static const int defaultIntelligence = 5;
   static const int defaultStrength = 5;
+  static const int defaultCunning = 5;
+  static const int defaultEndurance = 5;
 
-  /// Карта характеристик персонажей
+  /// Базовая точка отсчёта характеристик.
+  ///
+  /// Значение 5 = «средний персонаж». Всё, что выше — бонусы,
+  /// всё, что ниже — штрафы. Формулы используют (характеристика - 5).
+  static const int baseStat = 5;
+
+  /// Карта характеристик персонажей.
+  ///
+  /// 4 характеристики:
+  /// - **intelligence** — крафт, взлом, разведка (уже используется).
+  /// - **strength** — урон, крит, побег (уже используется).
+  /// - **cunning** — уклонение, разведка, побег, скорость крафта.
+  /// - **endurance** — расход стамины, отдых, побег, сопротивление усталости.
   static const Map<String, Map<String, int>> characterStats = {
-    'boris': {'intelligence': 5, 'strength': 7},
-    'alina': {'intelligence': 4, 'strength': 3},
-    'ivan': {'intelligence': 8, 'strength': 4},
-    'andrey': {'intelligence': 9, 'strength': 2},
-    'darya': {'intelligence': 7, 'strength': 4},
+    'boris': {
+      'intelligence': 5,
+      'strength': 7,
+      'cunning': 4,
+      'endurance': 6,
+    },
+    'alina': {
+      'intelligence': 4,
+      'strength': 3,
+      'cunning': 6,
+      'endurance': 9,
+    },
+    'ivan': {
+      'intelligence': 8,
+      'strength': 4,
+      'cunning': 8,
+      'endurance': 3,
+    },
+    'andrey': {
+      'intelligence': 9,
+      'strength': 2,
+      'cunning': 4,
+      'endurance': 4,
+    },
+    'darya': {
+      'intelligence': 7,
+      'strength': 4,
+      'cunning': 6,
+      'endurance': 6,
+    },
   };
 
-  /// Получить статы персонажа по ID
+  /// Получить статы персонажа по ID.
   static Map<String, int> statsFor(String characterId) {
     return characterStats[characterId] ??
         {
           'intelligence': defaultIntelligence,
           'strength': defaultStrength,
+          'cunning': defaultCunning,
+          'endurance': defaultEndurance,
         };
+  }
+
+  /// Получить значение `cunning` для персонажа.
+  static int cunningFor(String characterId) {
+    return statsFor(characterId)['cunning'] ?? defaultCunning;
+  }
+
+  /// Получить значение `endurance` для персонажа.
+  static int enduranceFor(String characterId) {
+    return statsFor(characterId)['endurance'] ?? defaultEndurance;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ЭФФЕКТЫ CUNNING (ХИТРОСТЬ)
+  // ═══════════════════════════════════════════════════════════
+  //
+  // Формулы используют (cunning - baseStat), то есть:
+  // - cunning 5 → 0 (нет бонуса/штрафа)
+  // - cunning 8 → +3 (заметный бонус)
+  // - cunning 3 → −2 (штраф)
+  //
+  // Все бонусы клампятся в разумные границы, чтобы
+  // персонаж с cunning 10 не ломал игру.
+
+  /// Бонус к уклонению в бою (в процентах за 1 пункт cunning).
+  ///
+  /// При cunning 8 → +9% уклонения от атак врага.
+  static const double cunningDodgePerPoint = 0.03;
+
+  /// Максимальный бонус к уклонению от cunning.
+  static const double cunningDodgeMax = 0.20;
+
+  /// Минимальный штраф к уклонению от cunning.
+  static const double cunningDodgeMin = -0.10;
+
+  /// Бонус к количеству разведанных локаций за одну разведку.
+  ///
+  /// При cunning 8 → +3 локации дополнительно (к базовым 0-3).
+  static const int cunningScoutPerPoint = 1;
+
+  /// Максимум дополнительно разведанных локаций от cunning.
+  static const int cunningScoutMax = 5;
+
+  /// Бонус к шансу побега в бою (в процентах за 1 пункт cunning).
+  static const double cunningFleePerPoint = 0.04;
+
+  /// Максимальный бонус к побегу от cunning.
+  static const double cunningFleeMax = 0.25;
+
+  /// Скидка на время крафта (в минутах за 1 пункт cunning).
+  ///
+  /// При cunning 8 → −3 минуты от базового времени.
+  static const int cunningCraftTimeSavePerPoint = 1;
+
+  /// Максимальная скидка на время крафта.
+  static const int cunningCraftTimeSaveMax = 5;
+
+  // ═══════════════════════════════════════════════════════════
+  // ЭФФЕКТЫ ENDURANCE (ВЫНОСЛИВОСТЬ)
+  // ═══════════════════════════════════════════════════════════
+  //
+  // Формулы используют (endurance - baseStat), аналогично cunning.
+
+  /// Скидка на стоимость стамины при перемещении (доля за 1 пункт).
+  ///
+  /// При endurance 8 → −15% стоимости стамины.
+  /// При endurance 3 → +10% стоимости.
+  static const double enduranceMoveCostPerPoint = 0.05;
+
+  /// Максимальная скидка на перемещение.
+  static const double enduranceMoveCostMaxSave = 0.30;
+
+  /// Максимальный штраф на перемещение.
+  static const double enduranceMoveCostMaxPenalty = 0.20;
+
+  /// Бонус к восстановлению стамины при отдыхе (в единицах за 1 пункт).
+  ///
+  /// При endurance 8 → +6 к восстановлению стамины.
+  static const int enduranceRestBonusPerPoint = 2;
+
+  /// Максимальный бонус к отдыху.
+  static const int enduranceRestBonusMax = 10;
+
+  /// Минимальный штраф к отдыху.
+  static const int enduranceRestBonusMin = -6;
+
+  /// Бонус к шансу побега в бою (в процентах за 1 пункт endurance).
+  ///
+  /// При endurance 8 → +12% к шансу побега.
+  static const double enduranceFleePerPoint = 0.04;
+
+  /// Максимальный бонус к побегу от endurance.
+  static const double enduranceFleeMax = 0.25;
+
+  /// Бонус к сопротивлению усталости (доля за 1 пункт).
+  ///
+  /// При endurance 8 → −15% к получаемой усталости от действий.
+  static const double enduranceFatigueResistPerPoint = 0.05;
+
+  /// Максимальное сопротивление усталости.
+  static const double enduranceFatigueResistMax = 0.30;
+
+  /// Минимальное сопротивление усталости (штраф для слабых).
+  static const double enduranceFatigueResistMin = -0.10;
+
+  // ═══════════════════════════════════════════════════════════
+  // ХЕЛПЕРЫ ДЛЯ РАСЧЁТА ЭФФЕКТОВ
+  // ═══════════════════════════════════════════════════════════
+
+  /// Уклонение от cunning (доля).
+  ///
+  /// Возвращает число в диапазоне [cunningDodgeMin, cunningDodgeMax].
+  static double cunningDodgeBonus(int cunning) {
+    final raw = (cunning - baseStat) * cunningDodgePerPoint;
+    return raw.clamp(cunningDodgeMin, cunningDodgeMax);
+  }
+
+  /// Дополнительно разведанных локаций от cunning.
+  static int cunningScoutBonus(int cunning) {
+    final raw = (cunning - baseStat) * cunningScoutPerPoint;
+    return raw.clamp(0, cunningScoutMax);
+  }
+
+  /// Бонус к побегу от cunning (доля).
+  static double cunningFleeBonus(int cunning) {
+    final raw = (cunning - baseStat) * cunningFleePerPoint;
+    return raw.clamp(0.0, cunningFleeMax);
+  }
+
+  /// Скидка на время крафта (минуты).
+  static int cunningCraftTimeSave(int cunning) {
+    final raw = (cunning - baseStat) * cunningCraftTimeSavePerPoint;
+    return raw.clamp(0, cunningCraftTimeSaveMax);
+  }
+
+  /// Множитель стоимости перемещения по endurance.
+  ///
+  /// Возвращает множитель, на который умножается базовая стоимость.
+  /// Например, 0.85 означает «−15% к стоимости».
+  static double enduranceMoveMultiplier(int endurance) {
+    final raw = 1.0 - (endurance - baseStat) * enduranceMoveCostPerPoint;
+    final minMult = 1.0 - enduranceMoveCostMaxSave; // 0.70
+    final maxMult = 1.0 + enduranceMoveCostMaxPenalty; // 1.20
+    return raw.clamp(minMult, maxMult);
+  }
+
+  /// Бонус к восстановлению стамины при отдыхе.
+  static int enduranceRestBonus(int endurance) {
+    final raw = (endurance - baseStat) * enduranceRestBonusPerPoint;
+    return raw.clamp(enduranceRestBonusMin, enduranceRestBonusMax);
+  }
+
+  /// Бонус к побегу от endurance (доля).
+  static double enduranceFleeBonus(int endurance) {
+    final raw = (endurance - baseStat) * enduranceFleePerPoint;
+    return raw.clamp(0.0, enduranceFleeMax);
+  }
+
+  /// Множитель получаемой усталости по endurance.
+  ///
+  /// Например, 0.85 означает «−15% к получаемой усталости».
+  static double enduranceFatigueMultiplier(int endurance) {
+    final raw = 1.0 - (endurance - baseStat) * enduranceFatigueResistPerPoint;
+    final minMult = 1.0 - enduranceFatigueResistMax; // 0.70
+    final maxMult = 1.0 - enduranceFatigueResistMin; // 1.10
+    return raw.clamp(minMult, maxMult);
   }
 
   // ═══════════════════════════════════════════════════════════

@@ -1,9 +1,12 @@
+// lib/services/map/movement_manager.dart
+
 import 'package:flutter/material.dart';
 
 import 'package:dark_hours/services/map/map_controller.dart';
 import 'package:dark_hours/services/map/story_trigger_manager.dart';
 import 'package:dark_hours/services/audio/audio_service.dart';
 import 'package:dark_hours/utils/time_format.dart';
+import 'package:dark_hours/constants/game_constants.dart';
 
 /// Результат попытки перейти в локацию.
 enum MoveResult {
@@ -43,7 +46,7 @@ class MovementManager {
     final target = map.getById(locationId)!;
     final current = controller.currentLocation;
 
-    int travelMinutes = 20;
+    int travelMinutes = GameConstants.moveTimeMinutes;
     if (current != null) {
       final minutes = current.connectionMinutesTo(locationId);
       if (minutes != null) {
@@ -51,7 +54,12 @@ class MovementManager {
       }
     }
 
-    final staminaCost = (travelMinutes / 10).round().clamp(2, 20);
+    // Стоимость стамины зависит от endurance.
+    final staminaCost = computeStaminaCost(
+      travelMinutes,
+      controller.endurance,
+    );
+
     controller.setStamina(controller.stamina - staminaCost);
 
     AudioService.playClick();
@@ -130,12 +138,25 @@ class MovementManager {
   @visibleForTesting
   static int getTravelTime(MapController controller, String locationId) {
     final current = controller.currentLocation;
-    if (current == null) return 20;
-    return current.connectionMinutesTo(locationId) ?? 20;
+    if (current == null) return GameConstants.moveTimeMinutes;
+    return current.connectionMinutesTo(locationId) ??
+        GameConstants.moveTimeMinutes;
   }
 
+  /// Стоимость стамины за переход.
+  ///
+  /// Базовая формула: `travelMinutes / 10`, клампится в [2, 20].
+  /// Затем умножается на `enduranceMoveMultiplier(endurance)`:
+  /// - endurance 9 → множитель 0.80 → на 20% дешевле
+  /// - endurance 5 → множитель 1.00 → базово
+  /// - endurance 3 → множитель 1.10 → на 10% дороже
+  ///
+  /// Возвращает минимум 1 (нельзя сделать переход бесплатным).
   @visibleForTesting
-  static int computeStaminaCost(int travelMinutes) {
-    return (travelMinutes / 10).round().clamp(2, 20);
+  static int computeStaminaCost(int travelMinutes, int endurance) {
+    final baseCost = (travelMinutes / 10).round().clamp(2, 20);
+    final multiplier = GameConstants.enduranceMoveMultiplier(endurance);
+    final adjusted = (baseCost * multiplier).round();
+    return adjusted < 1 ? 1 : adjusted;
   }
 }

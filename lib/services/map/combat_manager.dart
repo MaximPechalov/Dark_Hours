@@ -1,3 +1,5 @@
+// lib/services/map/combat_manager.dart
+
 import 'package:flutter/material.dart';
 import 'dart:math';
 
@@ -94,6 +96,11 @@ class CombatManager {
           characterId: controller.characterId,
           playerHunger: controller.hunger,
           playerFatigue: controller.fatigue,
+          // ⚡ Новые параметры — характеристики для боя:
+          // - cunning влияет на уклонение и шанс побега
+          // - endurance влияет на шанс побега
+          playerCunning: controller.cunning,
+          playerEndurance: controller.endurance,
         ),
       ),
     );
